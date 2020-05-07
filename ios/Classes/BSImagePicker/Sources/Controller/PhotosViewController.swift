@@ -23,7 +23,7 @@
 import UIKit
 import Photos
 
-final class PhotosViewController : UICollectionViewController {    
+final class PhotosViewController : UICollectionViewController , CustomTitleViewDelegate {
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
     var cancelClosure: ((_ assets: [PHAsset]) -> Void)?
@@ -31,7 +31,7 @@ final class PhotosViewController : UICollectionViewController {
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
-    var albumSelectBtn: UIButton = UIButton(type: .custom)
+    let titleContentView = CustomTitleView(frame: CGRect(x: 0, y: 0, width: 120, height: 34.0))
     
     var originBarButton: SSRadioButton = SSRadioButton(type: .custom)
     var doneBarButton: UIButton = UIButton(type: .custom)
@@ -94,21 +94,12 @@ final class PhotosViewController : UICollectionViewController {
         cancelBarButton.target = self
         cancelBarButton.action = #selector(PhotosViewController.cancelButtonPressed(_:))
         
-        let titleContentView = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 80))
-        titleContentView.backgroundColor = UIColor.clear
-        albumSelectBtn.frame = CGRect(x: 0, y: 0, width: 300, height: 100)
-        albumSelectBtn.semanticContentAttribute = .forceRightToLeft
-        let titleImageGap: CGFloat = 6.0
-        albumSelectBtn.titleEdgeInsets = UIEdgeInsets(top: 0.0, left: -titleImageGap, bottom: 0.0, right: titleImageGap)
-        albumSelectBtn.contentEdgeInsets = UIEdgeInsets(top: 0.0, left: titleImageGap, bottom: 0.0, right: 0.0)
-        let image = UIImage(named: "arrow_down", in: BSImagePickerViewController.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-        albumSelectBtn.setImage(image, for: .normal)
-        albumSelectBtn.setTitleColor(UIColor.white, for: .normal)
-        albumSelectBtn.setTitleColor(UIColor.gray, for: .highlighted)
-        albumSelectBtn.titleLabel?.font = .systemFont(ofSize: 15.0)
-        albumSelectBtn.backgroundColor = UIColor(red: 80.0/255.0, green: 80.0/255.0, blue: 80.0/255.0, alpha: 1.0)
-        albumSelectBtn.addTarget(self, action: #selector(PhotosViewController.albumButtonPressed(_:)), for: .touchUpInside)
-        titleContentView.addSubview(albumSelectBtn)
+        titleContentView.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.15)
+        titleContentView.translatesAutoresizingMaskIntoConstraints = false
+        titleContentView.titleView.text = "最近项目"
+        titleContentView.layer.masksToBounds = true
+        titleContentView.layer.cornerRadius = 17.5
+        titleContentView.delegate = self
         
         bottomContentView.frame = self.navigationController?.toolbar.bounds ?? CGRect(x: 0, y: 0, width:  UIScreen.main.bounds.size.width, height: 49.0)
         bottomContentView.backgroundColor = UIColor.clear
@@ -179,6 +170,22 @@ final class PhotosViewController : UICollectionViewController {
     
     @objc func originButtonPressed(_ sender: UIButton) {
         originBarButton.isSelected = !originBarButton.isSelected
+    }
+    
+    func customTitleViewDidAction(_ view: CustomTitleView) {
+        guard let popVC = albumsViewController.popoverPresentationController else {
+            return
+        }
+        
+        popVC.permittedArrowDirections = .up
+        popVC.sourceView = view
+        let senderRect = view.convert(view.frame, from: view.superview)
+        let sourceRect = CGRect(x: senderRect.origin.x, y: senderRect.origin.y + (view.frame.size.height / 2), width: senderRect.size.width, height: senderRect.size.height)
+        popVC.sourceRect = sourceRect
+        popVC.delegate = self
+        albumsViewController.tableView.reloadData()
+        
+        present(albumsViewController, animated: true, completion: nil)
     }
     
     @objc func albumButtonPressed(_ sender: UIButton) {
@@ -270,10 +277,7 @@ final class PhotosViewController : UICollectionViewController {
 
     func updateAlbumTitle(_ album: PHAssetCollection) {
         guard let title = album.localizedTitle else { return }
-        // Update album title
-        albumSelectBtn.setTitle(title, for: .normal)
-        // Size the button to fit the new title
-        albumSelectBtn.sizeToFit()
+        titleContentView.titleView.text = title
     }
     
   func initializePhotosDataSource(_ album: PHAssetCollection) {
@@ -288,11 +292,9 @@ final class PhotosViewController : UICollectionViewController {
     
     func initializePhotosDataSourceWithFetchResult(_ fetchResult: PHFetchResult<PHAsset>) {
         let newDataSource = PhotoCollectionViewDataSource(fetchResult: fetchResult, assetStore: assetStore, settings: settings)
-
         newDataSource.imageSize = imageSize()
-        
+        titleContentView.deSelectView()
         photosDataSource = newDataSource
-        
         // Hook up data source
         composedDataSource = ComposedCollectionViewDataSource(dataSources: [cameraDataSource, newDataSource])
         collectionView?.dataSource = composedDataSource
@@ -390,6 +392,7 @@ extension PhotosViewController: UIPopoverPresentationControllerDelegate {
     }
     
     func popoverPresentationControllerShouldDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) -> Bool {
+        titleContentView.deSelectView()
         return true
     }
 }

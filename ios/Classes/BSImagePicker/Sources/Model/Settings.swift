@@ -28,9 +28,9 @@ The settings object that gets passed around between classes for keeping...settin
 final class Settings : BSImagePickerSettings {
     var maxNumberOfSelections: Int = Int.max
     var selectionCharacter: Character? = nil
-    var selectionFillColor: UIColor = UIView().tintColor
-    var selectionStrokeColor: UIColor = UIColor.white
-    var selectionShadowColor: UIColor = UIColor.black
+    var selectionFillColor: UIColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
+    var selectionStrokeColor: UIColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
+    var selectionShadowColor: UIColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
     var selectionTextAttributes: [NSAttributedString.Key: AnyObject] = {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byTruncatingTail

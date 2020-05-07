@@ -74,6 +74,7 @@ final class PhotoCell: UICollectionViewCell {
             } else {
                 updateAlpha(photoSelected)
             }
+            selectionView.selected = photoSelected
         }
     }
 
@@ -123,10 +124,8 @@ final class PhotoCell: UICollectionViewCell {
     
     private func updateAlpha(_ selected: Bool) {
         if selected == true {
-            self.selectionView.alpha = 1.0
             self.selectionOverlayView.alpha = 0.5
         } else {
-            self.selectionView.alpha = 0.0
             self.selectionOverlayView.alpha = 0.0
         }
     }

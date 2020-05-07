@@ -34,11 +34,22 @@ Used as an overlay on selected cells
         }
     }
     
+    var selected : Bool = false {
+        didSet {
+            if selected != oldValue {
+                if !selected {
+                    selectionString = ""
+                }else{
+                    setNeedsDisplay()
+                }
+            }
+        }
+    }
+    
     var settings: BSImagePickerSettings = Settings()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
         backgroundColor = UIColor.clear
     }
     
@@ -66,11 +77,19 @@ Used as an overlay on selected cells
         let checkedOvalPath = UIBezierPath(ovalIn: CGRect(x: group.minX + floor(group.width * 0.0 + 0.5), y: group.minY + floor(group.height * 0.0 + 0.5), width: floor(group.width * 1.0 + 0.5) - floor(group.width * 0.0 + 0.5), height: floor(group.height * 1.0 + 0.5) - floor(group.height * 0.0 + 0.5)))
         context?.saveGState()
         context?.setShadow(offset: shadow2Offset, blur: shadow2BlurRadius, color: settings.selectionShadowColor.cgColor)
-        settings.selectionFillColor.setFill()
+        if selected {
+            settings.selectionFillColor.setFill()
+        }else {
+            UIColor.clear.setFill()
+        }
         checkedOvalPath.fill()
         context?.restoreGState()
         
-        settings.selectionStrokeColor.setStroke()
+        if selected {
+            settings.selectionStrokeColor.setStroke()
+        }else{
+            UIColor.white.setStroke()
+        }
         checkedOvalPath.lineWidth = 1
         checkedOvalPath.stroke()
         
@@ -88,6 +107,7 @@ Used as an overlay on selected cells
             checkPath.stroke()
             return;
         }
+        
         
         //// Bezier Drawing (Picture Number)
         let size = selectionString.size(withAttributes: settings.selectionTextAttributes)

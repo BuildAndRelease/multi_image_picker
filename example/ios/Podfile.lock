@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - multi_image_picker (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - multi_image_picker (from `.symlinks/plugins/multi_image_picker/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  multi_image_picker:
+    :path: ".symlinks/plugins/multi_image_picker/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  multi_image_picker: 19fc8c15652320216a8b77caf3563a3325d2eaea
+
+PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
+
+COCOAPODS: 1.9.1

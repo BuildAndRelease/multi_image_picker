@@ -1,0 +1,11 @@
+/* 
+  Localizable.strings
+  Runner
+
+  Created by johnson_zhong on 2020/5/7.
+  Copyright © 2020 The Chromium Authors. All rights reserved.
+*/
+"Thumb"="缩略图";
+"Origin"="原图";
+"Done"="发送";
+"Back"="返回";

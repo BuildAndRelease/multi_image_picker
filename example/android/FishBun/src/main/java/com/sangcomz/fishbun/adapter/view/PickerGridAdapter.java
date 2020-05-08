@@ -93,10 +93,16 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     onCheckStateChange(vh.item, image);
                 }
             });
-
             vh.imgThumbImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    onCheckStateChange(vh.item, image);
+                }
+            });
+
+            vh.imgThumbImage.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
                     if (fishton.isUseDetailView()) {
                         if (context instanceof PickerActivity) {
                             PickerActivity activity = (PickerActivity) context;
@@ -104,10 +110,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
                             activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
                         }
-                    } else {
-                        onCheckStateChange(vh.item, image);
                     }
-
+                    return true;
                 }
             });
         }
@@ -123,8 +127,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         ArrayList<Uri> pickedImages = fishton.getSelectedImages();
 
         boolean isContained = pickedImages.contains(image);
-        if (fishton.getMaxCount() == pickedImages.size()
-                && !isContained) {
+        if (fishton.getMaxCount() == pickedImages.size() && !isContained) {
             Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
             return;
         }
@@ -137,8 +140,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         } else {
             animScale(imgThumbImage, false);
             pickedImages.add(image);
-            if (fishton.isAutomaticClose()
-                    && fishton.getMaxCount() == pickedImages.size()) {
+            if (fishton.isAutomaticClose() && fishton.getMaxCount() == pickedImages.size()) {
                 pickerController.finishActivity();
             }
             updateRadioButton(btnThumbCount, String.valueOf(pickedImages.size()));

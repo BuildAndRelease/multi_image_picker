@@ -13,4 +13,6 @@
     <string name="msg_loading_image">Loading...</string>
     <string name="image">image</string>
     <string name="msg_error">There was a temporary error. Please try again in a few minutes.</string>
+    <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
 </resources>

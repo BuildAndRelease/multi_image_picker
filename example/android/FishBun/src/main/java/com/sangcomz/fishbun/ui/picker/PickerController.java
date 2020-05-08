@@ -43,7 +43,7 @@ public class PickerController {
 
 
     public void setToolbarTitle(int total) {
-        pickerActivity.showToolbarTitle(total);
+        pickerActivity.updateSendBtnTitle();
     }
 
     String getSavePath() {

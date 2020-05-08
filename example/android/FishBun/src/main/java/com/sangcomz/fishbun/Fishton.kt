@@ -60,8 +60,6 @@ class Fishton {
 
     var isUseDetailView: Boolean = false
 
-    var isShowCount: Boolean = false
-
     var colorSelectCircleStroke: Int = 0
     var colorDeSelectCircleStroke: Int = 0
 
@@ -116,7 +114,6 @@ class Fishton {
 
         isUseAllDoneButton = false
         isUseDetailView = true
-        isShowCount = true
 
         colorSelectCircleStroke = Color.parseColor("#00BA5A")
         colorDeSelectCircleStroke = Color.parseColor("#FFFFFF")

@@ -52,8 +52,6 @@ interface CustomizationProperty {
 
     fun setIsUseDetailView(isUse: Boolean): FishBunCreator
 
-    fun setIsShowCount(isShow: Boolean): FishBunCreator
-
     fun setSelectCircleStrokeColor(strokeColor: Int): FishBunCreator
 
     fun isStartInAllView(isStartInAllView: Boolean): FishBunCreator

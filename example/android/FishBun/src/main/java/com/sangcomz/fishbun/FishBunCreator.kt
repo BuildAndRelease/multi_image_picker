@@ -161,10 +161,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.isUseDetailView = isUse
     }
 
-    override fun setIsShowCount(isShow: Boolean): FishBunCreator = this.apply {
-        fishton.isShowCount = isShow
-    }
-
     override fun setSelectCircleStrokeColor(strokeColor: Int): FishBunCreator = this.apply {
         fishton.colorSelectCircleStroke = strokeColor
     }

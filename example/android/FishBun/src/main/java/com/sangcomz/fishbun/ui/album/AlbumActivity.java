@@ -201,7 +201,6 @@ public class AlbumActivity extends BaseActivity {
         if (fishton.isButton()) {
             getMenuInflater().inflate(R.menu.menu_photo_album, menu);
             MenuItem menuDoneItem = menu.findItem(R.id.action_done);
-            menu.findItem(R.id.action_all_done).setVisible(false);
             if (fishton.getDrawableDoneButton() != null) {
                 menuDoneItem.setIcon(fishton.getDrawableDoneButton());
             } else if (fishton.getStrDoneMenu() != null) {
@@ -232,7 +231,6 @@ public class AlbumActivity extends BaseActivity {
                     finishActivity();
                 }
             }
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -242,7 +240,7 @@ public class AlbumActivity extends BaseActivity {
         int total = fishton.getSelectedImages().size();
 
         if (getSupportActionBar() != null) {
-            if (fishton.getMaxCount() == 1 || !fishton.isShowCount())
+            if (fishton.getMaxCount() == 1)
                 getSupportActionBar().setTitle(fishton.getTitleActionBar());
             else
                 getSupportActionBar().setTitle(fishton.getTitleActionBar() + " (" + total + "/" + fishton.getMaxCount() + ")");
@@ -281,10 +279,7 @@ public class AlbumActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-
-
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case 28: {
                 if (grantResults.length > 0) {

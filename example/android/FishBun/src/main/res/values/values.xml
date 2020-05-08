@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="custom_green">#00BA5A</color>
+    <color name="custom_text_select">#A0FFFFFF</color>
+    <color name="custom_text_unselect">#FFFFFF</color>
+
+    <drawable name="custom_green">#00BA5A</drawable>
+    <drawable name="custom_text_select">#60FFFFFF</drawable>
+    <drawable name="custom_text_unselect">#FFFFFF</drawable>
+</resources>

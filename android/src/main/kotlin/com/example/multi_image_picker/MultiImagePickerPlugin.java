@@ -22,6 +22,7 @@ import androidx.exifinterface.media.ExifInterface;
 
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
+import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter;
 import com.sangcomz.fishbun.define.Define;
 
@@ -504,6 +505,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             selectedUris.add(Uri.parse(path));
         }
 
+        ArrayList mimeTypeList = new ArrayList();
+        mimeTypeList.add(MimeType.GIF);
+        mimeTypeList.add(MimeType.WEBP);
         FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
                 .setImageAdapter(new GlideAdapter())
                 .setMaxCount(maxImages)
@@ -511,10 +515,10 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 .setCamera(enableCamera)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
                 .setSelectedImages(selectedUris)
-                .exceptGif(true)
-                .setIsUseDetailView(useDetailsView.equals("true"))
-                .setReachLimitAutomaticClose(autoCloseOnSelectionLimit.equals("true"))
-                .isStartInAllView(startInAllView.equals("true"));
+                .exceptMimeType(mimeTypeList)
+                .setIsUseDetailView(true)
+                .setReachLimitAutomaticClose(false)
+                .isStartInAllView(true);
 
         if (!textOnNothingSelected.isEmpty()) {
             fishBun.textOnNothingSelected(textOnNothingSelected);

@@ -28,25 +28,20 @@ import com.sangcomz.fishbun.util.RadioWithTextButton;
 import java.util.ArrayList;
 
 
-public class PickerGridAdapter
-        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_HEADER = Integer.MIN_VALUE;
 
     private Fishton fishton;
     private PickerController pickerController;
     private OnPhotoActionListener actionListener;
 
-
     private String saveDir;
 
-
-    public PickerGridAdapter(PickerController pickerController,
-                             String saveDir) {
+    public PickerGridAdapter(PickerController pickerController, String saveDir) {
         this.pickerController = pickerController;
         this.saveDir = saveDir;
         this.fishton = Fishton.getInstance();
     }
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -56,14 +51,12 @@ public class PickerGridAdapter
             return new ViewHolderHeader(view);
         }
 
-        view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.thumb_item, parent, false);
+        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.thumb_item, parent, false);
         return new ViewHolderImage(view);
     }
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-
         if (holder instanceof ViewHolderHeader) {
             final ViewHolderHeader vh = (ViewHolderHeader) holder;
             vh.header.setOnClickListener(new View.OnClickListener() {
@@ -86,16 +79,13 @@ public class PickerGridAdapter
             final Context context = vh.item.getContext();
             vh.item.setTag(image);
             vh.btnThumbCount.unselect();
-            vh.btnThumbCount.setCircleColor(fishton.getColorActionBar());
+            vh.btnThumbCount.setCircleColor(fishton.getColorSelectCircleStroke());
             vh.btnThumbCount.setTextColor(fishton.getColorActionBarTitle());
-            vh.btnThumbCount.setStrokeColor(fishton.getColorSelectCircleStroke());
+            vh.btnThumbCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
 
             initState(fishton.getSelectedImages().indexOf(image), vh);
-            if (image != null
-                    && vh.imgThumbImage != null)
-                Fishton.getInstance().getImageAdapter()
-                        .loadImage(vh.imgThumbImage, image);
-
+            if (image != null && vh.imgThumbImage != null)
+                Fishton.getInstance().getImageAdapter().loadImage(vh.imgThumbImage, image);
 
             vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -114,8 +104,9 @@ public class PickerGridAdapter
                             i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
                             activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
                         }
-                    } else
+                    } else {
                         onCheckStateChange(vh.item, image);
+                    }
 
                 }
             });
@@ -124,10 +115,7 @@ public class PickerGridAdapter
 
     private void initState(int selectedIndex, ViewHolderImage vh) {
         if (selectedIndex != -1) {
-            animScale(vh.imgThumbImage, true, false);
             updateRadioButton(vh.btnThumbCount, String.valueOf(selectedIndex + 1));
-        } else {
-            animScale(vh.imgThumbImage, false, false);
         }
     }
 
@@ -145,9 +133,9 @@ public class PickerGridAdapter
         if (isContained) {
             pickedImages.remove(image);
             btnThumbCount.unselect();
-            animScale(imgThumbImage, false, true);
+            animScale(imgThumbImage, true);
         } else {
-            animScale(imgThumbImage, true, true);
+            animScale(imgThumbImage, false);
             pickedImages.add(image);
             if (fishton.isAutomaticClose()
                     && fishton.getMaxCount() == pickedImages.size()) {
@@ -167,7 +155,6 @@ public class PickerGridAdapter
 
     public void updateRadioButton(ImageView imageView, RadioWithTextButton v, String text, boolean isSelected) {
         if (isSelected) {
-            animScale(imageView, isSelected, false);
             if (fishton.getMaxCount() == 1)
                 v.setDrawable(ContextCompat.getDrawable(v.getContext(), R.drawable.ic_done_white_24dp));
             else
@@ -175,52 +162,44 @@ public class PickerGridAdapter
         } else {
             v.unselect();
         }
-
     }
 
+    private void animScale(final View view, final boolean callBack) {
+        final int duration = 100;
+        float toScale = 0.97f;
+        final float fromScale = 1.0f;
 
-    private void animScale(View view,
-                           final boolean isSelected,
-                           final boolean isAnimation) {
-        int duration = 200;
-        if (!isAnimation) duration = 0;
-        float toScale;
-        if (isSelected)
-            toScale = .8f;
-        else
-            toScale = 1.0f;
-
-        ViewCompat.animate(view)
-                .setDuration(duration)
-                .withStartAction(new Runnable() {
+        ViewCompat.animate(view).setDuration(duration).scaleX(toScale).scaleY(toScale).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                ViewCompat.animate(view).setDuration(duration).scaleX(fromScale).scaleY(fromScale).withEndAction(new Runnable() {
                     @Override
                     public void run() {
-
+                        if (callBack) {
+                            actionListener.onDeselect();
+                        }
                     }
-                })
-                .scaleX(toScale)
-                .scaleY(toScale)
-                .withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isAnimation && !isSelected) actionListener.onDeselect();
-                    }
-                })
-                .start();
+                }).start();
+            }
+        }).start();
 
     }
 
     @Override
     public int getItemCount() {
         int count;
-        if (fishton.getPickerImages() == null) count = 0;
-        else count = fishton.getPickerImages().size();
+        if (fishton.getPickerImages() == null)
+            count = 0;
+        else
+            count = fishton.getPickerImages().size();
 
         if (fishton.isCamera())
             return count + 1;
 
-        if (fishton.getPickerImages() == null) return 0;
-        else return count;
+        if (fishton.getPickerImages() == null)
+            return 0;
+        else
+            return count;
     }
 
     @Override
@@ -230,7 +209,6 @@ public class PickerGridAdapter
         }
         return super.getItemViewType(position);
     }
-
 
     public void addImage(Uri path) {
         ArrayList<Uri> al = new ArrayList<>();
@@ -254,8 +232,6 @@ public class PickerGridAdapter
     }
 
     public class ViewHolderImage extends RecyclerView.ViewHolder {
-
-
         View item;
         ImageView imgThumbImage;
         RadioWithTextButton btnThumbCount;
@@ -269,10 +245,7 @@ public class PickerGridAdapter
     }
 
     public class ViewHolderHeader extends RecyclerView.ViewHolder {
-
-
         RelativeLayout header;
-
         public ViewHolderHeader(View view) {
             super(view);
             header = itemView.findViewById(R.id.rel_header_area);

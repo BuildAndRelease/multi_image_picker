@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="1dp"
-    android:background="#d9d9d9"
+    android:background="@color/cardview_dark_background"
     android:clipChildren="false"
     android:clipToPadding="false">
 

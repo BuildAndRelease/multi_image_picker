@@ -122,8 +122,7 @@ public class PickerActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 28: {
                 if (grantResults.length > 0) {
@@ -291,8 +290,7 @@ public class PickerActivity extends BaseActivity {
                 getSupportActionBar().setHomeAsUpIndicator(fishton.getDrawableHomeAsUpIndicator());
         }
 
-        if (fishton.isStatusBarLight()
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (fishton.isStatusBarLight() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             toolbar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
         showToolbarTitle(0);
@@ -302,8 +300,7 @@ public class PickerActivity extends BaseActivity {
     public void setAdapter(List<Uri> result) {
         fishton.setPickerImages(result);
         if (adapter == null) {
-            adapter = new PickerGridAdapter(pickerController,
-                    pickerController.getPathDir(album.bucketId));
+            adapter = new PickerGridAdapter(pickerController, pickerController.getPathDir(album.bucketId));
             adapter.setActionListener(new PickerGridAdapter.OnPhotoActionListener() {
                 @Override
                 public void onDeselect() {
@@ -328,15 +325,9 @@ public class PickerActivity extends BaseActivity {
                 if (image != null) {
                     int index = fishton.getSelectedImages().indexOf(image);
                     if (index != -1) {
-                        adapter.updateRadioButton(imgThumbImage,
-                                btnThumbCount,
-                                String.valueOf(index + 1),
-                                true);
+                        adapter.updateRadioButton(imgThumbImage, btnThumbCount, String.valueOf(index + 1),true);
                     } else {
-                        adapter.updateRadioButton(imgThumbImage,
-                                btnThumbCount,
-                                "",
-                                false);
+                        adapter.updateRadioButton(imgThumbImage, btnThumbCount, "", false);
                         showToolbarTitle(fishton.getSelectedImages().size());
                     }
                 }

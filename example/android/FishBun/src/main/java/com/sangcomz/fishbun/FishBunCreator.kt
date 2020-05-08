@@ -194,10 +194,7 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         val intent: Intent =
             if (fishton.isStartInAllView) {
                 Intent(context, PickerActivity::class.java).apply {
-                    putExtra(
-                        Define.BUNDLE_NAME.ALBUM.name,
-                        Album(0, fishton.titleAlbumAllView, null, 0)
-                    )
+                    putExtra(Define.BUNDLE_NAME.ALBUM.name, Album(0, fishton.titleAlbumAllView, null, 0))
                     putExtra(Define.BUNDLE_NAME.POSITION.name, 0)
                 }
             } else {

@@ -52,9 +52,9 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         vpDetailPager = findViewById(R.id.vp_detail_pager);
         btnDetailBack = findViewById(R.id.btn_detail_back);
         btnDetailCount.unselect();
-        btnDetailCount.setCircleColor(fishton.getColorActionBar());
         btnDetailCount.setTextColor(fishton.getColorActionBarTitle());
-        btnDetailCount.setStrokeColor(fishton.getColorSelectCircleStroke());
+        btnDetailCount.setCircleColor(fishton.getColorSelectCircleStroke());
+        btnDetailCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
         btnDetailCount.setOnClickListener(this);
         btnDetailBack.setOnClickListener(this);
         initToolBar();

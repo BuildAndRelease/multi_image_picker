@@ -63,6 +63,7 @@ class Fishton {
     var isShowCount: Boolean = false
 
     var colorSelectCircleStroke: Int = 0
+    var colorDeSelectCircleStroke: Int = 0
 
     var isStartInAllView: Boolean = false
 
@@ -93,9 +94,9 @@ class Fishton {
         isButton = false
         isThumb = true;
 
-        colorActionBar = Color.parseColor("#3F51B5")
-        colorActionBarTitle = Color.parseColor("#ffffff")
-        colorStatusBar = Color.parseColor("#303F9F")
+        colorActionBar = Color.parseColor("#2E2E2E")
+        colorActionBarTitle = Color.parseColor("#FFFFFF")
+        colorStatusBar = Color.parseColor("#2E2E2E")
 
         isStatusBarLight = false
         isCamera = false
@@ -117,7 +118,8 @@ class Fishton {
         isUseDetailView = true
         isShowCount = true
 
-        colorSelectCircleStroke = Color.parseColor("#c1ffffff")
+        colorSelectCircleStroke = Color.parseColor("#00BA5A")
+        colorDeSelectCircleStroke = Color.parseColor("#FFFFFF")
         isStartInAllView = false
     }
 

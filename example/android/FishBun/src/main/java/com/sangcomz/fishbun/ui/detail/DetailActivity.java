@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -27,7 +28,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     private int initPosition;
     private RadioWithTextButton btnDetailCount;
     private ViewPager vpDetailPager;
-    private ImageButton btnDetailBack;
+    private Button btnDetailBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

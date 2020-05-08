@@ -282,7 +282,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
   func initializePhotosDataSource(_ album: PHAssetCollection) {
         // Set up a photo data source with album
-        let fetchOptions = PHFetchOptions()
+        let fetchOptions = PHFetchOptions()      
         fetchOptions.sortDescriptors = [
             NSSortDescriptor(key: "creationDate", ascending: false)
         ]

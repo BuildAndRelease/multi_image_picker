@@ -72,7 +72,9 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let enableCamera = arguments["enableCamera"] as! Bool
             let options = arguments["iosOptions"] as! Dictionary<String, String>
             let selectedAssets = arguments["selectedAssets"] as! Array<String>
-            let quality = (arguments["qualityOfThumb"] as? Int) ?? 100
+            let quality = (arguments["qualityOfImage"] as? Int) ?? 100
+            let maxHeight = (arguments["maxHeight"] as? Int) ?? 100
+            let maxWidth = (arguments["maxWidth"] as? Int) ?? 100
             let compressionQuality = Float(quality) / Float(100)
             
             vc.maxNumberOfSelections = maxImages
@@ -155,23 +157,40 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                     var results = [NSDictionary]();
                     var count = 0;
                     for asset in assets {
+                        var targetHeight = asset.pixelHeight
+                        var targetWidth = asset.pixelWidth
+                        if (asset.pixelWidth > maxWidth || asset.pixelHeight > maxHeight) {
+                            let heightCompressRatio = CGFloat(maxHeight)/CGFloat(asset.pixelHeight)
+                            let widthCompressRatio = CGFloat(maxWidth)/CGFloat(asset.pixelWidth)
+                            if (heightCompressRatio <= widthCompressRatio) {
+                                targetHeight = maxHeight
+                                targetWidth = Int(heightCompressRatio * CGFloat(asset.pixelWidth))
+                            }else {
+                                targetWidth = maxWidth
+                                targetHeight = Int(widthCompressRatio * CGFloat(asset.pixelHeight))
+                            }
+                        }
                         let ID: PHImageRequestID = manager.requestImage(
                         for: asset,
-                        targetSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight),
-                        contentMode: PHImageContentMode.aspectFill,
+                        targetSize: CGSize(width: targetWidth, height: targetHeight),
+                        contentMode: PHImageContentMode.aspectFit,
                         options: thumbOptions,
                         resultHandler: { (image: UIImage?, info) in
                             count += 1;
-                            let fileName = (asset.originalFilename ?? "tmp\(count).jpg")
+                            let uuid = UUID().uuidString
+                            let fileName = "\(uuid).jpg"
                             let filePath = thumbDir + fileName
+                            if FileManager.default.fileExists(atPath: filePath) {
+                                try? FileManager.default.removeItem(atPath: filePath)
+                            }
                             let imageData = image?.jpegData(compressionQuality: thumb ? CGFloat(compressionQuality) : 1.0) as NSData?
                             imageData?.write(toFile: filePath, atomically: true)
                             if FileManager.default.fileExists(atPath: filePath) {
                                 results.append([
                                     "identifier": asset.localIdentifier,
                                     "filePath":filePath,
-                                    "width": asset.pixelWidth,
-                                    "height": asset.pixelHeight,
+                                    "width": targetWidth,
+                                    "height": targetHeight,
                                     "name": fileName
                                 ]);
                             }

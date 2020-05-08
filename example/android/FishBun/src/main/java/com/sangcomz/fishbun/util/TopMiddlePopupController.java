@@ -1,38 +1,34 @@
-package com.sangcomz.fishbun.ui.album;
+package com.sangcomz.fishbun.util;
 
-import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.ext.MimeTypeExt;
 import com.sangcomz.fishbun.permission.PermissionCheck;
-import com.sangcomz.fishbun.util.CameraUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-class AlbumController {
-
-    private AlbumActivity albumActivity;
+public class TopMiddlePopupController {
+    private TopMiddlePopup topMiddlePopup;
     private ContentResolver resolver;
-    private CameraUtil cameraUtil = new CameraUtil();
+    private Context context;
 
-
-    AlbumController(AlbumActivity albumActivity) {
-        this.albumActivity = albumActivity;
-        this.resolver = albumActivity.getContentResolver();
+    TopMiddlePopupController(TopMiddlePopup topMiddlePopup, Context context) {
+        this.topMiddlePopup = topMiddlePopup;
+        this.resolver = context.getContentResolver();
     }
 
     boolean checkPermission() {
-        PermissionCheck permissionCheck = new PermissionCheck(albumActivity);
+        PermissionCheck permissionCheck = new PermissionCheck(context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (permissionCheck.CheckStoragePermission())
                 return true;
@@ -42,7 +38,7 @@ class AlbumController {
     }
 
     boolean checkCameraPermission() {
-        PermissionCheck permissionCheck = new PermissionCheck(albumActivity);
+        PermissionCheck permissionCheck = new PermissionCheck(context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (permissionCheck.CheckCameraPermission())
                 return true;
@@ -51,10 +47,8 @@ class AlbumController {
         return false;
     }
 
-    void getAlbumList(String allViewTitle,
-                      List<MimeType> exceptMimeTypeList,
-                      List<String> specifyFolderList) {
-        new LoadAlbumList(allViewTitle, exceptMimeTypeList, specifyFolderList).execute();
+    void getAlbumList(String allViewTitle, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
+        new TopMiddlePopupController.LoadAlbumList(allViewTitle, exceptMimeTypeList, specifyFolderList).execute();
     }
 
     private class LoadAlbumList extends AsyncTask<Void, Void, List<Album>> {
@@ -63,9 +57,7 @@ class AlbumController {
         List<MimeType> exceptMimeTypeList;
         List<String> specifyFolderList;
 
-        LoadAlbumList(String allViewTitle,
-                      List<MimeType> exceptMimeTypeList,
-                      List<String> specifyFolderList) {
+        LoadAlbumList(String allViewTitle, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
             this.allViewTitle = allViewTitle;
             this.exceptMimeTypeList = exceptMimeTypeList;
             this.specifyFolderList = specifyFolderList;
@@ -112,8 +104,7 @@ class AlbumController {
                         int imgId = c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
                         Uri path = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imgId);
                         albumHashMap.put(bucketId, new Album(bucketId, folderName, path.toString(), 1));
-                        if (albumHashMap.get(0L) != null
-                                && albumHashMap.get(0L).thumbnailPath == null)
+                        if (albumHashMap.get(0L) != null && albumHashMap.get(0L).thumbnailPath == null)
                             albumHashMap.get(0L).thumbnailPath = path.toString();
                     } else {
                         album.counter++;
@@ -142,23 +133,10 @@ class AlbumController {
         @Override
         protected void onPostExecute(List<Album> albumList) {
             super.onPostExecute(albumList);
-            albumActivity.setAlbumList(albumList);
+            topMiddlePopup.setAlbumList(albumList);
         }
     }
 
-    void takePicture(Activity activity, String saveDir) {
-        cameraUtil.takePicture(activity, saveDir);
-    }
-
-    String getSavePath() {
-        return cameraUtil.getSavePath();
-    }
-
-
-    String getPathDir() {
-        return Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DCIM + "/Camera").getAbsolutePath();
-    }
 
     private boolean isExceptMemeType(List<MimeType> mimeTypes, String mimeType) {
         for (MimeType type : mimeTypes) {
@@ -172,4 +150,5 @@ class AlbumController {
         if (specifyFolderList.isEmpty()) return false;
         return !specifyFolderList.contains(displayBundleName);
     }
+
 }

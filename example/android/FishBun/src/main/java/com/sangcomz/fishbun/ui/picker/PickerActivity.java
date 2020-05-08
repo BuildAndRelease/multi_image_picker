@@ -9,10 +9,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -34,6 +36,7 @@ import com.sangcomz.fishbun.permission.PermissionCheck;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 import com.sangcomz.fishbun.util.SingleMediaScanner;
 import com.sangcomz.fishbun.util.SquareFrameLayout;
+import com.sangcomz.fishbun.util.TopMiddlePopup;
 import com.sangcomz.fishbun.util.UiUtil;
 
 import java.io.File;
@@ -45,8 +48,10 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
 
     private static final String TAG = "PickerActivity";
 
+    public static int screenW, screenH;
     private Button cancelBtn;
     private RelativeLayout moreContentView;
+    private RelativeLayout toolBar;
     private ImageView moreArrowImageView;
     private Button originBtn;
     private Button sendBtn;
@@ -56,12 +61,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     private int position;
     private PickerGridAdapter adapter;
     private GridLayoutManager layoutManager;
-
-    private void initValue() {
-        Intent intent = getIntent();
-        album = intent.getParcelableExtra(Define.BUNDLE_NAME.ALBUM.name());
-        position = intent.getIntExtra(Define.BUNDLE_NAME.POSITION.name(), -1);
-    }
+    private TopMiddlePopup middlePopup;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -97,6 +97,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_picker);
+        getScreenPixels();
         initController();
         initValue();
         initView();
@@ -155,51 +156,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             }
         }
     }
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_photo_album, menu);
-//        MenuItem menuDoneItem = menu.findItem(R.id.action_done);
-//        MenuItem menuThumbItem = menu.findItem(R.id.action_thumb);
-//
-//        if (fishton.getDrawableDoneButton() != null) {
-//            menuDoneItem.setIcon(fishton.getDrawableDoneButton());
-//        } else if (fishton.getStrDoneMenu() != null) {
-//            if (fishton.getColorTextMenu() != Integer.MAX_VALUE) {
-//                SpannableString spanString = new SpannableString(fishton.getStrDoneMenu());
-//                spanString.setSpan(new ForegroundColorSpan(fishton.getColorTextMenu()), 0, spanString.length(), 0); //fi
-//                menuDoneItem.setTitle(spanString);
-//            } else {
-//                menuDoneItem.setTitle(fishton.getStrDoneMenu());
-//            }
-//            menuDoneItem.setIcon(null);
-//        }
-//
-//        if (fishton.isThumb()) {
-//            if (fishton.getDrawableThumbButton() != null) {
-//                menuThumbItem.setIcon(fishton.getDrawableThumbButton());
-//            }else {
-//                menuThumbItem.setTitle(R.string.thumb);
-//            }
-//        }else {
-//            if (fishton.getDrawableOriginButton() != null) {
-//                menuThumbItem.setIcon(fishton.getDrawableOriginButton());
-//            }else {
-//                menuThumbItem.setTitle(R.string.origin);
-//            }
-//        }
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//        if (id == android.R.id.home) {
-//            transImageFinish(position);
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
 
     @Override
     public void onClick(View v) {
@@ -219,9 +175,15 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             } else if (v.equals(cancelBtn)) {
                 finish();
             } else if (v.equals(moreContentView)) {
-
+                middlePopup.show(toolBar);
             }
         }
+    }
+
+    private void initValue() {
+        Intent intent = getIntent();
+        album = intent.getParcelableExtra(Define.BUNDLE_NAME.ALBUM.name());
+        position = intent.getIntExtra(Define.BUNDLE_NAME.POSITION.name(), -1);
     }
 
     private void initController() {
@@ -243,13 +205,40 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         cancelBtn = findViewById(R.id.photo_picker_back_btn);
         cancelBtn.setOnClickListener(this);
 
+        toolBar = findViewById(R.id.toolbar_picker_bar);
+
         moreContentView = findViewById(R.id.photo_picker_more_content_view);
         moreContentView.setOnClickListener(this);
 
         moreArrowImageView = findViewById(R.id.album_pick_down_arrow_image);
 
-//        initToolBar();
+        middlePopup = new TopMiddlePopup(PickerActivity.this);
     }
+
+    /**
+     * 设置弹窗内容
+     *
+     * @return
+     */
+    private ArrayList<String> getItemsName() {
+        ArrayList<String> items = new ArrayList<String>();
+        items.add("企业客户");
+        items.add("集团客户");
+        items.add("公海客户");
+        return items;
+    }
+    /**
+     * 弹窗点击事件
+     */
+    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+                                long id) {
+            System.out.println("--onItemClickListener--:");
+            middlePopup.dismiss();
+        }
+    };
 
     public void updateSendBtnTitle() {
         if (fishton.getSelectedImages().size() > 0) {
@@ -260,26 +249,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             sendBtn.setText(getResources().getText(R.string.done));
         }
     }
-
-//    private void initToolBar() {
-//        Toolbar toolbar = findViewById(R.id.toolbar_picker_bar);
-//        setSupportActionBar(toolbar);
-//        toolbar.setBackgroundColor(fishton.getColorActionBar());
-//        toolbar.setTitleTextColor(fishton.getColorActionBarTitle());
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            UiUtil.setStatusBarColor(this, fishton.getColorStatusBar());
-//        }
-//        ActionBar bar = getSupportActionBar();
-//        if (bar != null) {
-//            bar.setDisplayHomeAsUpEnabled(true);
-//            if (fishton.getDrawableHomeAsUpIndicator() != null)
-//                getSupportActionBar().setHomeAsUpIndicator(fishton.getDrawableHomeAsUpIndicator());
-//        }
-//
-//        if (fishton.isStatusBarLight() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            toolbar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-//        }
-//    }
 
     public void setAdapter(List<Uri> result) {
         fishton.setPickerImages(result);
@@ -338,5 +307,14 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             i.putExtra(Define.INTENT_QUALITY, fishton.getQualityOfThumb());
         }
         finish();
+    }
+    /**
+     * 获取屏幕的宽和高
+     */
+    public void getScreenPixels() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        screenW = metrics.widthPixels;
+        screenH = metrics.heightPixels;
     }
 }

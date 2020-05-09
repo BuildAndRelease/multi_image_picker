@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black">
+    android:background="@color/custom_text_light_gray">
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/vp_detail_pager"
@@ -14,46 +14,53 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_detail_back"
+        app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_detail_back"
-        android:layout_width="40dp"
-        android:layout_height="30dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/back"
-        android:textColor="@drawable/select_text_drawable"
-        android:gravity="center"
-        android:textSize="@dimen/normal_text_size"
-        android:background="#00ffffff"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#70000000"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:text="@string/preview"
-        android:textColor="#ffffff"
-        android:layout_marginTop="24dp"
-        android:layout_marginRight="10dp"
-        android:gravity="center"
-        android:textSize="@dimen/normal_text_size"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/btn_detail_back"
-        app:layout_constraintRight_toLeftOf="@+id/btn_detail_count" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_detail_back"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="24dp"
+            android:text="@string/back"
+            android:textColor="@drawable/select_text_drawable"
+            android:gravity="center"
+            android:textSize="@dimen/normal_text_size"
+            android:background="#00ffffff"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"/>
 
-    <com.sangcomz.fishbun.util.RadioWithTextButton
-        android:id="@+id/btn_detail_count"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginTop="24dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="5dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="@string/preview"
+            android:textColor="#ffffff"
+            android:layout_marginTop="24dp"
+            android:layout_marginRight="10dp"
+            android:gravity="center"
+            android:textSize="@dimen/normal_text_size"
+            android:layout_centerInParent="true"/>
+
+        <com.sangcomz.fishbun.util.RadioWithTextButton
+            android:id="@+id/btn_detail_count"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

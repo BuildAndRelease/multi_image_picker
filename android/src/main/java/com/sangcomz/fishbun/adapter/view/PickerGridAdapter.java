@@ -100,26 +100,27 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
 
-            vh.imgThumbImage.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (fishton.isUseDetailView()) {
-                        if (context instanceof PickerActivity) {
-                            PickerActivity activity = (PickerActivity) context;
-                            Intent i = new Intent(activity, DetailActivity.class);
-                            i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
-                            activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
-                        }
-                    }
-                    return true;
-                }
-            });
+//            vh.imgThumbImage.setOnLongClickListener(new View.OnLongClickListener() {
+//                @Override
+//                public boolean onLongClick(View v) {
+//                    if (fishton.isUseDetailView()) {
+//                        if (context instanceof PickerActivity) {
+//                            PickerActivity activity = (PickerActivity) context;
+//                            Intent i = new Intent(activity, DetailActivity.class);
+//                            i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
+//                            activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
+//                        }
+//                    }
+//                    return true;
+//                }
+//            });
         }
     }
 
     private void initState(int selectedIndex, ViewHolderImage vh) {
         if (selectedIndex != -1) {
             updateRadioButton(vh.btnThumbCount, String.valueOf(selectedIndex + 1));
+            animScale(vh.coverView, false);
         }
     }
 
@@ -133,14 +134,15 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
         ImageView imgThumbImage = v.findViewById(R.id.img_thumb_image);
         RadioWithTextButton btnThumbCount = v.findViewById(R.id.btn_thumb_count);
+        View coverView = v.findViewById(R.id.conver_view);
         if (isContained) {
             pickedImages.remove(image);
             btnThumbCount.unselect();
-            animScale(imgThumbImage, true);
+            animScale(coverView, true);
         } else {
-            animScale(imgThumbImage, false);
             pickedImages.add(image);
             updateRadioButton(btnThumbCount, String.valueOf(pickedImages.size()));
+            animScale(coverView, false);
         }
         pickerController.setToolbarTitle(pickedImages.size());
     }
@@ -165,23 +167,14 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private void animScale(final View view, final boolean callBack) {
         final int duration = 100;
-        float toScale = 0.97f;
-        final float fromScale = 1.0f;
-
-        ViewCompat.animate(view).setDuration(duration).scaleX(toScale).scaleY(toScale).withEndAction(new Runnable() {
+        ViewCompat.animate(view).setDuration(duration).alpha((callBack ? 0.0f : 0.3f)).withEndAction(new Runnable() {
             @Override
             public void run() {
-                ViewCompat.animate(view).setDuration(duration).scaleX(fromScale).scaleY(fromScale).withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (callBack) {
-                            actionListener.onDeselect();
-                        }
-                    }
-                }).start();
+                if (callBack) {
+                    actionListener.onDeselect();
+                }
             }
-        }).start();
-
+        });
     }
 
     @Override
@@ -234,12 +227,14 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         View item;
         ImageView imgThumbImage;
         RadioWithTextButton btnThumbCount;
+        View coverView;
 
         public ViewHolderImage(View view) {
             super(view);
             item = view;
             imgThumbImage = view.findViewById(R.id.img_thumb_image);
             btnThumbCount = view.findViewById(R.id.btn_thumb_count);
+            coverView = view.findViewById(R.id.conver_view);
         }
     }
 

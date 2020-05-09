@@ -27,4 +27,11 @@
         android:layout_height="30dp"
         android:layout_gravity="right"
         android:layout_margin="5dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:alpha="0"
+        android:id="@+id/conver_view"/>
 </com.sangcomz.fishbun.util.SquareFrameLayout>

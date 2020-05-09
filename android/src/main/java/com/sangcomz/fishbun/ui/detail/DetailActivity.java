@@ -89,20 +89,17 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         DetailViewPagerAdapter adapter = new DetailViewPagerAdapter(getLayoutInflater(), fishton.getPickerImages());
         vpDetailPager.setAdapter(adapter);
         vpDetailPager.setCurrentItem(initPosition);
-
         vpDetailPager.addOnPageChangeListener(this);
     }
 
     public void onCheckStateChange(Uri image) {
         boolean isContained = fishton.getSelectedImages().contains(image);
         if (isContained) {
-            updateRadioButton(btnDetailCount,
-                    String.valueOf(fishton.getSelectedImages().indexOf(image) + 1));
+            updateRadioButton(btnDetailCount, String.valueOf(fishton.getSelectedImages().indexOf(image) + 1));
         } else {
             btnDetailCount.unselect();
         }
     }
-
 
     public void updateRadioButton(RadioWithTextButton v, String text) {
         if (fishton.getMaxCount() == 1)

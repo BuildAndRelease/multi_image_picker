@@ -153,10 +153,6 @@ public class PickerController {
         return pathDir;
     }
 
-    public void finishActivity() {
-        pickerActivity.finishActivity();
-    }
-
     private boolean isExceptMemeType(List<MimeType> mimeTypes, String mimeType){
         for (MimeType type : mimeTypes) {
             if (MimeTypeExt.equalsMimeType(type, mimeType))

@@ -65,8 +65,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private final Activity activity;
     private final Context context;
     private final BinaryMessenger messenger;
-    private Result pendingResult;
-    private MethodCall methodCall;
+    private static Result pendingResult;
+    private static MethodCall methodCall;
 
     public MultiImagePickerPlugin(Activity activity, Context context, MethodChannel channel, BinaryMessenger messenger) {
         this.activity = activity;
@@ -87,10 +87,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
 
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
-        if (!setPendingMethodCallAndResult(call, result)) {
-            finishWithAlreadyActiveError(result);
-            return;
-        }
+//        if (!setPendingMethodCallAndResult(call, result)) {
+//            finishWithAlreadyActiveError(result);
+//            return;
+//        }
+
+        setPendingMethodCallAndResult(call, result);
 
         if (PICK_IMAGES.equals(call.method)) {
             final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
@@ -216,52 +218,40 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     }
 
     private void compressImageAndFinish(final List<Uri> photos, final boolean thumb, final int quality, final int maxHeight, final int maxWidth) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final List<HashMap<String, Object>> result = new ArrayList<>(photos.size());
-                for (Uri uri : photos) {
-                    HashMap<String, Object> map = new HashMap<>();
-                    String fileName = UUID.randomUUID().toString() + ".jpg";
-                    String filePath = "";
-                    try {
-                        InputStream is = context.getContentResolver().openInputStream(uri);
-                        File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
-                        if (!tmpPicParentDir.exists()) {
-                            tmpPicParentDir.mkdirs();
-                        }
-                        File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
-                        if (tmpPic.exists()) {
-                            tmpPic.delete();
-                        }
-                        filePath = tmpPic.getAbsolutePath();
-                        HashMap hashMap = transImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
-                        if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
-                            map.put("width", hashMap.get("width"));
-                            map.put("height", hashMap.get("heigth"));
-                        }else {
-                            continue;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        continue;
-                    }
-
-                    map.put("name", fileName);
-                    map.put("filePath", filePath);
-                    map.put("identifier", uri.toString());
-                    result.add(map);
+        final List<HashMap<String, Object>> result = new ArrayList<>(photos.size());
+        for (Uri uri : photos) {
+            HashMap<String, Object> map = new HashMap<>();
+            String fileName = UUID.randomUUID().toString() + ".jpg";
+            String filePath = "";
+            try {
+                InputStream is = context.getContentResolver().openInputStream(uri);
+                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
+                if (!tmpPicParentDir.exists()) {
+                    tmpPicParentDir.mkdirs();
                 }
-
-                Handler mainThread = new Handler(Looper.getMainLooper());
-                mainThread.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        finishWithSuccess(result);
-                    }
-                });
+                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
+                if (tmpPic.exists()) {
+                    tmpPic.delete();
+                }
+                filePath = tmpPic.getAbsolutePath();
+                HashMap hashMap = transImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
+                if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
+                    map.put("width", hashMap.get("width"));
+                    map.put("height", hashMap.get("height"));
+                }else {
+                    continue;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
             }
-        }).start();
+
+            map.put("name", fileName);
+            map.put("filePath", filePath);
+            map.put("identifier", uri.toString());
+            result.add(map);
+        }
+        finishWithSuccess(result);
     }
 
     public HashMap transImage(InputStream fromFile, File toFile, int width, int height, int quality) {
@@ -304,8 +294,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     }
 
     private void finishWithSuccess(List imagePathList) {
-        if (pendingResult != null)
-            pendingResult.success(imagePathList);
+        if (this.pendingResult != null)
+            this.pendingResult.success(imagePathList);
         clearMethodCallAndResult();
     }
 
@@ -315,23 +305,23 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     }
 
     private void finishWithError(String errorCode, String errorMessage) {
-        if (pendingResult != null)
-            pendingResult.error(errorCode, errorMessage, null);
+        if (this.pendingResult != null)
+            this.pendingResult.error(errorCode, errorMessage, null);
         clearMethodCallAndResult();
     }
 
     private void clearMethodCallAndResult() {
-        methodCall = null;
-        pendingResult = null;
+        this.methodCall = null;
+        this.pendingResult = null;
     }
 
     private boolean setPendingMethodCallAndResult(MethodCall methodCall, MethodChannel.Result result) {
-        if (pendingResult != null) {
-            return false;
+        if (this.pendingResult != null) {
+            this.pendingResult.error("new call coming", "Image picker come new picker", null);
+            clearMethodCallAndResult();
         }
-
         this.methodCall = methodCall;
-        pendingResult = result;
+        this.pendingResult = result;
         return true;
     }
 }

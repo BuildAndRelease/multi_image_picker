@@ -1,26 +1,32 @@
 package com.sangcomz.fishbun.adapter.view
 
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
-
+import androidx.recyclerview.widget.RecyclerView
 import com.sangcomz.fishbun.Fishton
 import com.sangcomz.fishbun.R
 import com.sangcomz.fishbun.bean.Album
-import com.sangcomz.fishbun.define.Define
-import com.sangcomz.fishbun.ui.picker.PickerActivity
 import kotlinx.android.synthetic.main.album_item.view.*
 
+interface AlbumListItemSelectListener {
+    fun albumListItemSelect(adapter : AlbumListAdapter, album: Album, position: Int)
+}
+
 class AlbumListAdapter : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
+
     private val fishton = Fishton.getInstance()
+    var itemSelectListener : AlbumListItemSelectListener? = null
+
     var albumList = emptyList<Album>()
         set(value) {
             field = value
         }
+
+    fun setOnItemSelectListener(listener: AlbumListItemSelectListener) {
+        this.itemSelectListener = listener;
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(parent, fishton.albumThumbnailSize)
@@ -32,15 +38,10 @@ class AlbumListAdapter : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
 
         holder.itemView.tag = albumList[position]
         holder.txtAlbumName.text = albumList[position].bucketName
-        holder.txtAlbumCount.text = albumList[position].counter.toString()
+        holder.txtAlbumCount.text = "(" + albumList[position].counter.toString() +")"
 
         holder.itemView.setOnClickListener {
-            val intent = Intent(it.context, PickerActivity::class.java)
-            intent.apply {
-                putExtra(Define.BUNDLE_NAME.ALBUM.name, albumList[position])
-                putExtra(Define.BUNDLE_NAME.POSITION.name, position)
-            }
-            (it.context as Activity).startActivityForResult(intent, Define().ENTER_ALBUM_REQUEST_CODE)
+            itemSelectListener?.albumListItemSelect(this, albumList[position], position);
         }
     }
 

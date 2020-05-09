@@ -21,6 +21,8 @@ import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 import com.sangcomz.fishbun.util.UiUtil;
 
+import java.util.UUID;
+
 public class DetailActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
     private static final String TAG = "DetailActivity";
 
@@ -70,11 +72,9 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             UiUtil.setStatusBarColor(this, fishton.getColorStatusBar());
         }
-        if (fishton.isStatusBarLight()
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (fishton.isStatusBarLight() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             vpDetailPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
-
     }
 
     private void initAdapter() {
@@ -131,9 +131,6 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
                 } else {
                     fishton.getSelectedImages().add(image);
                     onCheckStateChange(image);
-
-                    if (fishton.isAutomaticClose() && fishton.getSelectedImages().size() == fishton.getMaxCount())
-                        finishActivity();
                 }
             }
 
@@ -161,6 +158,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
 
     void finishActivity() {
         Intent i = new Intent();
+        i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
         setResult(RESULT_OK, i);
         finish();
     }

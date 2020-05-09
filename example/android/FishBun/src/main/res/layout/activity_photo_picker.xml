@@ -36,7 +36,8 @@
                 android:textSize="@dimen/normal_text_size"
                 android:gravity="center"
                 android:layout_toLeftOf="@+id/album_pick_down_arrow_image"
-                android:layout_alignParentLeft="true"/>
+                android:layout_alignParentLeft="true"
+                android:id="@+id/album_pick_title_text_view"/>
 
             <ImageView
                 android:layout_width="20dp"

@@ -1,4 +1,4 @@
-package com.sangcomz.fishbun.util;
+package com.sangcomz.fishbun.ui.album;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TopMiddlePopupController {
-    private TopMiddlePopup topMiddlePopup;
+public class AlbumPickerPopupController {
+    private AlbumPickerPopup albumPickerPopup;
     private ContentResolver resolver;
     private Context context;
 
-    TopMiddlePopupController(TopMiddlePopup topMiddlePopup, Context context) {
-        this.topMiddlePopup = topMiddlePopup;
+    AlbumPickerPopupController(AlbumPickerPopup albumPickerPopup, Context context) {
+        this.albumPickerPopup = albumPickerPopup;
         this.resolver = context.getContentResolver();
     }
 
@@ -48,11 +48,10 @@ public class TopMiddlePopupController {
     }
 
     void getAlbumList(String allViewTitle, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
-        new TopMiddlePopupController.LoadAlbumList(allViewTitle, exceptMimeTypeList, specifyFolderList).execute();
+        new AlbumPickerPopupController.LoadAlbumList(allViewTitle, exceptMimeTypeList, specifyFolderList).execute();
     }
 
     private class LoadAlbumList extends AsyncTask<Void, Void, List<Album>> {
-
         String allViewTitle;
         List<MimeType> exceptMimeTypeList;
         List<String> specifyFolderList;
@@ -73,17 +72,13 @@ public class TopMiddlePopupController {
                     MediaStore.Images.Media.MIME_TYPE,
                     MediaStore.Images.Media.BUCKET_ID};
 
-            Cursor c = resolver.query(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
-                    null, null, orderBy);
+            Cursor c = resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, orderBy);
 
             int totalCounter = 0;
             if (c != null) {
                 int bucketMimeType = c.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
-                int bucketColumn = c
-                        .getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-                int bucketColumnId = c
-                        .getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
+                int bucketColumn = c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+                int bucketColumnId = c.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
 
                 if (!isNotContainsSpecifyFolderList(specifyFolderList, allViewTitle)) {
                     albumHashMap.put((long) 0, new Album(0, allViewTitle, null, 0));
@@ -93,8 +88,7 @@ public class TopMiddlePopupController {
                     String mimeType = c.getString(bucketMimeType);
                     String folderName = c.getString(bucketColumn);
 
-                    if (isExceptMemeType(exceptMimeTypeList, mimeType)
-                            || isNotContainsSpecifyFolderList(specifyFolderList, folderName))
+                    if (isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, folderName))
                         continue;
 
                     totalCounter++;
@@ -133,7 +127,7 @@ public class TopMiddlePopupController {
         @Override
         protected void onPostExecute(List<Album> albumList) {
             super.onPostExecute(albumList);
-            topMiddlePopup.setAlbumList(albumList);
+            albumPickerPopup.setAlbumList(albumList);
         }
     }
 

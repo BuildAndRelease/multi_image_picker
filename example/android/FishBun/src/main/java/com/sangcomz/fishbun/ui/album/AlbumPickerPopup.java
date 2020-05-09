@@ -1,4 +1,4 @@
-package com.sangcomz.fishbun.util;
+package com.sangcomz.fishbun.ui.album;
 import android.net.Uri;
 import android.widget.PopupWindow;
 
@@ -13,48 +13,53 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sangcomz.fishbun.Fishton;
 import com.sangcomz.fishbun.R;
 import com.sangcomz.fishbun.adapter.view.AlbumListAdapter;
+import com.sangcomz.fishbun.adapter.view.AlbumListItemSelectListener;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.define.Define;
+import com.sangcomz.fishbun.util.UiUtil;
 
-public class TopMiddlePopup extends PopupWindow {
+import org.jetbrains.annotations.NotNull;
+
+public class AlbumPickerPopup extends PopupWindow {
     private Context myContext;
     protected Define define = new Define();
     protected Fishton fishton;
 
-    private LayoutInflater inflater = null;
+    private LayoutInflater inflater;
     private View myMenuView;
+    private AlbumPickerPopupCallBack callBack;
 
-    private TopMiddlePopupController albumController;
+    private AlbumPickerPopupController albumController;
     private List<Album> albumList = Collections.emptyList();
     private RecyclerView recyclerAlbumList;
     private RelativeLayout relAlbumEmpty;
     private AlbumListAdapter adapter;
 
-    public TopMiddlePopup(Context context) {
+    public AlbumPickerPopup(Context context) {
         this.myContext = context;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         myMenuView = inflater.inflate(R.layout.activity_photo_album, null);
         relAlbumEmpty = myMenuView.findViewById(R.id.rel_album_empty);
-        albumController = new TopMiddlePopupController(this, context);
+        albumController = new AlbumPickerPopupController(this, context);
         fishton = Fishton.getInstance();
 //        if (albumController.checkPermission())
             albumController.getAlbumList(fishton.getTitleAlbumAllView(),
                     fishton.getExceptMimeTypeList(),
                     fishton.getSpecifyFolderList());
         setPopup();
+    }
+
+    public void setCallBack(AlbumPickerPopupCallBack callBack) {
+        this.callBack = callBack;
     }
 
     private void initRecyclerView() {
@@ -74,6 +79,13 @@ public class TopMiddlePopup extends PopupWindow {
     private void setAlbumListAdapter() {
         if (adapter == null) {
             adapter = new AlbumListAdapter();
+            adapter.setOnItemSelectListener(new AlbumListItemSelectListener() {
+                @Override
+                public void albumListItemSelect(@NotNull AlbumListAdapter adapter, @NotNull Album album, int position) {
+                    callBack.albumPickerPopupDidSelectAlbum(album, position);
+                    dismiss();
+                }
+            });
         }
         adapter.setAlbumList(albumList);
         recyclerAlbumList.setAdapter(adapter);
@@ -88,23 +100,6 @@ public class TopMiddlePopup extends PopupWindow {
             setAlbumListAdapter();
         } else {
             relAlbumEmpty.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void refreshList(int position, ArrayList<Uri> imagePath) {
-        if (imagePath.size() > 0) {
-            if (position == 0) {
-                albumController.getAlbumList(fishton.getTitleAlbumAllView(), fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
-            } else {
-                albumList.get(0).counter += imagePath.size();
-                albumList.get(position).counter += imagePath.size();
-
-                albumList.get(0).thumbnailPath = imagePath.get(imagePath.size() - 1).toString();
-                albumList.get(position).thumbnailPath = imagePath.get(imagePath.size() - 1).toString();
-
-                adapter.notifyItemChanged(0);
-                adapter.notifyItemChanged(position);
-            }
         }
     }
 
@@ -126,41 +121,6 @@ public class TopMiddlePopup extends PopupWindow {
         ColorDrawable dw = new ColorDrawable(0x33000000);
         // 设置SelectPicPopupWindow弹出窗体的背景
         this.setBackgroundDrawable(dw);
-
-        myMenuView.setOnTouchListener(new OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-//                int height = popupLL.getBottom();
-//                int left = popupLL.getLeft();
-//                int right = popupLL.getRight();
-//                System.out.println("--popupLL.getBottom()--:"+ popupLL.getBottom());
-//                int y = (int) event.getY();
-//                int x = (int) event.getX();
-//                if (event.getAction() == MotionEvent.ACTION_UP) {
-//                    if (y > height || x < left || x > right) {
-//                        System.out.println("---点击位置在列表下方--");
-//                        dismiss();
-//                    }
-//                }
-                return true;
-            }
-        });
-    }
-
-    /**
-     * 显示弹窗界面
-     *
-     * @param view
-     */
-    public void show(View view) {
-//        if (myIsDirty) {
-//            myIsDirty = false;
-//            adapter = new PopupAdapter(myContext, myItems, myType);
-//            myLv.setAdapter(adapter);
-//        }
-
-        showAsDropDown(view, 0, 0);
     }
 
 }

@@ -33,8 +33,7 @@ class FishBun private constructor(activity: Activity?, fragment: Fragment?) {
     inner class FishBunContext {
         private val activity = _activity.get()
         private val fragment = _fragment.get()
-        fun getContext(): Context =
-            activity ?: fragment?.context ?: throw NullPointerException("Activity or Fragment Null")
+        fun getContext(): Context = activity ?: fragment?.context ?: throw NullPointerException("Activity or Fragment Null")
 
         fun startActivityForResult(intent: Intent, requestCode: Int) {
             when {

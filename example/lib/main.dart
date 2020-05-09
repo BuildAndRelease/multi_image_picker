@@ -91,7 +91,6 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       resultList = await MultiImagePicker.pickImages(
         maxImages: 9,
-        enableCamera: true,
         qualityOfImage: 40,
         maxHeight: 300,
         maxWidth: 300,

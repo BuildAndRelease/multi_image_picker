@@ -14,12 +14,9 @@
         </provider>
 
         <activity
-            android:name=".ui.album.AlbumActivity"
-            android:label="@string/album"
-            android:theme="@style/FishBunTheme"/>
-        <activity
             android:name=".ui.picker.PickerActivity"
             android:theme="@style/FishBunTheme" />
+
         <activity
             android:name=".ui.detail.DetailActivity"
             android:theme="@style/DetailViewTheme" />

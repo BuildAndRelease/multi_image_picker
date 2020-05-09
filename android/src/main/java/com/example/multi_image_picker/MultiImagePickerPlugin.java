@@ -3,20 +3,15 @@ package com.example.multi_image_picker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.provider.MediaStore;
-import android.provider.OpenableColumns;
-import android.text.TextUtils;
-import android.media.ThumbnailUtils;
+import android.os.Handler;
+import android.os.Looper;
 
-import androidx.annotation.NonNull;
+import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 
@@ -29,17 +24,16 @@ import com.sangcomz.fishbun.define.Define;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.net.URI;
-import java.nio.ByteBuffer;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -48,8 +42,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-
-import static android.media.ThumbnailUtils.OPTIONS_RECYCLE_INPUT;
 
 
 /**
@@ -91,126 +83,10 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         MultiImagePickerPlugin instance = new MultiImagePickerPlugin(registrar.activity(), registrar.context(), channel, registrar.messenger());
         registrar.addActivityResultListener(instance);
         channel.setMethodCallHandler(instance);
-
-    }
-
-    private static class GetThumbnailTask extends AsyncTask<String, Void, ByteBuffer> {
-        private WeakReference<Activity> activityReference;
-        BinaryMessenger messenger;
-        final String identifier;
-        final int width;
-        final int height;
-        final int quality;
-
-        GetThumbnailTask(Activity context, BinaryMessenger messenger, String identifier, int width, int height, int quality) {
-            super();
-            this.messenger = messenger;
-            this.identifier = identifier;
-            this.width = width;
-            this.height = height;
-            this.quality = quality;
-            this.activityReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected ByteBuffer doInBackground(String... strings) {
-            final Uri uri = Uri.parse(this.identifier);
-            byte[] byteArray = null;
-
-            try {
-                // get a reference to the activity if it is still there
-                Activity activity = activityReference.get();
-                if (activity == null || activity.isFinishing()) return null;
-
-                Bitmap sourceBitmap = getCorrectlyOrientedImage(activity, uri);
-                Bitmap bitmap = ThumbnailUtils.extractThumbnail(sourceBitmap, this.width, this.height, OPTIONS_RECYCLE_INPUT);
-
-                if (bitmap == null) return null;
-
-                ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
-                byteArray = bitmapStream.toByteArray();
-                bitmap.recycle();
-                bitmapStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-            final ByteBuffer buffer;
-            if (byteArray != null) {
-                buffer = ByteBuffer.allocateDirect(byteArray.length);
-                buffer.put(byteArray);
-                return buffer;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ByteBuffer buffer) {
-            super.onPostExecute(buffer);
-            if (buffer != null) {
-                this.messenger.send("multi_image_picker/image/" + this.identifier + ".thumb", buffer);
-                buffer.clear();
-            }
-        }
-    }
-
-    private static class GetImageTask extends AsyncTask<String, Void, ByteBuffer> {
-        private final WeakReference<Activity> activityReference;
-
-        final BinaryMessenger messenger;
-        final String identifier;
-        final int quality;
-
-        GetImageTask(Activity context, BinaryMessenger messenger, String identifier, int quality) {
-            super();
-            this.messenger = messenger;
-            this.identifier = identifier;
-            this.quality = quality;
-            this.activityReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected ByteBuffer doInBackground(String... strings) {
-            final Uri uri = Uri.parse(this.identifier);
-            byte[] bytesArray = null;
-
-            try {
-                // get a reference to the activity if it is still there
-                Activity activity = activityReference.get();
-                if (activity == null || activity.isFinishing()) return null;
-
-                Bitmap bitmap = getCorrectlyOrientedImage(activity, uri);
-
-                if (bitmap == null) return null;
-
-                ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
-                bytesArray = bitmapStream.toByteArray();
-                bitmap.recycle();
-                bitmapStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            assert bytesArray != null;
-            final ByteBuffer buffer = ByteBuffer.allocateDirect(bytesArray.length);
-            buffer.put(bytesArray);
-            return buffer;
-        }
-
-        @Override
-        protected void onPostExecute(ByteBuffer buffer) {
-            super.onPostExecute(buffer);
-            this.messenger.send("multi_image_picker/image/" + this.identifier + ".original", buffer);
-            buffer.clear();
-        }
     }
 
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
-
         if (!setPendingMethodCallAndResult(call, result)) {
             finishWithAlreadyActiveError(result);
             return;
@@ -224,281 +100,22 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             int qualityOfThumb = (int) this.methodCall.argument(QUALITY_OF_IMAGE);
             boolean enableCamera = (boolean) this.methodCall.argument(ENABLE_CAMERA);
             ArrayList<String> selectedAssets = this.methodCall.argument(SELECTED_ASSETS);
-            presentPicker(maxImages, qualityOfThumb, enableCamera, selectedAssets, options);
-        } else if (REQUEST_ORIGINAL.equals(call.method)) {
-            final String identifier = call.argument("identifier");
-            final int quality = (int) call.argument("quality");
-
-            if (!this.uriExists(identifier)) {
-                finishWithError("ASSET_DOES_NOT_EXIST", "The requested image does not exist.");
-            } else {
-                GetImageTask task = new GetImageTask(this.activity, this.messenger, identifier, quality);
-                task.execute();
-                finishWithSuccess();
-            }
-        } else if (REQUEST_THUMBNAIL.equals(call.method)) {
-            final String identifier = call.argument("identifier");
-            final int width = (int) call.argument("width");
-            final int height = (int) call.argument("height");
-            final int quality = (int) call.argument("quality");
-
-            if (!this.uriExists(identifier)) {
-                finishWithError("ASSET_DOES_NOT_EXIST", "The requested image does not exist.");
-            } else {
-                GetThumbnailTask task = new GetThumbnailTask(this.activity, this.messenger, identifier, width, height, quality);
-                task.execute();
-                finishWithSuccess();
-            }
-        } else if (REQUEST_METADATA.equals(call.method)) {
-            final String identifier = call.argument("identifier");
-
-            Uri uri = Uri.parse(identifier);
-
-            // Scoped storage related code. We can only get gps location if we ask for original image
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                uri = MediaStore.setRequireOriginal(uri);
-            }
-
-            try {
-                InputStream in;
-                if ("content".equals(uri.getScheme())) {
-                    in = context.getContentResolver().openInputStream(uri);
-                }else {
-                    in = new FileInputStream(new File(uri.getPath()));
-                }
-                assert in != null;
-                ExifInterface exifInterface = new ExifInterface(in);
-                finishWithSuccess(getPictureExif(exifInterface, uri));
-
-            } catch (IOException e) {
-                finishWithError("Exif error", e.toString());
-            }
-
-        } else {
-            pendingResult.notImplemented();
-            clearMethodCallAndResult();
+            presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, enableCamera, selectedAssets, options);
         }
     }
 
-    private HashMap<String, Object> getPictureExif(ExifInterface exifInterface, Uri uri) {
-        HashMap<String, Object> result = new HashMap<>();
-
-        // API LEVEL 24
-        String[] tags_str = {
-                ExifInterface.TAG_DATETIME,
-                ExifInterface.TAG_GPS_DATESTAMP,
-                ExifInterface.TAG_GPS_LATITUDE_REF,
-                ExifInterface.TAG_GPS_LONGITUDE_REF,
-                ExifInterface.TAG_GPS_PROCESSING_METHOD,
-                ExifInterface.TAG_IMAGE_WIDTH,
-                ExifInterface.TAG_IMAGE_LENGTH,
-                ExifInterface.TAG_MAKE,
-                ExifInterface.TAG_MODEL
-        };
-        String[] tags_double = {
-                ExifInterface.TAG_APERTURE_VALUE,
-                ExifInterface.TAG_FLASH,
-                ExifInterface.TAG_FOCAL_LENGTH,
-                ExifInterface.TAG_GPS_ALTITUDE,
-                ExifInterface.TAG_GPS_ALTITUDE_REF,
-                ExifInterface.TAG_GPS_LONGITUDE,
-                ExifInterface.TAG_GPS_LATITUDE,
-                ExifInterface.TAG_IMAGE_LENGTH,
-                ExifInterface.TAG_IMAGE_WIDTH,
-                ExifInterface.TAG_ISO_SPEED,
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.TAG_WHITE_BALANCE,
-                ExifInterface.TAG_EXPOSURE_TIME
-        };
-        HashMap<String, Object> exif_str = getExif_str(exifInterface, tags_str);
-        result.putAll(exif_str);
-        HashMap<String, Object> exif_double = getExif_double(exifInterface, tags_double);
-        result.putAll(exif_double);
-
-        // A Temp fix while location data is not returned from the exifInterface due to the errors. It also
-        // covers Android >= 10 not loading GPS information from getExif_double
-        if (exif_double.isEmpty()
-                || !exif_double.containsKey(ExifInterface.TAG_GPS_LATITUDE)
-                || !exif_double.containsKey(ExifInterface.TAG_GPS_LONGITUDE)) {
-
-            if (uri != null) {
-                HashMap<String, Object> hotfix_map = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-                        ? getLatLng(uri)
-                        : getLatLng(exifInterface, uri);
-
-                result.putAll(hotfix_map);
-            }
-        }
-
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
-            String[] tags_23 = {
-                    ExifInterface.TAG_DATETIME_DIGITIZED,
-                    ExifInterface.TAG_SUBSEC_TIME,
-                    ExifInterface.TAG_SUBSEC_TIME_DIGITIZED,
-                    ExifInterface.TAG_SUBSEC_TIME_ORIGINAL
-            };
-            HashMap<String, Object> exif23 = getExif_str(exifInterface, tags_23);
-            result.putAll(exif23);
-        }
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            String[] tags_24_str = {
-                    ExifInterface.TAG_ARTIST,
-                    ExifInterface.TAG_CFA_PATTERN,
-                    ExifInterface.TAG_COMPONENTS_CONFIGURATION,
-                    ExifInterface.TAG_COPYRIGHT,
-                    ExifInterface.TAG_DATETIME_ORIGINAL,
-                    ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION,
-                    ExifInterface.TAG_EXIF_VERSION,
-                    ExifInterface.TAG_FILE_SOURCE,
-                    ExifInterface.TAG_FLASHPIX_VERSION,
-                    ExifInterface.TAG_GPS_AREA_INFORMATION,
-                    ExifInterface.TAG_GPS_DEST_BEARING_REF,
-                    ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
-                    ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
-                    ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
-                    ExifInterface.TAG_GPS_DOP,
-                    ExifInterface.TAG_GPS_IMG_DIRECTION,
-                    ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
-                    ExifInterface.TAG_GPS_MAP_DATUM,
-                    ExifInterface.TAG_GPS_MEASURE_MODE,
-                    ExifInterface.TAG_GPS_SATELLITES,
-                    ExifInterface.TAG_GPS_SPEED_REF,
-                    ExifInterface.TAG_GPS_STATUS,
-                    ExifInterface.TAG_GPS_TRACK_REF,
-                    ExifInterface.TAG_GPS_VERSION_ID,
-                    ExifInterface.TAG_IMAGE_DESCRIPTION,
-                    ExifInterface.TAG_IMAGE_UNIQUE_ID,
-                    ExifInterface.TAG_INTEROPERABILITY_INDEX,
-                    ExifInterface.TAG_MAKER_NOTE,
-                    ExifInterface.TAG_OECF,
-                    ExifInterface.TAG_RELATED_SOUND_FILE,
-                    ExifInterface.TAG_SCENE_TYPE,
-                    ExifInterface.TAG_SOFTWARE,
-                    ExifInterface.TAG_SPATIAL_FREQUENCY_RESPONSE,
-                    ExifInterface.TAG_SPECTRAL_SENSITIVITY,
-                    ExifInterface.TAG_SUBSEC_TIME_DIGITIZED,
-                    ExifInterface.TAG_SUBSEC_TIME_ORIGINAL,
-                    ExifInterface.TAG_USER_COMMENT
-            };
-
-            String[] tags24_double = {
-                    ExifInterface.TAG_APERTURE_VALUE,
-                    ExifInterface.TAG_BITS_PER_SAMPLE,
-                    ExifInterface.TAG_BRIGHTNESS_VALUE,
-                    ExifInterface.TAG_COLOR_SPACE,
-                    ExifInterface.TAG_COMPRESSED_BITS_PER_PIXEL,
-                    ExifInterface.TAG_COMPRESSION,
-                    ExifInterface.TAG_CONTRAST,
-                    ExifInterface.TAG_CUSTOM_RENDERED,
-                    ExifInterface.TAG_DIGITAL_ZOOM_RATIO,
-                    ExifInterface.TAG_EXPOSURE_BIAS_VALUE,
-                    ExifInterface.TAG_EXPOSURE_INDEX,
-                    ExifInterface.TAG_EXPOSURE_MODE,
-                    ExifInterface.TAG_EXPOSURE_PROGRAM,
-                    ExifInterface.TAG_FLASH_ENERGY,
-                    ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM,
-                    ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT,
-                    ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
-                    ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
-                    ExifInterface.TAG_F_NUMBER,
-                    ExifInterface.TAG_GAIN_CONTROL,
-                    ExifInterface.TAG_GPS_DEST_BEARING,
-                    ExifInterface.TAG_GPS_DEST_DISTANCE,
-                    ExifInterface.TAG_GPS_DEST_LATITUDE,
-                    ExifInterface.TAG_GPS_DEST_LONGITUDE,
-                    ExifInterface.TAG_GPS_DIFFERENTIAL,
-                    ExifInterface.TAG_GPS_SPEED,
-                    ExifInterface.TAG_GPS_TRACK,
-                    ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,
-                    ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
-                    ExifInterface.TAG_LIGHT_SOURCE,
-                    ExifInterface.TAG_MAX_APERTURE_VALUE,
-                    ExifInterface.TAG_METERING_MODE,
-                    ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION,
-                    ExifInterface.TAG_PIXEL_X_DIMENSION,
-                    ExifInterface.TAG_PIXEL_Y_DIMENSION,
-                    ExifInterface.TAG_PLANAR_CONFIGURATION,
-                    ExifInterface.TAG_PRIMARY_CHROMATICITIES,
-                    ExifInterface.TAG_REFERENCE_BLACK_WHITE,
-                    ExifInterface.TAG_RESOLUTION_UNIT,
-                    ExifInterface.TAG_ROWS_PER_STRIP,
-                    ExifInterface.TAG_SAMPLES_PER_PIXEL,
-                    ExifInterface.TAG_SATURATION,
-                    ExifInterface.TAG_SCENE_CAPTURE_TYPE,
-                    ExifInterface.TAG_SENSING_METHOD,
-                    ExifInterface.TAG_SHARPNESS,
-                    ExifInterface.TAG_SHUTTER_SPEED_VALUE,
-                    ExifInterface.TAG_STRIP_BYTE_COUNTS,
-                    ExifInterface.TAG_STRIP_OFFSETS,
-                    ExifInterface.TAG_SUBJECT_AREA,
-                    ExifInterface.TAG_SUBJECT_DISTANCE,
-                    ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
-                    ExifInterface.TAG_SUBJECT_LOCATION,
-                    ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH,
-                    ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH,
-                    ExifInterface.TAG_TRANSFER_FUNCTION,
-                    ExifInterface.TAG_WHITE_POINT,
-                    ExifInterface.TAG_X_RESOLUTION,
-                    ExifInterface.TAG_Y_CB_CR_COEFFICIENTS,
-                    ExifInterface.TAG_Y_CB_CR_POSITIONING,
-                    ExifInterface.TAG_Y_CB_CR_SUB_SAMPLING,
-                    ExifInterface.TAG_Y_RESOLUTION,
-            };
-            HashMap<String, Object> exif24_str = getExif_str(exifInterface, tags_24_str);
-            result.putAll(exif24_str);
-            HashMap<String, Object> exif24_double = getExif_double(exifInterface, tags24_double);
-            result.putAll(exif24_double);
-        }
-
-        return result;
-    }
-
-    private HashMap<String, Object> getExif_str(ExifInterface exifInterface, String[] tags){
-        HashMap<String, Object> result = new HashMap<>();
-        for (String tag : tags) {
-            String attribute = exifInterface.getAttribute(tag);
-            if (!TextUtils.isEmpty(attribute)) {
-                result.put(tag, attribute);
-            }
-        }
-        return result;
-    }
-
-    private HashMap<String, Object> getExif_double(ExifInterface exifInterface, String[] tags){
-        HashMap<String, Object> result = new HashMap<>();
-        for (String tag : tags) {
-            double attribute = exifInterface.getAttributeDouble(tag, 0.0);
-            if (attribute != 0.0) {
-                result.put(tag, attribute);
-            }
-        }
-        return result;
-    }
-
-    private boolean uriExists(String identifier) {
-        Uri uri = Uri.parse(identifier);
-
-        String fileName = this.getFileName(uri);
-
-        return (fileName != null);
-    }
-
-    private void presentPicker(int maxImages, int qualityOfThumb, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {
         String actionBarColor = options.get("actionBarColor");
         String statusBarColor = options.get("statusBarColor");
         String lightStatusBar = options.get("lightStatusBar");
         String actionBarTitle = options.get("actionBarTitle");
         String actionBarTitleColor = options.get("actionBarTitleColor");
         String allViewTitle =  options.get("allViewTitle");
-        String startInAllView = options.get("startInAllView");
-        String useDetailsView = options.get("useDetailsView");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
         String selectionLimitReachedText = options.get("selectionLimitReachedText");
         String textOnNothingSelected = options.get("textOnNothingSelected");
         String backButtonDrawable = options.get("backButtonDrawable");
         String okButtonDrawable = options.get("okButtonDrawable");
-        String autoCloseOnSelectionLimit = options.get("autoCloseOnSelectionLimit");
         ArrayList<Uri> selectedUris = new ArrayList<Uri>();
 
         for (String path : selectedAssets) {
@@ -511,14 +128,14 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
                 .setImageAdapter(new GlideAdapter())
                 .setMaxCount(maxImages)
-                .setQualityOfThumb(qualityOfThumb)
+                .setQuality(qualityOfThumb)
+                .setMaxHeight(maxHeight)
+                .setMaxWidth(maxWidth)
                 .setCamera(enableCamera)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
                 .setSelectedImages(selectedUris)
                 .exceptMimeType(mimeTypeList)
-                .setIsUseDetailView(true)
-                .setReachLimitAutomaticClose(false)
-                .isStartInAllView(true);
+                .setIsUseDetailView(true);
 
         if (!textOnNothingSelected.isEmpty()) {
             fishBun.textOnNothingSelected(textOnNothingSelected);
@@ -571,79 +188,25 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         }
 
         fishBun.startAlbum();
-
     }
 
+    private static String acitivityResultSerialNum = ""; //防止onActivityResult回调2次
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
             finishWithError("CANCELLED", "The user has cancelled the selection");
         } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
-            List<Uri> photos = data.getParcelableArrayListExtra(Define.INTENT_PATH);
-            Boolean thumb = data.getBooleanExtra(Define.INTENT_THUMB, false);
-            int qualityOfThumb = data.getIntExtra(Define.INTENT_QUALITY, 1);
-            List<HashMap<String, Object>> result = new ArrayList<>(photos.size());
-            for (Uri uri : photos) {
-                HashMap<String, Object> map = new HashMap<>();
-                InputStream is = null;
-                int width = 0, height = 0;
-                String fileName = getFileName(uri);
-                String filePath = "";
-                try {
-                    if ("content".equals(uri.getScheme())) {
-                        is = context.getContentResolver().openInputStream(uri);
-                    }else {
-                        is = new FileInputStream(new File(uri.getPath()));
-                    }
-                    BitmapFactory.Options dbo = new BitmapFactory.Options();
-                    dbo.inJustDecodeBounds = false;
-                    dbo.inScaled = false;
-                    dbo.inSampleSize = 1;
-                    Bitmap bitmap = BitmapFactory.decodeStream(is, null, dbo);
-                    if (is != null) {
-                        is.close();
-                    }
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    // 把压缩后的数据存放到baos中
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, thumb ? qualityOfThumb : 100, baos);
-                    File tmpPicParentDir = new File(this.context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
-                    if (!tmpPicParentDir.exists()) {
-                        tmpPicParentDir.mkdirs();
-                    }
-                    File tmpPic = new File(this.context.getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
-                    if (tmpPic.exists()) {
-                        tmpPic.delete();
-                    }
-                    tmpPic.createNewFile();
-                    try {
-                        FileOutputStream fos = new FileOutputStream(tmpPic);
-                        fos.write(baos.toByteArray());
-                        fos.flush();
-                        fos.close();
-                        filePath = Uri.fromFile(tmpPic).getPath();
-                        int orientation = getOrientation(context, Uri.fromFile(tmpPic));
-                        if (orientation == 90 || orientation == 270) {
-                            width = bitmap.getHeight();
-                            height = bitmap.getWidth();
-                        } else {
-                            width = bitmap.getWidth();
-                            height = bitmap.getHeight();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                map.put("width", width);
-                map.put("height", height);
-                map.put("name", fileName);
-                map.put("filePath", filePath);
-                map.put("identifier", uri.toString());
-                result.add(map);
+            if (acitivityResultSerialNum.equals(data.getStringExtra(Define.INTENT_SERIAL_NUM))) {
+                return true;
+            }else {
+                acitivityResultSerialNum = data.getStringExtra(Define.INTENT_SERIAL_NUM);
             }
-            finishWithSuccess(result);
+            final List<Uri> photos = data.getParcelableArrayListExtra(Define.INTENT_PATH);
+            final boolean thumb = data.getBooleanExtra(Define.INTENT_THUMB, false);
+            final int quality = data.getIntExtra(Define.INTENT_QUALITY, 1);
+            final int maxHeight = data.getIntExtra(Define.INTENT_MAXHEIGHT, 1);
+            final int maxWidth = data.getIntExtra(Define.INTENT_MAXWIDTH, 1);
+            compressImageAndFinish(photos, thumb, quality, maxHeight, maxWidth);
             return true;
         } else {
             finishWithSuccess(Collections.emptyList());
@@ -652,197 +215,100 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         return false;
     }
 
-    private HashMap<String, Object> getLatLng(ExifInterface exifInterface, @NonNull Uri uri) {
-        HashMap<String, Object> result = new HashMap<>();
-        double[] latLong = exifInterface.getLatLong();
-        if (latLong != null && latLong.length == 2) {
-            result.put(ExifInterface.TAG_GPS_LATITUDE, Math.abs(latLong[0]));
-            result.put(ExifInterface.TAG_GPS_LONGITUDE, Math.abs(latLong[1]));
-        }
-        return result;
-    }
-
-    private HashMap<String, Object> getLatLng(@NonNull Uri uri) {
-        HashMap<String, Object> result = new HashMap<>();
-        String latitudeStr = "latitude";
-        String longitudeStr = "longitude";
-        List<String> latlngList = Arrays.asList(latitudeStr, longitudeStr);
-
-        int indexNotPresent = -1;
-
-        String uriScheme = uri.getScheme();
-
-        if (uriScheme == null) {
-            return result;
-        }
-
-        if ("content".equals(uriScheme)) {
-            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-
-            if (cursor == null) {
-                return result;
-            }
-
-            try {
-                String[] columnNames = cursor.getColumnNames();
-                List<String> columnNamesList = Arrays.asList(columnNames);
-
-                for (String latorlngStr : latlngList) {
-                    cursor.moveToFirst();
-                    int index = columnNamesList.indexOf(latorlngStr);
-                    if (index > indexNotPresent) {
-                        Double val = cursor.getDouble(index);
-                        // Inserting it as abs as it is the ref the define if the value should be negative or positive
-                        if (latorlngStr.equals(latitudeStr)) {
-                            result.put(ExifInterface.TAG_GPS_LATITUDE, Math.abs(val));
-                        } else {
-                            result.put(ExifInterface.TAG_GPS_LONGITUDE, Math.abs(val));
+    private void compressImageAndFinish(final List<Uri> photos, final boolean thumb, final int quality, final int maxHeight, final int maxWidth) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<HashMap<String, Object>> result = new ArrayList<>(photos.size());
+                for (Uri uri : photos) {
+                    HashMap<String, Object> map = new HashMap<>();
+                    InputStream is;
+                    int width = 0, height = 0;
+                    String fileName = UUID.randomUUID().toString() + ".jpg";
+                    String filePath = "";
+                    try {
+                        is = context.getContentResolver().openInputStream(uri);
+                        File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
+                        if (!tmpPicParentDir.exists()) {
+                            tmpPicParentDir.mkdirs();
                         }
+                        File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
+                        if (tmpPic.exists()) {
+                            tmpPic.delete();
+                        }
+                        filePath = tmpPic.getAbsolutePath();
+                        HashMap hashMap = transImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
+                        if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
+                            map.put("width", hashMap.get("width"));
+                            map.put("height", hashMap.get("heigth"));
+                        }else {
+                            continue;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                }
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    cursor.close();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
 
-        return result;
+                    map.put("width", width);
+                    map.put("height", height);
+                    map.put("name", fileName);
+                    map.put("filePath", filePath);
+                    map.put("identifier", uri.toString());
+                    result.add(map);
+                }
+
+                Handler mainThread = new Handler(Looper.getMainLooper());
+                mainThread.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        finishWithSuccess(result);
+                    }
+                });
+            }
+        }).start();
     }
 
-    private String getFileName(Uri uri) {
-        String result = null;
-        if ("content".equals(uri.getScheme())) {
-            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
-        return result;
-    }
-
-    private static int getOrientation(Context context, Uri photoUri) {
-        int rotationDegrees = 0;
+    public HashMap transImage(InputStream fromFile, File toFile, int width, int height, int quality) {
+        HashMap result = new HashMap();
         try {
-            InputStream in;
-            if ("content".equals(photoUri.getScheme())) {
-                in = context.getContentResolver().openInputStream(photoUri);
-            }else {
-                in = new FileInputStream(new File(photoUri.getPath()));
-            }
-            assert (in != null);
-            ExifInterface exifInterface = new ExifInterface(in);
-            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotationDegrees = 90;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    rotationDegrees = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    rotationDegrees = 270;
-                    break;
-            }
-        } catch (Exception ignored) {
+            Bitmap bitmap = BitmapFactory.decodeStream(fromFile);
+            int bitmapWidth = bitmap.getWidth();
+            int bitmapHeight = bitmap.getHeight();
 
-        }
-        return  rotationDegrees;
-    }
-
-    private static Bitmap getCorrectlyOrientedImage(Context context, Uri photoUri) throws IOException {
-        InputStream is;
-        if ("content".equals(photoUri.getScheme())) {
-            is = context.getContentResolver().openInputStream(photoUri);
-        }else {
-            is = new FileInputStream(new File(photoUri.getPath()));
-        }
-        BitmapFactory.Options dbo = new BitmapFactory.Options();
-        dbo.inScaled = false;
-        dbo.inSampleSize = 1;
-        dbo.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(is, null, dbo);
-        if (is != null) {
-            is.close();
-        }
-
-        int orientation = getOrientation(context, photoUri);
-
-        Bitmap srcBitmap;
-        if ("content".equals(photoUri.getScheme())) {
-            is = context.getContentResolver().openInputStream(photoUri);
-        }else {
-            is = new FileInputStream(new File(photoUri.getPath()));
-        }
-        srcBitmap = BitmapFactory.decodeStream(is);
-        if (is != null) {
-            is.close();
-        }
-
-        if (orientation > 0) {
+            float scaleWidth = -1 == width ? 1 : ((float) width / bitmapWidth);
+            float scaleHeight = -1 == width ? 1 : ((float) height / bitmapHeight);
+            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
             Matrix matrix = new Matrix();
-            matrix.postRotate(orientation);
+            matrix.postScale(scale, scale);
+            result.put("width", bitmapWidth * scale);
+            result.put("height", bitmapHeight * scale);
 
-            srcBitmap = Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(),
-                    srcBitmap.getHeight(), matrix, true);
-        }
-
-        return srcBitmap;
-    }
-
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) >= reqHeight
-                    && (halfWidth / inSampleSize) >= reqWidth) {
-                inSampleSize *= 2;
+            Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
+            File myCaptureFile = toFile;
+            if (myCaptureFile.exists()) myCaptureFile.delete();
+            FileOutputStream out = new FileOutputStream(myCaptureFile);
+            if(resizeBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)){
+                out.flush();
+                out.close();
             }
+            if(!bitmap.isRecycled()){
+                bitmap.recycle();//记得释放资源，否则会内存溢出
+            }
+            if(!resizeBitmap.isRecycled()){
+                resizeBitmap.recycle();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            result.clear();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            result.clear();
         }
-
-        return inSampleSize;
+        return result;
     }
 
     private void finishWithSuccess(List imagePathList) {
         if (pendingResult != null)
             pendingResult.success(imagePathList);
-        clearMethodCallAndResult();
-    }
-
-    private void finishWithSuccess(HashMap<String, Object> hashMap) {
-        if (pendingResult != null)
-            pendingResult.success(hashMap);
-        clearMethodCallAndResult();
-    }
-
-    private void finishWithSuccess() {
-        if (pendingResult != null)
-            pendingResult.success(true);
         clearMethodCallAndResult();
     }
 
@@ -862,8 +328,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         pendingResult = null;
     }
 
-    private boolean setPendingMethodCallAndResult(
-            MethodCall methodCall, MethodChannel.Result result) {
+    private boolean setPendingMethodCallAndResult(MethodCall methodCall, MethodChannel.Result result) {
         if (pendingResult != null) {
             return false;
         }

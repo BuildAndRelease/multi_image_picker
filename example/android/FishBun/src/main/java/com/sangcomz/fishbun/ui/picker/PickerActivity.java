@@ -2,27 +2,16 @@ package com.sangcomz.fishbun.ui.picker;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,26 +22,26 @@ import com.sangcomz.fishbun.adapter.view.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.permission.PermissionCheck;
+import com.sangcomz.fishbun.ui.album.AlbumPickerPopupCallBack;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 import com.sangcomz.fishbun.util.SingleMediaScanner;
 import com.sangcomz.fishbun.util.SquareFrameLayout;
-import com.sangcomz.fishbun.util.TopMiddlePopup;
-import com.sangcomz.fishbun.util.UiUtil;
+import com.sangcomz.fishbun.ui.album.AlbumPickerPopup;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 public class PickerActivity extends BaseActivity implements View.OnClickListener {
-
     private static final String TAG = "PickerActivity";
 
-    public static int screenW, screenH;
     private Button cancelBtn;
     private RelativeLayout moreContentView;
     private RelativeLayout toolBar;
     private ImageView moreArrowImageView;
+    private TextView titleTextView;
     private Button originBtn;
     private Button sendBtn;
     private RecyclerView recyclerView;
@@ -61,7 +50,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     private int position;
     private PickerGridAdapter adapter;
     private GridLayoutManager layoutManager;
-    private TopMiddlePopup middlePopup;
+    private AlbumPickerPopup middlePopup;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -97,7 +86,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_picker);
-        getScreenPixels();
         initController();
         initValue();
         initView();
@@ -123,8 +111,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             }
         } else if (requestCode == define.ENTER_DETAIL_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                if (fishton.isAutomaticClose() && fishton.getSelectedImages().size() == fishton.getMaxCount())
-                    finishActivity();
                 refreshThumb();
             }
         }
@@ -175,7 +161,19 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             } else if (v.equals(cancelBtn)) {
                 finish();
             } else if (v.equals(moreContentView)) {
-                middlePopup.show(toolBar);
+                middlePopup = new AlbumPickerPopup(PickerActivity.this);
+                middlePopup.setCallBack(new AlbumPickerPopupCallBack() {
+                    @Override
+                    public void albumPickerPopupDidSelectAlbum(Album album, int position) {
+                        if (pickerController.checkPermission()) {
+                            PickerActivity.this.album = album;
+                            PickerActivity.this.position = position;
+                            pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
+                            titleTextView.setText(album.bucketName);
+                        }
+                    }
+                });
+                middlePopup.showAsDropDown(toolBar, 0, 0);
             }
         }
     }
@@ -212,33 +210,9 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
 
         moreArrowImageView = findViewById(R.id.album_pick_down_arrow_image);
 
-        middlePopup = new TopMiddlePopup(PickerActivity.this);
+        titleTextView = findViewById(R.id.album_pick_title_text_view);
+        titleTextView.setText(album.bucketName);
     }
-
-    /**
-     * 设置弹窗内容
-     *
-     * @return
-     */
-    private ArrayList<String> getItemsName() {
-        ArrayList<String> items = new ArrayList<String>();
-        items.add("企业客户");
-        items.add("集团客户");
-        items.add("公海客户");
-        return items;
-    }
-    /**
-     * 弹窗点击事件
-     */
-    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
-
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position,
-                                long id) {
-            System.out.println("--onItemClickListener--:");
-            middlePopup.dismiss();
-        }
-    };
 
     public void updateSendBtnTitle() {
         if (fishton.getSelectedImages().size() > 0) {
@@ -284,7 +258,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                         updateSendBtnTitle();
                     }
                 }
-
             }
         }
     }
@@ -294,27 +267,22 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         Intent i = new Intent();
         i.putParcelableArrayListExtra(define.INTENT_ADD_PATH, pickerController.getAddImagePaths());
         i.putExtra(define.INTENT_POSITION, position);
+        i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
+        i.putExtra(Define.INTENT_MAXHEIGHT, fishton.getMaxHeight());
+        i.putExtra(Define.INTENT_MAXWIDTH, fishton.getMaxWidth());
         setResult(define.TRANS_IMAGES_RESULT_CODE, i);
         finish();
     }
 
     public void finishActivity() {
         Intent i = new Intent();
+        i.putParcelableArrayListExtra(Define.INTENT_PATH, fishton.getSelectedImages());
+        i.putExtra(Define.INTENT_THUMB, fishton.isThumb());
+        i.putExtra(Define.INTENT_QUALITY, fishton.getQuality());
+        i.putExtra(Define.INTENT_MAXHEIGHT, fishton.getMaxHeight());
+        i.putExtra(Define.INTENT_MAXWIDTH, fishton.getMaxWidth());
+        i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
         setResult(RESULT_OK, i);
-        if (fishton.isStartInAllView()) {
-            i.putParcelableArrayListExtra(Define.INTENT_PATH, fishton.getSelectedImages());
-            i.putExtra(Define.INTENT_THUMB, fishton.isThumb());
-            i.putExtra(Define.INTENT_QUALITY, fishton.getQualityOfThumb());
-        }
         finish();
-    }
-    /**
-     * 获取屏幕的宽和高
-     */
-    public void getScreenPixels() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        screenW = metrics.widthPixels;
-        screenH = metrics.heightPixels;
     }
 }

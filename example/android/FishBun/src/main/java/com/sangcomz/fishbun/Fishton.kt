@@ -15,20 +15,19 @@ class Fishton {
     var imageAdapter: ImageAdapter? = null
     var pickerImages: List<Uri>? = null
 
-    //BaseParams
+    var quality : Int = 1
+    var maxHeight : Int = 300
+    var maxWidth : Int = 300
     var maxCount: Int = 0
-    var qualityOfThumb : Int = 1
     var minCount: Int = 0
     var exceptMimeTypeList = emptyList<MimeType>()
     var selectedImages = ArrayList<Uri>()
 
-    //CustomizationParams
     var specifyFolderList = emptyList<String>()
     var photoSpanCount: Int = 0
     var albumPortraitSpanCount: Int = 0
     var albumLandscapeSpanCount: Int = 0
 
-    var isAutomaticClose: Boolean = false
     var isButton: Boolean = false
     var isThumb:Boolean = true
 
@@ -63,8 +62,6 @@ class Fishton {
     var colorSelectCircleStroke: Int = 0
     var colorDeSelectCircleStroke: Int = 0
 
-    var isStartInAllView: Boolean = false
-
     init {
         init()
     }
@@ -77,7 +74,7 @@ class Fishton {
 
         //BaseParams
         maxCount = 10
-        qualityOfThumb = 1
+        quality = 1
         minCount = 1
         exceptMimeTypeList = emptyList()
         selectedImages = ArrayList()
@@ -88,7 +85,6 @@ class Fishton {
         albumPortraitSpanCount = 1
         albumLandscapeSpanCount = 2
 
-        isAutomaticClose = false
         isButton = false
         isThumb = true;
 
@@ -117,7 +113,6 @@ class Fishton {
 
         colorSelectCircleStroke = Color.parseColor("#00BA5A")
         colorDeSelectCircleStroke = Color.parseColor("#FFFFFF")
-        isStartInAllView = false
     }
 
     fun setDefaultMessage(context: Context) {

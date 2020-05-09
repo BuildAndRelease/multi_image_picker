@@ -5,16 +5,13 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import com.sangcomz.fishbun.bean.Album
 import com.sangcomz.fishbun.define.Define
-import com.sangcomz.fishbun.ui.album.AlbumActivity
 import com.sangcomz.fishbun.ui.picker.PickerActivity
-import java.util.*
 import kotlin.collections.ArrayList
 
 /**
  * Created by sangcomz on 17/05/2017.
  */
-class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton) : BaseProperty,
-    CustomizationProperty {
+class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton) : BaseProperty, CustomizationProperty {
     private var requestCode = 27
 
     override fun setSelectedImages(selectedImages: ArrayList<Uri>): FishBunCreator = this.apply {
@@ -29,13 +26,16 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.photoSpanCount = if (spanCount <= 0) 3 else spanCount
     }
 
-    @Deprecated("instead setMaxCount(count)", ReplaceWith("setMaxCount(count)"))
-    override fun setPickerCount(count: Int): FishBunCreator = this.apply {
-        setMaxCount(count)
+    override fun setMaxHeight(maxHeigth: Int): FishBunCreator = this.apply {
+        fishton.maxHeight = if (maxHeigth < 0) 300 else maxHeigth
     }
 
-    override fun setQualityOfThumb(qualityOfThumb: Int): FishBunCreator = this.apply {
-        fishton.qualityOfThumb = if (qualityOfThumb in 1..100) qualityOfThumb else 50
+    override fun setMaxWidth(maxWidth: Int): FishBunCreator = this.apply {
+        fishton.maxWidth = if (maxWidth < 0) 300 else maxWidth
+    }
+
+    override fun setQuality(qualityOfThumb: Int): FishBunCreator = this.apply {
+        fishton.quality = if (qualityOfThumb in 1..100) qualityOfThumb else 50
     }
 
     override fun setMaxCount(count: Int): FishBunCreator = this.apply {
@@ -90,11 +90,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.isButton = isButton
     }
 
-    override fun setReachLimitAutomaticClose(isAutomaticClose: Boolean): FishBunCreator =
-        this.apply {
-            fishton.isAutomaticClose = isAutomaticClose
-        }
-
     override fun setAlbumSpanCount(
         portraitSpanCount: Int,
         landscapeSpanCount: Int
@@ -136,11 +131,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.isUseAllDoneButton = isUse
     }
 
-    @Deprecated("instead setMaxCount(count)", ReplaceWith("exceptMimeType(mimeType)"))
-    override fun exceptGif(isExcept: Boolean): FishBunCreator = this.apply {
-        fishton.exceptMimeTypeList = arrayListOf(MimeType.GIF)
-    }
-
     override fun exceptMimeType(exceptMimeTypeList: List<MimeType>) = this.apply {
         fishton.exceptMimeTypeList = exceptMimeTypeList
     }
@@ -165,10 +155,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.colorSelectCircleStroke = strokeColor
     }
 
-    override fun isStartInAllView(isStartInAllView: Boolean): FishBunCreator = this.apply {
-        fishton.isStartInAllView = isStartInAllView
-    }
-
     override fun setSpecifyFolderList(specifyFolderList: List<String>) = this.apply {
         fishton.specifyFolderList = specifyFolderList
     }
@@ -178,7 +164,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         val context = fishBunContext.getContext()
 
         exceptionHandling()
-
         if (fishton.imageAdapter == null) throw NullPointerException("ImageAdapter is Null")
 
         with(fishton) {
@@ -187,21 +172,15 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
             setDefaultDimen(context)
         }
 
-        val intent: Intent =
-            if (fishton.isStartInAllView) {
-                Intent(context, PickerActivity::class.java).apply {
-                    putExtra(Define.BUNDLE_NAME.ALBUM.name, Album(0, fishton.titleAlbumAllView, null, 0))
-                    putExtra(Define.BUNDLE_NAME.POSITION.name, 0)
-                }
-            } else {
-                Intent(context, AlbumActivity::class.java)
-            }
+        val intent: Intent = Intent(context, PickerActivity::class.java).apply {
+            putExtra(Define.BUNDLE_NAME.ALBUM.name, Album(0, fishton.titleAlbumAllView, null, 0))
+            putExtra(Define.BUNDLE_NAME.POSITION.name, 0)
+        }
 
         fishBunContext.startActivityForResult(intent, requestCode)
     }
 
     private fun exceptionHandling() {
-        //TODO support camera
         if (fishton.isCamera) {
             fishton.isCamera = fishton.specifyFolderList.isEmpty()
         }

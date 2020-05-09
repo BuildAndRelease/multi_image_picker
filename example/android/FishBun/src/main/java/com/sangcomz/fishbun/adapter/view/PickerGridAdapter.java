@@ -140,7 +140,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         } else {
             animScale(imgThumbImage, false);
             pickedImages.add(image);
-            if (fishton.isAutomaticClose() && fishton.getMaxCount() == pickedImages.size()) {
+            if (fishton.getMaxCount() == pickedImages.size()) {
                 pickerController.finishActivity();
             }
             updateRadioButton(btnThumbCount, String.valueOf(pickedImages.size()));

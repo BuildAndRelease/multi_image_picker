@@ -8,19 +8,17 @@ import android.net.Uri
 interface BaseProperty {
     fun setSelectedImages(selectedImages: ArrayList<Uri>): FishBunCreator
 
-    fun setPickerCount(count: Int): FishBunCreator
-
     fun setMaxCount(count: Int): FishBunCreator
-
-    fun setQualityOfThumb(qualityOfThumb: Int): FishBunCreator
 
     fun setMinCount(count: Int): FishBunCreator
 
+    fun setMaxHeight(maxHeigth: Int): FishBunCreator
+
+    fun setMaxWidth(maxWidth: Int): FishBunCreator
+
+    fun setQuality(qualityOfThumb: Int): FishBunCreator
+
     fun setRequestCode(requestCode: Int): FishBunCreator
-
-    fun setReachLimitAutomaticClose(isAutomaticClose: Boolean): FishBunCreator
-
-    fun exceptGif(isExcept: Boolean): FishBunCreator
 
     fun exceptMimeType(exceptMimeTypeList: List<MimeType>): FishBunCreator
 

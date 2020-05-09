@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.example.multi_image_picker.R
 import com.sangcomz.fishbun.Fishton
-import com.sangcomz.fishbun.R
 import com.sangcomz.fishbun.bean.Album
 import kotlinx.android.synthetic.main.album_item.view.*
 

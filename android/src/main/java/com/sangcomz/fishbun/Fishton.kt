@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import com.example.multi_image_picker.R
 import com.sangcomz.fishbun.adapter.image.ImageAdapter
 import com.sangcomz.fishbun.util.getDimension
 import java.util.ArrayList

@@ -7,9 +7,9 @@ import androidx.viewpager.widget.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.multi_image_picker.R
 
 import com.sangcomz.fishbun.Fishton
-import com.sangcomz.fishbun.R
 import kotlinx.android.synthetic.main.detail_item.view.*
 
 /**

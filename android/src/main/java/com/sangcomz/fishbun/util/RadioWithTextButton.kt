@@ -10,8 +10,7 @@ import android.util.TypedValue
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.VisibleForTesting
-
-import com.sangcomz.fishbun.R
+import com.example.multi_image_picker.R
 
 /**
  * Created by sangcomz on 01/05/2017.

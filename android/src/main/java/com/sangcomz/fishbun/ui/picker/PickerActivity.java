@@ -15,9 +15,9 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.sangcomz.fishbun.BaseActivity;
-import com.sangcomz.fishbun.R;
 import com.sangcomz.fishbun.adapter.view.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.define.Define;

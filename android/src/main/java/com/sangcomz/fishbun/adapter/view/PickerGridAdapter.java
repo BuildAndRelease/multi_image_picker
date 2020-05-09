@@ -16,9 +16,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.sangcomz.fishbun.Fishton;
-import com.sangcomz.fishbun.R;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.ui.detail.DetailActivity;
 import com.sangcomz.fishbun.ui.picker.PickerActivity;

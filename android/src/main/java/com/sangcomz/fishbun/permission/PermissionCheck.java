@@ -12,7 +12,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.sangcomz.fishbun.R;
+import com.example.multi_image_picker.R;
 import com.sangcomz.fishbun.define.Define;
 
 

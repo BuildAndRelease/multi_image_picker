@@ -55,6 +55,7 @@ final class AlbumCell: UITableViewCell {
 
         imageContainerView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(imageContainerView)
+        albumTitleLabel.numberOfLines = 3
         albumTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(albumTitleLabel)
         

@@ -1,8 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-import 'package:multi_image_picker/multi_image_picker.dart';
-
 class Asset {
   /// The resource identifier
   String _identifier;
@@ -14,10 +9,10 @@ class Asset {
   String _name;
 
   /// Original image width
-  int _originalWidth;
+  double _originalWidth;
 
   /// Original image height
-  int _originalHeight;
+  double _originalHeight;
 
   Asset(
     this._identifier,
@@ -27,22 +22,13 @@ class Asset {
     this._originalHeight,
   );
 
-  /// The BinaryChannel name this asset is listening on.
-  String get _channel {
-    return 'multi_image_picker/image/$_identifier';
-  }
-
-  String get _thumbChannel => '$_channel.thumb';
-
-  String get _originalChannel => '$_channel.original';
-
   /// Returns the original image width
-  int get originalWidth {
+  double get originalWidth {
     return _originalWidth;
   }
 
   /// Returns the original image height
-  int get originalHeight {
+  double get originalHeight {
     return _originalHeight;
   }
 
@@ -69,17 +55,5 @@ class Asset {
   /// Returns the image name
   String get name {
     return _name;
-  }
-  
-  /// Requests the original image meta data
-  Future<Metadata> get metadata {
-    return MultiImagePicker.requestMetadata(_identifier);
-  }
-
-  @Deprecated(
-    'This method will be deprecated in the next major release. Please use metadata getter instead.',
-  )
-  Future<Metadata> requestMetadata() {
-    return metadata;
   }
 }

@@ -276,8 +276,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
             Matrix matrix = new Matrix();
             matrix.postScale(scale, scale);
-            result.put("width", ((int)bitmapWidth * scale));
-            result.put("height", ((int)bitmapHeight * scale));
+            result.put("width", (bitmapWidth * scale));
+            result.put("height", (bitmapHeight * scale));
 
             Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
             File myCaptureFile = toFile;

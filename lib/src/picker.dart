@@ -7,8 +7,7 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:multi_image_picker/src/exceptions.dart';
 
 class MultiImagePicker {
-  static const MethodChannel _channel =
-      const MethodChannel('multi_image_picker');
+  static const MethodChannel _channel = const MethodChannel('multi_image_picker');
 
   /// Invokes the multi image picker selector.
   ///
@@ -87,98 +86,5 @@ class MultiImagePicker {
           throw e;
       }
     }
-  }
-
-  /// Requests a thumbnail with [width], [height]
-  /// and [quality] for a given [identifier].
-  ///
-  /// This method is used by the asset class, you
-  /// should not invoke it manually. For more info
-  /// refer to [Asset] class docs.
-  ///
-  /// The actual image data is sent via BinaryChannel.
-  static Future<bool> requestThumbnail(
-      String identifier, int width, int height, int quality) async {
-    assert(identifier != null);
-    assert(width != null);
-    assert(height != null);
-
-    if (width != null && width < 0) {
-      throw new ArgumentError.value(width, 'width cannot be negative');
-    }
-
-    if (height != null && height < 0) {
-      throw new ArgumentError.value(height, 'height cannot be negative');
-    }
-
-    if (quality < 0 || quality > 100) {
-      throw new ArgumentError.value(
-          quality, 'quality should be in range 0-100');
-    }
-
-    try {
-      bool ret = await _channel.invokeMethod(
-          "requestThumbnail", <String, dynamic>{
-        "identifier": identifier,
-        "width": width,
-        "height": height,
-        "quality": quality
-      });
-      return ret;
-    } on PlatformException catch (e) {
-      switch (e.code) {
-        case "ASSET_DOES_NOT_EXIST":
-          throw AssetNotFoundException(e.message);
-        case "PERMISSION_DENIED":
-          throw PermissionDeniedException(e.message);
-        case "PERMISSION_PERMANENTLY_DENIED":
-          throw PermissionPermanentlyDeniedExeption(e.message);
-        default:
-          throw e;
-      }
-    }
-  }
-
-  // Requests image metadata for a given [identifier]
-  static Future<Metadata> requestMetadata(String identifier) async {
-    Map<dynamic, dynamic> map = await _channel.invokeMethod(
-      "requestMetadata",
-      <String, dynamic>{
-        "identifier": identifier,
-      },
-    );
-
-    Map<String, dynamic> metadata = Map<String, dynamic>.from(map);
-    if (Platform.isIOS) {
-      metadata = _normalizeMetadata(metadata);
-    }
-
-    return Metadata.fromMap(metadata);
-  }
-
-  /// Normalizes the meta data returned by iOS.
-  static Map<String, dynamic> _normalizeMetadata(Map<String, dynamic> json) {
-    Map map = Map<String, dynamic>();
-
-    json.forEach((String metaKey, dynamic metaValue) {
-      if (metaKey == '{Exif}' || metaKey == '{TIFF}') {
-        map.addAll(Map<String, dynamic>.from(metaValue));
-      } else if (metaKey == '{GPS}') {
-        Map gpsMap = Map<String, dynamic>();
-        Map<String, dynamic> metaMap = Map<String, dynamic>.from(metaValue);
-        metaMap.forEach((String key, dynamic value) {
-          if (key == 'GPSVersion') {
-            gpsMap['GPSVersionID'] = value;
-          } else {
-            gpsMap['GPS$key'] = value;
-          }
-        });
-        map.addAll(gpsMap);
-      } else {
-        map[metaKey] = metaValue;
-      }
-    });
-
-    return map;
   }
 }

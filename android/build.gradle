@@ -1,9 +1,13 @@
 group 'com.example.multi_image_picker'
 version '1.0-SNAPSHOT'
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'jacoco-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: "com.jfrog.bintray"
+apply plugin: 'co.riiid.gradle'
 
 buildscript {
     ext {
@@ -37,9 +41,6 @@ rootProject.allprojects {
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-
 android {
     compileSdkVersion 'android-R'
 
@@ -54,10 +55,6 @@ android {
         disable 'InvalidPackage'
     }
 }
-
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: "com.jfrog.bintray"
-apply plugin: 'co.riiid.gradle'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

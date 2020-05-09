@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="com.example.multi_image_picker">
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.CAMERA" />
 
     <application>
         <provider
@@ -11,6 +14,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <activity
+            android:name="com.sangcomz.fishbun.BaseActivity"
+            android:theme="@style/FishBunTheme" />
 
         <activity
             android:name="com.sangcomz.fishbun.ui.picker.PickerActivity"

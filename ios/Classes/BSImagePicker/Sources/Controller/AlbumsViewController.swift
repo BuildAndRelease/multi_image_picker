@@ -24,7 +24,7 @@ import UIKit
 
 final class AlbumsViewController: UITableViewController {
     init() {
-        super.init(style: .grouped)
+        super.init(style: .plain)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -41,8 +41,10 @@ final class AlbumsViewController: UITableViewController {
         tableView.backgroundView = visualEffectView
         tableView.backgroundColor = UIColor.clear
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 100
+        tableView.estimatedRowHeight = 90
         tableView.separatorStyle = .none
+        tableView.sectionFooterHeight = 0
+        tableView.sectionHeaderHeight = 0
         modalPresentationStyle = .popover
         preferredContentSize = CGSize(width: 320, height: 300)
 

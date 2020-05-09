@@ -55,8 +55,12 @@ final class AlbumTableViewDataSource : NSObject, UITableViewDataSource {
         // Fetch album
         let album = fetchResults[indexPath.section][indexPath.row]
         // Title
-        cell.albumTitleLabel.text = album.localizedTitle
-
+        if album.estimatedAssetCount > 1000 || album.estimatedAssetCount <= 0 {
+            cell.albumTitleLabel.text = album.localizedTitle
+        }else {
+            cell.albumTitleLabel.text = "\(String(describing: (album.localizedTitle ?? "未知相册名称")!))(约\(album.estimatedAssetCount)张)"
+        }
+        
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [
             NSSortDescriptor(key: "creationDate", ascending: false)

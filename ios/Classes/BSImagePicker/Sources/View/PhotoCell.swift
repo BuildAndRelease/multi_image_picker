@@ -94,19 +94,36 @@ final class PhotoCell: UICollectionViewCell {
 
         // Add constraints
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            selectionOverlayView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            selectionOverlayView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            selectionOverlayView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            selectionOverlayView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            selectionView.heightAnchor.constraint(equalToConstant: 25),
-            selectionView.widthAnchor.constraint(equalToConstant: 25),
-            selectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
-            selectionView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4)
+        NSLayoutConstraint(item: imageView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: imageView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: imageView, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: imageView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 0),
+        
+        NSLayoutConstraint(item: selectionOverlayView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: selectionOverlayView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: selectionOverlayView, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: selectionOverlayView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 0),
+        
+        NSLayoutConstraint(item: selectionView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 25),
+        NSLayoutConstraint(item: selectionView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 25),
+        NSLayoutConstraint(item: selectionView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: -4),
+        NSLayoutConstraint(item: selectionView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 4)
         ])
+        
+//        NSLayoutConstraint.activate([
+//            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+//            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+//            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+//            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+//            selectionOverlayView.topAnchor.constraint(equalTo: contentView.topAnchor),
+//            selectionOverlayView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+//            selectionOverlayView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+//            selectionOverlayView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+//            selectionView.heightAnchor.constraint(equalToConstant: 25),
+//            selectionView.widthAnchor.constraint(equalToConstant: 25),
+//            selectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
+//            selectionView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4)
+//        ])
     }
     
     required init?(coder aDecoder: NSCoder) {

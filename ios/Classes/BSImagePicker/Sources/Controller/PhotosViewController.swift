@@ -103,9 +103,8 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         
         bottomContentView.frame = self.navigationController?.toolbar.bounds ?? CGRect(x: 0, y: 0, width:  UIScreen.main.bounds.size.width, height: 49.0)
         bottomContentView.backgroundColor = UIColor.clear
-        self.navigationController?.toolbar.addSubview(bottomContentView)
         
-        doneBarButton.frame = CGRect(x: 0, y: 0, width: 60, height: 30)
+        doneBarButton.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
         doneBarButton.backgroundColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
         doneBarButton.setTitleColor(UIColor.white, for: .normal)
         doneBarButton.setTitleColor(UIColor.gray, for: .disabled)
@@ -117,7 +116,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40, y: bottomContentView.bounds.size.height/2.0)
         doneBarButton.addTarget(self, action: #selector(PhotosViewController.doneButtonPressed(_:)), for: .touchUpInside)
         
-        originBarButton.frame = CGRect(x: 60, y: 0, width: 70, height: 50)
+        originBarButton.frame = CGRect(x: 60, y: 0, width: 100, height: 50)
         originBarButton.setTitle(originBarButtonTitle, for: .normal)
         originBarButton.isSelected = false
         originBarButton.circleRadius = 8.0
@@ -153,8 +152,13 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     // MARK: Appear/Disappear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         updateDoneButton()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        self.navigationController?.setToolbarHidden(false, animated: true)
+        self.navigationController?.toolbar.layoutIfNeeded()
+        self.navigationController?.toolbar.addSubview(bottomContentView)
     }
     
     // MARK: Button actions

@@ -157,17 +157,17 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                     var results = [NSDictionary]();
                     var count = 0;
                     for asset in assets {
-                        var targetHeight = asset.pixelHeight
-                        var targetWidth = asset.pixelWidth
+                        var targetHeight : CGFloat = CGFloat(asset.pixelHeight)
+                        var targetWidth : CGFloat = CGFloat(asset.pixelWidth)
                         if (asset.pixelWidth > maxWidth || asset.pixelHeight > maxHeight) {
                             let heightCompressRatio = CGFloat(maxHeight)/CGFloat(asset.pixelHeight)
                             let widthCompressRatio = CGFloat(maxWidth)/CGFloat(asset.pixelWidth)
                             if (heightCompressRatio <= widthCompressRatio) {
-                                targetHeight = maxHeight
-                                targetWidth = Int(heightCompressRatio * CGFloat(asset.pixelWidth))
+                                targetHeight = CGFloat(maxHeight)
+                                targetWidth = heightCompressRatio * CGFloat(asset.pixelWidth)
                             }else {
-                                targetWidth = maxWidth
-                                targetHeight = Int(widthCompressRatio * CGFloat(asset.pixelHeight))
+                                targetWidth = CGFloat(maxWidth)
+                                targetHeight = widthCompressRatio * CGFloat(asset.pixelHeight)
                             }
                         }
                         let ID: PHImageRequestID = manager.requestImage(

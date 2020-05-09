@@ -222,12 +222,10 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 final List<HashMap<String, Object>> result = new ArrayList<>(photos.size());
                 for (Uri uri : photos) {
                     HashMap<String, Object> map = new HashMap<>();
-                    InputStream is;
-                    int width = 0, height = 0;
                     String fileName = UUID.randomUUID().toString() + ".jpg";
                     String filePath = "";
                     try {
-                        is = context.getContentResolver().openInputStream(uri);
+                        InputStream is = context.getContentResolver().openInputStream(uri);
                         File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
                         if (!tmpPicParentDir.exists()) {
                             tmpPicParentDir.mkdirs();
@@ -244,12 +242,11 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         }else {
                             continue;
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
+                        continue;
                     }
 
-                    map.put("width", width);
-                    map.put("height", height);
                     map.put("name", fileName);
                     map.put("filePath", filePath);
                     map.put("identifier", uri.toString());
@@ -299,7 +296,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             result.clear();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             result.clear();
         }

@@ -100,20 +100,20 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
 
-//            vh.imgThumbImage.setOnLongClickListener(new View.OnLongClickListener() {
-//                @Override
-//                public boolean onLongClick(View v) {
-//                    if (fishton.isUseDetailView()) {
-//                        if (context instanceof PickerActivity) {
-//                            PickerActivity activity = (PickerActivity) context;
-//                            Intent i = new Intent(activity, DetailActivity.class);
-//                            i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
-//                            activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
-//                        }
-//                    }
-//                    return true;
-//                }
-//            });
+            vh.imgThumbImage.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (fishton.isUseDetailView()) {
+                        if (context instanceof PickerActivity) {
+                            PickerActivity activity = (PickerActivity) context;
+                            Intent i = new Intent(activity, DetailActivity.class);
+                            i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
+                            activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
+                        }
+                    }
+                    return true;
+                }
+            });
         }
     }
 

@@ -30,21 +30,10 @@ public class AlbumPickerPopupController {
     boolean checkPermission() {
         PermissionCheck permissionCheck = new PermissionCheck(context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (permissionCheck.CheckStoragePermission())
-                return true;
-        } else
+            return permissionCheck.CheckStoragePermission();
+        } else {
             return true;
-        return false;
-    }
-
-    boolean checkCameraPermission() {
-        PermissionCheck permissionCheck = new PermissionCheck(context);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (permissionCheck.CheckCameraPermission())
-                return true;
-        } else
-            return true;
-        return false;
+        }
     }
 
     void getAlbumList(String allViewTitle, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
@@ -87,9 +76,8 @@ public class AlbumPickerPopupController {
                 while (c.moveToNext()) {
                     String mimeType = c.getString(bucketMimeType);
                     String folderName = c.getString(bucketColumn);
-
-                    if (isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, folderName))
-                        continue;
+                    int count = c.getCount();
+                    if (count <= 0 || isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, folderName)) continue;
 
                     totalCounter++;
                     long bucketId = c.getInt(bucketColumnId);

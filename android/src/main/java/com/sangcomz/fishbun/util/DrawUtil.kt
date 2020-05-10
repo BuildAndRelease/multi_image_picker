@@ -17,7 +17,7 @@ fun Paint.setTextSizeForWidth(text: String, desiredWidth: Float) {
     // more accurate results, but may cause problems with hardware
     // acceleration. But there are workarounds for that, too; refer to
     // http://stackoverflow.com/questions/6253528/font-size-too-large-to-fit-in-cache
-    val defaultTextSize = 44f
+    val defaultTextSize = 30f
     val textBounds = Rect()
     textSize = defaultTextSize
     getTextBounds(text, 0, text.length, textBounds)

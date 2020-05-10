@@ -17,4 +17,5 @@
     <string name="back">퇴장하다</string>
     <string name="cancel">취소</string>
     <string name="preview">미리보기</string>
+    <string name="none_album_string">photo album is empty</string>
 </resources>

@@ -17,4 +17,5 @@
     <string name="back">退出</string>
     <string name="cancel">取消</string>
     <string name="preview">预览</string>
+    <string name="none_album_string">专辑列表为空</string>
 </resources>

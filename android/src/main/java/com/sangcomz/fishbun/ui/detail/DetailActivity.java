@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -26,7 +27,6 @@ import java.util.UUID;
 public class DetailActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
     private static final String TAG = "DetailActivity";
 
-    private DetailController controller;
     private int initPosition;
     private RadioWithTextButton btnDetailCount;
     private ViewPager vpDetailPager;
@@ -39,15 +39,14 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         }
         setContentView(R.layout.activity_detail_actiivy);
-        initController();
         initValue();
         initView();
         initAdapter();
-        initToolBar();
     }
 
-    private void initController() {
-        controller = new DetailController(this);
+    private void initValue() {
+        Intent intent = getIntent();
+        initPosition = intent.getIntExtra(Define.BUNDLE_NAME.POSITION.name(), -1);
     }
 
     private void initView() {
@@ -60,21 +59,6 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         btnDetailCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
         btnDetailCount.setOnClickListener(this);
         btnDetailBack.setOnClickListener(this);
-        initToolBar();
-    }
-
-    private void initValue() {
-        Intent intent = getIntent();
-        initPosition = intent.getIntExtra(Define.BUNDLE_NAME.POSITION.name(), -1);
-    }
-
-    private void initToolBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            UiUtil.setStatusBarColor(this, fishton.getColorStatusBar());
-        }
-        if (fishton.isStatusBarLight() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            vpDetailPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
     }
 
     private void initAdapter() {
@@ -86,7 +70,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
 
         onCheckStateChange(fishton.getPickerImages().get(initPosition));
 
-        DetailViewPagerAdapter adapter = new DetailViewPagerAdapter(getLayoutInflater(), fishton.getPickerImages());
+        DetailViewPagerAdapter adapter = new DetailViewPagerAdapter((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE), fishton.getPickerImages());
         vpDetailPager.setAdapter(adapter);
         vpDetailPager.setCurrentItem(initPosition);
         vpDetailPager.addOnPageChangeListener(this);

@@ -9,9 +9,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -161,6 +163,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             } else if (v.equals(cancelBtn)) {
                 finish();
             } else if (v.equals(moreContentView)) {
+                ViewCompat.animate(moreArrowImageView).setDuration(300).rotationBy(180).start();
                 middlePopup = new AlbumPickerPopup(PickerActivity.this);
                 middlePopup.setCallBack(new AlbumPickerPopupCallBack() {
                     @Override
@@ -174,6 +177,12 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                     }
                 });
                 middlePopup.showAsDropDown(toolBar, 0, 0);
+                middlePopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        ViewCompat.animate(moreArrowImageView).setDuration(300).rotationBy(180).start();
+                    }
+                });
             }
         }
     }

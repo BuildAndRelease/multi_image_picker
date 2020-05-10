@@ -7,6 +7,7 @@ import androidx.viewpager.widget.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import com.example.multi_image_picker.R
 
 import com.sangcomz.fishbun.Fishton
@@ -30,7 +31,7 @@ class DetailViewPagerAdapter(private val inflater: LayoutInflater, private val i
 
     override fun destroyItem(container: ViewGroup, position: Int, targetObject: Any) {
         if (container is ViewPager) {
-            container.removeView(targetObject as ConstraintLayout)
+            container.removeView(targetObject as LinearLayout)
         }
     }
 

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -41,20 +42,15 @@ public class AlbumPickerPopup extends PopupWindow {
     private AlbumPickerPopupController albumController;
     private List<Album> albumList = Collections.emptyList();
     private RecyclerView recyclerAlbumList;
-    private RelativeLayout relAlbumEmpty;
     private AlbumListAdapter adapter;
 
     public AlbumPickerPopup(Context context) {
         this.myContext = context;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         myMenuView = inflater.inflate(R.layout.activity_photo_album, null);
-        relAlbumEmpty = myMenuView.findViewById(R.id.rel_album_empty);
         albumController = new AlbumPickerPopupController(this, context);
         fishton = Fishton.getInstance();
-//        if (albumController.checkPermission())
-            albumController.getAlbumList(fishton.getTitleAlbumAllView(),
-                    fishton.getExceptMimeTypeList(),
-                    fishton.getSpecifyFolderList());
+        albumController.getAlbumList(fishton.getTitleAlbumAllView(), fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
         setPopup();
     }
 
@@ -95,11 +91,11 @@ public class AlbumPickerPopup extends PopupWindow {
     protected void setAlbumList(List<Album> albumList) {
         this.albumList = albumList;
         if (albumList.size() > 0) {
-            relAlbumEmpty.setVisibility(View.GONE);
             initRecyclerView();
             setAlbumListAdapter();
-        } else {
-            relAlbumEmpty.setVisibility(View.VISIBLE);
+        }else {
+            Toast.makeText(myContext, R.string.none_album_string, Toast.LENGTH_SHORT).show();
+            dismiss();
         }
     }
 

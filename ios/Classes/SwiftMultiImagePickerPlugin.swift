@@ -130,7 +130,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 }
             }
             
-            let thumbDir = NSTemporaryDirectory() + "multi_image_pick/thumb/"
+            let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
             let manager = PHImageManager.default()
             let thumbOptions = PHImageRequestOptions()
             thumbOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat

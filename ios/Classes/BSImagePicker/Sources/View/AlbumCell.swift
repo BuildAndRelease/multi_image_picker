@@ -129,7 +129,6 @@ final class AlbumCell: UITableViewCell {
 //            firstImageView.trailingAnchor.constraint(equalTo: imageContainerView.trailingAnchor),
 //            firstImageView.bottomAnchor.constraint(equalTo: imageContainerView.bottomAnchor),
 //        ])
-//
         NSLayoutConstraint.activate([
             NSLayoutConstraint(item: thirdImageView, attribute: .leading, relatedBy: .equal, toItem: imageContainerView, attribute: .leading, multiplier: 1, constant: 0),
             NSLayoutConstraint(item: thirdImageView, attribute: .top, relatedBy: .equal, toItem: imageContainerView, attribute: .top, multiplier: 1, constant: 0),

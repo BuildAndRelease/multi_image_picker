@@ -59,7 +59,6 @@ final class AlbumCell: UITableViewCell {
         albumTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(albumTitleLabel)
         
-        
         NSLayoutConstraint.activate([
             NSLayoutConstraint(item: imageContainerView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 8),
             NSLayoutConstraint(item: imageContainerView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: -8),

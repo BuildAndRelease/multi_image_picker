@@ -28,7 +28,7 @@ class CustomTitleView: UIView {
         let iconWidth : CGFloat = 25.0
         let iconHeight : CGFloat = 25.0
         
-        titleView.frame = CGRect(x: 0, y: 0, width: frame.size.width - iconWidth, height: frame.size.height)
+        titleView.frame = CGRect(x: 5, y: 0, width: frame.size.width - iconWidth - 10, height: frame.size.height)
         titleView.backgroundColor = UIColor.clear
         titleView.textColor = UIColor.white
         titleView.textAlignment = .center

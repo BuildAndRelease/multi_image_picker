@@ -159,7 +159,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                     for asset in assets {
                         var targetHeight : CGFloat = CGFloat(asset.pixelHeight)
                         var targetWidth : CGFloat = CGFloat(asset.pixelWidth)
-                        if (asset.pixelWidth > maxWidth || asset.pixelHeight > maxHeight) {
+                        if (thumb && (asset.pixelWidth > maxWidth || asset.pixelHeight > maxHeight)) {
                             let heightCompressRatio = CGFloat(maxHeight)/CGFloat(asset.pixelHeight)
                             let widthCompressRatio = CGFloat(maxWidth)/CGFloat(asset.pixelWidth)
                             if (heightCompressRatio <= widthCompressRatio) {

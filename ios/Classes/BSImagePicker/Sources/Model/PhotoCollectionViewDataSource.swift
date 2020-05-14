@@ -43,8 +43,8 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         self.assetStore = assetStore
         imageRequestOptions = PHImageRequestOptions()
         imageRequestOptions.isNetworkAccessAllowed = false
-        imageRequestOptions.deliveryMode = .highQualityFormat
-        imageRequestOptions.resizeMode = .exact
+        imageRequestOptions.deliveryMode = .opportunistic
+        imageRequestOptions.resizeMode = .fast
 
         super.init()
     }

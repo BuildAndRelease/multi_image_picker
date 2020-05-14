@@ -80,7 +80,7 @@ Used as an overlay on selected cells
         if selected {
             settings.selectionFillColor.setFill()
         }else {
-            UIColor.clear.setFill()
+            UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).setFill()
         }
         checkedOvalPath.fill()
         context?.restoreGState()
@@ -94,7 +94,7 @@ Used as an overlay on selected cells
         checkedOvalPath.stroke()
         
         
-        context?.setFillColor(UIColor.white.cgColor)
+        context?.setFillColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).cgColor)
         
         //// Check mark for single assets
         if (settings.maxNumberOfSelections == 1) {

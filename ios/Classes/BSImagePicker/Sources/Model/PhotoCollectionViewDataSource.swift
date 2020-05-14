@@ -35,7 +35,6 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
     private let assetStore: AssetStore
     
     let settings: BSImagePickerSettings?
-    var imageSize: CGSize = .zero
     
     init(fetchResult: PHFetchResult<PHAsset>, assetStore: AssetStore, settings: BSImagePickerSettings?) {
         self.fetchResult = fetchResult
@@ -45,6 +44,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         imageRequestOptions.isNetworkAccessAllowed = false
         imageRequestOptions.deliveryMode = .opportunistic
         imageRequestOptions.resizeMode = .fast
+        imageRequestOptions.isSynchronous = false
 
         super.init()
     }
@@ -73,6 +73,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         
         let asset = fetchResult[indexPath.row]
         cell.asset = asset
+        let imageSize = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
         
         // Request image
         cell.tag = Int(photosManager.requestImage(for: asset, targetSize: imageSize, contentMode: imageContentMode, options: imageRequestOptions) { (result, _) in
@@ -105,4 +106,13 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
     func registerCellIdentifiersForCollectionView(_ collectionView: UICollectionView?) {
         collectionView?.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.cellIdentifier)
     }
+    
+    private func getThumbnailSize(originSize: CGSize) -> CGSize {
+        let thumbnailWidth: CGFloat = (UIScreen.main.bounds.size.width - 5 * 5) / 3 * UIScreen.main.scale
+        let pixelScale = CGFloat(originSize.width)/CGFloat(originSize.height)
+        let thumbnailSize = CGSize(width: thumbnailWidth, height: thumbnailWidth/pixelScale)
+        
+        return thumbnailSize
+    }
+    
 }

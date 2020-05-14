@@ -299,7 +299,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     func initializePhotosDataSourceWithFetchResult(_ fetchResult: PHFetchResult<PHAsset>) {
         let newDataSource = PhotoCollectionViewDataSource(fetchResult: fetchResult, assetStore: assetStore, settings: settings)
-        newDataSource.imageSize = imageSize()
         titleContentView.deSelectView()
         photosDataSource = newDataSource
         // Hook up data source
@@ -441,19 +440,9 @@ extension PhotosViewController {
             
             collectionViewFlowLayout.itemSpacing = itemSpacing
             collectionViewFlowLayout.itemsPerRow = cellsPerRow
-            
-            photosDataSource?.imageSize = imageSize()
-            
+                        
             updateDoneButton()
         }
-    }
-
-    private func imageSize() -> CGSize {
-        guard let collectionViewFlowLayout = collectionViewLayout as? GridCollectionViewLayout else { return .zero }
-        let scale = UIScreen.main.scale
-        let itemSize = collectionViewFlowLayout.itemSize
-
-        return CGSize(width: itemSize.width * scale, height: itemSize.height * scale)
     }
 }
 

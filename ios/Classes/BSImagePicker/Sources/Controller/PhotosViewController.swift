@@ -113,7 +113,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         doneBarButton.setBackgroundColor(color: UIColor.darkGray, for: .disabled)
         doneBarButton.layer.masksToBounds = true
         doneBarButton.layer.cornerRadius = 5.0
-        doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40, y: bottomContentView.bounds.size.height/2.0)
+        doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)
         doneBarButton.addTarget(self, action: #selector(PhotosViewController.doneButtonPressed(_:)), for: .touchUpInside)
         
         originBarButton.frame = CGRect(x: 60, y: 0, width: 100, height: 50)
@@ -159,7 +159,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         self.navigationController?.setToolbarHidden(false, animated: true)
         self.navigationController?.toolbar.layoutIfNeeded()
         bottomContentView.frame = self.navigationController?.toolbar.bounds ?? CGRect(x: 0, y: 0, width:  UIScreen.main.bounds.size.width, height: 49.0)
-        doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40, y: bottomContentView.bounds.size.height/2.0)
+        doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)
         originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
         self.navigationController?.toolbar.addSubview(bottomContentView)
     }

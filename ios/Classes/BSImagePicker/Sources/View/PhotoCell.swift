@@ -23,18 +23,34 @@
 import UIKit
 import Photos
 
+protocol PhotoCellDelegate : class {
+    func photoCellDidReceiveSelectAction(_ cell : PhotoCell)
+}
 /**
 The photo cell.
 */
-final class PhotoCell: UICollectionViewCell {
+final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
     static let cellIdentifier = "photoCellIdentifier"
     
+    weak var delegate : PhotoCellDelegate?
     let imageView: UIImageView = UIImageView(frame: .zero)
-
     private let selectionOverlayView: UIView = UIView(frame: .zero)
     private let selectionView: SelectionView = SelectionView(frame: .zero)
+    private let videoLabelContentView : UIView = UIView(frame: .zero)
+    private let videoLabelImageView : UIImageView = UIImageView(frame: .zero)
+    private let videoDurationLabel : UILabel = UILabel(frame: .zero)
     
-    weak var asset: PHAsset?
+    weak var asset: PHAsset? {
+        didSet {
+            if (asset != nil && .video == asset?.mediaType) {
+                videoLabelContentView.isHidden = false
+                videoDurationLabel.text = "\(String(format: "%02d", (Int)(asset?.duration ?? 0)/60)):\(String(format: "%02d", (Int)(asset?.duration ?? 0)%60))"
+            }else {
+                videoLabelContentView.isHidden = true
+            }
+        }
+    }
+
     var settings: BSImagePickerSettings {
         get {
             return selectionView.settings
@@ -82,15 +98,42 @@ final class PhotoCell: UICollectionViewCell {
         super.init(frame: frame)
 
         // Setup views
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
         selectionOverlayView.backgroundColor = UIColor.darkGray
         selectionOverlayView.translatesAutoresizingMaskIntoConstraints = false
+        
         selectionView.translatesAutoresizingMaskIntoConstraints = false
+        selectionView.delegate = self
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [UIColor(red: 0, green: 0, blue: 0, alpha: 0.8).cgColor, UIColor(red: 0, green: 0, blue: 0, alpha: 0.0).cgColor]
+        gradientLayer.locations = [0, 1.0]
+        gradientLayer.startPoint = CGPoint(x: 0, y: 1.0)
+        gradientLayer.endPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.frame = CGRect(x: 0, y: 0, width: 320, height: 25)
+        videoLabelContentView.layer.addSublayer(gradientLayer)
+        videoLabelContentView.translatesAutoresizingMaskIntoConstraints = false
+        
+        videoLabelImageView.clipsToBounds = true
+        videoLabelImageView.contentMode = .scaleAspectFit
+        videoLabelImageView.image = UIImage(named: "video_btn", in: BSImagePickerViewController.bundle, compatibleWith: nil)
+        videoLabelImageView.translatesAutoresizingMaskIntoConstraints = false
+    
+        videoDurationLabel.text = "00:20"
+        videoDurationLabel.textColor = UIColor.white
+        videoDurationLabel.textAlignment = .center
+        videoDurationLabel.font = UIFont.systemFont(ofSize: 12.0)
+        videoDurationLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         contentView.addSubview(imageView)
         contentView.addSubview(selectionOverlayView)
         contentView.addSubview(selectionView)
+        contentView.addSubview(videoLabelContentView)
+        videoLabelContentView.addSubview(videoLabelImageView)
+        videoLabelContentView.addSubview(videoDurationLabel)
 
         // Add constraints
         NSLayoutConstraint.activate([
@@ -104,10 +147,26 @@ final class PhotoCell: UICollectionViewCell {
         NSLayoutConstraint(item: selectionOverlayView, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 0),
         NSLayoutConstraint(item: selectionOverlayView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 0),
         
-        NSLayoutConstraint(item: selectionView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 25),
-        NSLayoutConstraint(item: selectionView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 25),
-        NSLayoutConstraint(item: selectionView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: -4),
-        NSLayoutConstraint(item: selectionView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 4)
+        NSLayoutConstraint(item: selectionView, attribute: .height, relatedBy: .equal, toItem: contentView, attribute: .height, multiplier: 0.4, constant: 0),
+        NSLayoutConstraint(item: selectionView, attribute: .width, relatedBy: .equal, toItem: contentView, attribute: .width, multiplier: 0.4, constant: 0),
+        NSLayoutConstraint(item: selectionView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: selectionView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 0),
+        
+        NSLayoutConstraint(item: videoLabelContentView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 25),
+        NSLayoutConstraint(item: videoLabelContentView, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: videoLabelContentView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: videoLabelContentView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: 0),
+        
+        NSLayoutConstraint(item: videoLabelImageView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 20),
+        NSLayoutConstraint(item: videoLabelImageView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 20),
+        NSLayoutConstraint(item: videoLabelImageView, attribute: .leading, relatedBy: .equal, toItem: videoLabelContentView, attribute: .leading, multiplier: 1, constant: 2),
+        NSLayoutConstraint(item: videoLabelImageView, attribute: .bottom, relatedBy: .equal, toItem: videoLabelContentView, attribute: .bottom, multiplier: 1, constant: 0),
+        
+        NSLayoutConstraint(item: videoDurationLabel, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 20),
+        NSLayoutConstraint(item: videoDurationLabel, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 40),
+        NSLayoutConstraint(item: videoDurationLabel, attribute: .trailing, relatedBy: .equal, toItem: videoLabelContentView, attribute: .trailing, multiplier: 1, constant: -2),
+        NSLayoutConstraint(item: videoDurationLabel, attribute: .bottom, relatedBy: .equal, toItem: videoLabelContentView, attribute: .bottom, multiplier: 1, constant: 0)
+
         ])
         
 //        NSLayoutConstraint.activate([
@@ -146,4 +205,9 @@ final class PhotoCell: UICollectionViewCell {
             self.selectionOverlayView.alpha = 0.0
         }
     }
+    
+    func selectViewDidSelectDidAction(_ view: SelectionView) {
+        self.delegate?.photoCellDidReceiveSelectAction(self)
+    }
+    
 }

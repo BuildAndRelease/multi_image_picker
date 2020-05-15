@@ -21,16 +21,31 @@
 // SOFTWARE.
 
 import UIKit
+import Photos
+import AVKit
 
 final class PreviewViewController : UIViewController {
     var imageView: UIImageView?
-    private var fullscreen = false
+    var mediaPlayer : AVPlayer?
+    var fullscreen = false
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
+    var asset: PHAsset? {
+        didSet {
+            if asset != nil {
+                weak var weakSelf = self
+                let options = PHImageRequestOptions()
+                options.isNetworkAccessAllowed = true
+                PHCachingImageManager.default().requestImage(for: asset!, targetSize:imageView?.frame.size ?? UIScreen.main.bounds.size, contentMode: .aspectFit, options: options) { (result, _) in
+                    weakSelf?.imageView?.image = result
+                }
+            }
+        }
+    }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
-        view.backgroundColor = UIColor.black
+//        view.backgroundColor = UIColor.black
         
         imageView = UIImageView(frame: view.bounds)
         imageView?.contentMode = .scaleAspectFit
@@ -58,11 +73,30 @@ final class PreviewViewController : UIViewController {
     }
     
     @objc func toggleFullscreen() {
-        fullscreen = !fullscreen
-        UIView.animate(withDuration: 0.3, animations: { () -> Void in
-            self.toggleNavigationBar()
-            self.toggleStatusBar()
-        })
+        if asset?.mediaType == .video {
+            weak var weakSelf = self
+            let options = PHVideoRequestOptions()
+            options.deliveryMode = .highQualityFormat
+            options.isNetworkAccessAllowed = false
+            PHCachingImageManager.default().requestAVAsset(forVideo: asset!, options: options) { (avasset, audiomix, dictionary) in
+                DispatchQueue.main.async {
+                    let token = dictionary?["PHImageFileSandboxExtensionTokenKey"] as? String
+                    let filePath = String(token?.split(separator: ";").last ?? "")
+                    weakSelf?.mediaPlayer = AVPlayer(url: URL(fileURLWithPath: filePath))
+                    let layer = AVPlayerLayer(player: weakSelf?.mediaPlayer)
+                    layer.frame = weakSelf?.view?.bounds ?? UIScreen.main.bounds
+                    weakSelf?.view?.layer.addSublayer(layer)
+                    weakSelf?.mediaPlayer?.play()
+                }
+            }
+        }else {
+            weak var weakSelf = self
+            fullscreen = !fullscreen
+            UIView.animate(withDuration: 0.3, animations: { () -> Void in
+                weakSelf?.toggleNavigationBar()
+                weakSelf?.toggleStatusBar()
+            })
+        }
     }
     
     @objc func toggleNavigationBar() {

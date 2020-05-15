@@ -23,12 +23,16 @@
 import UIKit
 import Photos
 
+protocol PhotoCollectionViewDataSourceDelegate : class {
+    func photoCollectionViewDataSourceDidReceiveCellSelectAction(_ cell : PhotoCell)
+}
+
 /**
  Gives UICollectionViewDataSource functionality with a given data source and cell factory
  */
-final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource {
+final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource, PhotoCellDelegate {
     var fetchResult: PHFetchResult<PHAsset>
-
+    weak var delegate : PhotoCollectionViewDataSourceDelegate?
     private let photosManager = PHCachingImageManager.default()
     private let imageRequestOptions: PHImageRequestOptions
     private let imageContentMode: PHImageContentMode = .aspectFill
@@ -62,6 +66,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCell.cellIdentifier, for: indexPath) as! PhotoCell
         cell.accessibilityIdentifier = "photo_cell_\(indexPath.item)"
         cell.isAccessibilityElement = true
+        cell.delegate = self
         if let settings = settings {
             cell.settings = settings
         }
@@ -74,7 +79,6 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         let asset = fetchResult[indexPath.row]
         cell.asset = asset
         let imageSize = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
-        
         // Request image
         cell.tag = Int(photosManager.requestImage(for: asset, targetSize: imageSize, contentMode: imageContentMode, options: imageRequestOptions) { (result, _) in
             // Closure is called even on cancellation. So make sure we actually have an image
@@ -115,4 +119,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         return thumbnailSize
     }
     
+    func photoCellDidReceiveSelectAction(_ cell: PhotoCell) {
+        self.delegate?.photoCollectionViewDataSourceDidReceiveCellSelectAction(cell)
+    }
 }

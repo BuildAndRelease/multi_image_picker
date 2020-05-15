@@ -22,10 +22,16 @@
 
 import UIKit
 
+protocol SelectionViewDelegate : class {
+    func selectViewDidSelectDidAction(_ view : SelectionView)
+}
+
 /**
 Used as an overlay on selected cells
 */
 @IBDesignable final class SelectionView: UIView {
+    weak var delegate : SelectionViewDelegate?
+    
     var selectionString: String = "" {
         didSet {
             if selectionString != oldValue {
@@ -46,6 +52,12 @@ Used as an overlay on selected cells
         }
     }
     
+    var circleRadius = CGFloat(25.0) {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
     var settings: BSImagePickerSettings = Settings()
 
     override init(frame: CGRect) {
@@ -60,46 +72,29 @@ Used as an overlay on selected cells
     override func draw(_ rect: CGRect) {
         //// General Declarations
         let context = UIGraphicsGetCurrentContext()
-        
-        //// Color Declarations
-        
-        //// Shadow Declarations
         let shadow2Offset = CGSize(width: 0.1, height: -0.1);
         let shadow2BlurRadius: CGFloat = 2.5;
-        
-        //// Frames
-        let checkmarkFrame = bounds;
-        
-        //// Subframes
+        let checkmarkFrame = CGRect(x: bounds.width - circleRadius - 5, y: 5, width: circleRadius, height: circleRadius);
         let group = CGRect(x: checkmarkFrame.minX + 3, y: checkmarkFrame.minY + 3, width: checkmarkFrame.width - 6, height: checkmarkFrame.height - 6)
         
         //// CheckedOval Drawing
         let checkedOvalPath = UIBezierPath(ovalIn: CGRect(x: group.minX + floor(group.width * 0.0 + 0.5), y: group.minY + floor(group.height * 0.0 + 0.5), width: floor(group.width * 1.0 + 0.5) - floor(group.width * 0.0 + 0.5), height: floor(group.height * 1.0 + 0.5) - floor(group.height * 0.0 + 0.5)))
         context?.saveGState()
         context?.setShadow(offset: shadow2Offset, blur: shadow2BlurRadius, color: settings.selectionShadowColor.cgColor)
-        if selected {
-            settings.selectionFillColor.setFill()
-        }else {
-            UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).setFill()
-        }
+
+        selected ? settings.selectionFillColor.setFill() : UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).setFill()
         checkedOvalPath.fill()
         context?.restoreGState()
         
-        if selected {
-            settings.selectionStrokeColor.setStroke()
-        }else{
-            UIColor.white.setStroke()
-        }
+        selected ? settings.selectionStrokeColor.setStroke() : UIColor.white.setStroke()
         checkedOvalPath.lineWidth = 1
         checkedOvalPath.stroke()
-        
         
         context?.setFillColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).cgColor)
         
         //// Check mark for single assets
         if (settings.maxNumberOfSelections == 1) {
             context?.setStrokeColor(UIColor.white.cgColor)
-            
             let checkPath = UIBezierPath()
             checkPath.move(to: CGPoint(x: 7, y: 12.5))
             checkPath.addLine(to: CGPoint(x: 11, y: 16))
@@ -108,13 +103,17 @@ Used as an overlay on selected cells
             return;
         }
         
-        
         //// Bezier Drawing (Picture Number)
         let size = selectionString.size(withAttributes: settings.selectionTextAttributes)
 
-        selectionString.draw(in: CGRect(x: checkmarkFrame.midX - size.width / 2.0,
-            y: checkmarkFrame.midY - size.height / 2.0,
-            width: size.width,
-            height: size.height), withAttributes: settings.selectionTextAttributes)
+        selectionString.draw(in: CGRect(x: checkmarkFrame.midX - size.width / 2.0, y: checkmarkFrame.midY - size.height / 2.0, width: size.width, height: size.height), withAttributes: settings.selectionTextAttributes)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if delegate != nil {
+            self.delegate?.selectViewDidSelectDidAction(self)
+        }else {
+            super.touchesEnded(touches, with: event)
+        }
     }
 }

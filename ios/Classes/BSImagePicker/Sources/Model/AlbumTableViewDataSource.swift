@@ -35,8 +35,15 @@ final class AlbumTableViewDataSource : NSObject, UITableViewDataSource {
         self.fetchResults = fetchResults
         imageRequestOptions = PHImageRequestOptions()
         imageRequestOptions.isNetworkAccessAllowed = true
-
         super.init()
+    }
+    
+    func countItems() -> Int {
+        var count = 0
+        for items in fetchResults {
+            count = count + items.count
+        }
+        return count
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {

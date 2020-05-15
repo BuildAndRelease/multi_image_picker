@@ -50,4 +50,5 @@ final class AlbumsViewController: UITableViewController {
 
         tableView.register(AlbumCell.self, forCellReuseIdentifier: AlbumCell.cellIdentifier)
     }
+    
 }

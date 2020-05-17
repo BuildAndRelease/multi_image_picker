@@ -184,7 +184,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                                         "width": targetWidth,
                                         "height": targetHeight,
                                         "name": fileName,
-                                        "fileType":"audio"
+                                        "fileType":"image"
                                     ]);
                                 }
                                 if (count >= assets.count) {

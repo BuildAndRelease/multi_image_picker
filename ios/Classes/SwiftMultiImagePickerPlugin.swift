@@ -141,8 +141,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                                             results.append([
                                                 "identifier": asset.localIdentifier,
                                                 "filePath":filePath,
-                                                "width": 0,
-                                                "height": 0,
+                                                "width": 0.0,
+                                                "height": 0.0,
                                                 "name": fileName,
                                                 "fileType":"video"
                                             ]);

@@ -147,10 +147,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                                                 "fileType":"video"
                                             ]);
                                         }
+                                        if (count >= assets.count) {
+                                            result(results);
+                                        }
                                     })
-                                }
-                                if (count >= assets.count) {
-                                    result(results);
                                 }
                             }
                         }else {

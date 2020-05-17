@@ -95,7 +95,7 @@ open class BSImagePickerViewController : UINavigationController {
     public init() {
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     /**
     https://www.youtube.com/watch?v=dQw4w9WgXcQ
     */

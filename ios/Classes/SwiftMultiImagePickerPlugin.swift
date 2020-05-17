@@ -2,34 +2,10 @@ import Flutter
 import UIKit
 import Photos
 
-extension PHAsset {
-    
-    var originalFilename: String? {
-        
-        var fname:String?
-        
-        if #available(iOS 9.0, *) {
-            let resources = PHAssetResource.assetResources(for: self)
-            if let resource = resources.first {
-                fname = resource.originalFilename
-            }
-        }
-        
-        if fname == nil {
-            // this is an undocumented workaround that works as of iOS 9.1
-            fname = self.value(forKey: "filename") as? String
-        }
-        
-        return fname
-    }
-}
-
 public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
     var controller: UIViewController!
     var imagesResult: FlutterResult?
     var messenger: FlutterBinaryMessenger;
-
-    let genericError = "500"
 
     init(cont: UIViewController, messenger: FlutterBinaryMessenger) {
         self.controller = cont;
@@ -83,51 +59,37 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 vc.takePhotos = true
             }
             
-            if selectedAssets.count > 0 {
-                let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
+            if selectedAssets.count > 0{
+                let assets : PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
                 vc.defaultSelections = assets
             }
 
-            if let takePhotoIcon = options["takePhotoIcon"] {
-                if (!takePhotoIcon.isEmpty) {
-                    vc.takePhotoIcon = UIImage(named: takePhotoIcon)
-                }
+            if let takePhotoIcon = options["takePhotoIcon"] , !takePhotoIcon.isEmpty {
+                vc.takePhotoIcon = UIImage(named: takePhotoIcon)
             }
 
-            if let backgroundColor = options["backgroundColor"] {
-                if (!backgroundColor.isEmpty) {
-                    vc.backgroundColor = hexStringToUIColor(hex: backgroundColor)
-                }
+            if let backgroundColor = options["backgroundColor"] , !backgroundColor.isEmpty {
+                vc.backgroundColor = hexStringToUIColor(hex: backgroundColor)
             }
 
-            if let selectionFillColor = options["selectionFillColor"] {
-                if (!selectionFillColor.isEmpty) {
-                    vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
-                }
+            if let selectionFillColor = options["selectionFillColor"] , !selectionFillColor.isEmpty{
+                vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
             }
 
-            if let selectionShadowColor = options["selectionShadowColor"] {
-                if (!selectionShadowColor.isEmpty) {
-                    vc.selectionShadowColor = hexStringToUIColor(hex: selectionShadowColor)
-                }
+            if let selectionShadowColor = options["selectionShadowColor"], !selectionShadowColor.isEmpty {
+                vc.selectionShadowColor = hexStringToUIColor(hex: selectionShadowColor)
             }
 
-            if let selectionStrokeColor = options["selectionStrokeColor"] {
-                if (!selectionStrokeColor.isEmpty) {
-                    vc.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
-                }
+            if let selectionStrokeColor = options["selectionStrokeColor"] ,!selectionStrokeColor.isEmpty {
+                vc.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
             }
 
-            if let selectionTextColor = options["selectionTextColor"] {
-                if (!selectionTextColor.isEmpty) {
-                    vc.selectionTextAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: selectionTextColor)
-                }
+            if let selectionTextColor = options["selectionTextColor"] , !selectionTextColor.isEmpty{
+                vc.selectionTextAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: selectionTextColor)
             }
 
-            if let selectionCharacter = options["selectionCharacter"] {
-                if (!selectionCharacter.isEmpty) {
-                    vc.selectionCharacter = Character(selectionCharacter)
-                }
+            if let selectionCharacter = options["selectionCharacter"] , !selectionCharacter.isEmpty {
+                vc.selectionCharacter = Character(selectionCharacter)
             }
             
             let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
@@ -157,167 +119,94 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                     var results = [NSDictionary]();
                     var count = 0;
                     for asset in assets {
-                        var targetHeight : CGFloat = CGFloat(asset.pixelHeight)
-                        var targetWidth : CGFloat = CGFloat(asset.pixelWidth)
-                        if (thumb && (asset.pixelWidth > maxWidth || asset.pixelHeight > maxHeight)) {
-                            let heightCompressRatio = CGFloat(maxHeight)/CGFloat(asset.pixelHeight)
-                            let widthCompressRatio = CGFloat(maxWidth)/CGFloat(asset.pixelWidth)
-                            if (heightCompressRatio <= widthCompressRatio) {
-                                targetHeight = CGFloat(maxHeight)
-                                targetWidth = heightCompressRatio * CGFloat(asset.pixelWidth)
-                            }else {
-                                targetWidth = CGFloat(maxWidth)
-                                targetHeight = widthCompressRatio * CGFloat(asset.pixelHeight)
+                        if asset.mediaType == .video {
+                            let options = PHVideoRequestOptions()
+                            options.deliveryMode = .highQualityFormat
+                            options.isNetworkAccessAllowed = false
+                            manager.requestAVAsset(forVideo: asset, options: options) { (avAsset, audioMix, info) in
+                                count += 1;
+                                let uuid = UUID().uuidString
+                                let fileName = "\(uuid).mp4"
+                                let filePath = thumbDir + fileName
+                                if FileManager.default.fileExists(atPath: filePath) {
+                                    try? FileManager.default.removeItem(atPath: filePath)
+                                }
+                                if avAsset != nil {
+                                    let exportSession = AVAssetExportSession(asset: avAsset!, presetName: AVAssetExportPresetMediumQuality)
+                                    exportSession?.outputURL = URL(fileURLWithPath: filePath)
+                                    exportSession?.shouldOptimizeForNetworkUse = true
+                                    exportSession?.outputFileType = .mp4
+                                    exportSession?.exportAsynchronously(completionHandler: {
+                                        if FileManager.default.fileExists(atPath: filePath) {
+                                            results.append([
+                                                "identifier": asset.localIdentifier,
+                                                "filePath":filePath,
+                                                "width": 0,
+                                                "height": 0,
+                                                "name": fileName,
+                                                "fileType":"video"
+                                            ]);
+                                        }
+                                    })
+                                }
+                                if (count >= assets.count) {
+                                    result(results);
+                                }
                             }
-                        }
-                        let ID: PHImageRequestID = manager.requestImage(
-                        for: asset,
-                        targetSize: CGSize(width: targetWidth, height: targetHeight),
-                        contentMode: PHImageContentMode.aspectFit,
-                        options: thumbOptions,
-                        resultHandler: { (image: UIImage?, info) in
-                            count += 1;
-                            let uuid = UUID().uuidString
-                            let fileName = "\(uuid).jpg"
-                            let filePath = thumbDir + fileName
-                            if FileManager.default.fileExists(atPath: filePath) {
-                                try? FileManager.default.removeItem(atPath: filePath)
+                        }else {
+                            var targetHeight : CGFloat = CGFloat(asset.pixelHeight)
+                            var targetWidth : CGFloat = CGFloat(asset.pixelWidth)
+                            if (thumb && (asset.pixelWidth > maxWidth || asset.pixelHeight > maxHeight)) {
+                                let heightCompressRatio = CGFloat(maxHeight)/CGFloat(asset.pixelHeight)
+                                let widthCompressRatio = CGFloat(maxWidth)/CGFloat(asset.pixelWidth)
+                                if (heightCompressRatio <= widthCompressRatio) {
+                                    targetHeight = CGFloat(maxHeight)
+                                    targetWidth = heightCompressRatio * CGFloat(asset.pixelWidth)
+                                }else {
+                                    targetWidth = CGFloat(maxWidth)
+                                    targetHeight = widthCompressRatio * CGFloat(asset.pixelHeight)
+                                }
                             }
-                            let imageData = image?.jpegData(compressionQuality: thumb ? CGFloat(compressionQuality) : 1.0) as NSData?
-                            imageData?.write(toFile: filePath, atomically: true)
-                            if FileManager.default.fileExists(atPath: filePath) {
-                                results.append([
-                                    "identifier": asset.localIdentifier,
-                                    "filePath":filePath,
-                                    "width": targetWidth,
-                                    "height": targetHeight,
-                                    "name": fileName
-                                ]);
+                            let ID: PHImageRequestID = manager.requestImage(for: asset, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
+                                count += 1;
+                                let uuid = UUID().uuidString
+                                let fileName = "\(uuid).jpg"
+                                let filePath = thumbDir + fileName
+                                if FileManager.default.fileExists(atPath: filePath) {
+                                    try? FileManager.default.removeItem(atPath: filePath)
+                                }
+                                let imageData = image?.jpegData(compressionQuality: thumb ? CGFloat(compressionQuality) : 1.0) as NSData?
+                                imageData?.write(toFile: filePath, atomically: true)
+                                if FileManager.default.fileExists(atPath: filePath) {
+                                    results.append([
+                                        "identifier": asset.localIdentifier,
+                                        "filePath":filePath,
+                                        "width": targetWidth,
+                                        "height": targetHeight,
+                                        "name": fileName,
+                                        "fileType":"audio"
+                                    ]);
+                                }
+                                if (count >= assets.count) {
+                                    result(results);
+                                }
+                            })
+                            if(PHInvalidImageRequestID != ID) {
+                                continue
                             }
-                            if (count >= assets.count) {
-                                result(results);
-                            }
-                        })
-                        if(PHInvalidImageRequestID != ID) {
-                            continue
                         }
                     }
                 }, completion: nil)
             break;
-//        case "requestThumbnail":
-//            let arguments = call.arguments as! Dictionary<String, AnyObject>
-//            let identifier = arguments["identifier"] as! String
-//            let width = arguments["width"] as! Int
-//            let height = arguments["height"] as! Int
-//            let quality = arguments["quality"] as! Int
-//            let compressionQuality = Float(quality) / Float(100)
-//            let manager = PHImageManager.default()
-//            let options = PHImageRequestOptions()
-//
-//            options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
-//            options.resizeMode = PHImageRequestOptionsResizeMode.exact
-//            options.isSynchronous = false
-//            options.isNetworkAccessAllowed = true
-//            options.version = .current
-//
-//            let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
-//
-//            if (assets.count > 0) {
-//                let asset: PHAsset = assets[0];
-//
-//                let ID: PHImageRequestID = manager.requestImage(
-//                    for: asset,
-//                    targetSize: CGSize(width: width, height: height),
-//                    contentMode: PHImageContentMode.aspectFill,
-//                    options: options,
-//                    resultHandler: {
-//                        (image: UIImage?, info) in
-//                        self.messenger.send(onChannel: "multi_image_picker/image/" + identifier + ".thumb", message: image?.jpegData(compressionQuality: CGFloat(compressionQuality)))
-//                        })
-//
-//                if(PHInvalidImageRequestID != ID) {
-//                    return result(true);
-//                }
-//            }
-//
-//            return result(FlutterError(code: "ASSET_DOES_NOT_EXIST", message: "The requested image does not exist.", details: nil))
-//        case "requestOriginal":
-//            let arguments = call.arguments as! Dictionary<String, AnyObject>
-//            let identifier = arguments["identifier"] as! String
-//            let quality = arguments["quality"] as! Int
-//            let compressionQuality = Float(quality) / Float(100)
-//            let manager = PHImageManager.default()
-//            let options = PHImageRequestOptions()
-//
-//            options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
-//            options.isSynchronous = false
-//            options.isNetworkAccessAllowed = true
-//            options.version = .current
-//
-//            let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
-//
-//            if (assets.count > 0) {
-//                let asset: PHAsset = assets[0];
-//
-//                let ID: PHImageRequestID = manager.requestImage(
-//                    for: asset,
-//                    targetSize: PHImageManagerMaximumSize,
-//                    contentMode: PHImageContentMode.aspectFill,
-//                    options: options,
-//                    resultHandler: {
-//                        (image: UIImage?, info) in
-//                        self.messenger.send(onChannel: "multi_image_picker/image/" + identifier + ".original", message: image!.jpegData(compressionQuality: CGFloat(compressionQuality)))
-//                })
-//
-//                if(PHInvalidImageRequestID != ID) {
-//                    return result(true);
-//                }
-//            }
-//
-//            return result(FlutterError(code: "ASSET_DOES_NOT_EXIST", message: "The requested image does not exist.", details: nil))
-//        case "requestMetadata":
-//            let arguments = call.arguments as! Dictionary<String, AnyObject>
-//            let identifier = arguments["identifier"] as! String
-//            let operationQueue = OperationQueue()
-//
-//            let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
-//            operationQueue.addOperation {
-//                self.readPhotosMetadata(result: assets, operationQueue: operationQueue, callback: result)
-//            }
-//            break;
         default:
             result(FlutterMethodNotImplemented)
         }
     }
     
-    func readPhotosMetadata(result: PHFetchResult<PHAsset>, operationQueue: OperationQueue, callback: @escaping FlutterResult) {
-        let imageManager = PHImageManager.default()
-        result.enumerateObjects({object , index, stop in
-            let options = PHImageRequestOptions()
-            options.isNetworkAccessAllowed = true
-            options.isSynchronous = false
-            imageManager.requestImageData(for: object, options: options, resultHandler: { (imageData, dataUTI, orientation, info) in
-                operationQueue.addOperation {
-                    guard let data = imageData,
-                        let metadata = type(of: self).fetchPhotoMetadata(data: data) else {
-                            print("metadata not found for \(object)")
-                            return
-                    }
-                    callback(metadata)
-                }
-            })
-        })
+    deinit {
+        print("deinit")
     }
     
-    static func fetchPhotoMetadata(data: Data) -> [String: Any]? {
-        guard let selectedImageSourceRef = CGImageSourceCreateWithData(data as CFData, nil),
-            let imagePropertiesDictionary = CGImageSourceCopyPropertiesAtIndex(selectedImageSourceRef, 0, nil) as? [String: Any] else {
-                return nil
-        }
-        return imagePropertiesDictionary
-        
-    }
-
     func hexStringToUIColor (hex:String) -> UIColor {
         var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
 

@@ -14,12 +14,15 @@ class Asset {
   /// Original image height
   double _originalHeight;
 
+  String _fileType;
+
   Asset(
     this._identifier,
     this._filePath,
     this._name,
     this._originalWidth,
     this._originalHeight,
+    this._fileType,
   );
 
   /// Returns the original image width
@@ -55,5 +58,9 @@ class Asset {
   /// Returns the image name
   String get name {
     return _name;
+  }
+
+  String get fileType {
+     return _fileType;
   }
 }

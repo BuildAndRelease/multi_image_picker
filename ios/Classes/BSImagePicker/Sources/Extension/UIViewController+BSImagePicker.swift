@@ -40,6 +40,7 @@ public extension UIViewController {
         - parameter selectLimitReached: Closure to call when user reaches selection limit or nil
     */
     @objc func bs_presentImagePickerController(_ imagePicker: BSImagePickerViewController, animated: Bool, select: ((_ asset: PHAsset) -> Void)?, deselect: ((_ asset: PHAsset) -> Void)?, cancel: (([PHAsset]) -> Void)?, finish: (([PHAsset], Bool) -> Void)?, completion: (() -> Void)?, selectLimitReached: ((Int) -> Void)? = nil) {
+        weak var weakSelf = self
         BSImagePickerViewController.authorize(fromViewController: self) { (authorized) -> Void in
             // Make sure we are authorized before proceding
             guard authorized == true else { return }
@@ -56,7 +57,7 @@ public extension UIViewController {
             imagePicker.backgroundColor = UIColor.darkGray
             imagePicker.navigationBar.barStyle = .blackTranslucent
             imagePicker.toolbar.barStyle = .blackTranslucent
-            self.present(imagePicker, animated: animated, completion: completion)
+            weakSelf?.present(imagePicker, animated: animated, completion: completion)
         }
     }
 }

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:multi_image_picker_example/DemoLocalizations.dart';
@@ -76,11 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
       crossAxisCount: 3,
       children: List.generate(images.length, (index) {
         Asset asset = images[index];
-        return AssetThumb(
-          asset: asset,
-          width: 300,
-          height: 300,
-        );
+        return Image.file(File(asset.filePath));
       }),
     );
   }

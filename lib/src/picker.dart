@@ -74,6 +74,7 @@ class MultiImagePicker {
           item['name'],
           item['width'],
           item['height'],
+          item['fileType'],
         );
         assets.add(asset);
       }

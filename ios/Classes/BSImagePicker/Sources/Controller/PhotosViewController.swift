@@ -75,6 +75,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     }
     
     deinit {
+        print("PhotosViewController deinit")
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
     
@@ -267,7 +268,7 @@ extension PhotosViewController {
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let vc = previewViewContoller, let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset {
             // Setup fetch options to be synchronous
-            vc.asset = cell.asset
+            vc.asset = asset
             // Setup animation
             expandAnimator.sourceImageView = cell.imageView
             expandAnimator.destinationImageView = vc.imageView

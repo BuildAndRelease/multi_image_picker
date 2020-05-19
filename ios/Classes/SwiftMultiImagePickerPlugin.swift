@@ -146,7 +146,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                                     if let image = try? gen.copyCGImage(at: time, actualTime: &actualTime) {
                                         let thumbImg = UIImage(cgImage: image)
                                         do {
-                                            try thumbImg.jpegData(compressionQuality: 1.0)?.write(to: URL(fileURLWithPath: thumbPath))
+                                            try thumbImg.jpegData(compressionQuality: 0.6)?.write(to: URL(fileURLWithPath: thumbPath))
                                         } catch let error as NSError {
                                             print(error)
                                             if (count >= assets.count) {

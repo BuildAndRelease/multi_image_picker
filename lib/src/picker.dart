@@ -68,7 +68,9 @@ class MultiImagePicker {
       );
       var assets = List<Asset>();
       for (var item in images) {
-        var asset = Asset(
+        var asset;
+        if (item['fileType'] == 'image') {
+        asset = Asset(
           item['identifier'],
           item['filePath'],
           item['name'],
@@ -76,6 +78,19 @@ class MultiImagePicker {
           item['height'],
           item['fileType'],
         );
+        }else if (item['fileType'] == 'video') {
+        asset = Asset(
+          item['identifier'],
+          item['filePath'],
+          item['name'],
+          item['width'],
+          item['height'],
+          item['fileType'],
+          thumbFilePath: item['thumbPath'],
+          thumbHeight: item['thumbHeight'],
+          thumbWidth: item['thumbWidth'],
+        );
+        }
         assets.add(asset);
       }
       return assets;

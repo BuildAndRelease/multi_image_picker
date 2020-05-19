@@ -18,6 +18,8 @@ class Asset {
 
   String thumbFilePath = "";
 
+  String thumbName = "";
+
   double thumbWidth = 0.0;
 
   double thumbHeight = 0.0;
@@ -29,7 +31,7 @@ class Asset {
     this._originalWidth,
     this._originalHeight,
     this._fileType,
-    {this.thumbFilePath, this.thumbWidth, this.thumbHeight}
+    {this.thumbFilePath, this.thumbName, this.thumbWidth, this.thumbHeight}
   );
 
   /// Returns the original image width

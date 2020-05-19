@@ -154,6 +154,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                                             }
                                         }
                                         dictionary.setValue(thumbPath, forKey: "thumbPath")
+                                        dictionary.setValue(thumbName, forKey: "thumbName")
                                         dictionary.setValue(thumbImg.size.height * thumbImg.scale, forKey: "thumbHeight")
                                         dictionary.setValue(thumbImg.size.width * thumbImg.scale, forKey: "thumbWidth")
                                     }else {

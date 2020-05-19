@@ -87,6 +87,7 @@ class MultiImagePicker {
           item['height'],
           item['fileType'],
           thumbFilePath: item['thumbPath'],
+          thumbName: item['thumbName'],
           thumbHeight: item['thumbHeight'],
           thumbWidth: item['thumbWidth'],
         );

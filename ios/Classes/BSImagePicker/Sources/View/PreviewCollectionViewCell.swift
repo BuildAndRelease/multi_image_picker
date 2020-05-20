@@ -30,9 +30,12 @@ class PreviewCollectionViewCell: UICollectionViewCell {
                 weak var weakSelf = self
                 let options = PHImageRequestOptions()
                 options.isNetworkAccessAllowed = false
-                PHCachingImageManager.default().requestImage(for: asset!, targetSize:UIScreen.main.bounds.size, contentMode: .aspectFit, options: options) { (result, info) in
-                    weakSelf?.photoImageView.image = result
+                if self.tag != 0 {
+                    PHCachingImageManager.default().cancelImageRequest(PHImageRequestID(Int32(self.tag)))
                 }
+                self.tag = Int(PHCachingImageManager.default().requestImage(for: asset!, targetSize:UIScreen.main.bounds.size, contentMode: .aspectFit, options: options) { (result, info) in
+                    weakSelf?.photoImageView.image = result
+                })
             }
         }
     }

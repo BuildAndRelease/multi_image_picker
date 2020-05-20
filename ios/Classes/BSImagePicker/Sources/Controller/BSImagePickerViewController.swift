@@ -196,18 +196,6 @@ extension BSImagePickerViewController: BSImagePickerSettings {
     }
     
     /**
-     BackgroundColor
-     */
-    @objc public var backgroundColor: UIColor {
-        get {
-            return settings.backgroundColor
-        }
-        set {
-            settings.backgroundColor = newValue
-        }
-    }
-    
-    /**
      See BSImagePicketSettings for documentation
      */
     @objc public var cellsPerRow: (_ verticalSize: UIUserInterfaceSizeClass, _ horizontalSize: UIUserInterfaceSizeClass) -> Int {
@@ -219,24 +207,4 @@ extension BSImagePickerViewController: BSImagePickerSettings {
         }
     }
     
-    /**
-     See BSImagePicketSettings for documentation
-     */
-    @objc public var takePhotos: Bool {
-        get {
-            return settings.takePhotos
-        }
-        set {
-            settings.takePhotos = newValue
-        }
-    }
-    
-    @objc public var takePhotoIcon: UIImage? {
-        get {
-            return settings.takePhotoIcon
-        }
-        set {
-            settings.takePhotoIcon = newValue
-        }
-    }
 }

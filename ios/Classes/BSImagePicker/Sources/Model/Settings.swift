@@ -41,7 +41,7 @@ final class Settings : BSImagePickerSettings {
             NSAttributedString.Key.foregroundColor: UIColor.white
         ]
     }()
-    var backgroundColor: UIColor = UIColor.white
+    
     var cellsPerRow: (_ verticalSize: UIUserInterfaceSizeClass, _ horizontalSize: UIUserInterfaceSizeClass) -> Int = {(verticalSize: UIUserInterfaceSizeClass, horizontalSize: UIUserInterfaceSizeClass) -> Int in
         switch (verticalSize, horizontalSize) {
         case (.compact, .regular): // iPhone5-6 portrait
@@ -54,9 +54,4 @@ final class Settings : BSImagePickerSettings {
             return 3
         }
     }
-     
-    var takePhotos: Bool = false
-    
-    var takePhotoIcon: UIImage? = UIImage(named: "add_photo", in: BSImagePickerViewController.bundle, compatibleWith: nil)
-//    var takePhotoIcon: UIImage? = UIImage(named: "add_photo")
 }

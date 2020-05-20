@@ -81,7 +81,6 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         let imageSize = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
         // Request image
         cell.tag = Int(photosManager.requestImage(for: asset, targetSize: imageSize, contentMode: imageContentMode, options: imageRequestOptions) { (result, _) in
-            // Closure is called even on cancellation. So make sure we actually have an image
             guard let result = result else { return }
             cell.imageView.image = result
         })

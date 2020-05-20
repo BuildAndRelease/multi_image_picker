@@ -23,7 +23,7 @@
 import UIKit
 import Photos
 
-final class PhotosViewController : UICollectionViewController , CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate {
+final class PhotosViewController : UICollectionViewController , CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate , PreviewViewControllerDelegate {
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
     var cancelClosure: ((_ assets: [PHAsset]) -> Void)?
@@ -79,7 +79,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     override func loadView() {
         super.loadView()
         
-        collectionView?.backgroundColor = settings.backgroundColor
+        collectionView?.backgroundColor = UIColor.darkGray
         collectionView?.allowsMultipleSelection = true
         
         cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.white], for: .normal)
@@ -262,7 +262,8 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
 extension PhotosViewController {
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let vc = previewViewContoller, let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset {
-            vc.currentAsset = asset
+            vc.delegate = self
+            vc.currentAssetIndex = photosDataSource?.fetchResult.index(of: asset) ?? 0
             vc.fetchResult = photosDataSource?.fetchResult
             navigationController?.pushViewController(vc, animated: true)
             bottomContentView.removeFromSuperview()
@@ -270,6 +271,47 @@ extension PhotosViewController {
         }
         
         return true
+    }
+    
+    func previewViewControllerIsSelectImageItem(_ asset: PHAsset) -> Int {
+        return (assetStore.assets.firstIndex(of: asset) ?? -1) + 1
+    }
+    
+    func previewViewControllerDidSelectImageItem(_ asset: PHAsset) -> Int {
+        guard let photosDataSource = photosDataSource, collectionView.isUserInteractionEnabled else { return -1 }
+
+        let cell = collectionView.cellForItem(at: IndexPath(row: photosDataSource.fetchResult.index(of: asset), section: 0)) as? PhotoCell
+        if assetStore.contains(asset) {
+            assetStore.remove(asset)
+            updateDoneButton()
+            let selectedIndexPaths = assetStore.assets.compactMap({ (asset) -> IndexPath? in
+                let index = photosDataSource.fetchResult.index(of: asset)
+                guard index != NSNotFound else { return nil }
+                return IndexPath(item: index, section: 0)
+            })
+            UIView.setAnimationsEnabled(false)
+            collectionView.reloadItems(at: selectedIndexPaths)
+            UIView.setAnimationsEnabled(true)
+            cell?.photoSelected = false
+            deselectionClosure?(asset)
+            return -1
+        } else if assetStore.count < settings.maxNumberOfSelections {
+            assetStore.append(asset)
+            if let selectionCharacter = settings.selectionCharacter {
+                cell?.selectionString = String(selectionCharacter)
+            } else {
+                cell?.selectionString = String(assetStore.count)
+            }
+
+            cell?.photoSelected = true
+            updateDoneButton()
+            selectionClosure?(asset)
+            return assetStore.count
+        } else if assetStore.count >= settings.maxNumberOfSelections {
+            selectLimitReachedClosure?(assetStore.count)
+            return -2
+        }
+        return -1
     }
 }
 

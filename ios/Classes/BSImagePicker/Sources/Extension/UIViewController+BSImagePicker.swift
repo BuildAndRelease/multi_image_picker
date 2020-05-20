@@ -54,7 +54,6 @@ public extension UIViewController {
             
             // Present
             imagePicker.modalPresentationStyle = .fullScreen
-            imagePicker.backgroundColor = UIColor.darkGray
             imagePicker.navigationBar.barStyle = .blackTranslucent
             imagePicker.toolbar.barStyle = .blackTranslucent
             weakSelf?.present(imagePicker, animated: animated, completion: completion)

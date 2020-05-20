@@ -24,10 +24,16 @@ import UIKit
 import Photos
 import AVKit
 
+protocol PreviewViewControllerDelegate : class {
+    func previewViewControllerDidSelectImageItem(_ asset : PHAsset) -> Int
+    func previewViewControllerIsSelectImageItem(_ asset : PHAsset) -> Int
+}
+
 final class PreviewViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, SelectionViewDelegate {
     private let cellIdentifier = "PreviewCollectionCell"
     
-    var currentAsset : PHAsset?
+    weak var delegate : PreviewViewControllerDelegate?
+    var currentAssetIndex : Int = 0
     var fetchResult: PHFetchResult<PHAsset>?
     var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: UICollectionViewFlowLayout())
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
@@ -81,9 +87,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if let asset = currentAsset {
-            collectionView.scrollToItem(at: IndexPath(row: fetchResult?.index(of: asset) ?? 0, section: 0), at: .centeredHorizontally, animated: false)
-        }
+        collectionView.scrollToItem(at: IndexPath(row: currentAssetIndex, section: 0), at: .centeredHorizontally, animated: false)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -102,7 +106,6 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! PreviewCollectionViewCell
-        print(indexPath.row)
         cell.asset = self.fetchResult?[indexPath.row]
         return cell
     }
@@ -110,6 +113,22 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         for cell in collectionView.visibleCells {
             (cell as! PreviewCollectionViewCell).stopPlayVideo()
+        }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let index = Int(round(scrollView.contentOffset.x/scrollView.bounds.width))
+        if currentAssetIndex != index {
+            currentAssetIndex = index
+            if currentAssetIndex < (self.fetchResult?.count ?? 0) , let asset = self.fetchResult?[currentAssetIndex] , let selectIndex = self.delegate?.previewViewControllerIsSelectImageItem(asset) {
+                if selectIndex > 0 {
+                    selectionView.selectionString = "\(selectIndex)"
+                    selectionView.selected = true
+                }else {
+                    selectionView.selectionString = ""
+                    selectionView.selected = false
+                }
+            }
         }
     }
     
@@ -121,6 +140,18 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     
     func selectViewDidSelectDidAction(_ view: SelectionView) {
-        print("selectViewDidSelectDidAction")
+        if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset , let selectIndex = self.delegate?.previewViewControllerDidSelectImageItem(asset) {
+            if selectIndex > 0 {
+                selectionView.selectionString = "\(selectIndex)"
+                selectionView.selected = true
+            }else if selectIndex == -1 {
+                selectionView.selectionString = ""
+                selectionView.selected = false
+            }else if selectIndex == -2 {
+                selectionView.selectionString = ""
+                selectionView.selected = false
+//                提示已经达到最大值
+            }
+        }
     }
 }

@@ -45,7 +45,6 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let maxImages = arguments["maxImages"] as! Int
-            let enableCamera = arguments["enableCamera"] as! Bool
             let options = arguments["iosOptions"] as! Dictionary<String, String>
             let selectedAssets = arguments["selectedAssets"] as! Array<String>
             let quality = (arguments["qualityOfImage"] as? Int) ?? 100
@@ -55,21 +54,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             
             vc.maxNumberOfSelections = maxImages
         
-            if (enableCamera) {
-                vc.takePhotos = true
-            }
             
             if selectedAssets.count > 0{
                 let assets : PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
                 vc.defaultSelections = assets
-            }
-
-            if let takePhotoIcon = options["takePhotoIcon"] , !takePhotoIcon.isEmpty {
-                vc.takePhotoIcon = UIImage(named: takePhotoIcon)
-            }
-
-            if let backgroundColor = options["backgroundColor"] , !backgroundColor.isEmpty {
-                vc.backgroundColor = hexStringToUIColor(hex: backgroundColor)
             }
 
             if let selectionFillColor = options["selectionFillColor"] , !selectionFillColor.isEmpty{

@@ -10,21 +10,131 @@ import Photos
 
 extension PHAsset {
     var originalFilename: String? {
-        
         var fname:String?
-        
         if #available(iOS 9.0, *) {
             let resources = PHAssetResource.assetResources(for: self)
             if let resource = resources.first {
                 fname = resource.originalFilename
             }
         }
-        
         if fname == nil {
-            // this is an undocumented workaround that works as of iOS 9.1
             fname = self.value(forKey: "filename") as? String
         }
         
         return fname
+    }
+    
+    func compressAsset(_ maxWidth : Int, maxHeight : Int, quality : CGFloat, thumb : Bool, saveDir : String, process: ((NSDictionary) -> Void)?, failed: ((NSError) -> Void)?, finish: ((NSDictionary) -> Void)?) {
+        let manager = PHImageManager.default()
+        let thumbOptions = PHImageRequestOptions()
+        thumbOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
+        thumbOptions.resizeMode = PHImageRequestOptionsResizeMode.exact
+        thumbOptions.isSynchronous = false
+        thumbOptions.isNetworkAccessAllowed = true
+        thumbOptions.version = .current
+        if self.mediaType == .video {
+            let options = PHVideoRequestOptions()
+            options.deliveryMode = .highQualityFormat
+            options.isNetworkAccessAllowed = false
+            manager.requestAVAsset(forVideo: self, options: options) { (avAsset, audioMix, info) in
+                if avAsset != nil {
+                    let dictionary : NSMutableDictionary = NSMutableDictionary()
+                    let uuid = UUID().uuidString
+                    let thumbName = "\(uuid).jpg"
+                    let videoName = "\(uuid).mp4"
+                    let thumbPath = saveDir + thumbName
+                    let videoPath = saveDir + videoName
+                    if FileManager.default.fileExists(atPath: videoPath) {
+                        try? FileManager.default.removeItem(atPath: videoPath)
+                    }
+                    if FileManager.default.fileExists(atPath: thumbPath) {
+                        try? FileManager.default.removeItem(atPath: thumbPath)
+                    }
+                    
+                    let gen = AVAssetImageGenerator(asset: avAsset!)
+                    gen.appliesPreferredTrackTransform = true
+                    let time = CMTimeMakeWithSeconds(2.0, preferredTimescale: 600);
+                    var actualTime  = CMTimeMake(value: 0, timescale: 0)
+                    if let image = try? gen.copyCGImage(at: time, actualTime: &actualTime) {
+                        let thumbImg = UIImage(cgImage: image)
+                        do {
+                            try thumbImg.jpegData(compressionQuality: 0.6)?.write(to: URL(fileURLWithPath: thumbPath))
+                        } catch let error as NSError {
+                            print(error)
+                            failed?(error)
+                            return
+                        }
+                        dictionary.setValue(thumbPath, forKey: "thumbPath")
+                        dictionary.setValue(thumbName, forKey: "thumbName")
+                        dictionary.setValue(thumbImg.size.height * thumbImg.scale, forKey: "thumbHeight")
+                        dictionary.setValue(thumbImg.size.width * thumbImg.scale, forKey: "thumbWidth")
+                    }else {
+                        failed?(NSError(domain: "缩略图图片拷贝失败", code: 1, userInfo: nil))
+                        return
+                    }
+                    
+                    let exportSession = AVAssetExportSession(asset: avAsset!, presetName: AVAssetExportPresetMediumQuality)
+                    exportSession?.outputURL = URL(fileURLWithPath: videoPath)
+                    exportSession?.shouldOptimizeForNetworkUse = true
+                    exportSession?.outputFileType = .mp4
+                    exportSession?.exportAsynchronously(completionHandler: {
+                        if FileManager.default.fileExists(atPath: videoPath) {
+                            let thumbVideo = AVURLAsset(url: URL(fileURLWithPath: videoPath))
+                            var thumbVideoSize = CGSize.zero
+                            for track in thumbVideo.tracks {
+                                if track.mediaType == AVMediaType.video {
+                                    thumbVideoSize = track.naturalSize
+                                }
+                            }
+                            dictionary.setValue(self.localIdentifier, forKey: "identifier")
+                            dictionary.setValue(videoPath, forKey: "filePath")
+                            dictionary.setValue(thumbVideoSize.width, forKey: "width")
+                            dictionary.setValue(thumbVideoSize.height, forKey: "height")
+                            dictionary.setValue(videoName, forKey: "name")
+                            dictionary.setValue("video", forKey: "fileType")
+                            finish?(dictionary)
+                            return
+                        }
+                    })
+                }else {
+                    failed?(NSError(domain: "视频请求失败", code: 2, userInfo: nil))
+                    return
+                }
+            }
+        }else {
+            var targetHeight : CGFloat = CGFloat(self.pixelHeight)
+            var targetWidth : CGFloat = CGFloat(self.pixelWidth)
+            if (thumb && (self.pixelWidth > maxWidth || self.pixelHeight > maxHeight)) {
+                let heightCompressRatio = CGFloat(maxHeight)/CGFloat(self.pixelHeight)
+                let widthCompressRatio = CGFloat(maxWidth)/CGFloat(self.pixelWidth)
+                if (heightCompressRatio <= widthCompressRatio) {
+                    targetHeight = CGFloat(maxHeight)
+                    targetWidth = heightCompressRatio * CGFloat(self.pixelWidth)
+                }else {
+                    targetWidth = CGFloat(maxWidth)
+                    targetHeight = widthCompressRatio * CGFloat(self.pixelHeight)
+                }
+            }
+            manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
+                let uuid = UUID().uuidString
+                let fileName = "\(uuid).jpg"
+                let filePath = saveDir + fileName
+                if FileManager.default.fileExists(atPath: filePath) {
+                    try? FileManager.default.removeItem(atPath: filePath)
+                }
+                let imageData = image?.jpegData(compressionQuality: thumb ? CGFloat(quality) : 1.0) as NSData?
+                imageData?.write(toFile: filePath, atomically: true)
+                if FileManager.default.fileExists(atPath: filePath) {
+                    finish?([
+                        "identifier": self.localIdentifier,
+                        "filePath":filePath,
+                        "width": targetWidth,
+                        "height": targetHeight,
+                        "name": fileName,
+                        "fileType":"image"
+                    ])
+                }
+            })
+        }
     }
 }

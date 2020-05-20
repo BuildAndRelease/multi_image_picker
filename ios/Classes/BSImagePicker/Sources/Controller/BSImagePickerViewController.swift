@@ -121,7 +121,39 @@ open class BSImagePickerViewController : UINavigationController {
 
 // MARK: ImagePickerSettings proxy
 extension BSImagePickerViewController: BSImagePickerSettings {
-
+    /**
+     See BSImagePicketSettings for documentation
+     */
+    @objc public var maxHeightOfImage: Int {
+        get {
+            return settings.maxHeightOfImage
+        }
+        set {
+            settings.maxHeightOfImage = newValue
+        }
+    }
+    /**
+     See BSImagePicketSettings for documentation
+     */
+    @objc public var maxWidthOfImage: Int {
+        get {
+            return settings.maxWidthOfImage
+        }
+        set {
+            settings.maxWidthOfImage = newValue
+        }
+    }
+    /**
+     See BSImagePicketSettings for documentation
+     */
+    @objc public var qualityOfThumb: CGFloat {
+        get {
+            return settings.qualityOfThumb
+        }
+        set {
+            settings.qualityOfThumb = newValue
+        }
+    }
 
     /**
      See BSImagePicketSettings for documentation

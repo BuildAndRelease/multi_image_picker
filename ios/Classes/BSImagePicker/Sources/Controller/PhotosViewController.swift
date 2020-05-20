@@ -27,7 +27,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
     var cancelClosure: ((_ assets: [PHAsset]) -> Void)?
-    var finishClosure: ((_ assets: [PHAsset], _ thumb : Bool) -> Void)?
+    var finishClosure: ((_ assets: [NSDictionary], _ success : Bool, _ error : NSError) -> Void)?
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
@@ -54,17 +54,13 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         return vc
     }()
     
-    private lazy var previewViewContoller: PreviewViewController? = {
-        return PreviewViewController(nibName: nil, bundle: nil)
-    }()
+    private let previewViewContoller = PreviewViewController(nibName: nil, bundle: nil)
     
     required init(fetchResults: [PHFetchResult<PHAssetCollection>], assetStore: AssetStore, settings aSettings: BSImagePickerSettings) {
         self.albumsDataSource = AlbumTableViewDataSource(fetchResults: fetchResults)
         self.settings = aSettings
         self.assetStore = assetStore
         super.init(collectionViewLayout: GridCollectionViewLayout())
-        
-        PHPhotoLibrary.shared().register(self)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -73,7 +69,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     deinit {
         print("PhotosViewController deinit")
-        PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
     
     override func loadView() {
@@ -155,8 +150,49 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     }
     
     @objc func doneButtonPressed(_ sender: UIButton) {
-        dismiss(animated: true, completion: nil)
-        finishClosure?(assetStore.assets, !originBarButton.isSelected)
+        weak var weakSelf = self
+        let maxWidth = settings.maxWidthOfImage
+        let maxHeight = settings.maxHeightOfImage
+        let quality = settings.qualityOfThumb
+        let thumb = !originBarButton.isSelected
+        let assets = self.assetStore.assets
+        
+        weak var hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+        hud?.label.text = originBarButton.isSelected ? NSLocalizedString("拷贝中", comment: "") : NSLocalizedString("压缩中", comment: "")
+        DispatchQueue.global().async {
+            let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
+            if !FileManager.default.fileExists(atPath: thumbDir) {
+                do {
+                    try FileManager.default.createDirectory(atPath: thumbDir, withIntermediateDirectories: true, attributes: nil)
+                }catch{
+                    print(error)
+                }
+            }
+            var results = [NSDictionary]();
+            var error = NSError()
+            for asset in assets {
+                var compressing = true
+                asset.compressAsset(maxWidth, maxHeight: maxHeight, quality: quality, thumb: thumb, saveDir: thumbDir, process: { (process) in
+                    
+                }, failed: { (err) in
+                    error = err
+                    compressing = false
+                }) { (info) in
+                    results.append(info)
+                    compressing = false
+                }
+                while compressing {
+                    usleep(50000)
+                }
+            }
+            
+            DispatchQueue.main.async {
+                hud?.hide(animated: true)
+                weakSelf?.finishClosure?(results, assets.count == results.count, error)
+                weakSelf?.dismiss(animated: true, completion: nil)
+            }
+        }
+        
     }
     
     @objc func originButtonPressed(_ sender: UIButton) {
@@ -217,11 +253,13 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         fetchOptions.sortDescriptors = [
             NSSortDescriptor(key: "creationDate", ascending: false)
         ]
-        photosDataSource = PhotoCollectionViewDataSource(fetchResult: PHAsset.fetchAssets(in: album, options: fetchOptions), assetStore: assetStore, settings: settings)
+        let fetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
+        photosDataSource = PhotoCollectionViewDataSource(fetchResult: fetchResult, assetStore: assetStore, settings: settings)
         photosDataSource?.delegate = self
         collectionView?.dataSource = photosDataSource
         collectionView?.delegate = self
         titleContentView.deSelectView()
+        previewViewContoller.fetchResult = fetchResult
     }
     
     func photoCollectionViewDataSourceDidReceiveCellSelectAction(_ cell: PhotoCell) {
@@ -242,18 +280,31 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             cell.photoSelected = false
             deselectionClosure?(asset)
         } else if assetStore.count < settings.maxNumberOfSelections {
-            assetStore.append(asset)
-            if let selectionCharacter = settings.selectionCharacter {
-                cell.selectionString = String(selectionCharacter)
-            } else {
-                cell.selectionString = String(assetStore.count)
-            }
+            if asset.mediaType == .video , asset.duration > 61 {
+                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                hud.mode = MBProgressHUDMode.text
+                hud.label.text = NSLocalizedString("请选择60秒以下的视频", comment: "")
+                hud.offset = CGPoint(x: 0, y: MBProgressMaxOffset)
+                hud.hide(animated: true, afterDelay: 2.0)
+            }else {
+                assetStore.append(asset)
+                if let selectionCharacter = settings.selectionCharacter {
+                    cell.selectionString = String(selectionCharacter)
+                } else {
+                    cell.selectionString = String(assetStore.count)
+                }
 
-            cell.photoSelected = true
-            updateDoneButton()
-            selectionClosure?(asset)
+                cell.photoSelected = true
+                updateDoneButton()
+                selectionClosure?(asset)
+            }
         } else if assetStore.count >= settings.maxNumberOfSelections {
             selectLimitReachedClosure?(assetStore.count)
+            let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+            hud.mode = MBProgressHUDMode.text
+            hud.label.text = NSLocalizedString("选择的图片数量超过限制", comment: "")
+            hud.offset = CGPoint(x: 0, y: MBProgressMaxOffset)
+            hud.hide(animated: true, afterDelay: 2.0)
         }
     }
 }
@@ -261,15 +312,15 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
 // MARK: UICollectionViewDelegate
 extension PhotosViewController {
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if let vc = previewViewContoller, let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset {
-            vc.delegate = self
-            vc.currentAssetIndex = photosDataSource?.fetchResult.index(of: asset) ?? 0
-            vc.fetchResult = photosDataSource?.fetchResult
-            navigationController?.pushViewController(vc, animated: true)
+        if let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset {
+            previewViewContoller.delegate = self
+            let index = photosDataSource?.fetchResult.index(of: asset) ?? 0
+            previewViewContoller.currentAssetIndex = index
+            previewViewContoller.fetchResult = photosDataSource?.fetchResult
+            navigationController?.pushViewController(previewViewContoller, animated: true)
             bottomContentView.removeFromSuperview()
             navigationController?.setToolbarHidden(true, animated: true)
         }
-        
         return true
     }
     
@@ -353,40 +404,5 @@ extension PhotosViewController {
                         
             updateDoneButton()
         }
-    }
-}
-
-// MARK: PHPhotoLibraryChangeObserver
-extension PhotosViewController: PHPhotoLibraryChangeObserver {
-    func photoLibraryDidChange(_ changeInstance: PHChange) {
-        DispatchQueue.main.async(execute: { () -> Void in
-            guard let photosDataSource = self.photosDataSource, let collectionView = self.collectionView else {
-                return
-            }
-            if let photosChanges = changeInstance.changeDetails(for: photosDataSource.fetchResult as! PHFetchResult<PHObject>) {
-                let removedCount = photosChanges.removedIndexes?.count ?? 0
-                let insertedCount = photosChanges.insertedIndexes?.count ?? 0
-                let changedCount = photosChanges.changedIndexes?.count ?? 0
-                if photosChanges.hasIncrementalChanges && (removedCount > 0 || insertedCount > 0 || changedCount > 0) {
-                    photosDataSource.fetchResult = photosChanges.fetchResultAfterChanges as! PHFetchResult<PHAsset>
-                    collectionView.performBatchUpdates({
-                        if let removed = photosChanges.removedIndexes {
-                            collectionView.deleteItems(at: removed.bs_indexPathsForSection(0))
-                        }
-                        
-                        if let inserted = photosChanges.insertedIndexes {
-                            collectionView.insertItems(at: inserted.bs_indexPathsForSection(0))
-                        }
-                        
-                        if let changed = photosChanges.changedIndexes {
-                            collectionView.reloadItems(at: changed.bs_indexPathsForSection(0))
-                        }
-                    })
-                } else if photosChanges.hasIncrementalChanges == false {
-                    photosDataSource.fetchResult = photosChanges.fetchResultAfterChanges as! PHFetchResult<PHAsset>
-                    collectionView.reloadData()
-                }
-            }
-        })
     }
 }

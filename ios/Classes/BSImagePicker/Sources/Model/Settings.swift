@@ -26,6 +26,9 @@ import UIKit
 The settings object that gets passed around between classes for keeping...settings
 */
 final class Settings : BSImagePickerSettings {
+    var maxHeightOfImage: Int = 1024
+    var maxWidthOfImage: Int = 768
+    var qualityOfThumb: CGFloat = 100
     var maxNumberOfSelections: Int = Int.max
     var selectionCharacter: Character? = nil
     var selectionFillColor: UIColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
@@ -41,7 +44,6 @@ final class Settings : BSImagePickerSettings {
             NSAttributedString.Key.foregroundColor: UIColor.white
         ]
     }()
-    
     var cellsPerRow: (_ verticalSize: UIUserInterfaceSizeClass, _ horizontalSize: UIUserInterfaceSizeClass) -> Int = {(verticalSize: UIUserInterfaceSizeClass, horizontalSize: UIUserInterfaceSizeClass) -> Int in
         switch (verticalSize, horizontalSize) {
         case (.compact, .regular): // iPhone5-6 portrait

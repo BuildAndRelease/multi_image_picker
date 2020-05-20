@@ -27,6 +27,18 @@ BSImagePicker settings. Tweaks these to make BSImagePicker fit your needs
 */
 public protocol BSImagePickerSettings {
     /**
+    Max height of images user can select
+    */
+    var maxHeightOfImage: Int { get set }
+    /**
+    Max width of images user can select
+    */
+    var maxWidthOfImage: Int { get set }
+    /**
+    quality of images user can select
+    */
+    var qualityOfThumb: CGFloat { get set }
+    /**
     Max number of images user can select
     */
     var maxNumberOfSelections: Int { get set }

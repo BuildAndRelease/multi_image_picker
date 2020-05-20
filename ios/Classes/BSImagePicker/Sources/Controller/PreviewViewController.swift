@@ -34,11 +34,15 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     weak var delegate : PreviewViewControllerDelegate?
     var currentAssetIndex : Int = 0
-    var fetchResult: PHFetchResult<PHAsset>?
+    var fetchResult: PHFetchResult<PHAsset>? {
+        didSet {
+            self.collectionView.reloadData()
+        }
+    }
     var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: UICollectionViewFlowLayout())
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
     var selectBarButton: UIBarButtonItem = UIBarButtonItem()
-    var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+    var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -74,11 +78,11 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         cancelBarButton.action = #selector(PreviewViewController.cancelButtonPressed(_:))
         
         selectBarButton = UIBarButtonItem(customView: selectionView);
+        selectionView.offset = 12.5
         selectionView.delegate = self
         navigationItem.leftBarButtonItem = cancelBarButton
         navigationItem.title = NSLocalizedString("Preview", comment: "")
         navigationItem.rightBarButtonItem = selectBarButton
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -88,6 +92,19 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         collectionView.scrollToItem(at: IndexPath(row: currentAssetIndex, section: 0), at: .centeredHorizontally, animated: false)
+        refreshSelectIndex()
+    }
+    
+    func refreshSelectIndex() {
+        if currentAssetIndex < (self.fetchResult?.count ?? 0) , let asset = self.fetchResult?[currentAssetIndex] , let selectIndex = self.delegate?.previewViewControllerIsSelectImageItem(asset) {
+            if selectIndex > 0 {
+                selectionView.selectionString = "\(selectIndex)"
+                selectionView.selected = true
+            }else {
+                selectionView.selectionString = ""
+                selectionView.selected = false
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -120,15 +137,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         let index = Int(round(scrollView.contentOffset.x/scrollView.bounds.width))
         if currentAssetIndex != index {
             currentAssetIndex = index
-            if currentAssetIndex < (self.fetchResult?.count ?? 0) , let asset = self.fetchResult?[currentAssetIndex] , let selectIndex = self.delegate?.previewViewControllerIsSelectImageItem(asset) {
-                if selectIndex > 0 {
-                    selectionView.selectionString = "\(selectIndex)"
-                    selectionView.selected = true
-                }else {
-                    selectionView.selectionString = ""
-                    selectionView.selected = false
-                }
-            }
+            refreshSelectIndex()
         }
     }
     
@@ -140,17 +149,29 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     
     func selectViewDidSelectDidAction(_ view: SelectionView) {
-        if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset , let selectIndex = self.delegate?.previewViewControllerDidSelectImageItem(asset) {
-            if selectIndex > 0 {
-                selectionView.selectionString = "\(selectIndex)"
-                selectionView.selected = true
-            }else if selectIndex == -1 {
-                selectionView.selectionString = ""
-                selectionView.selected = false
-            }else if selectIndex == -2 {
-                selectionView.selectionString = ""
-                selectionView.selected = false
-//                提示已经达到最大值
+        if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset {
+            if asset.mediaType == .video , asset.duration > 61 {
+                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                hud.mode = MBProgressHUDMode.text
+                hud.label.text = NSLocalizedString("请选择60秒以下的视频", comment: "")
+                hud.offset = CGPoint(x: 0, y: MBProgressMaxOffset)
+                hud.hide(animated: true, afterDelay: 2.0)
+            }else if let selectIndex = self.delegate?.previewViewControllerDidSelectImageItem(asset) {
+                if selectIndex > 0 {
+                    selectionView.selectionString = "\(selectIndex)"
+                    selectionView.selected = true
+                }else if selectIndex == -1 {
+                    selectionView.selectionString = ""
+                    selectionView.selected = false
+                }else if selectIndex == -2 {
+                    selectionView.selectionString = ""
+                    selectionView.selected = false
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.label.text = NSLocalizedString("选择的图片数量超过限制", comment: "")
+                    hud.offset = CGPoint(x: 0, y: MBProgressMaxOffset)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                }
             }
         }
     }

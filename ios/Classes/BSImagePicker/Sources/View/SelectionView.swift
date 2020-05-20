@@ -52,6 +52,12 @@ Used as an overlay on selected cells
         }
     }
     
+    var offset = CGFloat(5.0) {
+        didSet {
+            setNeedsDisplay();
+        }
+    }
+    
     var circleRadius = CGFloat(25.0) {
         didSet {
             setNeedsDisplay()
@@ -74,7 +80,7 @@ Used as an overlay on selected cells
         let context = UIGraphicsGetCurrentContext()
         let shadow2Offset = CGSize(width: 0.1, height: -0.1);
         let shadow2BlurRadius: CGFloat = 2.5;
-        let checkmarkFrame = CGRect(x: bounds.width - circleRadius - 5, y: 5, width: circleRadius, height: circleRadius);
+        let checkmarkFrame = CGRect(x: bounds.width - circleRadius - offset, y: offset, width: circleRadius, height: circleRadius);
         let group = CGRect(x: checkmarkFrame.minX + 3, y: checkmarkFrame.minY + 3, width: checkmarkFrame.width - 6, height: checkmarkFrame.height - 6)
         
         //// CheckedOval Drawing

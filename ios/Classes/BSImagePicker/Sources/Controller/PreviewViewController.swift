@@ -24,158 +24,103 @@ import UIKit
 import Photos
 import AVKit
 
-final class PreviewViewController : UIViewController {
-    var imageView: UIImageView = UIImageView(frame: UIScreen.main.bounds)
-    var playImageView : UIImageView = UIImageView(frame: CGRect.zero)
+final class PreviewViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, SelectionViewDelegate {
+    private let cellIdentifier = "PreviewCollectionCell"
     
-    var mediaPlayer : AVPlayer?
-    var playerLayer : AVPlayerLayer?
-    var videoAsset : AVAsset?
-    
-    var fullscreen = false
+    var currentAsset : PHAsset?
+    var fetchResult: PHFetchResult<PHAsset>?
+    var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: UICollectionViewFlowLayout())
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
-    var asset: PHAsset? {
-        didSet {
-            if asset != nil {
-                self.playImageView.isHidden = self.asset?.mediaType != .video
-                weak var weakSelf = self
-                let options = PHImageRequestOptions()
-                options.isNetworkAccessAllowed = true
-                PHCachingImageManager.default().requestImage(for: asset!, targetSize:imageView.frame.size, contentMode: .aspectFit, options: options) { (result, _) in
-                    weakSelf?.imageView.image = result
-                }
-            }
-        }
-    }
+    var selectBarButton: UIBarButtonItem = UIBarButtonItem()
+    var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
         view.backgroundColor = UIColor.black
         
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(imageView)
+        let flowLayout = UICollectionViewFlowLayout()
+        flowLayout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        flowLayout.minimumInteritemSpacing = 0
+        flowLayout.minimumLineSpacing = 0
+        flowLayout.itemSize = UIScreen.main.bounds.size
+        flowLayout.scrollDirection = .horizontal
         
-        playImageView.image = UIImage(named: "play_btn_unselect", in: BSImagePickerViewController.bundle, compatibleWith: nil)
-        playImageView.highlightedImage = UIImage(named: "play_btn_select", in: BSImagePickerViewController.bundle, compatibleWith: nil)
-        playImageView.contentMode = .scaleAspectFit
-        playImageView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(playImageView)
+        collectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: flowLayout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = UIColor.clear
+        collectionView.isPagingEnabled = true
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(PreviewCollectionViewCell.self, forCellWithReuseIdentifier: self.cellIdentifier)
+        self.view.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
-            NSLayoutConstraint(item: imageView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: imageView, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: imageView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: imageView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0),
-            
-            NSLayoutConstraint(item: playImageView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 50),
-            NSLayoutConstraint(item: playImageView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 50),
-            NSLayoutConstraint(item: playImageView, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: playImageView, attribute: .centerY, relatedBy: .equal, toItem: view, attribute: .centerY, multiplier: 1, constant: 0)
+            NSLayoutConstraint(item: collectionView, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 44.0),
+            NSLayoutConstraint(item: collectionView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: collectionView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: collectionView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0)
         ])
 
-        let tapRecognizer = UITapGestureRecognizer()
-        tapRecognizer.numberOfTapsRequired = 1
-        tapRecognizer.addTarget(self, action: #selector(PreviewViewController.toggleFullscreen))
-        view.addGestureRecognizer(tapRecognizer)
-        
         cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.white], for: .normal)
         cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.gray], for: .highlighted)
         cancelBarButton.target = self
         cancelBarButton.action = #selector(PreviewViewController.cancelButtonPressed(_:))
+        
+        selectBarButton = UIBarButtonItem(customView: selectionView);
+        selectionView.delegate = self
         navigationItem.leftBarButtonItem = cancelBarButton
+        navigationItem.title = NSLocalizedString("Preview", comment: "")
+        navigationItem.rightBarButtonItem = selectBarButton
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
-    override func loadView() {
-        super.loadView()
-    }
-    
-    deinit {
-        self.mediaPlayer?.currentItem?.cancelPendingSeeks()
-        self.mediaPlayer?.currentItem?.asset.cancelLoading()
-        self.playerLayer?.removeFromSuperlayer()
-        self.mediaPlayer = nil
-        self.playerLayer = nil
-    }
-    
-    @objc func toggleFullscreen() {
-        if asset?.mediaType == .video {
-            if self.mediaPlayer == nil {//未开始播
-                weak var weakSelf = self
-                let options = PHVideoRequestOptions()
-                options.deliveryMode = .highQualityFormat
-                options.isNetworkAccessAllowed = false
-                PHCachingImageManager.default().requestAVAsset(forVideo: asset!, options: options) { (avasset, audiomix, dictionary) in
-                    if avasset != nil {
-                        weakSelf?.videoAsset = avasset
-                        DispatchQueue.main.async {
-                            if let player = weakSelf?.mediaPlayer, let _ = weakSelf?.playerLayer {
-                                player.replaceCurrentItem(with: AVPlayerItem(asset: avasset!))
-                            }else{
-                                weakSelf?.mediaPlayer = AVPlayer(playerItem: AVPlayerItem(asset: avasset!))
-                                weakSelf?.playerLayer = AVPlayerLayer(player: weakSelf?.mediaPlayer)
-                            }
-                            weakSelf?.playerLayer?.frame = weakSelf?.view?.bounds ?? UIScreen.main.bounds
-                            weakSelf?.view?.layer.addSublayer((weakSelf?.playerLayer)!)
-                            weakSelf?.mediaPlayer?.play()
-                            weakSelf?.mediaPlayer?.addPeriodicTimeObserver(forInterval:weakSelf?.videoAsset?.duration ?? CMTimeMake(value: 1, timescale: 1), queue: DispatchQueue.main, using: { (time) in
-                                if time == weakSelf?.videoAsset?.duration {
-                                    let timeToStart = CMTimeMake(value: 0, timescale: weakSelf?.mediaPlayer?.currentTime().timescale ?? 600)
-                                    weakSelf?.mediaPlayer?.seek(to: timeToStart)
-                                    if weakSelf != nil {
-                                        weakSelf?.view.bringSubviewToFront(weakSelf!.playImageView)
-                                    }
-                                }
-                            })
-                        }
-                    }
-                }
-            }else if self.mediaPlayer?.currentItem?.currentTime() == self.mediaPlayer?.currentItem?.duration {//stop
-                let timeToStart = CMTimeMake(value: 0, timescale: self.mediaPlayer?.currentTime().timescale ?? 600)
-                self.mediaPlayer?.seek(to: timeToStart)
-                self.mediaPlayer?.play()
-            }else if self.mediaPlayer?.rate != 0.0 {//正在播放
-                self.view.bringSubviewToFront(self.playImageView)
-                self.mediaPlayer?.rate = 0.0
-            }else if self.mediaPlayer?.rate == 0.0 {//暂停
-                self.mediaPlayer?.rate = 1.0
-                self.view.sendSubviewToBack(self.playImageView)
-            }
-        }else {
-            weak var weakSelf = self
-            fullscreen = !fullscreen
-            UIView.animate(withDuration: 0.3, animations: { () -> Void in
-                weakSelf?.toggleNavigationBar()
-                weakSelf?.toggleStatusBar()
-            })
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let asset = currentAsset {
+            collectionView.scrollToItem(at: IndexPath(row: fetchResult?.index(of: asset) ?? 0, section: 0), at: .centeredHorizontally, animated: false)
         }
     }
     
-    @objc func toggleNavigationBar() {
-        navigationController?.setNavigationBarHidden(fullscreen, animated: true)
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        let cell = collectionView.cellForItem(at: indexPath) as! PreviewCollectionViewCell
+        cell.cellDidReceiveTapAction()
     }
     
-    @objc func toggleStatusBar() {
-        self.setNeedsStatusBarAppearanceUpdate()
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
     }
     
-    override var prefersStatusBarHidden : Bool {
-        return fullscreen
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return fetchResult?.count ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! PreviewCollectionViewCell
+        print(indexPath.row)
+        cell.asset = self.fetchResult?[indexPath.row]
+        return cell
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        for cell in collectionView.visibleCells {
+            (cell as! PreviewCollectionViewCell).stopPlayVideo()
+        }
     }
     
     @objc func cancelButtonPressed(_ sender: UIBarButtonItem) {
-        self.mediaPlayer?.pause()
-        self.mediaPlayer?.currentItem?.cancelPendingSeeks()
-        self.mediaPlayer?.currentItem?.asset.cancelLoading()
-        self.playerLayer?.removeFromSuperlayer()
-        self.mediaPlayer = nil
-        self.playerLayer = nil
-        self.view.bringSubviewToFront(self.playImageView)
+        for cell in collectionView.visibleCells {
+            (cell as! PreviewCollectionViewCell).stopPlayVideo()
+        }
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    func selectViewDidSelectDidAction(_ view: SelectionView) {
+        print("selectViewDidSelectDidAction")
     }
 }

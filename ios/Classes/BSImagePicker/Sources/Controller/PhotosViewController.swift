@@ -37,9 +37,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     var doneBarButton: UIButton = UIButton(type: .custom)
     var bottomContentView : UIView = UIView()
     
-    let expandAnimator = ZoomAnimator()
-    let shrinkAnimator = ZoomAnimator()
-    
     let settings: BSImagePickerSettings
     private var assetStore: AssetStore
     
@@ -134,8 +131,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         
         photosDataSource?.registerCellIdentifiersForCollectionView(collectionView)
         photosDataSource?.delegate = self
-        
-        navigationController?.delegate = self
     }
     
     // MARK: Appear/Disappear
@@ -267,13 +262,8 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
 extension PhotosViewController {
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let vc = previewViewContoller, let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset {
-            // Setup fetch options to be synchronous
-            vc.asset = asset
-            // Setup animation
-            expandAnimator.sourceImageView = cell.imageView
-            expandAnimator.destinationImageView = vc.imageView
-            shrinkAnimator.sourceImageView = vc.imageView
-            shrinkAnimator.destinationImageView = cell.imageView
+            vc.currentAsset = asset
+            vc.fetchResult = photosDataSource?.fetchResult
             navigationController?.pushViewController(vc, animated: true)
             bottomContentView.removeFromSuperview()
             navigationController?.setToolbarHidden(true, animated: true)
@@ -292,19 +282,6 @@ extension PhotosViewController: UIPopoverPresentationControllerDelegate {
     func popoverPresentationControllerShouldDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) -> Bool {
         titleContentView.deSelectView()
         return true
-    }
-}
-
-// MARK: UINavigationControllerDelegate
-extension PhotosViewController: UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        if operation == .push {
-            return expandAnimator
-        } else {
-            navigationController.setToolbarHidden(false, animated: true)
-            navigationController.toolbar.addSubview(bottomContentView)
-            return shrinkAnimator
-        }
     }
 }
 

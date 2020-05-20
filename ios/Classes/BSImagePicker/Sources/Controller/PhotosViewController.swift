@@ -159,6 +159,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         
         weak var hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         hud?.label.text = originBarButton.isSelected ? NSLocalizedString("拷贝中", comment: "") : NSLocalizedString("压缩中", comment: "")
+        hud?.bezelView.backgroundColor = UIColor.darkGray
         DispatchQueue.global().async {
             let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
             if !FileManager.default.fileExists(atPath: thumbDir) {
@@ -283,8 +284,9 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             if asset.mediaType == .video , asset.duration > 61 {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
+                hud.bezelView.backgroundColor = UIColor.darkGray
                 hud.label.text = NSLocalizedString("请选择60秒以下的视频", comment: "")
-                hud.offset = CGPoint(x: 0, y: MBProgressMaxOffset)
+                hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
             }else {
                 assetStore.append(asset)
@@ -302,8 +304,9 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             selectLimitReachedClosure?(assetStore.count)
             let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
             hud.mode = MBProgressHUDMode.text
+            hud.bezelView.backgroundColor = UIColor.darkGray
             hud.label.text = NSLocalizedString("选择的图片数量超过限制", comment: "")
-            hud.offset = CGPoint(x: 0, y: MBProgressMaxOffset)
+            hud.offset = CGPoint(x: 0, y: 0)
             hud.hide(animated: true, afterDelay: 2.0)
         }
     }

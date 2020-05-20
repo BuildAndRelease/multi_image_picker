@@ -81,7 +81,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         selectionView.offset = 12.5
         selectionView.delegate = self
         navigationItem.leftBarButtonItem = cancelBarButton
-        navigationItem.title = NSLocalizedString("Preview", comment: "")
+        navigationItem.title = NSLocalizedString("预览", comment: "")
         navigationItem.rightBarButtonItem = selectBarButton
     }
     
@@ -154,7 +154,8 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.label.text = NSLocalizedString("请选择60秒以下的视频", comment: "")
-                hud.offset = CGPoint(x: 0, y: MBProgressMaxOffset)
+                hud.bezelView.backgroundColor = UIColor.darkGray
+                hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
             }else if let selectIndex = self.delegate?.previewViewControllerDidSelectImageItem(asset) {
                 if selectIndex > 0 {
@@ -168,8 +169,9 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
                     selectionView.selected = false
                     let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                     hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
                     hud.label.text = NSLocalizedString("选择的图片数量超过限制", comment: "")
-                    hud.offset = CGPoint(x: 0, y: MBProgressMaxOffset)
+                    hud.offset = CGPoint(x: 0, y: 0)
                     hud.hide(animated: true, afterDelay: 2.0)
                 }
             }

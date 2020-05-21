@@ -25,7 +25,6 @@ public class PickerController {
     private PickerActivity pickerActivity;
     private ArrayList<Media> addImagePaths = new ArrayList<>();
     private ContentResolver resolver;
-    private String pathDir = "";
 
     PickerController(PickerActivity pickerActivity) {
         this.pickerActivity = pickerActivity;
@@ -34,10 +33,6 @@ public class PickerController {
 
     public void setToolbarTitle(int total) {
         pickerActivity.updateSendBtnTitle();
-    }
-
-    public void setAddImagePath(Media media) {
-        this.addImagePaths.add(media);
     }
 
     protected ArrayList<Media> getAddImagePaths() {
@@ -95,16 +90,13 @@ public class PickerController {
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
-                    String originPath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
-                    String originName = c.getString(c.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
-                    setPathDir(originPath, originName);
                     do {
                         Media media = new Media();
                         String mimeType = c.getString(c.getColumnIndex(MediaStore.Images.Media.MIME_TYPE));
                         String buckName = c.getString(c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
                         if (isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, buckName)) continue;
-                        originPath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
-                        originName = c.getString(c.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+                        String originPath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
+                        String originName = c.getString(c.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
                         String originWidth = c.getString(c.getColumnIndex(MediaStore.Images.Media.WIDTH));
                         String originHeight = c.getString(c.getColumnIndex(MediaStore.Images.Media.HEIGHT));
                         int imgId = c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
@@ -117,7 +109,7 @@ public class PickerController {
                         media.setOriginPath(originPath);
                         media.setIdentifier(identifier);
                         media.setMimeType(mimeType);
-                        media.setFileType("audio");
+                        media.setFileType("image");
                         medias.add(media);
                     } while (c.moveToNext());
                 }
@@ -147,16 +139,13 @@ public class PickerController {
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
-                    String originPath = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATA));
-                    String originName = c.getString(c.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
-                    setPathDir(originPath, originName);
                     do {
                         Media media = new Media();
                         String mimeType = c.getString(c.getColumnIndex(MediaStore.Video.Media.MIME_TYPE));
                         String buckName = c.getString(c.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
                         if (isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, buckName)) continue;
-                        originPath = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATA));
-                        originName = c.getString(c.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
+                        String originPath = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATA));
+                        String originName = c.getString(c.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
                         String originWidth = c.getString(c.getColumnIndex(MediaStore.Video.Media.WIDTH));
                         String originHeight = c.getString(c.getColumnIndex(MediaStore.Video.Media.HEIGHT));
                         String duration = c.getString(c.getColumnIndex(MediaStore.Video.Media.DURATION));
@@ -181,16 +170,6 @@ public class PickerController {
             }
         }
         return medias;
-    }
-
-    private void setPathDir(String path, String fileName) {
-        pathDir = path.replace("/" + fileName, "");
-    }
-
-    String getPathDir(Long bucketId) {
-        if (pathDir.equals("") || bucketId == 0)
-            pathDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM + "/Camera").getAbsolutePath();
-        return pathDir;
     }
 
     private boolean isExceptMemeType(List<MimeType> mimeTypes, String mimeType){

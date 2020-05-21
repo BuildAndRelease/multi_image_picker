@@ -30,17 +30,14 @@ import java.util.ArrayList;
 
 
 public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final int TYPE_HEADER = Integer.MIN_VALUE;
 
     private Fishton fishton;
     private PickerController pickerController;
     private OnPhotoActionListener actionListener;
 
-    private String saveDir;
 
-    public PickerGridAdapter(PickerController pickerController, String saveDir) {
+    public PickerGridAdapter(PickerController pickerController) {
         this.pickerController = pickerController;
-        this.saveDir = saveDir;
         this.fishton = Fishton.getInstance();
     }
 
@@ -53,7 +50,6 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final int imagePos = position;
-
         final ViewHolderImage vh = (ViewHolderImage) holder;
         final Media media = fishton.getPickerMedias().get(imagePos);
         final Context context = vh.item.getContext();
@@ -74,10 +70,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             vh.videoInfoContentView.setVisibility(View.INVISIBLE);
         }
 
-
-
         initState(fishton.getSelectedMedias().indexOf(media), vh);
-        if (media != null && vh.imgThumbImage != null)
+        if (media != null && vh.imgThumbImage != null && Fishton.getInstance().getImageAdapter() != null)
             Fishton.getInstance().getImageAdapter().loadImage(vh.imgThumbImage, media);
 
         vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {

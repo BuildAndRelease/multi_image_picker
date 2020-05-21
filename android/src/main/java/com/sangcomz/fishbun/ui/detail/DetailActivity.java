@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
@@ -21,15 +23,18 @@ import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.UUID;
 
-public class DetailActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
+public class DetailActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, DetailViewPagerAdapter.OnVideoPlayActionListener {
     private static final String TAG = "DetailActivity";
 
     private int initPosition;
     private RadioWithTextButton btnDetailCount;
     private ViewPager vpDetailPager;
     private Button btnDetailBack;
+    private VideoView currentPlayVideoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +75,11 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         onCheckStateChange(fishton.getPickerMedias().get(initPosition));
 
         DetailViewPagerAdapter adapter = new DetailViewPagerAdapter((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE), fishton.getPickerMedias());
+        adapter.setActionListener(this);
         vpDetailPager.setAdapter(adapter);
         vpDetailPager.setCurrentItem(initPosition);
         vpDetailPager.addOnPageChangeListener(this);
+        vpDetailPager.setOffscreenPageLimit(5);
     }
 
     public void onCheckStateChange(Media media) {
@@ -133,7 +140,24 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onPageScrollStateChanged(int state) {
-
+        switch (state){
+            case ViewPager.SCROLL_STATE_IDLE:
+//                vpDetailPager.getAdapter(
+                //无动作、初始状态
+                Log.i(TAG,"---->onPageScrollStateChanged无动作");
+                break;
+            case ViewPager.SCROLL_STATE_DRAGGING:
+                //点击、滑屏
+                Log.i(TAG,"---->onPageScrollStateChanged点击、滑屏");
+                if (currentPlayVideoView != null) {
+                    currentPlayVideoView.performClick();
+                }
+                break;
+            case ViewPager.SCROLL_STATE_SETTLING:
+                //释放
+                Log.i(TAG,"---->onPageScrollStateChanged释放");
+                break;
+        }
     }
 
     void finishActivity() {
@@ -141,5 +165,10 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
         setResult(RESULT_OK, i);
         finish();
+    }
+
+    @Override
+    public void onVideoDidPlayer(@NotNull VideoView videoView) {
+        currentPlayVideoView = videoView;
     }
 }

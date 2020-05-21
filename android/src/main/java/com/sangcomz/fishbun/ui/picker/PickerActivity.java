@@ -206,7 +206,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     public void setAdapter(List<Media> result) {
         fishton.setPickerMedias(result);
         if (adapter == null) {
-            adapter = new PickerGridAdapter(pickerController, pickerController.getPathDir(album.bucketId));
+            adapter = new PickerGridAdapter(pickerController);
             adapter.setActionListener(new PickerGridAdapter.OnPhotoActionListener() {
                 @Override
                 public void onDeselect() {

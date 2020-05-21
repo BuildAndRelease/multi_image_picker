@@ -22,8 +22,8 @@ public class Define {
     public final String SAVE_INSTANCE_ALBUM_LIST = "instance_album_list";
     public final String SAVE_INSTANCE_ALBUM_THUMB_LIST = "instance_album_thumb_list";
 
-    public final String SAVE_INSTANCE_NEW_IMAGES = "instance_new_images";
-    public final String SAVE_INSTANCE_SAVED_IMAGE = "instance_saved_image";
+    public final String SAVE_INSTANCE_NEW_MEDIAS = "instance_new_medias";
+    public final String SAVE_INSTANCE_SAVED_MEDIAS = "instance_saved_media";
 
     public enum BUNDLE_NAME {
         POSITION,

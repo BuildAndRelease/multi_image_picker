@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import com.example.multi_image_picker.R
 import com.sangcomz.fishbun.adapter.image.ImageAdapter
+import com.sangcomz.fishbun.bean.Media
 import com.sangcomz.fishbun.util.getDimension
 import java.util.ArrayList
 
@@ -14,7 +15,7 @@ import java.util.ArrayList
  */
 class Fishton {
     var imageAdapter: ImageAdapter? = null
-    var pickerImages: List<Uri>? = null
+    var pickerMedias: List<Media>? = null
 
     var quality : Int = 1
     var maxHeight : Int = 300
@@ -22,7 +23,7 @@ class Fishton {
     var maxCount: Int = 0
     var minCount: Int = 0
     var exceptMimeTypeList = emptyList<MimeType>()
-    var selectedImages = ArrayList<Uri>()
+    var selectedMedias = ArrayList<Media>()
 
     var specifyFolderList = emptyList<String>()
     var photoSpanCount: Int = 0
@@ -30,14 +31,12 @@ class Fishton {
     var albumLandscapeSpanCount: Int = 0
 
     var isButton: Boolean = false
-    var isThumb:Boolean = true
 
     var colorActionBar: Int = 0
     var colorActionBarTitle: Int = 0
     var colorStatusBar: Int = 0
 
     var isStatusBarLight: Boolean = false
-    var isCamera: Boolean = false
 
     var albumThumbnailSize: Int = 0
 
@@ -78,7 +77,7 @@ class Fishton {
         quality = 1
         minCount = 1
         exceptMimeTypeList = emptyList()
-        selectedImages = ArrayList()
+        selectedMedias = ArrayList()
 
         //CustomizationParams
         specifyFolderList = emptyList()
@@ -87,14 +86,12 @@ class Fishton {
         albumLandscapeSpanCount = 2
 
         isButton = false
-        isThumb = true;
 
         colorActionBar = Color.parseColor("#2E2E2E")
         colorActionBarTitle = Color.parseColor("#FFFFFF")
         colorStatusBar = Color.parseColor("#2E2E2E")
 
         isStatusBarLight = false
-        isCamera = false
 
         albumThumbnailSize = Integer.MAX_VALUE
 

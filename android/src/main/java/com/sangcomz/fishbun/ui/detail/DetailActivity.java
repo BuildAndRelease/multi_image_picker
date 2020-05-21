@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
@@ -18,9 +17,9 @@ import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.sangcomz.fishbun.BaseActivity;
 import com.sangcomz.fishbun.adapter.view.DetailViewPagerAdapter;
+import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
-import com.sangcomz.fishbun.util.UiUtil;
 
 import java.util.UUID;
 
@@ -62,24 +61,24 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void initAdapter() {
-        if (fishton.getPickerImages() == null) {
+        if (fishton.getPickerMedias() == null) {
             Toast.makeText(this, R.string.msg_error, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        onCheckStateChange(fishton.getPickerImages().get(initPosition));
+        onCheckStateChange(fishton.getPickerMedias().get(initPosition));
 
-        DetailViewPagerAdapter adapter = new DetailViewPagerAdapter((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE), fishton.getPickerImages());
+        DetailViewPagerAdapter adapter = new DetailViewPagerAdapter((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE), fishton.getPickerMedias());
         vpDetailPager.setAdapter(adapter);
         vpDetailPager.setCurrentItem(initPosition);
         vpDetailPager.addOnPageChangeListener(this);
     }
 
-    public void onCheckStateChange(Uri image) {
-        boolean isContained = fishton.getSelectedImages().contains(image);
+    public void onCheckStateChange(Media media) {
+        boolean isContained = fishton.getSelectedMedias().contains(media);
         if (isContained) {
-            updateRadioButton(btnDetailCount, String.valueOf(fishton.getSelectedImages().indexOf(image) + 1));
+            updateRadioButton(btnDetailCount, String.valueOf(fishton.getSelectedMedias().indexOf(media) + 1));
         } else {
             btnDetailCount.unselect();
         }
@@ -99,19 +98,19 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onClick(View v) {
-        if (fishton.getPickerImages() == null) return;
+        if (fishton.getPickerMedias() == null) return;
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
-            Uri image = fishton.getPickerImages().get(vpDetailPager.getCurrentItem());
-            if (fishton.getSelectedImages().contains(image)) {
-                fishton.getSelectedImages().remove(image);
-                onCheckStateChange(image);
+            Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
+            if (fishton.getSelectedMedias().contains(media)) {
+                fishton.getSelectedMedias().remove(media);
+                onCheckStateChange(media);
             } else {
-                if (fishton.getSelectedImages().size() == fishton.getMaxCount()) {
+                if (fishton.getSelectedMedias().size() == fishton.getMaxCount()) {
                     Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
                 } else {
-                    fishton.getSelectedImages().add(image);
-                    onCheckStateChange(image);
+                    fishton.getSelectedMedias().add(media);
+                    onCheckStateChange(media);
                 }
             }
 
@@ -127,8 +126,8 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onPageSelected(int position) {
-        if (fishton.getPickerImages() != null){
-            onCheckStateChange(fishton.getPickerImages().get(position));
+        if (fishton.getPickerMedias() != null){
+            onCheckStateChange(fishton.getPickerMedias().get(position));
         }
     }
 

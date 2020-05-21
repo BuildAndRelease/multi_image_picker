@@ -110,10 +110,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 int maxImages = this.methodCall.argument(MAX_IMAGES);
                 int maxHeight = this.methodCall.argument(MAX_HEIGHT);
                 int maxWidth = this.methodCall.argument(MAX_WIDTH);
-                int qualityOfThumb = (int) this.methodCall.argument(QUALITY_OF_IMAGE);
-                boolean enableCamera = (boolean) this.methodCall.argument(ENABLE_CAMERA);
-                ArrayList<String> selectedAssets = this.methodCall.argument(SELECTED_ASSETS);
-                presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, enableCamera, selectedAssets, options);
+                int qualityOfThumb = this.methodCall.argument(QUALITY_OF_IMAGE);
+                presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, options);
             }
         }else {
             finishWithError("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION");
@@ -121,7 +119,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         }
     }
 
-    private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, HashMap<String, String> options) {
         String actionBarColor = options.get("actionBarColor");
         String statusBarColor = options.get("statusBarColor");
         String lightStatusBar = options.get("lightStatusBar");
@@ -133,11 +131,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         String textOnNothingSelected = options.get("textOnNothingSelected");
         String backButtonDrawable = options.get("backButtonDrawable");
         String okButtonDrawable = options.get("okButtonDrawable");
-        ArrayList<Uri> selectedUris = new ArrayList<Uri>();
-
-        for (String path : selectedAssets) {
-            selectedUris.add(Uri.parse(path));
-        }
 
         ArrayList mimeTypeList = new ArrayList();
         mimeTypeList.add(MimeType.GIF);
@@ -148,9 +141,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 .setQuality(qualityOfThumb)
                 .setMaxHeight(maxHeight)
                 .setMaxWidth(maxWidth)
-                .setCamera(enableCamera)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
-                .setSelectedImages(selectedUris)
                 .exceptMimeType(mimeTypeList)
                 .setIsUseDetailView(true);
 

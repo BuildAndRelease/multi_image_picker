@@ -3,14 +3,14 @@ package com.sangcomz.fishbun.adapter.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.sangcomz.fishbun.Fishton;
+import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.ui.detail.DetailActivity;
 import com.sangcomz.fishbun.ui.picker.PickerActivity;
@@ -45,66 +46,59 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view;
-        if (viewType == TYPE_HEADER) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.header_item, parent, false);
-            return new ViewHolderHeader(view);
-        }
-
-        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.thumb_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.thumb_item, parent, false);
         return new ViewHolderImage(view);
     }
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        if (holder instanceof ViewHolderHeader) {
-            final ViewHolderHeader vh = (ViewHolderHeader) holder;
-            vh.header.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    pickerController.takePicture((Activity) vh.header.getContext(), saveDir);
-                }
-            });
+        final int imagePos = position;
+
+        final ViewHolderImage vh = (ViewHolderImage) holder;
+        final Media media = fishton.getPickerMedias().get(imagePos);
+        final Context context = vh.item.getContext();
+        vh.item.setTag(media);
+        vh.btnThumbCount.unselect();
+        vh.btnThumbCount.setCircleColor(fishton.getColorSelectCircleStroke());
+        vh.btnThumbCount.setTextColor(fishton.getColorActionBarTitle());
+        vh.btnThumbCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
+        if (media.getFileType().equals("video")) {
+            vh.videoInfoContentView.setVisibility(View.VISIBLE);
+            try {
+                int duration = Integer.parseInt(media.getDuration())/1000;
+                vh.videoInfoDurationTextView.setText(String.format("%02d", duration/60) + ":" + String.format("%02d", duration%60));
+            } catch (Exception e) {
+                vh.videoInfoDurationTextView.setText("00:00");
+            }
+        }else {
+            vh.videoInfoContentView.setVisibility(View.INVISIBLE);
         }
 
-        if (holder instanceof ViewHolderImage) {
-            final int imagePos;
-            if (fishton.isCamera()) imagePos = position - 1;
-            else imagePos = position;
 
-            final ViewHolderImage vh = (ViewHolderImage) holder;
-            final Uri image = fishton.getPickerImages().get(imagePos);
-            final Context context = vh.item.getContext();
-            vh.item.setTag(image);
-            vh.btnThumbCount.unselect();
-            vh.btnThumbCount.setCircleColor(fishton.getColorSelectCircleStroke());
-            vh.btnThumbCount.setTextColor(fishton.getColorActionBarTitle());
-            vh.btnThumbCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
 
-            initState(fishton.getSelectedImages().indexOf(image), vh);
-            if (image != null && vh.imgThumbImage != null)
-                Fishton.getInstance().getImageAdapter().loadImage(vh.imgThumbImage, image);
+        initState(fishton.getSelectedMedias().indexOf(media), vh);
+        if (media != null && vh.imgThumbImage != null)
+            Fishton.getInstance().getImageAdapter().loadImage(vh.imgThumbImage, media);
 
-            vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onCheckStateChange(vh.item, image);
-                }
-            });
-            vh.imgThumbImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (fishton.isUseDetailView()) {
-                        if (context instanceof PickerActivity) {
-                            PickerActivity activity = (PickerActivity) context;
-                            Intent i = new Intent(activity, DetailActivity.class);
-                            i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
-                            activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
-                        }
+        vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onCheckStateChange(vh.item, media);
+            }
+        });
+        vh.imgThumbImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (fishton.isUseDetailView()) {
+                    if (context instanceof PickerActivity) {
+                        PickerActivity activity = (PickerActivity) context;
+                        Intent i = new Intent(activity, DetailActivity.class);
+                        i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
+                        activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     private void initState(int selectedIndex, ViewHolderImage vh) {
@@ -114,10 +108,10 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    private void onCheckStateChange(View v, Uri image) {
-        ArrayList<Uri> pickedImages = fishton.getSelectedImages();
+    private void onCheckStateChange(View v, Media media) {
+        ArrayList<Media> pickedImages = fishton.getSelectedMedias();
 
-        boolean isContained = pickedImages.contains(image);
+        boolean isContained = pickedImages.contains(media);
         if (fishton.getMaxCount() == pickedImages.size() && !isContained) {
             Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
             return;
@@ -125,11 +119,11 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         RadioWithTextButton btnThumbCount = v.findViewById(R.id.btn_thumb_count);
         View coverView = v.findViewById(R.id.conver_view);
         if (isContained) {
-            pickedImages.remove(image);
+            pickedImages.remove(media);
             btnThumbCount.unselect();
             animScale(coverView, true);
         } else {
-            pickedImages.add(image);
+            pickedImages.add(media);
             updateRadioButton(btnThumbCount, String.valueOf(pickedImages.size()));
             animScale(coverView, false);
         }
@@ -169,39 +163,15 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemCount() {
         int count;
-        if (fishton.getPickerImages() == null)
+        if (fishton.getPickerMedias() == null)
             count = 0;
         else
-            count = fishton.getPickerImages().size();
+            count = fishton.getPickerMedias().size();
 
-        if (fishton.isCamera())
-            return count + 1;
-
-        if (fishton.getPickerImages() == null)
+        if (fishton.getPickerMedias() == null)
             return 0;
         else
             return count;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position == 0 && fishton.isCamera()) {
-            return TYPE_HEADER;
-        }
-        return super.getItemViewType(position);
-    }
-
-    public void addImage(Uri path) {
-        ArrayList<Uri> al = new ArrayList<>();
-        if (fishton.getPickerImages() != null){
-            al.addAll(fishton.getPickerImages());
-        }
-        al.add(0, path);
-        fishton.setPickerImages(al);
-
-        notifyDataSetChanged();
-
-        pickerController.setAddImagePath(path);
     }
 
     public void setActionListener(OnPhotoActionListener actionListener) {
@@ -217,6 +187,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         ImageView imgThumbImage;
         RadioWithTextButton btnThumbCount;
         View coverView;
+        LinearLayout videoInfoContentView;
+        TextView videoInfoDurationTextView;
 
         public ViewHolderImage(View view) {
             super(view);
@@ -224,14 +196,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             imgThumbImage = view.findViewById(R.id.img_thumb_image);
             btnThumbCount = view.findViewById(R.id.btn_thumb_count);
             coverView = view.findViewById(R.id.conver_view);
-        }
-    }
-
-    public class ViewHolderHeader extends RecyclerView.ViewHolder {
-        RelativeLayout header;
-        public ViewHolderHeader(View view) {
-            super(view);
-            header = itemView.findViewById(R.id.rel_header_area);
+            videoInfoContentView = view.findViewById(R.id.video_thumb_info_view);
+            videoInfoDurationTextView = view.findViewById(R.id.video_thumb_duration_info_view);
         }
     }
 }

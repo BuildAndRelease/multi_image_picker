@@ -18,8 +18,6 @@ interface CustomizationProperty {
 
     fun setActionBarColor(actionbarColor: Int, statusBarColor: Int, isStatusBarLight: Boolean): FishBunCreator
 
-    fun setCamera(isCamera: Boolean): FishBunCreator
-
     fun textOnNothingSelected(message: String?): FishBunCreator
 
     fun textOnImagesSelectionLimitReached(message: String?): FishBunCreator

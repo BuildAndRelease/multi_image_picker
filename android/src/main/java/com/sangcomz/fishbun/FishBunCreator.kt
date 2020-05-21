@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import com.sangcomz.fishbun.bean.Album
+import com.sangcomz.fishbun.bean.Media
 import com.sangcomz.fishbun.define.Define
 import com.sangcomz.fishbun.ui.picker.PickerActivity
 import kotlin.collections.ArrayList
@@ -14,8 +15,8 @@ import kotlin.collections.ArrayList
 class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton) : BaseProperty, CustomizationProperty {
     private var requestCode = 27
 
-    override fun setSelectedImages(selectedImages: ArrayList<Uri>): FishBunCreator = this.apply {
-        fishton.selectedImages = selectedImages
+    override fun setSelectedMedias(selectedMedias: ArrayList<Media>): FishBunCreator = this.apply {
+        fishton.selectedMedias = selectedMedias
     }
 
     override fun setAlbumThumbnailSize(size: Int): FishBunCreator = apply {
@@ -68,10 +69,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.colorActionBar = actionbarColor
         fishton.colorStatusBar = statusBarColor
         fishton.isStatusBarLight = isStatusBarLight
-    }
-
-    override fun setCamera(isCamera: Boolean): FishBunCreator = this.apply {
-        fishton.isCamera = isCamera
     }
 
     override fun setRequestCode(requestCode: Int): FishBunCreator = this.apply {
@@ -163,7 +160,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         val fishBunContext = fishBun.fishBunContext
         val context = fishBunContext.getContext()
 
-        exceptionHandling()
         if (fishton.imageAdapter == null) throw NullPointerException("ImageAdapter is Null")
 
         with(fishton) {
@@ -180,10 +176,5 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishBunContext.startActivityForResult(intent, requestCode)
     }
 
-    private fun exceptionHandling() {
-        if (fishton.isCamera) {
-            fishton.isCamera = fishton.specifyFolderList.isEmpty()
-        }
-    }
 }
 

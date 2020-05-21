@@ -44,16 +44,9 @@ public class AlbumPickerPopupController {
         @Override
         protected List<Album> doInBackground(Void... params) {
             HashMap<Long, Album> albumHashMap = new HashMap<>();
-            final String orderBy = MediaStore.Images.Media._ID + " DESC";
-            String[] projection = new String[]{
-                    MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                    MediaStore.Images.Media.MIME_TYPE,
-                    MediaStore.Images.Media.BUCKET_ID};
-
-            Cursor c = resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, orderBy);
-
             int totalCounter = 0;
+            String[] projection = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.MIME_TYPE, MediaStore.Images.Media.BUCKET_ID};
+            Cursor c = resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null);
             if (c != null) {
                 int bucketMimeType = c.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
                 int bucketColumn = c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
@@ -66,6 +59,7 @@ public class AlbumPickerPopupController {
                 while (c.moveToNext()) {
                     String mimeType = c.getString(bucketMimeType);
                     String folderName = c.getString(bucketColumn);
+
                     int count = c.getCount();
                     if (count <= 0 || isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, folderName)) continue;
 
@@ -87,6 +81,44 @@ public class AlbumPickerPopupController {
                     allAlbum.counter = totalCounter;
                 }
                 c.close();
+            }
+
+            String[] videoProjection = new String[]{MediaStore.Video.Media._ID, MediaStore.Video.Media.BUCKET_DISPLAY_NAME, MediaStore.Video.Media.MIME_TYPE, MediaStore.Video.Media.BUCKET_ID};
+            Cursor videoCursor = resolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoProjection, null, null, null);
+            if (videoCursor != null) {
+                int bucketMimeType = videoCursor.getColumnIndex(MediaStore.Video.Media.MIME_TYPE);
+                int bucketColumn = videoCursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
+                int bucketColumnId = videoCursor.getColumnIndex(MediaStore.Video.Media.BUCKET_ID);
+
+                if (!isNotContainsSpecifyFolderList(specifyFolderList, allViewTitle)) {
+                    albumHashMap.put((long) 0, new Album(0, allViewTitle, null, 0));
+                }
+
+                while (videoCursor.moveToNext()) {
+                    String mimeType = videoCursor.getString(bucketMimeType);
+                    String folderName = videoCursor.getString(bucketColumn);
+
+                    int count = videoCursor.getCount();
+                    if (count <= 0 || isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, folderName)) continue;
+
+                    totalCounter++;
+                    long bucketId = videoCursor.getInt(bucketColumnId);
+                    Album album = albumHashMap.get(bucketId);
+                    if (album == null) {
+                        int imgId = videoCursor.getInt(videoCursor.getColumnIndex(MediaStore.MediaColumns._ID));
+                        Uri path = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "" + imgId);
+                        albumHashMap.put(bucketId, new Album(bucketId, folderName, path.toString(), 1));
+                        if (albumHashMap.get(0L) != null && albumHashMap.get(0L).thumbnailPath == null)
+                            albumHashMap.get(0L).thumbnailPath = path.toString();
+                    } else {
+                        album.counter++;
+                    }
+                }
+                Album allAlbum = albumHashMap.get((long) 0);
+                if (allAlbum != null) {
+                    allAlbum.counter = totalCounter;
+                }
+                videoCursor.close();
             }
 
             if (totalCounter == 0)

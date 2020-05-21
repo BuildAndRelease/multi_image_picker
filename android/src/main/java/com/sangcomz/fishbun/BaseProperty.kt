@@ -1,12 +1,12 @@
 package com.sangcomz.fishbun
 
-import android.net.Uri
+import com.sangcomz.fishbun.bean.Media
 
 /**
  * Created by sangcomz on 13/05/2017.
  */
 interface BaseProperty {
-    fun setSelectedImages(selectedImages: ArrayList<Uri>): FishBunCreator
+    fun setSelectedMedias(selectedMedias: ArrayList<Media>): FishBunCreator
 
     fun setMaxCount(count: Int): FishBunCreator
 

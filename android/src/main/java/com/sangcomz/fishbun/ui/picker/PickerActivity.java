@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.sangcomz.fishbun.BaseActivity;
 import com.sangcomz.fishbun.adapter.view.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
+import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopupCallBack;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
@@ -56,8 +57,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         try {
-            outState.putString(define.SAVE_INSTANCE_SAVED_IMAGE, pickerController.getSavePath());
-            outState.putParcelableArrayList(define.SAVE_INSTANCE_NEW_IMAGES, pickerController.getAddImagePaths());
+            outState.putParcelableArrayList(define.SAVE_INSTANCE_NEW_MEDIAS, pickerController.getAddImagePaths());
         } catch (Exception e) {
             Log.d(TAG, e.toString());
         }
@@ -69,14 +69,10 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     protected void onRestoreInstanceState(Bundle outState) {
         super.onRestoreInstanceState(outState);
         try {
-            ArrayList<Uri> addImages = outState.getParcelableArrayList(define.SAVE_INSTANCE_NEW_IMAGES);
-            String savedImage = outState.getString(define.SAVE_INSTANCE_SAVED_IMAGE);
-            setAdapter(fishton.getPickerImages());
-            if (addImages != null) {
-                pickerController.setAddImagePaths(addImages);
-            }
-            if (savedImage != null) {
-                pickerController.setSavePath(savedImage);
+            ArrayList<Media> addMedias = outState.getParcelableArrayList(define.SAVE_INSTANCE_NEW_MEDIAS);
+            setAdapter(fishton.getPickerMedias());
+            if (addMedias != null) {
+                pickerController.setAddImagePaths(addMedias);
             }
         } catch (Exception e) {
             Log.d(TAG, e.toString());
@@ -101,18 +97,8 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == define.TAKE_A_PICK_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                File savedFile = new File(pickerController.getSavePath());
-                new SingleMediaScanner(this, savedFile);
-                adapter.addImage(Uri.fromFile(savedFile));
-            } else {
-                new File(pickerController.getSavePath()).delete();
-            }
-        } else if (requestCode == define.ENTER_DETAIL_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                refreshThumb();
-            }
+        if (requestCode == define.ENTER_DETAIL_REQUEST_CODE && resultCode == RESULT_OK) {
+            refreshThumb();
         }
     }
 
@@ -129,14 +115,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                 }
                 break;
             }
-            case 29: {
-                if (grantResults.length > 0) {
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        pickerController.takePicture(this, pickerController.getPathDir(album.bucketId));
-                    }
-                }
-                break;
-            }
         }
     }
 
@@ -148,9 +126,8 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                 Drawable drawable= getResources().getDrawable(originBtn.isSelected() ? R.drawable.radio_checked : R.drawable.radio_unchecked);
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
                 originBtn.setCompoundDrawables(drawable,null,null,null);
-                fishton.setThumb(!originBtn.isSelected());
             } else if (v.equals(sendBtn)){
-                if (fishton.getSelectedImages().size() < fishton.getMinCount()) {
+                if (fishton.getSelectedMedias().size() < fishton.getMinCount()) {
                     Snackbar.make(recyclerView, fishton.getMessageNothingSelected(), Snackbar.LENGTH_SHORT).show();
                 } else {
                     finishActivity();
@@ -217,17 +194,17 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     }
 
     public void updateSendBtnTitle() {
-        if (fishton.getSelectedImages().size() > 0) {
+        if (fishton.getSelectedMedias().size() > 0) {
             sendBtn.setEnabled(true);
-            sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedImages().size() + "/" + fishton.getMaxCount() + ")");
+            sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedMedias().size() + "/" + fishton.getMaxCount() + ")");
         }else {
             sendBtn.setEnabled(false);
             sendBtn.setText(getResources().getText(R.string.done));
         }
     }
 
-    public void setAdapter(List<Uri> result) {
-        fishton.setPickerImages(result);
+    public void setAdapter(List<Media> result) {
+        fishton.setPickerMedias(result);
         if (adapter == null) {
             adapter = new PickerGridAdapter(pickerController, pickerController.getPathDir(album.bucketId));
             adapter.setActionListener(new PickerGridAdapter.OnPhotoActionListener() {
@@ -250,9 +227,9 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                 SquareFrameLayout item = (SquareFrameLayout) view;
                 RadioWithTextButton btnThumbCount = item.findViewById(R.id.btn_thumb_count);
                 ImageView imgThumbImage = item.findViewById(R.id.img_thumb_image);
-                Uri image = (Uri) item.getTag();
+                Media image = (Media) item.getTag();
                 if (image != null) {
-                    int index = fishton.getSelectedImages().indexOf(image);
+                    int index = fishton.getSelectedMedias().indexOf(image);
                     if (index != -1) {
                         adapter.updateRadioButton(imgThumbImage, btnThumbCount, String.valueOf(index + 1),true);
                     } else {
@@ -278,8 +255,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
 
     public void finishActivity() {
         Intent i = new Intent();
-        i.putParcelableArrayListExtra(Define.INTENT_PATH, fishton.getSelectedImages());
-        i.putExtra(Define.INTENT_THUMB, fishton.isThumb());
+        i.putParcelableArrayListExtra(Define.INTENT_PATH, fishton.getSelectedMedias());
         i.putExtra(Define.INTENT_QUALITY, fishton.getQuality());
         i.putExtra(Define.INTENT_MAXHEIGHT, fishton.getMaxHeight());
         i.putExtra(Define.INTENT_MAXWIDTH, fishton.getMaxWidth());

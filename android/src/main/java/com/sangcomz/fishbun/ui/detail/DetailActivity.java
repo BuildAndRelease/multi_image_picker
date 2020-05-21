@@ -109,6 +109,10 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
+            if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60000) {
+                Toast.makeText(this, "视屏长度不能超过60秒", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (fishton.getSelectedMedias().contains(media)) {
                 fishton.getSelectedMedias().remove(media);
                 onCheckStateChange(media);
@@ -142,8 +146,6 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     public void onPageScrollStateChanged(int state) {
         switch (state){
             case ViewPager.SCROLL_STATE_IDLE:
-//                vpDetailPager.getAdapter(
-                //无动作、初始状态
                 Log.i(TAG,"---->onPageScrollStateChanged无动作");
                 break;
             case ViewPager.SCROLL_STATE_DRAGGING:
@@ -161,6 +163,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     }
 
     void finishActivity() {
+        currentPlayVideoView = null;
         Intent i = new Intent();
         i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
         setResult(RESULT_OK, i);

@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
@@ -77,6 +78,10 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60000) {
+                    Toast.makeText(vh.item.getContext(), "视屏长度不能超过60秒", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 onCheckStateChange(vh.item, media);
             }
         });

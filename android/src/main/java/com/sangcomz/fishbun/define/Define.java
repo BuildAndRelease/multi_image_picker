@@ -16,6 +16,7 @@ public class Define {
     public final static String INTENT_MAXHEIGHT = "intent_maxHeight";
     public final static String INTENT_MAXWIDTH = "intent_maxWidth";
     public final static String INTENT_SERIAL_NUM = "intent_serial_num";
+    public final static String INTENT_RESULT = "result";
     public final String INTENT_ADD_PATH = "intent_add_path";
     public final String INTENT_POSITION = "intent_position";
 

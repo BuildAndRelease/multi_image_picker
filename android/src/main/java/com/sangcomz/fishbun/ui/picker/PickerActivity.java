@@ -2,9 +2,16 @@ package com.sangcomz.fishbun.ui.picker;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
+import com.hw.videoprocessor.VideoProcessor;
+import com.hw.videoprocessor.util.VideoProgressListener;
 import com.sangcomz.fishbun.BaseActivity;
 import com.sangcomz.fishbun.adapter.view.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
@@ -31,7 +40,11 @@ import com.sangcomz.fishbun.util.SquareFrameLayout;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopup;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +61,8 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     private Button sendBtn;
     private RecyclerView recyclerView;
     private PickerController pickerController;
+    private RelativeLayout compressingView;
+    private TextView compressingTextView;
     private Album album;
     private int position;
     private PickerGridAdapter adapter;
@@ -168,9 +183,12 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void initView() {
-        recyclerView = findViewById(R.id.recycler_picker_list);
         layoutManager = new GridLayoutManager(this, fishton.getPhotoSpanCount(), RecyclerView.VERTICAL, false);
+        recyclerView = findViewById(R.id.recycler_picker_list);
         recyclerView.setLayoutManager(layoutManager);
+
+        compressingView = findViewById(R.id.compressing_content_view);
+        compressingTextView = findViewById(R.id.compressing_text_view);
 
         originBtn = findViewById(R.id.photo_picker_origin_btn);
         originBtn.setOnClickListener(this);
@@ -241,6 +259,106 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
+    private HashMap compressImageAndFinish(Media media, final boolean thumb, final int quality, final int maxHeight, final int maxWidth) {
+        HashMap<String, Object> map = new HashMap<>();
+        String fileName = UUID.randomUUID().toString() + ".jpg";
+        String filePath = "";
+        Uri identify = Uri.parse(media.getIdentifier());
+        try {
+            InputStream is = getContentResolver().openInputStream(identify);
+            File tmpPicParentDir = new File(getCacheDir().getAbsolutePath() + "/muti_image_pick/");
+            if (!tmpPicParentDir.exists()) {
+                tmpPicParentDir.mkdirs();
+            }
+            File tmpPic = new File(getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
+            if (tmpPic.exists()) {
+                tmpPic.delete();
+            }
+            filePath = tmpPic.getAbsolutePath();
+            HashMap hashMap = transImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
+            if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
+                map.put("width", hashMap.get("width"));
+                map.put("height", hashMap.get("height"));
+            }else {
+                return map;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return map;
+        }
+
+        map.put("name", fileName);
+        map.put("filePath", filePath);
+        map.put("identifier", identify);
+        map.put("fileType", "image");
+        return map;
+    }
+
+    public HashMap transImage(InputStream fromFile, File toFile, int width, int height, int quality) {
+        HashMap result = new HashMap();
+        try {
+            Bitmap bitmap = BitmapFactory.decodeStream(fromFile);
+            int bitmapWidth = bitmap.getWidth();
+            int bitmapHeight = bitmap.getHeight();
+
+            float scaleWidth = -1 == width ? 1 : ((float) width / bitmapWidth);
+            float scaleHeight = -1 == width ? 1 : ((float) height / bitmapHeight);
+            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
+            Matrix matrix = new Matrix();
+            matrix.postScale(scale, scale);
+            result.put("width", (bitmapWidth * scale));
+            result.put("height", (bitmapHeight * scale));
+
+            Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
+            File myCaptureFile = toFile;
+            if (myCaptureFile.exists()) myCaptureFile.delete();
+            FileOutputStream out = new FileOutputStream(myCaptureFile);
+            if(resizeBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)){
+                out.flush();
+                out.close();
+            }
+            if(!bitmap.isRecycled()){
+                bitmap.recycle();//记得释放资源，否则会内存溢出
+            }
+            if(!resizeBitmap.isRecycled()){
+                resizeBitmap.recycle();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            result.clear();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            result.clear();
+        }
+        return result;
+    }
+
+    public static HashMap getLocalVideoBitmap(Media media, String savePath) {
+        HashMap result = new HashMap();
+        Bitmap bitmap = null;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(media.getOriginPath());
+            int duration = Integer.parseInt(media.getDuration());
+            bitmap = retriever.getFrameAtTime(duration > 2000 ? 2000 * 1000 : duration * 1000 );
+            File f = new File(savePath);
+            FileOutputStream out = new FileOutputStream(f);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            result.put("width", bitmap.getWidth() + "");
+            result.put("height", bitmap.getHeight() + "");
+            out.flush();
+            out.close();
+            if(!bitmap.isRecycled()){
+                bitmap.recycle();//记得释放资源，否则会内存溢出
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            retriever.release();
+        }
+        return result;
+    }
+
     void transImageFinish(int position) {
         Define define = new Define();
         Intent i = new Intent();
@@ -254,13 +372,100 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     }
 
     public void finishActivity() {
-        Intent i = new Intent();
-        i.putParcelableArrayListExtra(Define.INTENT_PATH, fishton.getSelectedMedias());
-        i.putExtra(Define.INTENT_QUALITY, fishton.getQuality());
-        i.putExtra(Define.INTENT_MAXHEIGHT, fishton.getMaxHeight());
-        i.putExtra(Define.INTENT_MAXWIDTH, fishton.getMaxWidth());
-        i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
-        setResult(RESULT_OK, i);
-        finish();
+        compressingView.setVisibility(View.VISIBLE);
+        compressingTextView.setText(originBtn.isSelected() ? "拷贝中..." : "压缩中...");
+        final boolean thumb = !originBtn.isSelected();
+        final int quality = fishton.getMaxHeight();
+        final int maxHeight = fishton.getMaxHeight();
+        final int maxWidth = fishton.getMaxWidth();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final ArrayList<HashMap> result = new ArrayList<>();
+                for (int i = 0; i < fishton.getSelectedMedias().size(); i++) {
+                    final boolean[] compressing = {true};
+                    final Media media = fishton.getSelectedMedias().get(i);
+                    if ("video".equals(media.getFileType())) {
+                        String uuid = UUID.randomUUID().toString();
+                        final String videoName = uuid + ".mp4";
+                        String imgName = uuid + ".jpg";
+                        String cacheDir = getCacheDir().getAbsolutePath() + "/muti_image_pick/";
+                        File tmpPicParentDir = new File(cacheDir);
+                        if (!tmpPicParentDir.exists()) {
+                            tmpPicParentDir.mkdirs();
+                        }
+                        File tmpPic = new File(cacheDir + imgName);
+                        if (tmpPic.exists()) {
+                            tmpPic.delete();
+                        }
+                        final File tmpVideo = new File(cacheDir + videoName);
+                        if (tmpVideo.exists()) {
+                            tmpVideo.delete();
+                        }
+                        HashMap picInfo = getLocalVideoBitmap(media, tmpPic.getAbsolutePath());
+                        media.setThumbnailHeight((String) picInfo.get("height"));
+                        media.setThumbnailWidth((String) picInfo.get("width"));
+                        media.setThumbnailName(imgName);
+                        media.setThumbnailPath(tmpPic.getAbsolutePath());
+                        try {
+                            int width = Integer.parseInt(media.getOriginWidth());
+                            int height = Integer.parseInt(media.getOriginHeight());
+                            float scaleWidth = ((float) maxWidth / width);
+                            float scaleHeight = ((float) maxHeight / height);
+                            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
+                            final int outWidth = (int) (width * scale);
+                            final int outHeight = (int) (height * scale);
+                            VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).
+                                    outWidth(outWidth).outHeight(outHeight).progressListener(new VideoProgressListener() {
+                                @Override
+                                public void onProgress(float progress) {
+                                    Log.d(TAG, "progress ：" + progress);
+                                    if (progress >= 1.0) {
+                                        HashMap info = new HashMap();
+                                        info.put("identifier", media.getIdentifier());
+                                        info.put("filePath", tmpVideo.getAbsolutePath());
+                                        info.put("width", outWidth);
+                                        info.put("height",outHeight);
+                                        info.put("name", videoName);
+                                        info.put("fileType", "video");
+                                        info.put("thumbPath", media.getThumbnailPath());
+                                        info.put("thumbName", media.getThumbnailName());
+                                        info.put("thumbHeight", media.getThumbnailHeight());
+                                        info.put("thumbWidth", media.getThumbnailWidth());
+                                        result.add(info);
+                                        compressing[0] = false;
+                                    }
+                                }
+                            }).process();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }else {
+                        result.add(compressImageAndFinish(media, thumb, quality, maxHeight, maxWidth));
+                    }
+                    while (compressing[0]) {
+                        try {
+                            Thread.sleep(50);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                if (Looper.myLooper() != Looper.getMainLooper()) {
+                    Handler mainThread = new Handler(Looper.getMainLooper());
+                    mainThread.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent i = new Intent();
+                            i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
+                            i.putExtra(Define.INTENT_RESULT, result);
+                            setResult(RESULT_OK, i);
+                            finish();
+                        }
+                    });
+                }
+            }
+        }).start();
     }
+
 }

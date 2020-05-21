@@ -209,12 +209,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             }else {
                 acitivityResultSerialNum = data.getStringExtra(Define.INTENT_SERIAL_NUM);
             }
-            final List<Uri> photos = data.getParcelableArrayListExtra(Define.INTENT_PATH);
-            final boolean thumb = data.getBooleanExtra(Define.INTENT_THUMB, false);
-            final int quality = data.getIntExtra(Define.INTENT_QUALITY, 1);
-            final int maxHeight = data.getIntExtra(Define.INTENT_MAXHEIGHT, 1);
-            final int maxWidth = data.getIntExtra(Define.INTENT_MAXWIDTH, 1);
-            compressImageAndFinish(photos, thumb, quality, maxHeight, maxWidth);
+            ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+            finishWithSuccess(result);
             return true;
         } else {
             finishWithSuccess(Collections.emptyList());
@@ -223,85 +219,10 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         return false;
     }
 
-    private void compressImageAndFinish(final List<Uri> photos, final boolean thumb, final int quality, final int maxHeight, final int maxWidth) {
-        final List<HashMap<String, Object>> result = new ArrayList<>(photos.size());
-        for (Uri uri : photos) {
-            HashMap<String, Object> map = new HashMap<>();
-            String fileName = UUID.randomUUID().toString() + ".jpg";
-            String filePath = "";
-            try {
-                InputStream is = context.getContentResolver().openInputStream(uri);
-                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
-                if (!tmpPicParentDir.exists()) {
-                    tmpPicParentDir.mkdirs();
-                }
-                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
-                if (tmpPic.exists()) {
-                    tmpPic.delete();
-                }
-                filePath = tmpPic.getAbsolutePath();
-                HashMap hashMap = transImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
-                if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
-                    map.put("width", hashMap.get("width"));
-                    map.put("height", hashMap.get("height"));
-                }else {
-                    continue;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                continue;
-            }
 
-            map.put("name", fileName);
-            map.put("filePath", filePath);
-            map.put("identifier", uri.toString());
-            result.add(map);
-        }
-        finishWithSuccess(result);
-    }
-
-    public HashMap transImage(InputStream fromFile, File toFile, int width, int height, int quality) {
-        HashMap result = new HashMap();
-        try {
-            Bitmap bitmap = BitmapFactory.decodeStream(fromFile);
-            int bitmapWidth = bitmap.getWidth();
-            int bitmapHeight = bitmap.getHeight();
-
-            float scaleWidth = -1 == width ? 1 : ((float) width / bitmapWidth);
-            float scaleHeight = -1 == width ? 1 : ((float) height / bitmapHeight);
-            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
-            Matrix matrix = new Matrix();
-            matrix.postScale(scale, scale);
-            result.put("width", (bitmapWidth * scale));
-            result.put("height", (bitmapHeight * scale));
-
-            Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
-            File myCaptureFile = toFile;
-            if (myCaptureFile.exists()) myCaptureFile.delete();
-            FileOutputStream out = new FileOutputStream(myCaptureFile);
-            if(resizeBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)){
-                out.flush();
-                out.close();
-            }
-            if(!bitmap.isRecycled()){
-                bitmap.recycle();//记得释放资源，否则会内存溢出
-            }
-            if(!resizeBitmap.isRecycled()){
-                resizeBitmap.recycle();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            result.clear();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            result.clear();
-        }
-        return result;
-    }
-
-    private void finishWithSuccess(List imagePathList) {
+    private void finishWithSuccess(List mediaList) {
         if (this.pendingResult != null)
-            this.pendingResult.success(imagePathList);
+            this.pendingResult.success(mediaList);
         clearMethodCallAndResult();
     }
 

@@ -103,8 +103,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
 //            return;
 //        }
 
+        setPendingMethodCallAndResult(call, result);
         if (checkPermission()) {
-            setPendingMethodCallAndResult(call, result);
             if (PICK_IMAGES.equals(call.method)) {
                 final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
                 int maxImages = this.methodCall.argument(MAX_IMAGES);
@@ -116,11 +116,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, enableCamera, selectedAssets, options);
             }
         }else {
-//            finishWithError("CANCELLED", "The user has cancelled the selection");
             finishWithError("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION");
             return;
         }
-
     }
 
     private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {

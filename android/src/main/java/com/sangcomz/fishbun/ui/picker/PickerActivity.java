@@ -23,7 +23,6 @@ import com.sangcomz.fishbun.BaseActivity;
 import com.sangcomz.fishbun.adapter.view.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.define.Define;
-import com.sangcomz.fishbun.permission.PermissionCheck;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopupCallBack;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 import com.sangcomz.fishbun.util.SingleMediaScanner;
@@ -91,8 +90,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         initController();
         initValue();
         initView();
-        if (pickerController.checkPermission())
-            pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
+        pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
     }
 
     @Override
@@ -126,7 +124,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
                     } else {
-                        new PermissionCheck(this).showPermissionDialog();
                         finish();
                     }
                 }
@@ -136,8 +133,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                 if (grantResults.length > 0) {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         pickerController.takePicture(this, pickerController.getPathDir(album.bucketId));
-                    } else {
-                        new PermissionCheck(this).showPermissionDialog();
                     }
                 }
                 break;
@@ -168,12 +163,10 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                 middlePopup.setCallBack(new AlbumPickerPopupCallBack() {
                     @Override
                     public void albumPickerPopupDidSelectAlbum(Album album, int position) {
-                        if (pickerController.checkPermission()) {
-                            PickerActivity.this.album = album;
-                            PickerActivity.this.position = position;
-                            pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
-                            titleTextView.setText(album.bucketName);
-                        }
+                        PickerActivity.this.album = album;
+                        PickerActivity.this.position = position;
+                        pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
+                        titleTextView.setText(album.bucketName);
                     }
                 });
                 middlePopup.showAsDropDown(toolBar, 0, 0);

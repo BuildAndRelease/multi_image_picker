@@ -11,7 +11,6 @@ import android.provider.MediaStore;
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.ext.MimeTypeExt;
-import com.sangcomz.fishbun.permission.PermissionCheck;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,15 +24,6 @@ public class AlbumPickerPopupController {
     AlbumPickerPopupController(AlbumPickerPopup albumPickerPopup, Context context) {
         this.albumPickerPopup = albumPickerPopup;
         this.resolver = context.getContentResolver();
-    }
-
-    boolean checkPermission() {
-        PermissionCheck permissionCheck = new PermissionCheck(context);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return permissionCheck.CheckStoragePermission();
-        } else {
-            return true;
-        }
     }
 
     void getAlbumList(String allViewTitle, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {

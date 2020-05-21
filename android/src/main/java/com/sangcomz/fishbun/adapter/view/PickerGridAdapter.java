@@ -62,9 +62,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             vh.header.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (pickerController.checkCameraPermission()) {
-                        pickerController.takePicture((Activity) vh.header.getContext(), saveDir);
-                    }
+                    pickerController.takePicture((Activity) vh.header.getContext(), saveDir);
                 }
             });
         }
@@ -96,13 +94,6 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             vh.imgThumbImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onCheckStateChange(vh.item, image);
-                }
-            });
-
-            vh.imgThumbImage.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
                     if (fishton.isUseDetailView()) {
                         if (context instanceof PickerActivity) {
                             PickerActivity activity = (PickerActivity) context;
@@ -111,7 +102,6 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
                         }
                     }
-                    return true;
                 }
             });
         }
@@ -132,7 +122,6 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
             return;
         }
-        ImageView imgThumbImage = v.findViewById(R.id.img_thumb_image);
         RadioWithTextButton btnThumbCount = v.findViewById(R.id.btn_thumb_count);
         View coverView = v.findViewById(R.id.conver_view);
         if (isContained) {

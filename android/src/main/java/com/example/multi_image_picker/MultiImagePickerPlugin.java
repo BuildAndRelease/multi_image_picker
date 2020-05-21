@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -20,6 +21,7 @@ import com.sangcomz.fishbun.FishBunCreator;
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter;
 import com.sangcomz.fishbun.define.Define;
+import com.sangcomz.fishbun.permission.PermissionCheck;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -85,6 +87,15 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         channel.setMethodCallHandler(instance);
     }
 
+    boolean checkPermission() {
+        PermissionCheck permissionCheck = new PermissionCheck(activity);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return permissionCheck.CheckStoragePermission() && permissionCheck.CheckCameraPermission();
+        } else {
+            return true;
+        }
+    }
+
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
 //        if (!setPendingMethodCallAndResult(call, result)) {
@@ -92,18 +103,24 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
 //            return;
 //        }
 
-        setPendingMethodCallAndResult(call, result);
-
-        if (PICK_IMAGES.equals(call.method)) {
-            final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
-            int maxImages = this.methodCall.argument(MAX_IMAGES);
-            int maxHeight = this.methodCall.argument(MAX_HEIGHT);
-            int maxWidth = this.methodCall.argument(MAX_WIDTH);
-            int qualityOfThumb = (int) this.methodCall.argument(QUALITY_OF_IMAGE);
-            boolean enableCamera = (boolean) this.methodCall.argument(ENABLE_CAMERA);
-            ArrayList<String> selectedAssets = this.methodCall.argument(SELECTED_ASSETS);
-            presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, enableCamera, selectedAssets, options);
+        if (checkPermission()) {
+            setPendingMethodCallAndResult(call, result);
+            if (PICK_IMAGES.equals(call.method)) {
+                final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
+                int maxImages = this.methodCall.argument(MAX_IMAGES);
+                int maxHeight = this.methodCall.argument(MAX_HEIGHT);
+                int maxWidth = this.methodCall.argument(MAX_WIDTH);
+                int qualityOfThumb = (int) this.methodCall.argument(QUALITY_OF_IMAGE);
+                boolean enableCamera = (boolean) this.methodCall.argument(ENABLE_CAMERA);
+                ArrayList<String> selectedAssets = this.methodCall.argument(SELECTED_ASSETS);
+                presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, enableCamera, selectedAssets, options);
+            }
+        }else {
+//            finishWithError("CANCELLED", "The user has cancelled the selection");
+            finishWithError("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION");
+            return;
         }
+
     }
 
     private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {

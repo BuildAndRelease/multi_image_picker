@@ -16,6 +16,16 @@
         android:clipToPadding="false"
         android:cropToPadding="false" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@drawable/drawable_image_fade_annotation"
+        android:layout_gravity="bottom">
+
+
+
+    </LinearLayout>
+
     <ImageView
         android:layout_width="match_parent"
         android:background="@drawable/drawable_detail_gradient"

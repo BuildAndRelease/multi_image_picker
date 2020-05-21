@@ -99,9 +99,4 @@ public class PermissionCheck {
         }
         return true;
     }
-
-
-    public void showPermissionDialog() {
-        Toast.makeText(context, R.string.msg_permission, Toast.LENGTH_SHORT).show();
-    }
 }

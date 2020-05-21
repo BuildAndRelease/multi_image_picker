@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.ext.MimeTypeExt;
-import com.sangcomz.fishbun.permission.PermissionCheck;
 import com.sangcomz.fishbun.util.CameraUtil;
 
 import java.util.ArrayList;
@@ -62,24 +61,6 @@ public class PickerController {
         this.addImagePaths = addImagePaths;
     }
 
-    boolean checkPermission() {
-        PermissionCheck permissionCheck = new PermissionCheck(pickerActivity);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return permissionCheck.CheckStoragePermission();
-        } else {
-            return true;
-        }
-    }
-
-    public boolean checkCameraPermission() {
-        PermissionCheck permissionCheck = new PermissionCheck(pickerActivity);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return permissionCheck.CheckCameraPermission();
-        } else {
-            return true;
-        }
-    }
-
     void displayImage(Long bucketId, List<MimeType> exceptMimeType, List<String> specifyFolderList) {
         new DisplayImage(bucketId, exceptMimeType, specifyFolderList).execute();
     }
@@ -97,7 +78,9 @@ public class PickerController {
 
         @Override
         protected List<Uri> doInBackground(Void... params) {
-            return getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList);
+            List<Uri> medias = getAllVideoThumbnailsPath(bucketId, new ArrayList<MimeType>(), specifyFolderList);
+            medias.addAll(getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList));
+            return medias;
         }
 
         @Override
@@ -141,6 +124,42 @@ public class PickerController {
             }
         }
         return imageUris;
+    }
+
+    @NonNull
+    private List<Uri> getAllVideoThumbnailsPath(long id, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
+        String selection = MediaStore.Video.Media.BUCKET_ID + " = ?";
+        String bucketId = String.valueOf(id);
+        String sort = MediaStore.Video.Media._ID + " DESC";
+        String[] selectionArgs = {bucketId};
+
+        Uri videos = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        Cursor c;
+        if (!bucketId.equals("0")) {
+            c = resolver.query(videos, null, selection, selectionArgs, sort);
+        } else {
+            c = resolver.query(videos, null, null, null, sort);
+        }
+        ArrayList<Uri> videoUris = new ArrayList<>();
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    setPathDir(c.getString(c.getColumnIndex(MediaStore.Video.Media.DATA)), c.getString(c.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME)));
+                    do {
+                        String mimeType = c.getString(c.getColumnIndex(MediaStore.Video.Media.MIME_TYPE));
+                        String folderName = c.getString(c.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
+                        if (isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, folderName)) continue;
+                        int imgId = c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
+                        Uri path = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "" + imgId);
+                        videoUris.add(path);
+                    } while (c.moveToNext());
+                }
+                c.close();
+            } catch (Exception e) {
+                if (!c.isClosed()) c.close();
+            }
+        }
+        return videoUris;
     }
 
     private void setPathDir(String path, String fileName) {

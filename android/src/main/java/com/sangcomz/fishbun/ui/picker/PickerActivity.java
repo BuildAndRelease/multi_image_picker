@@ -396,8 +396,8 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                             HashMap info = new HashMap();
                             info.put("identifier", media.getIdentifier());
                             info.put("filePath", tmpVideo.getAbsolutePath());
-                            info.put("width", 0);
-                            info.put("height",0);
+                            info.put("width", 0.0);
+                            info.put("height",0.0);
                             info.put("name", videoName);
                             info.put("fileType", "video");
                             info.put("thumbPath", media.getThumbnailPath());

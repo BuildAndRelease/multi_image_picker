@@ -384,9 +384,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                         media.setThumbnailWidth((String) picInfo.get("width"));
                         media.setThumbnailName(imgName);
                         media.setThumbnailPath(tmpPic.getAbsolutePath());
-//                        Log.d("PickerActivity", media.toString());
-                        Exception t = new Exception(media.toString());
-                        t.printStackTrace();
                         try {
                             int width = Integer.parseInt(media.getOriginWidth());
                             int height = Integer.parseInt(media.getOriginHeight());
@@ -410,6 +407,9 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                             info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
                             result.add(info);
                         } catch (Exception e) {
+                            HashMap info = new HashMap();
+                            info.put("error", media.toString());
+                            result.add(info);
                             e.printStackTrace();
                         }
                     }else {

@@ -392,12 +392,12 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
 //                            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
 //                            int outWidth = (int) (width * scale);
 //                            int outHeight = (int) (height * scale);
-                            VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).process();
+                            VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).outHeight(960).outWidth(960).output(tmpVideo.getAbsolutePath()).process();
                             HashMap info = new HashMap();
                             info.put("identifier", media.getIdentifier());
                             info.put("filePath", tmpVideo.getAbsolutePath());
-                            info.put("width", 0.0);
-                            info.put("height",0.0);
+                            info.put("width", 960.0);
+                            info.put("height",960.0);
                             info.put("name", videoName);
                             info.put("fileType", "video");
                             info.put("thumbPath", media.getThumbnailPath());

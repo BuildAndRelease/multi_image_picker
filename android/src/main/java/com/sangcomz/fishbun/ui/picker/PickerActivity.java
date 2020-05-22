@@ -105,11 +105,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     }
 
     @Override
-    public void onBackPressed() {
-        transImageFinish(position);
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == define.ENTER_DETAIL_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -188,6 +183,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         recyclerView.setLayoutManager(layoutManager);
 
         compressingView = findViewById(R.id.compressing_content_view);
+        compressingView.setOnClickListener(this);
         compressingTextView = findViewById(R.id.compressing_text_view);
 
         originBtn = findViewById(R.id.photo_picker_origin_btn);
@@ -289,7 +285,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
 
         map.put("name", fileName);
         map.put("filePath", filePath);
-        map.put("identifier", identify);
+        map.put("identifier", media.getIdentifier());
         map.put("fileType", "image");
         return map;
     }
@@ -344,8 +340,8 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             File f = new File(savePath);
             FileOutputStream out = new FileOutputStream(f);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            result.put("width", bitmap.getWidth() + "");
-            result.put("height", bitmap.getHeight() + "");
+            result.put("width", (bitmap.getWidth() * 1.0) + "");
+            result.put("height", (bitmap.getHeight() * 1.0) + "");
             out.flush();
             out.close();
             if(!bitmap.isRecycled()){
@@ -359,23 +355,11 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         return result;
     }
 
-    void transImageFinish(int position) {
-        Define define = new Define();
-        Intent i = new Intent();
-        i.putParcelableArrayListExtra(define.INTENT_ADD_PATH, pickerController.getAddImagePaths());
-        i.putExtra(define.INTENT_POSITION, position);
-        i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
-        i.putExtra(Define.INTENT_MAXHEIGHT, fishton.getMaxHeight());
-        i.putExtra(Define.INTENT_MAXWIDTH, fishton.getMaxWidth());
-        setResult(define.TRANS_IMAGES_RESULT_CODE, i);
-        finish();
-    }
-
     public void finishActivity() {
         compressingView.setVisibility(View.VISIBLE);
         compressingTextView.setText(originBtn.isSelected() ? "拷贝中..." : "压缩中...");
         final boolean thumb = !originBtn.isSelected();
-        final int quality = fishton.getMaxHeight();
+        final int quality = fishton.getQuality();
         final int maxHeight = fishton.getMaxHeight();
         final int maxWidth = fishton.getMaxWidth();
         new Thread(new Runnable() {
@@ -383,7 +367,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             public void run() {
                 final ArrayList<HashMap> result = new ArrayList<>();
                 for (int i = 0; i < fishton.getSelectedMedias().size(); i++) {
-                    final boolean[] compressing = {true};
                     final Media media = fishton.getSelectedMedias().get(i);
                     if ("video".equals(media.getFileType())) {
                         String uuid = UUID.randomUUID().toString();
@@ -416,39 +399,24 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                             final int outWidth = (int) (width * scale);
                             final int outHeight = (int) (height * scale);
                             VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).
-                                    outWidth(outWidth).outHeight(outHeight).progressListener(new VideoProgressListener() {
-                                @Override
-                                public void onProgress(float progress) {
-                                    Log.d(TAG, "progress ：" + progress);
-                                    if (progress >= 1.0) {
-                                        HashMap info = new HashMap();
-                                        info.put("identifier", media.getIdentifier());
-                                        info.put("filePath", tmpVideo.getAbsolutePath());
-                                        info.put("width", outWidth);
-                                        info.put("height",outHeight);
-                                        info.put("name", videoName);
-                                        info.put("fileType", "video");
-                                        info.put("thumbPath", media.getThumbnailPath());
-                                        info.put("thumbName", media.getThumbnailName());
-                                        info.put("thumbHeight", media.getThumbnailHeight());
-                                        info.put("thumbWidth", media.getThumbnailWidth());
-                                        result.add(info);
-                                        compressing[0] = false;
-                                    }
-                                }
-                            }).process();
+                                    outWidth(outWidth).outHeight(outHeight).process();
+                            HashMap info = new HashMap();
+                            info.put("identifier", media.getIdentifier());
+                            info.put("filePath", tmpVideo.getAbsolutePath());
+                            info.put("width", (float)outWidth);
+                            info.put("height",(float)outHeight);
+                            info.put("name", videoName);
+                            info.put("fileType", "video");
+                            info.put("thumbPath", media.getThumbnailPath());
+                            info.put("thumbName", media.getThumbnailName());
+                            info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
+                            info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
+                            result.add(info);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }else {
                         result.add(compressImageAndFinish(media, thumb, quality, maxHeight, maxWidth));
-                    }
-                    while (compressing[0]) {
-                        try {
-                            Thread.sleep(50);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
                     }
                 }
                 if (Looper.myLooper() != Looper.getMainLooper()) {
@@ -456,6 +424,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                     mainThread.post(new Runnable() {
                         @Override
                         public void run() {
+                            compressingView.setVisibility(View.INVISIBLE);
                             Intent i = new Intent();
                             i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
                             i.putExtra(Define.INTENT_RESULT, result);

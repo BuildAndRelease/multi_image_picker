@@ -88,9 +88,9 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       resultList = await MultiImagePicker.pickImages(
         maxImages: 9,
-        qualityOfImage: 40,
-        maxHeight: 300,
-        maxWidth: 300,
+        qualityOfImage: 80,
+        maxHeight: 1024,
+        maxWidth: 768,
         selectedAssets: images,
         cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
         materialOptions: MaterialOptions(

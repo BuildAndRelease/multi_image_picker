@@ -51,6 +51,7 @@ import java.util.UUID;
 
 public class PickerActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "PickerActivity";
+    private static final ArrayList<HashMap> result = new ArrayList<>();
 
     private Button cancelBtn;
     private RelativeLayout moreContentView;
@@ -64,7 +65,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     private RelativeLayout compressingView;
     private TextView compressingTextView;
     private Album album;
-    private int position;
     private PickerGridAdapter adapter;
     private GridLayoutManager layoutManager;
     private AlbumPickerPopup middlePopup;
@@ -151,7 +151,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                     @Override
                     public void albumPickerPopupDidSelectAlbum(Album album, int position) {
                         PickerActivity.this.album = album;
-                        PickerActivity.this.position = position;
                         pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
                         titleTextView.setText(album.bucketName);
                     }
@@ -170,7 +169,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     private void initValue() {
         Intent intent = getIntent();
         album = intent.getParcelableExtra(Define.BUNDLE_NAME.ALBUM.name());
-        position = intent.getIntExtra(Define.BUNDLE_NAME.POSITION.name(), -1);
     }
 
     private void initController() {
@@ -339,7 +337,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
             bitmap = retriever.getFrameAtTime(duration > 2000 ? 2000 * 1000 : duration * 1000 );
             File f = new File(savePath);
             FileOutputStream out = new FileOutputStream(f);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             result.put("width", (bitmap.getWidth() * 1.0) + "");
             result.put("height", (bitmap.getHeight() * 1.0) + "");
             out.flush();
@@ -365,7 +363,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final ArrayList<HashMap> result = new ArrayList<>();
+                result.clear();
                 for (int i = 0; i < fishton.getSelectedMedias().size(); i++) {
                     final Media media = fishton.getSelectedMedias().get(i);
                     if ("video".equals(media.getFileType())) {

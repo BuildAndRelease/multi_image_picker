@@ -8,7 +8,6 @@ import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.hw.videoprocessor.VideoProcessor;
-import com.hw.videoprocessor.util.VideoProgressListener;
 import com.sangcomz.fishbun.BaseActivity;
 import com.sangcomz.fishbun.adapter.view.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
@@ -35,7 +33,6 @@ import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopupCallBack;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
-import com.sangcomz.fishbun.util.SingleMediaScanner;
 import com.sangcomz.fishbun.util.SquareFrameLayout;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopup;
 
@@ -51,7 +48,6 @@ import java.util.UUID;
 
 public class PickerActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "PickerActivity";
-    private static final ArrayList<HashMap> result = new ArrayList<>();
 
     private Button cancelBtn;
     private RelativeLayout moreContentView;
@@ -253,7 +249,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private HashMap compressImageAndFinish(Media media, final boolean thumb, final int quality, final int maxHeight, final int maxWidth) {
+    private HashMap compressImageAndFinish(Media media, boolean thumb, int quality, int maxHeight, int maxWidth) {
         HashMap<String, Object> map = new HashMap<>();
         String fileName = UUID.randomUUID().toString() + ".jpg";
         String filePath = "";
@@ -363,12 +359,12 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         new Thread(new Runnable() {
             @Override
             public void run() {
-                result.clear();
+                final ArrayList<HashMap> result = new ArrayList<>();
                 for (int i = 0; i < fishton.getSelectedMedias().size(); i++) {
-                    final Media media = fishton.getSelectedMedias().get(i);
+                    Media media = fishton.getSelectedMedias().get(i);
                     if ("video".equals(media.getFileType())) {
                         String uuid = UUID.randomUUID().toString();
-                        final String videoName = uuid + ".mp4";
+                        String videoName = uuid + ".mp4";
                         String imgName = uuid + ".jpg";
                         String cacheDir = getCacheDir().getAbsolutePath() + "/muti_image_pick/";
                         File tmpPicParentDir = new File(cacheDir);
@@ -379,7 +375,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                         if (tmpPic.exists()) {
                             tmpPic.delete();
                         }
-                        final File tmpVideo = new File(cacheDir + videoName);
+                        File tmpVideo = new File(cacheDir + videoName);
                         if (tmpVideo.exists()) {
                             tmpVideo.delete();
                         }
@@ -394,8 +390,8 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                             float scaleWidth = ((float) maxWidth / width);
                             float scaleHeight = ((float) maxHeight / height);
                             float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
-                            final int outWidth = (int) (width * scale);
-                            final int outHeight = (int) (height * scale);
+                            int outWidth = (int) (width * scale);
+                            int outHeight = (int) (height * scale);
                             VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).
                                     outWidth(outWidth).outHeight(outHeight).process();
                             HashMap info = new HashMap();

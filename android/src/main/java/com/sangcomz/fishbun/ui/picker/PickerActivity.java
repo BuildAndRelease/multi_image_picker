@@ -393,7 +393,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                             int outWidth = (int) (width * scale);
                             int outHeight = (int) (height * scale);
                             VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).outHeight(outHeight).outWidth(outWidth).
-                                    output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(32000).process();
+                                    output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(128000).process();
                             HashMap info = new HashMap();
                             info.put("identifier", media.getIdentifier());
                             info.put("filePath", tmpVideo.getAbsolutePath());

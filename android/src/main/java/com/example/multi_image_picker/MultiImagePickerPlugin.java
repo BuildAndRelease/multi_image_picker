@@ -198,20 +198,20 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         fishBun.startAlbum();
     }
 
-    private static String acitivityResultSerialNum = ""; //防止onActivityResult回调2次
+//    private static String acitivityResultSerialNum = ""; //防止onActivityResult回调2次
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
             finishWithError("CANCELLED", "The user has cancelled the selection");
         } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
-            if (acitivityResultSerialNum.equals(data.getStringExtra(Define.INTENT_SERIAL_NUM))) {
-                return true;
-            }else {
-                acitivityResultSerialNum = data.getStringExtra(Define.INTENT_SERIAL_NUM);
-            }
+//            if (acitivityResultSerialNum.equals(data.getStringExtra(Define.INTENT_SERIAL_NUM))) {
+//                return true;
+//            }else {
+//                acitivityResultSerialNum = data.getStringExtra(Define.INTENT_SERIAL_NUM);
+//            }
             ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
             finishWithSuccess(result);
-            return true;
+//            return true;
         } else {
             finishWithSuccess(Collections.emptyList());
             clearMethodCallAndResult();

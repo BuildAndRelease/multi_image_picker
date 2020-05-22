@@ -55,7 +55,7 @@ class DetailViewPagerAdapter(private val inflater: LayoutInflater, private val m
                 playBtn.visibility = View.VISIBLE
             }
             try {
-                mVideoView.setVideoPath(media!!.originPath)
+                mVideoView.setVideoPath(media.originPath)
                 mVideoView.seekTo(100)
             } catch (e: java.lang.Exception) {
                 e.printStackTrace()
@@ -64,7 +64,7 @@ class DetailViewPagerAdapter(private val inflater: LayoutInflater, private val m
             imageView!!.visibility = View.VISIBLE
             playBtn!!.visibility = View.INVISIBLE
             mVideoView!!.visibility = View.INVISIBLE
-            fishton.imageAdapter?.loadDetailImage(imageView!!, medias[position])
+            fishton.imageAdapter?.loadDetailImage(imageView, medias[position])
         }
 
         return itemView

@@ -385,19 +385,20 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                         media.setThumbnailName(imgName);
                         media.setThumbnailPath(tmpPic.getAbsolutePath());
                         try {
-//                            int width = Integer.parseInt(media.getOriginWidth());
-//                            int height = Integer.parseInt(media.getOriginHeight());
-//                            float scaleWidth = ((float) maxWidth / width);
-//                            float scaleHeight = ((float) maxHeight / height);
-//                            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
-//                            int outWidth = (int) (width * scale);
-//                            int outHeight = (int) (height * scale);
-                            VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).outHeight(960).outWidth(960).output(tmpVideo.getAbsolutePath()).process();
+                            float width = Float.parseFloat(media.getThumbnailWidth());
+                            float height = Float.parseFloat(media.getThumbnailHeight());
+                            float scaleWidth = ((float) maxWidth / width);
+                            float scaleHeight = ((float) maxHeight / height);
+                            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
+                            int outWidth = (int) (width * scale);
+                            int outHeight = (int) (height * scale);
+                            VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).outHeight(outHeight).outWidth(outWidth).
+                                    output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(16000).process();
                             HashMap info = new HashMap();
                             info.put("identifier", media.getIdentifier());
                             info.put("filePath", tmpVideo.getAbsolutePath());
-                            info.put("width", 960.0);
-                            info.put("height",960.0);
+                            info.put("width", (float)outWidth);
+                            info.put("height",(float)outHeight);
                             info.put("name", videoName);
                             info.put("fileType", "video");
                             info.put("thumbPath", media.getThumbnailPath());

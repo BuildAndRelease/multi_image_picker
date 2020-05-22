@@ -127,13 +127,23 @@ public class PickerController {
         String bucketId = String.valueOf(id);
         String sort = MediaStore.Video.Media._ID + " DESC";
         String[] selectionArgs = {bucketId};
+        final String[] columns = {
+                MediaStore.Video.Media.MIME_TYPE,
+                MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Video.Media.DATA,
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.WIDTH,
+                MediaStore.Video.Media.HEIGHT,
+                MediaStore.Video.Media.DURATION,
+                MediaStore.Video.Media._ID
+        };
 
         Uri videos = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         Cursor c;
         if (!bucketId.equals("0")) {
-            c = resolver.query(videos, null, selection, selectionArgs, sort);
+            c = resolver.query(videos, columns, selection, selectionArgs, sort);
         } else {
-            c = resolver.query(videos, null, null, null, sort);
+            c = resolver.query(videos, columns, null, null, sort);
         }
         ArrayList<Media> medias = new ArrayList<>();
         if (c != null) {

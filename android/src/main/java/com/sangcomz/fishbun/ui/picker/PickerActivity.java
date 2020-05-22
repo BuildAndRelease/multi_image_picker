@@ -384,6 +384,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                         media.setThumbnailWidth((String) picInfo.get("width"));
                         media.setThumbnailName(imgName);
                         media.setThumbnailPath(tmpPic.getAbsolutePath());
+                        System.out.println(media.toString());
                         try {
                             int width = Integer.parseInt(media.getOriginWidth());
                             int height = Integer.parseInt(media.getOriginHeight());

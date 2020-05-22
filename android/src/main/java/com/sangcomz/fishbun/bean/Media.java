@@ -3,6 +3,8 @@ package com.sangcomz.fishbun.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 public class Media implements Parcelable {
 
     private String bucketName = "";
@@ -186,5 +188,14 @@ public class Media implements Parcelable {
         parcel.writeString(fileType);
         parcel.writeString(mimeType);
         parcel.writeString(identifier);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "bucketName:" + bucketName + " bucketId:" + bucketId + " originPath:" + originPath + " originHeight:" + originHeight +
+        " originWidth:" + originWidth + " originName:" + originName + " duration:" + duration + " thumbnailPath:" + thumbnailPath +
+        " thumbnailHeight:" + thumbnailHeight + " thumbnailWidth:" + thumbnailWidth + " thumbnailName:" + thumbnailName + " fileType:" + fileType +
+        " mimeType:" + mimeType + " identifier:" + identifier;
     }
 }

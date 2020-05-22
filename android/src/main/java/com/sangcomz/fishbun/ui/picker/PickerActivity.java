@@ -366,7 +366,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                         String uuid = UUID.randomUUID().toString();
                         String videoName = uuid + ".mp4";
                         String imgName = uuid + ".jpg";
-                        String cacheDir = getExternalCacheDir().getAbsolutePath() + "/muti_image_pick/thumb/";
+                        String cacheDir = getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
                         File tmpPicParentDir = new File(cacheDir);
                         if (!tmpPicParentDir.exists()) {
                             tmpPicParentDir.mkdirs();

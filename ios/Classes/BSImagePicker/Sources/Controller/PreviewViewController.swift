@@ -33,6 +33,8 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     private let cellIdentifier = "PreviewCollectionCell"
     
     weak var delegate : PreviewViewControllerDelegate?
+    var loadingView = true
+    
     var currentAssetIndex : Int = 0
     var fetchResult: PHFetchResult<PHAsset>? {
         didSet {
@@ -95,6 +97,20 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         refreshSelectIndex()
     }
     
+    override func viewDidLayoutSubviews() {
+        if loadingView {
+            collectionView.scrollToItem(at: IndexPath(row: currentAssetIndex, section: 0), at: .centeredHorizontally, animated: false)
+            refreshSelectIndex()
+            loadingView = false
+        }
+        super.viewDidLayoutSubviews()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        loadingView = true
+    }
+    
     func refreshSelectIndex() {
         if currentAssetIndex < (self.fetchResult?.count ?? 0) , let asset = self.fetchResult?[currentAssetIndex] , let selectIndex = self.delegate?.previewViewControllerIsSelectImageItem(asset) {
             if selectIndex > 0 {
@@ -134,10 +150,12 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let index = Int(round(scrollView.contentOffset.x/scrollView.bounds.width))
-        if currentAssetIndex != index {
-            currentAssetIndex = index
-            refreshSelectIndex()
+        if !loadingView {
+            let index = Int(round(scrollView.contentOffset.x/scrollView.bounds.width))
+            if currentAssetIndex != index {
+                currentAssetIndex = index
+                refreshSelectIndex()
+            }
         }
     }
     

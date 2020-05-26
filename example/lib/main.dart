@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:multi_image_picker_example/DemoLocalizations.dart';
@@ -86,17 +88,22 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
     try {
-      resultList = await MultiImagePicker.pickImages(
-        maxImages: 9,
-        qualityOfImage: 80,
-        maxHeight: 1024,
-        maxWidth: 768,
-        selectedAssets: images,
-        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
-        materialOptions: MaterialOptions(
-          allViewTitle: "All Photos",
-        ),
-      );
+     resultList = await MultiImagePicker.pickImages(
+       maxImages: 9,
+       qualityOfImage: 80,
+       maxHeight: 1024,
+       maxWidth: 768,
+       selectedAssets: images,
+       cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+       materialOptions: MaterialOptions(
+         allViewTitle: "All Photos",
+       ),
+     );
+    //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo();
+      // Uint8List data = await MultiImagePicker.fetchMediaThumbData("F7B70167-F43E-4FBF-AA91-AE37AE22A071/L0/001");
+      // print(data);
+      // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");
+      // print(data);
     } on Exception catch (e) {
       error = e.toString();
     }

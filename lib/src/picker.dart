@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
@@ -102,6 +103,35 @@ class MultiImagePicker {
         default:
           throw e;
       }
+    }
+  }
+
+  static Future<List<Asset>> fetchMediaInfo() async {
+    try {
+      final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo');
+      var assets = List<Asset>();
+      for (var item in images) {
+        var asset = Asset(
+          item['identifier'],
+          item['filePath'],
+          item['name'],
+          item['width'],
+          item['height'],
+          item['fileType'],
+        );
+        assets.add(asset);
+      }
+      return assets;
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
+  static Future<Uint8List> fetchMediaThumbData(String identifier) async {
+    try {
+      return await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier});
+    } on PlatformException catch (e) {
+      throw e;
     }
   }
 }

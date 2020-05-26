@@ -34,6 +34,45 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch (call.method) {
+        case "fetchMediaInfo":
+            let medias = NSMutableArray()
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.sortDescriptors = [
+                NSSortDescriptor(key: "creationDate", ascending: false)
+            ]
+            let assets = PHAsset.fetchAssets(with: fetchOptions)
+            for i in 0 ..< assets.count {
+                let asset = assets.object(at: i)
+                let dictionary = NSMutableDictionary()
+                dictionary.setValue(asset.localIdentifier, forKey: "identifier")
+                dictionary.setValue("", forKey: "filePath")
+                dictionary.setValue(CGFloat(asset.pixelWidth), forKey: "width")
+                dictionary.setValue(CGFloat(asset.pixelHeight), forKey: "height")
+                dictionary.setValue(asset.originalFilename, forKey: "name")
+                dictionary.setValue(asset.duration, forKey: "duration")
+                if asset.mediaType == .video {
+                    dictionary.setValue("video", forKey: "fileType")
+                }else if asset.mediaType == .image {
+                    dictionary.setValue("image", forKey: "fileType")
+                }
+                medias.add(dictionary)
+            }
+            result(medias)
+        case "fetchMediaThumbData":
+            let imageRequestOptions = PHImageRequestOptions()
+            imageRequestOptions.isNetworkAccessAllowed = false
+            imageRequestOptions.deliveryMode = .opportunistic
+            imageRequestOptions.resizeMode = .fast
+            imageRequestOptions.isSynchronous = false
+            let imageContentMode: PHImageContentMode = .aspectFit
+            
+            let arguments = call.arguments as! Dictionary<String, AnyObject>
+            let localIdentifier = arguments["identifier"] as! String
+            if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject {
+                PHCachingImageManager.default().requestImage(for: asset, targetSize: getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)), contentMode: imageContentMode, options: imageRequestOptions) { (image, info) in
+                    result(image?.jpegData(compressionQuality: 1.0) ?? FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
+                }
+            }
         case "pickImages":
             let status: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
             
@@ -98,8 +137,13 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    deinit {
-        print("deinit")
+    
+    private func getThumbnailSize(originSize: CGSize) -> CGSize {
+        let thumbnailWidth: CGFloat = (UIScreen.main.bounds.size.width - 5 * 5) / 3 * UIScreen.main.scale
+        let pixelScale = CGFloat(originSize.width)/CGFloat(originSize.height)
+        let thumbnailSize = CGSize(width: thumbnailWidth, height: thumbnailWidth/pixelScale)
+        
+        return thumbnailSize
     }
     
     func hexStringToUIColor (hex:String) -> UIColor {

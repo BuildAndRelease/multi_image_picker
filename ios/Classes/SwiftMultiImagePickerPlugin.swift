@@ -40,7 +40,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             fetchOptions.sortDescriptors = [
                 NSSortDescriptor(key: "creationDate", ascending: false)
             ]
-            fetchOptions.fetchLimit = 500
+            fetchOptions.fetchLimit = 50
             let assets = PHAsset.fetchAssets(with: fetchOptions)
             for i in 0 ..< assets.count {
                 let asset = assets.object(at: i)

@@ -47,8 +47,9 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 let dictionary = NSMutableDictionary()
                 dictionary.setValue(asset.localIdentifier, forKey: "identifier")
                 dictionary.setValue("", forKey: "filePath")
-                dictionary.setValue(CGFloat(asset.pixelWidth), forKey: "width")
-                dictionary.setValue(CGFloat(asset.pixelHeight), forKey: "height")
+                let size = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
+                dictionary.setValue(CGFloat(size.width), forKey: "width")
+                dictionary.setValue(CGFloat(size.height), forKey: "height")
                 dictionary.setValue(asset.originalFilename, forKey: "name")
                 dictionary.setValue(asset.duration, forKey: "duration")
                 if asset.mediaType == .video {

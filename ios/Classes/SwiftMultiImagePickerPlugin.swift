@@ -35,12 +35,14 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch (call.method) {
         case "fetchMediaInfo":
+            let arguments = call.arguments as! Dictionary<String, AnyObject>
+            let maxCount = arguments["maxCount"] as! Int
             let medias = NSMutableArray()
             let fetchOptions = PHFetchOptions()
             fetchOptions.sortDescriptors = [
                 NSSortDescriptor(key: "creationDate", ascending: false)
             ]
-            fetchOptions.fetchLimit = 50
+            fetchOptions.fetchLimit = maxCount
             let assets = PHAsset.fetchAssets(with: fetchOptions)
             for i in 0 ..< assets.count {
                 let asset = assets.object(at: i)

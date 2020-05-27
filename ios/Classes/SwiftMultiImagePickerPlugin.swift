@@ -139,7 +139,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
     
     
     private func getThumbnailSize(originSize: CGSize) -> CGSize {
-        let thumbnailWidth: CGFloat = (UIScreen.main.bounds.size.width) / 2 * UIScreen.main.scale
+        let thumbnailWidth: CGFloat = (UIScreen.main.bounds.size.width) * UIScreen.main.scale
         let pixelScale = CGFloat(originSize.width)/CGFloat(originSize.height)
         let thumbnailSize = CGSize(width: thumbnailWidth, height: thumbnailWidth/pixelScale)
         

@@ -69,9 +69,11 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let localIdentifier = arguments["identifier"] as! String
             if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject {
-                PHCachingImageManager.default().requestImage(for: asset, targetSize: getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)), contentMode: imageContentMode, options: imageRequestOptions) { (image, info) in
+                PHCachingImageManager.default().requestImage(for: asset, targetSize: CGSize(width: CGFloat(asset.pixelWidth)/2.0, height: CGFloat(asset.pixelHeight)/2.0), contentMode: imageContentMode, options: imageRequestOptions) { (image, info) in
                     result(image?.jpegData(compressionQuality: 1.0) ?? FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
                 }
+            }else {
+                result(FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
             }
         case "pickImages":
             let status: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()

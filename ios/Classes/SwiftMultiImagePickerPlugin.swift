@@ -62,10 +62,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
         case "fetchMediaThumbData":
             let imageRequestOptions = PHImageRequestOptions()
             imageRequestOptions.isNetworkAccessAllowed = false
-            imageRequestOptions.deliveryMode = .fastFormat
+            imageRequestOptions.deliveryMode = .highQualityFormat
             imageRequestOptions.resizeMode = .fast
             imageRequestOptions.isSynchronous = false
-            let imageContentMode: PHImageContentMode = .aspectFit
+            let imageContentMode: PHImageContentMode = .aspectFill
             
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let localIdentifier = arguments["identifier"] as! String

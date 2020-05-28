@@ -330,7 +330,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         try {
             retriever.setDataSource(media.getOriginPath());
             int duration = Integer.parseInt(media.getDuration());
-            bitmap = retriever.getFrameAtTime(duration > 2000 ? 2000 * 1000 : duration * 1000 );
+            bitmap = retriever.getFrameAtTime(0);
             File f = new File(savePath);
             FileOutputStream out = new FileOutputStream(f);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);

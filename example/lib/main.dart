@@ -88,18 +88,17 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
     try {
-     resultList = await MultiImagePicker.pickImages(
-       maxImages: 9,
-       qualityOfImage: 80,
-       maxHeight: 1024,
-       maxWidth: 768,
-       selectedAssets: images,
-       cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
-       materialOptions: MaterialOptions(
-         allViewTitle: "All Photos",
-       ),
-     );
-    //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo();
+    //  resultList = await MultiImagePicker.pickImages(
+    //    maxImages: 9,
+    //    qualityOfImage: 80,
+    //    maxHeight: 1024,
+    //    maxWidth: 768,
+    //    cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+    //    materialOptions: MaterialOptions(
+    //      allViewTitle: "All Photos",
+    //    ),
+    //  );
+     List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(0);
       // Uint8List data = await MultiImagePicker.fetchMediaThumbData("F7B70167-F43E-4FBF-AA91-AE37AE22A071/L0/001");
       // print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");

@@ -82,14 +82,18 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             fetchOptions.sortDescriptors = [
                 NSSortDescriptor(key: "creationDate", ascending: false)
             ]
-            fetchOptions.fetchLimit = maxCount
+            if #available(iOS 9, *) {
+                fetchOptions.fetchLimit = maxCount
+            }
             let assets = PHAsset.fetchAssets(with: fetchOptions)
-            for i in 0 ..< assets.count {
+          
+            let fetchLimit = (maxCount > 0 ? min(maxCount, assets.count) : assets.count)
+            for i in 0 ..< fetchLimit {
                 let asset = assets.object(at: i)
+                let size = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
                 let dictionary = NSMutableDictionary()
                 dictionary.setValue(asset.localIdentifier, forKey: "identifier")
                 dictionary.setValue("", forKey: "filePath")
-                let size = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
                 dictionary.setValue(CGFloat(size.width), forKey: "width")
                 dictionary.setValue(CGFloat(size.height), forKey: "height")
                 dictionary.setValue(asset.originalFilename, forKey: "name")

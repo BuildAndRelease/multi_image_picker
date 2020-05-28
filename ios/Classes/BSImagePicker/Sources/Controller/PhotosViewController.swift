@@ -126,6 +126,16 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         
         photosDataSource?.registerCellIdentifiersForCollectionView(collectionView)
         photosDataSource?.delegate = self
+        
+        if assetStore.count > 0 {
+            previewViewContoller.delegate = self
+            let index = photosDataSource?.fetchResult.index(of: assetStore.assets.first!) ?? 0
+            previewViewContoller.currentAssetIndex = index
+            previewViewContoller.fetchResult = photosDataSource?.fetchResult
+            navigationController?.pushViewController(previewViewContoller, animated: true)
+            bottomContentView.removeFromSuperview()
+            navigationController?.setToolbarHidden(true, animated: true)
+        }
     }
     
     // MARK: Appear/Disappear

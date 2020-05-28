@@ -39,7 +39,7 @@ class MultiImagePicker {
     int maxWidth = 300,
     int maxHeight = 300,
     bool enableCamera = false,
-    List<Asset> selectedAssets = const [],
+    List<String> selectedAssets = const [],
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
@@ -60,11 +60,7 @@ class MultiImagePicker {
           'enableCamera': enableCamera,
           'iosOptions': cupertinoOptions.toJson(),
           'androidOptions': materialOptions.toJson(),
-          'selectedAssets': selectedAssets
-              .map(
-                (Asset asset) => asset.identifier,
-              )
-              .toList(),
+          'selectedAssets': selectedAssets,
         },
       );
       var assets = List<Asset>();

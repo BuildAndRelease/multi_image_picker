@@ -53,8 +53,8 @@ extension PHAsset {
                     
                     let gen = AVAssetImageGenerator(asset: avAsset!)
                     gen.appliesPreferredTrackTransform = true
-                    let time = CMTimeMakeWithSeconds(2.0, preferredTimescale: 600);
-                    var actualTime  = CMTimeMake(value: 0, timescale: 0)
+                    let time = CMTimeMake(value: 0, timescale: 60);
+                    var actualTime  = CMTimeMake(value: 0, timescale: 60)
                     if let image = try? gen.copyCGImage(at: time, actualTime: &actualTime) {
                         let thumbImg = UIImage(cgImage: image)
                         do {

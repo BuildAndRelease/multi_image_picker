@@ -34,6 +34,46 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch (call.method) {
+        case "requestMediaData":
+            let arguments = call.arguments as! Dictionary<String, AnyObject>
+            let selectedAssets = arguments["selectedAssets"] as! Array<String>
+            let quality = (arguments["qualityOfImage"] as? Int) ?? 100
+            let maxHeight = (arguments["maxHeight"] as? Int) ?? 1024
+            let maxWidth = (arguments["maxWidth"] as? Int) ?? 768
+            let compressionQuality = CGFloat(quality) / CGFloat(100)
+            let thumb = (arguments["thumb"] as? Bool) ?? true
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.sortDescriptors = [
+                NSSortDescriptor(key: "creationDate", ascending: false)
+            ]
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: fetchOptions)
+            DispatchQueue.global().async {
+                let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
+                if !FileManager.default.fileExists(atPath: thumbDir) {
+                    do {
+                        try FileManager.default.createDirectory(atPath: thumbDir, withIntermediateDirectories: true, attributes: nil)
+                    }catch{
+                        print(error)
+                    }
+                }
+                var results = [NSDictionary]();
+                for index in 0 ..< assets.count {
+                    let asset = assets.object(at: index)
+                    var compressing = true
+                    asset.compressAsset(maxWidth, maxHeight: maxHeight, quality: compressionQuality, thumb: thumb, saveDir: thumbDir, process: { (process) in
+                        
+                    }, failed: { (err) in
+                        compressing = false
+                    }) { (info) in
+                        results.append(info)
+                        compressing = false
+                    }
+                    while compressing {
+                        usleep(50000)
+                    }
+                }
+                result(results)
+            }
         case "fetchMediaInfo":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let maxCount = arguments["maxCount"] as! Int

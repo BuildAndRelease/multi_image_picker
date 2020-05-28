@@ -102,6 +102,62 @@ class MultiImagePicker {
     }
   }
 
+static Future<List<Asset>> requestMediaData({
+    int qualityOfImage = 80,
+    int maxWidth = 750,
+    int maxHeight = 1334,
+    bool thumb = true,
+    List<String> selectedAssets = const []
+  }) async {
+
+    try {
+      final List<dynamic> images = await _channel.invokeMethod(
+        'requestMediaData',
+        <String, dynamic>{
+          'qualityOfImage': qualityOfImage,
+          'maxHeight': maxHeight,
+          'maxWidth': maxWidth,
+          'thumb': thumb,
+          'selectedAssets': selectedAssets});
+      var assets = List<Asset>();
+      for (var item in images) {
+        var asset;
+        if (item['fileType'] == 'image') {
+        asset = Asset(
+          item['identifier'],
+          item['filePath'],
+          item['name'],
+          item['width'],
+          item['height'],
+          item['fileType'],
+        );
+        }else if (item['fileType'] == 'video') {
+        asset = Asset(
+          item['identifier'],
+          item['filePath'],
+          item['name'],
+          item['width'],
+          item['height'],
+          item['fileType'],
+          thumbFilePath: item['thumbPath'],
+          thumbName: item['thumbName'],
+          thumbHeight: item['thumbHeight'],
+          thumbWidth: item['thumbWidth'],
+        );
+        }
+        assets.add(asset);
+      }
+      return assets;
+    } on PlatformException catch (e) {
+      switch (e.code) {
+        case "CANCELLED":
+          throw NoImagesSelectedException(e.message);
+        default:
+          throw e;
+      }
+    }
+  }
+
   static Future<List<Asset>> fetchMediaInfo(int maxCount) async {
     try {
       final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{'maxCount': maxCount});

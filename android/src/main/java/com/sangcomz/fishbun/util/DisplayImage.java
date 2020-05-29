@@ -14,7 +14,6 @@ import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.ext.MimeTypeExt;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class DisplayImage extends AsyncTask<Void, Void, List<Media>> {
@@ -50,20 +49,7 @@ public class DisplayImage extends AsyncTask<Void, Void, List<Media>> {
 
     @Override
     protected List<Media> doInBackground(Void... params) {
-        List<Media> medias = getAllVideoThumbnailsPath(bucketId, new ArrayList<MimeType>(), specifyFolderList);
-        medias.addAll(getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList));
-        Collections.sort(medias);
-        if (pageSize > 0 && pageNum > 0) {
-            int start = (pageNum - 1) * pageSize;
-            int end = pageNum * pageSize;
-            if (start >= medias.size()) {
-                return new ArrayList();
-            }else {
-                return medias.subList(start, Math.min(end, medias.size()));
-            }
-        }else {
-            return medias;
-        }
+        return getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList);
     }
 
     @Override
@@ -76,17 +62,25 @@ public class DisplayImage extends AsyncTask<Void, Void, List<Media>> {
 
     @NonNull
     private List<Media> getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
-        String selection = MediaStore.MediaColumns.BUCKET_ID + " = ?";
         String bucketId = String.valueOf(id);
-        String sort = MediaStore.Images.Media._ID + " DESC";
-        String[] selectionArgs = {bucketId};
+        String sort = MediaStore.Files.FileColumns._ID + " DESC ";
+        if (pageNum > 0 && pageSize > 0) {
+            sort = sort + " LIMIT " + pageSize + " OFFSET " + (pageNum - 1) * pageSize;
+        }
 
-        Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        Uri images = MediaStore.Files.getContentUri("external");
+        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+                + " OR "
+                + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
         Cursor c;
-        if (!bucketId.equals("0")) {
+        if ("0".equals(bucketId)) {
+            c = resolver.query(images, null, selection, null, sort);
+        }else {
+            selection = "(" + selection + ") AND " + MediaStore.MediaColumns.BUCKET_ID + " = ?";
+            String[] selectionArgs = {bucketId};
             c = resolver.query(images, null, selection, selectionArgs, sort);
-        } else {
-            c = resolver.query(images, null, null, null, sort);
         }
         ArrayList<Media> medias = new ArrayList<>();
         if (c != null) {
@@ -94,76 +88,26 @@ public class DisplayImage extends AsyncTask<Void, Void, List<Media>> {
                 if (c.moveToFirst()) {
                     do {
                         Media media = new Media();
-                        String mimeType = c.getString(c.getColumnIndex(MediaStore.Images.Media.MIME_TYPE));
-                        String buckName = c.getString(c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
+                        String mimeType = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE));
+                        String buckName = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME));
                         if (isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, buckName)) continue;
-                        String originPath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
-                        String originName = c.getString(c.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
-                        String originWidth = c.getString(c.getColumnIndex(MediaStore.Images.Media.WIDTH));
-                        String originHeight = c.getString(c.getColumnIndex(MediaStore.Images.Media.HEIGHT));
-                        int imgId = c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
-                        String identifier = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + imgId).toString();
-                        media.setBucketId(bucketId);
-                        media.setBucketName(buckName);
-                        media.setOriginName(originName);
-                        media.setOriginHeight(originHeight);
-                        media.setOriginWidth(originWidth);
-                        media.setOriginPath(originPath);
-                        media.setIdentifier(identifier);
-                        media.setMimeType(mimeType);
-                        media.setMediaId("" + imgId);
-                        media.setFileType("image");
-                        medias.add(media);
-                    } while (c.moveToNext());
-                }
-                c.close();
-            } catch (Exception e) {
-                if (!c.isClosed()) c.close();
-            }
-        }
-        return medias;
-    }
-
-    @NonNull
-    private List<Media> getAllVideoThumbnailsPath(long id, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
-        String selection = MediaStore.Video.Media.BUCKET_ID + " = ?";
-        String bucketId = String.valueOf(id);
-        String sort = MediaStore.Video.Media._ID + " DESC";
-        String[] selectionArgs = {bucketId};
-        final String[] columns = {
-                MediaStore.Video.Media.MIME_TYPE,
-                MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Video.Media.DATA,
-                MediaStore.Video.Media.DISPLAY_NAME,
-                MediaStore.Video.Media.WIDTH,
-                MediaStore.Video.Media.HEIGHT,
-                MediaStore.Video.Media.DURATION,
-                MediaStore.Video.Media._ID
-        };
-
-        Uri videos = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-        Cursor c;
-        if (!bucketId.equals("0")) {
-            c = resolver.query(videos, columns, selection, selectionArgs, sort);
-        } else {
-            c = resolver.query(videos, columns, null, null, sort);
-        }
-        ArrayList<Media> medias = new ArrayList<>();
-        if (c != null) {
-            try {
-                if (c.moveToFirst()) {
-                    do {
-                        Media media = new Media();
-                        String mimeType = c.getString(c.getColumnIndex(MediaStore.Video.Media.MIME_TYPE));
-                        String buckName = c.getString(c.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
-                        if (isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, buckName)) continue;
-                        String originPath = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATA));
-                        String originName = c.getString(c.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
-                        String originWidth = c.getString(c.getColumnIndex(MediaStore.Video.Media.WIDTH));
-                        String originHeight = c.getString(c.getColumnIndex(MediaStore.Video.Media.HEIGHT));
+                        String originPath = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+                        String originName = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME));
+                        String originWidth = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.WIDTH));
+                        String originHeight = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT));
                         String duration = c.getString(c.getColumnIndex(MediaStore.Video.Media.DURATION));
-                        int videoId = c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
-                        String identifier = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "" + videoId).toString();
+                        String imgId = c.getString(c.getColumnIndex(MediaStore.MediaColumns._ID));
+                        String identifier = "";
+                        if (mimeType.startsWith("image")) {
+                            identifier = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imgId).toString();
+                            media.setFileType("image");
+                        }else if (mimeType.startsWith("video")) {
+                            identifier = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId).toString();
+                            media.setFileType("video");
+                        }else {
+                            identifier = Uri.withAppendedPath(MediaStore.Files.getContentUri("external"), imgId).toString();
+                            media.setFileType("file");
+                        }
                         media.setBucketId(bucketId);
                         media.setBucketName(buckName);
                         media.setOriginName(originName);
@@ -171,10 +115,9 @@ public class DisplayImage extends AsyncTask<Void, Void, List<Media>> {
                         media.setOriginWidth(originWidth);
                         media.setOriginPath(originPath);
                         media.setDuration(duration);
-                        media.setMediaId(videoId + "");
                         media.setIdentifier(identifier);
                         media.setMimeType(mimeType);
-                        media.setFileType("video");
+                        media.setMediaId(imgId);
                         medias.add(media);
                     } while (c.moveToNext());
                 }

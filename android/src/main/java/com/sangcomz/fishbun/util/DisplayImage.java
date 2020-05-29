@@ -122,7 +122,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                         String originName = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME));
                         String originWidth = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.WIDTH));
                         String originHeight = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT));
-                        String duration = c.getString(c.getColumnIndex(MediaStore.Video.Media.DURATION));
+                        String duration = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DURATION));
                         String imgId = c.getString(c.getColumnIndex(MediaStore.MediaColumns._ID));
                         String identifier = "";
                         if (mimeType.startsWith("image")) {

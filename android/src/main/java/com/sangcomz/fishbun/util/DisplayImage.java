@@ -64,6 +64,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                 info.put("filePath", media.getOriginPath());
                 info.put("width", Float.parseFloat(media.getOriginWidth()));
                 info.put("height",Float.parseFloat(media.getOriginHeight()));
+                info.put("duration", Float.parseFloat(media.getDuration()));
                 info.put("name", media.getOriginName());
                 info.put("fileType", media.getFileType());
                 info.put("thumbPath", media.getThumbnailPath());

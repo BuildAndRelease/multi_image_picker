@@ -56,11 +56,12 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                         if (c.moveToFirst()) {
                             Media media = new Media();
                             String mimeType = c.getString(c.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));
-                            String buckName = c.getString(c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
-                            String originPath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
-                            String originName = c.getString(c.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
-                            String originWidth = c.getString(c.getColumnIndex(MediaStore.Images.Media.WIDTH));
-                            String originHeight = c.getString(c.getColumnIndex(MediaStore.Images.Media.HEIGHT));
+                            String buckName = c.getString(c.getColumnIndex(MediaStore.MediaColumns.BUCKET_DISPLAY_NAME));
+                            String originPath = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
+                            String originName = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
+                            String originWidth = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
+                            String originHeight = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
+                            String duration = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DURATION));
                             int imgId = c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
                             media.setBucketId("0");
                             media.setBucketName(buckName);
@@ -69,10 +70,20 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                             media.setOriginWidth(originWidth);
                             media.setOriginPath(originPath);
                             media.setIdentifier(identify);
+                            try {
+                                media.setDuration(Long.parseLong(duration)/1000 + "");
+                            } catch (Exception e) {
+                                media.setDuration("0");
+                            }
                             media.setMimeType(mimeType);
                             media.setMediaId("" + imgId);
-                            media.setFileType("image");
-                            selectMedias.add(media);
+                            if (mimeType.contains("video")) {
+                                media.setFileType("video");
+                                selectMedias.add(media);
+                            }else if (mimeType.contains("image")) {
+                                media.setFileType("image");
+                                selectMedias.add(media);
+                            }
                             c.close();
                         }
                     } catch (Exception e) {
@@ -135,9 +146,6 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                     info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
                     result.add(info);
                 } catch (Exception e) {
-                    HashMap info = new HashMap();
-                    info.put("error", media.toString());
-                    result.add(info);
                     e.printStackTrace();
                 }
             }else {

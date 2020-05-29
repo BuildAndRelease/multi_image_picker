@@ -37,7 +37,6 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 byte[] bytes = stream.toByteArray();
                 bitmap.recycle();
-                stream.close();
                 return bytes;
             }else if ("image".equals(fileType)) {
                 Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(fileId), MediaStore.Images.Thumbnails.MINI_KIND, null);
@@ -45,7 +44,6 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 byte[] bytes = stream.toByteArray();
                 bitmap.recycle();
-                stream.close();
                 return bytes;
             }
         } catch (Exception e) {

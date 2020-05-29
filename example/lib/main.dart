@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //    selectedAssets: ['content://media/external/images/media/1617701']
     //  );
     //  print(data);
-      Uint8List data = await MultiImagePicker.fetchMediaThumbData("1617701", "image");
+      Uint8List data = await MultiImagePicker.fetchMediaThumbData("content://media/external/images/media/1617710", "image");
       print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");
       // print(data);

@@ -14,11 +14,12 @@ import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.ext.MimeTypeExt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class DisplayImage extends AsyncTask<Void, Void, List<Media>> {
+public class DisplayImage extends AsyncTask<Void, Void, ArrayList<HashMap>> {
     public interface DisplayImageListener {
-        void OnDisplayImageDidSelectFinish(List<Media> medias);
+        void OnDisplayImageDidSelectFinish(ArrayList<HashMap> medias);
     }
     private Long bucketId;
     private ContentResolver resolver;
@@ -48,12 +49,28 @@ public class DisplayImage extends AsyncTask<Void, Void, List<Media>> {
     }
 
     @Override
-    protected List<Media> doInBackground(Void... params) {
-        return getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList);
+    protected ArrayList<HashMap> doInBackground(Void... params) {
+        List<Media> medias = getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList);
+        ArrayList<HashMap> result = new ArrayList<>();
+        for (Media media : medias) {
+            HashMap info = new HashMap();
+            info.put("identifier", media.getIdentifier());
+            info.put("filePath", media.getOriginPath());
+            info.put("width", Float.parseFloat(media.getOriginWidth()));
+            info.put("height",Float.parseFloat(media.getOriginHeight()));
+            info.put("name", media.getOriginName());
+            info.put("fileType", media.getFileType());
+            info.put("thumbPath", media.getThumbnailPath());
+            info.put("thumbName", media.getThumbnailName());
+            info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
+            info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
+            result.add(info);
+        }
+        return result;
     }
 
     @Override
-    protected void onPostExecute(List<Media> result) {
+    protected void onPostExecute(ArrayList<HashMap> result) {
         super.onPostExecute(result);
         if (listener != null) {
             listener.OnDisplayImageDidSelectFinish(result);

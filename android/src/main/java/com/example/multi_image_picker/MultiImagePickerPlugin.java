@@ -7,10 +7,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 
 import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
@@ -25,7 +27,9 @@ import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.permission.PermissionCheck;
 import com.sangcomz.fishbun.util.DisplayImage;
 import com.sangcomz.fishbun.util.MediaCompress;
+import com.sangcomz.fishbun.util.MediaThumbData;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,6 +67,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String MAX_HEIGHT = "maxHeight";
     private static final String MAX_WIDTH = "maxWidth";
     private static final String IDENTIFY = "identifier";
+    private static final String FILE_TYPE = "fileType";
     private static final String PAGE_NUM = "pageNum";
     private static final String PAGE_SIZE = "pageSize";
     private static final String QUALITY_OF_IMAGE = "qualityOfImage";
@@ -127,32 +133,27 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     displayImage.setPageSize(pageSize);
                     displayImage.setListener(new DisplayImage.DisplayImageListener() {
                         @Override
-                        public void OnDisplayImageDidSelectFinish(List<Media> medias) {
-                            ArrayList<HashMap> result = new ArrayList<>();
-                            for (Media media : medias) {
-                                HashMap info = new HashMap();
-                                info.put("identifier", media.getIdentifier());
-                                info.put("filePath", "");
-                                info.put("width", Float.parseFloat(media.getOriginWidth()));
-                                info.put("height",Float.parseFloat(media.getOriginHeight()));
-                                info.put("name", media.getOriginName());
-                                info.put("fileType", media.getFileType());
-                                info.put("thumbPath", media.getThumbnailPath());
-                                info.put("thumbName", media.getThumbnailName());
-                                info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
-                                info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
-                                result.add(info);
-                            }
-                            finishWithSuccess(result);
+                        public void OnDisplayImageDidSelectFinish(ArrayList<HashMap> medias) {
+                            finishWithSuccess(medias);
                         }
                     });
                     displayImage.execute();
                     break;
                 }
-                case FETCH_MEDIA_THUMB_DATA:
-//                    String identify = this.methodCall.argument(IDENTIFY);
+                case FETCH_MEDIA_THUMB_DATA: {
+                    String fileId = this.methodCall.argument(IDENTIFY);
+                    String fileType = this.methodCall.argument(FILE_TYPE);
+                    MediaThumbData mediaThumbData = new MediaThumbData(fileId, fileType, activity);
+                    mediaThumbData.setListener(new MediaThumbData.MediaThumbDataListener() {
+                        @Override
+                        public void mediaThumbDataDidFinish(byte[] bytes) {
+                            finishWithSuccess(bytes);
+                        }
+                    });
+                    mediaThumbData.execute();
                     break;
-                case REQUEST_MEDIA_DATA:
+                }
+                case REQUEST_MEDIA_DATA: {
                     boolean thumb = this.methodCall.argument("thumb");
                     int quality = this.methodCall.argument("qualityOfImage");
                     int maxHeight = this.methodCall.argument("maxHeight");
@@ -167,6 +168,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     });
                     mediaCompress.execute();
                     break;
+                }
             }
         }else {
             finishWithError("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION");
@@ -269,7 +271,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     }
 
 
-    private void finishWithSuccess(List mediaList) {
+    private void finishWithSuccess(Object mediaList) {
         if (this.pendingResult != null)
             this.pendingResult.success(mediaList);
         clearMethodCallAndResult();

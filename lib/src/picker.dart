@@ -183,9 +183,9 @@ static Future<List<Asset>> requestMediaData({
     }
   }
 
-  static Future<Uint8List> fetchMediaThumbData(String identifier) async {
+  static Future<Uint8List> fetchMediaThumbData(String identifier, String fileType) async {
     try {
-      return await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier});
+      return await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
     } on PlatformException catch (e) {
       throw e;
     }

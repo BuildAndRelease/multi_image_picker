@@ -141,9 +141,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     break;
                 }
                 case FETCH_MEDIA_THUMB_DATA: {
-                    String fileId = this.methodCall.argument(IDENTIFY);
+                    String identify = this.methodCall.argument(IDENTIFY);
                     String fileType = this.methodCall.argument(FILE_TYPE);
-                    MediaThumbData mediaThumbData = new MediaThumbData(fileId, fileType, activity);
+                    MediaThumbData mediaThumbData = new MediaThumbData(identify, fileType, activity);
                     mediaThumbData.setListener(new MediaThumbData.MediaThumbDataListener() {
                         @Override
                         public void mediaThumbDataDidFinish(byte[] bytes) {

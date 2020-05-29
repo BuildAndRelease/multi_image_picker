@@ -14,7 +14,7 @@ public class Media implements Parcelable, Comparable<Media> {
     private String originHeight = "1024";
     private String originWidth = "768";
     private String originName = "";
-    private String duration = "";
+    private String duration = "0";
     private String thumbnailPath = "";
     private String thumbnailHeight = "1024";
     private String thumbnailWidth = "768";

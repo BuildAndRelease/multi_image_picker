@@ -3,6 +3,7 @@ package com.sangcomz.fishbun.util;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
@@ -26,6 +27,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     private List<MimeType> exceptMimeType;
     private List<String> specifyFolderList;
     private DisplayImageListener listener;
+    private Context context;
     private int pageSize = -1;
     private int pageNum = -1;
     private boolean requestHashMap = false;
@@ -47,6 +49,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
         this.exceptMimeType = exceptMimeType;
         this.specifyFolderList = specifyFolderList;
         this.resolver = context.getContentResolver();
+        this.context = context;
     }
 
     public void setListener(DisplayImageListener listener) {
@@ -110,6 +113,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
             c = resolver.query(images, null, selection, selectionArgs, sort);
         }
         ArrayList<Media> medias = new ArrayList<>();
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
@@ -122,14 +126,18 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                         String originName = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME));
                         String originWidth = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.WIDTH));
                         String originHeight = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT));
-                        String duration = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DURATION));
+                        String duration = "0";
                         String imgId = c.getString(c.getColumnIndex(MediaStore.MediaColumns._ID));
                         String identifier = "";
                         if (mimeType.startsWith("image")) {
                             identifier = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imgId).toString();
                             media.setFileType("image");
                         }else if (mimeType.startsWith("video")) {
-                            identifier = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId).toString();
+                            Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
+                            retriever.setDataSource(context, uri);
+                            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                            duration = Long.parseLong(time)/1000 + "";
+                            identifier = uri.toString();
                             media.setFileType("video");
                         }else {
                             identifier = Uri.withAppendedPath(MediaStore.Files.getContentUri("external"), imgId).toString();
@@ -149,8 +157,10 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                     } while (c.moveToNext());
                 }
                 c.close();
+                retriever.release();
             } catch (Exception e) {
                 if (!c.isClosed()) c.close();
+                retriever.release();
             }
         }
         return medias;

@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //      allViewTitle: "All Photos",
     //    ),
     //  );
-     List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(1, 20);
+     List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(1, 10);
      print(assets);
 
     //  List<Asset> data = await MultiImagePicker.requestMediaData(
@@ -109,8 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
     //    selectedAssets: ['content://media/external/images/media/1617701']
     //  );
     //  print(data);
-      Uint8List data = await MultiImagePicker.fetchMediaThumbData("content://media/external/video/media/1613267", "video");
-      print(data);
+      // Uint8List data = await MultiImagePicker.fetchMediaThumbData("content://media/external/video/media/1613267", "video");
+      // print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");
       // print(data);
     } on Exception catch (e) {

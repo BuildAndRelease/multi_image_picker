@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 
 public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
     public interface MediaThumbDataListener {
@@ -35,15 +36,17 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
                 Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(fileId), MediaStore.Images.Thumbnails.MINI_KIND, null);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] bytes = stream.toByteArray();
+                byte[] bytes = stream.toByteArray().clone();
                 bitmap.recycle();
+                stream.close();
                 return bytes;
             }else if ("image".equals(fileType)) {
                 Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(fileId), MediaStore.Images.Thumbnails.MINI_KIND, null);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] bytes = stream.toByteArray();
+                byte[] bytes = stream.toByteArray().clone();
                 bitmap.recycle();
+                stream.close();
                 return bytes;
             }
         } catch (Exception e) {
@@ -56,7 +59,7 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
     protected void onPostExecute(byte[] bytes) {
         super.onPostExecute(bytes);
         if (listener != null) {
-            listener.mediaThumbDataDidFinish(bytes);
+            listener.mediaThumbDataDidFinish(bytes.clone());
         }
     }
 }

@@ -51,7 +51,7 @@ public class PickerController implements DisplayImage.DisplayImageListener {
     }
 
     @Override
-    public void OnDisplayImageDidSelectFinish(List<Media> medias) {
+    public void OnDisplayImageDidSelectFinish(ArrayList medias) {
         pickerActivity.setAdapter(medias);
     }
 }

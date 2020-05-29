@@ -129,11 +129,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     int pageNum = this.methodCall.argument(PAGE_NUM);
                     int pageSize = this.methodCall.argument(PAGE_SIZE);
                     DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, new ArrayList(), activity);
+                    displayImage.setRequestHashMap(true);
                     displayImage.setPageNum(pageNum);
                     displayImage.setPageSize(pageSize);
                     displayImage.setListener(new DisplayImage.DisplayImageListener() {
                         @Override
-                        public void OnDisplayImageDidSelectFinish(ArrayList<HashMap> medias) {
+                        public void OnDisplayImageDidSelectFinish(ArrayList medias) {
                             finishWithSuccess(medias);
                         }
                     });

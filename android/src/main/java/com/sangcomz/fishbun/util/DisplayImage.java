@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DisplayImage extends AsyncTask<Void, Void, ArrayList<HashMap>> {
+public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     public interface DisplayImageListener {
-        void OnDisplayImageDidSelectFinish(ArrayList<HashMap> medias);
+        void OnDisplayImageDidSelectFinish(ArrayList medias);
     }
     private Long bucketId;
     private ContentResolver resolver;
@@ -28,6 +28,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList<HashMap>> {
     private DisplayImageListener listener;
     private int pageSize = -1;
     private int pageNum = -1;
+    private boolean requestHashMap = false;
 
     public void setPageNum(int pageNum) {
         this.pageNum = pageNum;
@@ -35,6 +36,10 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList<HashMap>> {
 
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public void setRequestHashMap(boolean requestHashMap) {
+        this.requestHashMap = requestHashMap;
     }
 
     public DisplayImage(Long bucketId, List<MimeType> exceptMimeType, List<String> specifyFolderList, Context context) {
@@ -49,28 +54,32 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList<HashMap>> {
     }
 
     @Override
-    protected ArrayList<HashMap> doInBackground(Void... params) {
-        List<Media> medias = getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList);
-        ArrayList<HashMap> result = new ArrayList<>();
-        for (Media media : medias) {
-            HashMap info = new HashMap();
-            info.put("identifier", media.getIdentifier());
-            info.put("filePath", media.getOriginPath());
-            info.put("width", Float.parseFloat(media.getOriginWidth()));
-            info.put("height",Float.parseFloat(media.getOriginHeight()));
-            info.put("name", media.getOriginName());
-            info.put("fileType", media.getFileType());
-            info.put("thumbPath", media.getThumbnailPath());
-            info.put("thumbName", media.getThumbnailName());
-            info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
-            info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
-            result.add(info);
+    protected ArrayList doInBackground(Void... params) {
+        ArrayList<Media> medias = getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList);
+        if (requestHashMap) {
+            ArrayList<HashMap> result = new ArrayList<>();
+            for (Media media : medias) {
+                HashMap info = new HashMap();
+                info.put("identifier", media.getIdentifier());
+                info.put("filePath", media.getOriginPath());
+                info.put("width", Float.parseFloat(media.getOriginWidth()));
+                info.put("height",Float.parseFloat(media.getOriginHeight()));
+                info.put("name", media.getOriginName());
+                info.put("fileType", media.getFileType());
+                info.put("thumbPath", media.getThumbnailPath());
+                info.put("thumbName", media.getThumbnailName());
+                info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
+                info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
+                result.add(info);
+            }
+            return result;
+        }else {
+            return medias;
         }
-        return result;
     }
 
     @Override
-    protected void onPostExecute(ArrayList<HashMap> result) {
+    protected void onPostExecute(ArrayList result) {
         super.onPostExecute(result);
         if (listener != null) {
             listener.OnDisplayImageDidSelectFinish(result);
@@ -78,7 +87,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList<HashMap>> {
     }
 
     @NonNull
-    private List<Media> getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
+    private ArrayList getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
         String bucketId = String.valueOf(id);
         String sort = MediaStore.Files.FileColumns._ID + " DESC ";
         if (pageNum > 0 && pageSize > 0) {

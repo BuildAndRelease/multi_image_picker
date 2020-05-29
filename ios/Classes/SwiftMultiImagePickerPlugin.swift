@@ -76,19 +76,24 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             }
         case "fetchMediaInfo":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let maxCount = arguments["maxCount"] as! Int
+            let pageNum = arguments["pageNum"] as! Int
+            let pageSize = arguments["pageSize"] as! Int
+            if pageNum < 1 {
+                result(FlutterError(code: "PARAM ERROR", message: "pageNum must cannot be \(pageNum)", details: nil))
+                break
+            }
+            if pageSize < 1 {
+                result(FlutterError(code: "PARAM ERROR", message: "pageSize must cannot be \(pageSize)", details: nil))
+                break
+            }
             let medias = NSMutableArray()
             let fetchOptions = PHFetchOptions()
             fetchOptions.sortDescriptors = [
                 NSSortDescriptor(key: "creationDate", ascending: false)
             ]
-            if #available(iOS 9, *) {
-                fetchOptions.fetchLimit = maxCount
-            }
             let assets = PHAsset.fetchAssets(with: fetchOptions)
           
-            let fetchLimit = (maxCount > 0 ? min(maxCount, assets.count) : assets.count)
-            for i in 0 ..< fetchLimit {
+            for i in ((pageNum - 1) * pageSize) ..< (pageNum * pageSize) {
                 let asset = assets.object(at: i)
                 let size = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
                 let dictionary = NSMutableDictionary()

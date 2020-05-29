@@ -15,7 +15,7 @@ import java.util.ArrayList
  */
 class Fishton {
     var imageAdapter: ImageAdapter? = null
-    var pickerMedias: List<Media>? = null
+    var pickerMedias: List<Media> = ArrayList();
 
     var quality : Int = 1
     var maxHeight : Int = 300
@@ -24,6 +24,7 @@ class Fishton {
     var minCount: Int = 0
     var exceptMimeTypeList = emptyList<MimeType>()
     var selectedMedias = ArrayList<Media>()
+    var preSelectedMedias = ArrayList<String>()
 
     var specifyFolderList = emptyList<String>()
     var photoSpanCount: Int = 0
@@ -57,8 +58,6 @@ class Fishton {
 
     var colorTextMenu: Int = 0
 
-    var isUseDetailView: Boolean = false
-
     var colorSelectCircleStroke: Int = 0
     var colorDeSelectCircleStroke: Int = 0
 
@@ -78,10 +77,11 @@ class Fishton {
         minCount = 1
         exceptMimeTypeList = emptyList()
         selectedMedias = ArrayList()
+        preSelectedMedias = ArrayList()
 
         //CustomizationParams
         specifyFolderList = emptyList()
-        photoSpanCount = 3
+        photoSpanCount = 4
         albumPortraitSpanCount = 1
         albumLandscapeSpanCount = 2
 
@@ -107,7 +107,6 @@ class Fishton {
         colorTextMenu = Integer.MAX_VALUE
 
         isUseAllDoneButton = false
-        isUseDetailView = true
 
         colorSelectCircleStroke = Color.parseColor("#00BA5A")
         colorDeSelectCircleStroke = Color.parseColor("#FFFFFF")
@@ -144,6 +143,17 @@ class Fishton {
             } else {
                 albumThumbnailSize
             }
+    }
+
+    fun mediaIndexOfFirstPreSelectMedia(): Int {
+        if (preSelectedMedias.size > 0) {
+            for (i in 0..pickerMedias.size) {
+                if (pickerMedias[i].identifier.equals(preSelectedMedias[0])) {
+                    return i;
+                }
+            }
+        }
+        return 0
     }
 
     private object FishtonHolder {

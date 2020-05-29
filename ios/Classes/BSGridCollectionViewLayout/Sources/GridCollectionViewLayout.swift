@@ -38,7 +38,7 @@ public final class GridCollectionViewLayout: UICollectionViewLayout {
     /**
     Number of items per row
     */
-    public var itemsPerRow = 3 {
+    public var itemsPerRow = 4 {
         didSet {
             itemSize = estimatedItemSize()
         }

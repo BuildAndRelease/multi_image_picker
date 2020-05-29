@@ -2,22 +2,24 @@ package com.sangcomz.fishbun.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-public class Media implements Parcelable {
+public class Media implements Parcelable, Comparable<Media> {
 
     private String bucketName = "";
     private String bucketId = "";
     private String originPath = "";
-    private String originHeight = "";
-    private String originWidth = "";
+    private String originHeight = "1024";
+    private String originWidth = "768";
     private String originName = "";
     private String duration = "";
     private String thumbnailPath = "";
-    private String thumbnailHeight = "";
-    private String thumbnailWidth = "";
+    private String thumbnailHeight = "1024";
+    private String thumbnailWidth = "768";
     private String thumbnailName = "";
+    private String mediaId = "";
     private String fileType = "";
     private String mimeType = "";
     private String identifier = "";
@@ -27,7 +29,9 @@ public class Media implements Parcelable {
     }
 
     public void setBucketId(String bucketId) {
-        this.bucketId = bucketId;
+        if (!TextUtils.isEmpty(bucketId)) {
+            this.bucketId = bucketId;
+        }
     }
 
     public String getBucketId() {
@@ -35,7 +39,9 @@ public class Media implements Parcelable {
     }
 
     public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
+        if (!TextUtils.isEmpty(bucketName)) {
+            this.bucketName = bucketName;
+        }
     }
 
     public String getBucketName() {
@@ -43,7 +49,9 @@ public class Media implements Parcelable {
     }
 
     public void setFileType(String fileType) {
-        this.fileType = fileType;
+        if (!TextUtils.isEmpty(fileType)) {
+            this.fileType = fileType;
+        }
     }
 
     public String getFileType() {
@@ -51,7 +59,9 @@ public class Media implements Parcelable {
     }
 
     public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+        if (!TextUtils.isEmpty(identifier)) {
+            this.identifier = identifier;
+        }
     }
 
     public String getIdentifier() {
@@ -59,7 +69,9 @@ public class Media implements Parcelable {
     }
 
     public void setOriginHeight(String originHeight) {
-        this.originHeight = originHeight;
+        if (!TextUtils.isEmpty(originHeight)) {
+            this.originHeight = originHeight;
+        }
     }
 
     public String getOriginHeight() {
@@ -67,7 +79,9 @@ public class Media implements Parcelable {
     }
 
     public void setOriginName(String originName) {
-        this.originName = originName;
+        if (!TextUtils.isEmpty(originName)) {
+            this.originName = originName;
+        }
     }
 
     public String getOriginName() {
@@ -75,7 +89,9 @@ public class Media implements Parcelable {
     }
 
     public void setOriginPath(String originPath) {
-        this.originPath = originPath;
+        if (!TextUtils.isEmpty(originPath)) {
+            this.originPath = originPath;
+        }
     }
 
     public String getOriginPath() {
@@ -83,7 +99,9 @@ public class Media implements Parcelable {
     }
 
     public void setOriginWidth(String originWidth) {
-        this.originWidth = originWidth;
+        if (!TextUtils.isEmpty(originWidth)) {
+            this.originWidth = originWidth;
+        }
     }
 
     public String getOriginWidth() {
@@ -91,7 +109,9 @@ public class Media implements Parcelable {
     }
 
     public void setDuration(String duration) {
-        this.duration = duration;
+        if (!TextUtils.isEmpty(duration)) {
+            this.duration = duration;
+        }
     }
 
     public String getDuration() {
@@ -99,7 +119,9 @@ public class Media implements Parcelable {
     }
 
     public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+        if (!TextUtils.isEmpty(mimeType)) {
+            this.mimeType = mimeType;
+        }
     }
 
     public String getMimeType() {
@@ -107,7 +129,9 @@ public class Media implements Parcelable {
     }
 
     public void setThumbnailHeight(String thumbnailHeight) {
-        this.thumbnailHeight = thumbnailHeight;
+        if (!TextUtils.isEmpty(thumbnailHeight)) {
+            this.thumbnailHeight = thumbnailHeight;
+        }
     }
 
     public String getThumbnailHeight() {
@@ -115,7 +139,9 @@ public class Media implements Parcelable {
     }
 
     public void setThumbnailName(String thumbnailName) {
-        this.thumbnailName = thumbnailName;
+        if (!TextUtils.isEmpty(thumbnailName)) {
+            this.thumbnailName = thumbnailName;
+        }
     }
 
     public String getThumbnailName() {
@@ -123,7 +149,9 @@ public class Media implements Parcelable {
     }
 
     public void setThumbnailPath(String thumbnailPath) {
-        this.thumbnailPath = thumbnailPath;
+        if (!TextUtils.isEmpty(thumbnailPath)) {
+            this.thumbnailPath = thumbnailPath;
+        }
     }
 
     public String getThumbnailPath() {
@@ -131,7 +159,9 @@ public class Media implements Parcelable {
     }
 
     public void setThumbnailWidth(String thumbnailWidth) {
-        this.thumbnailWidth = thumbnailWidth;
+        if (!TextUtils.isEmpty(thumbnailWidth)) {
+            this.thumbnailWidth = thumbnailWidth;
+        }
     }
 
     public String getThumbnailWidth() {
@@ -193,9 +223,22 @@ public class Media implements Parcelable {
     @NonNull
     @Override
     public String toString() {
-        return "bucketName:" + bucketName + " bucketId:" + bucketId + " originPath:" + originPath + " originHeight:" + originHeight +
+        return "bucketName:" + bucketName + " dateTime:" + mediaId + " bucketId:" + bucketId + " originPath:" + originPath + " originHeight:" + originHeight +
         " originWidth:" + originWidth + " originName:" + originName + " duration:" + duration + " thumbnailPath:" + thumbnailPath +
         " thumbnailHeight:" + thumbnailHeight + " thumbnailWidth:" + thumbnailWidth + " thumbnailName:" + thumbnailName + " fileType:" + fileType +
         " mimeType:" + mimeType + " identifier:" + identifier;
+    }
+
+    public String getMediaId() {
+        return mediaId;
+    }
+
+    public void setMediaId(String mediaId) {
+        this.mediaId = mediaId;
+    }
+
+    @Override
+    public int compareTo(Media media) {
+        return mediaId.compareTo(media.mediaId);
     }
 }

@@ -7,13 +7,16 @@ import com.sangcomz.fishbun.bean.Album
 import com.sangcomz.fishbun.bean.Media
 import com.sangcomz.fishbun.define.Define
 import com.sangcomz.fishbun.ui.picker.PickerActivity
-import kotlin.collections.ArrayList
 
 /**
  * Created by sangcomz on 17/05/2017.
  */
 class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton) : BaseProperty, CustomizationProperty {
     private var requestCode = 27
+
+    override fun setPreSelectMedias(preSelectMedias: ArrayList<String>): FishBunCreator = this.apply {
+        fishton.preSelectedMedias = preSelectMedias
+    }
 
     override fun setSelectedMedias(selectedMedias: ArrayList<Media>): FishBunCreator = this.apply {
         fishton.selectedMedias = selectedMedias
@@ -142,10 +145,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
 
     override fun setMenuTextColor(color: Int): FishBunCreator = this.apply {
         fishton.colorTextMenu = color
-    }
-
-    override fun setIsUseDetailView(isUse: Boolean): FishBunCreator = this.apply {
-        fishton.isUseDetailView = isUse
     }
 
     override fun setSelectCircleStrokeColor(strokeColor: Int): FishBunCreator = this.apply {

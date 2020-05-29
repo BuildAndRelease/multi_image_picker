@@ -93,12 +93,22 @@ class _MyHomePageState extends State<MyHomePage> {
     //    qualityOfImage: 80,
     //    maxHeight: 1024,
     //    maxWidth: 768,
+    //    selectedAssets: ['content://media/external/images/media/1617701'],
     //    cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
     //    materialOptions: MaterialOptions(
     //      allViewTitle: "All Photos",
     //    ),
     //  );
-     List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(0);
+    //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(1, 20);
+    //  print(assets);
+
+     List<Asset> data = await MultiImagePicker.requestMediaData(
+       qualityOfImage: 80,
+       maxHeight: 1024,
+       maxWidth: 768,
+       selectedAssets: ['content://media/external/images/media/1617701']
+     );
+     print(data);
       // Uint8List data = await MultiImagePicker.fetchMediaThumbData("F7B70167-F43E-4FBF-AA91-AE37AE22A071/L0/001");
       // print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");

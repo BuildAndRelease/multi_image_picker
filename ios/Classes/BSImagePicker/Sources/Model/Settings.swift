@@ -53,7 +53,7 @@ final class Settings : BSImagePickerSettings {
         case (.regular, .regular): // iPad portrait/landscape
             return 7
         default:
-            return 3
+            return 4
         }
     }
 }

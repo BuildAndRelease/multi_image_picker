@@ -158,9 +158,12 @@ static Future<List<Asset>> requestMediaData({
     }
   }
 
-  static Future<List<Asset>> fetchMediaInfo(int maxCount) async {
+  static Future<List<Asset>> fetchMediaInfo(int pageNum, int pageSize) async {
     try {
-      final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{'maxCount': maxCount});
+      final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{
+        'pageNum': pageNum,
+        'pageSize': pageSize
+        });
       var assets = List<Asset>();
       for (var item in images) {
         var asset = Asset(

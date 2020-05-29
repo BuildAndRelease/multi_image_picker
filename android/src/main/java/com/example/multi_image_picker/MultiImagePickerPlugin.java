@@ -20,8 +20,11 @@ import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter;
+import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.permission.PermissionCheck;
+import com.sangcomz.fishbun.util.DisplayImage;
+import com.sangcomz.fishbun.util.MediaCompress;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -51,16 +54,18 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
  */
 public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistry.ActivityResultListener {
     private static final String CHANNEL_NAME = "multi_image_picker";
-    private static final String REQUEST_THUMBNAIL = "requestThumbnail";
-    private static final String REQUEST_ORIGINAL = "requestOriginal";
-    private static final String REQUEST_METADATA = "requestMetadata";
+    private static final String FETCH_MEDIA_THUMB_DATA = "fetchMediaThumbData";
+    private static final String FETCH_MEDIA_INFO = "fetchMediaInfo";
+    private static final String REQUEST_MEDIA_DATA = "requestMediaData";
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
     private static final String MAX_HEIGHT = "maxHeight";
     private static final String MAX_WIDTH = "maxWidth";
+    private static final String IDENTIFY = "identifier";
+    private static final String PAGE_NUM = "pageNum";
+    private static final String PAGE_SIZE = "pageSize";
     private static final String QUALITY_OF_IMAGE = "qualityOfImage";
     private static final String SELECTED_ASSETS = "selectedAssets";
-    private static final String ENABLE_CAMERA = "enableCamera";
     private static final String ANDROID_OPTIONS = "androidOptions";
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private final MethodChannel channel;
@@ -98,20 +103,70 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
 
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
-//        if (!setPendingMethodCallAndResult(call, result)) {
-//            finishWithAlreadyActiveError(result);
-//            return;
-//        }
-
         setPendingMethodCallAndResult(call, result);
         if (checkPermission()) {
-            if (PICK_IMAGES.equals(call.method)) {
-                final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
-                int maxImages = this.methodCall.argument(MAX_IMAGES);
-                int maxHeight = this.methodCall.argument(MAX_HEIGHT);
-                int maxWidth = this.methodCall.argument(MAX_WIDTH);
-                int qualityOfThumb = this.methodCall.argument(QUALITY_OF_IMAGE);
-                presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, options);
+            switch (call.method) {
+                case PICK_IMAGES: {
+                    final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
+                    int maxImages = this.methodCall.argument(MAX_IMAGES);
+                    int maxHeight = this.methodCall.argument(MAX_HEIGHT);
+                    int maxWidth = this.methodCall.argument(MAX_WIDTH);
+                    int qualityOfThumb = this.methodCall.argument(QUALITY_OF_IMAGE);
+                    ArrayList<String> selectMedias = this.methodCall.argument(SELECTED_ASSETS);
+                    presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, selectMedias, options);
+                    break;
+                }
+                case FETCH_MEDIA_INFO: {
+                    ArrayList mimeTypeList = new ArrayList();
+                    mimeTypeList.add(MimeType.GIF);
+                    mimeTypeList.add(MimeType.WEBP);
+                    int pageNum = this.methodCall.argument(PAGE_NUM);
+                    int pageSize = this.methodCall.argument(PAGE_SIZE);
+                    DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, new ArrayList(), activity);
+                    displayImage.setPageNum(pageNum);
+                    displayImage.setPageSize(pageSize);
+                    displayImage.setListener(new DisplayImage.DisplayImageListener() {
+                        @Override
+                        public void OnDisplayImageDidSelectFinish(List<Media> medias) {
+                            ArrayList<HashMap> result = new ArrayList<>();
+                            for (Media media : medias) {
+                                HashMap info = new HashMap();
+                                info.put("identifier", media.getIdentifier());
+                                info.put("filePath", "");
+                                info.put("width", Float.parseFloat(media.getOriginWidth()));
+                                info.put("height",Float.parseFloat(media.getOriginHeight()));
+                                info.put("name", media.getOriginName());
+                                info.put("fileType", media.getFileType());
+                                info.put("thumbPath", media.getThumbnailPath());
+                                info.put("thumbName", media.getThumbnailName());
+                                info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
+                                info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
+                                result.add(info);
+                            }
+                            finishWithSuccess(result);
+                        }
+                    });
+                    displayImage.execute();
+                    break;
+                }
+                case FETCH_MEDIA_THUMB_DATA:
+//                    String identify = this.methodCall.argument(IDENTIFY);
+                    break;
+                case REQUEST_MEDIA_DATA:
+                    boolean thumb = this.methodCall.argument("thumb");
+                    int quality = this.methodCall.argument("qualityOfImage");
+                    int maxHeight = this.methodCall.argument("maxHeight");
+                    int maxWidth = this.methodCall.argument("maxWidth");
+                    List<String> selectMedias = this.methodCall.argument("selectedAssets");
+                    MediaCompress mediaCompress = new MediaCompress(thumb, quality, maxHeight, maxWidth, new ArrayList<Media>(), selectMedias, activity);
+                    mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
+                        @Override
+                        public void mediaCompressDidFinish(ArrayList<HashMap> result) {
+                            finishWithSuccess(result);
+                        }
+                    });
+                    mediaCompress.execute();
+                    break;
             }
         }else {
             finishWithError("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION");
@@ -119,7 +174,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         }
     }
 
-    private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, ArrayList<String> selectMedias, HashMap<String, String> options) {
         String actionBarColor = options.get("actionBarColor");
         String statusBarColor = options.get("statusBarColor");
         String lightStatusBar = options.get("lightStatusBar");
@@ -141,9 +196,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 .setQuality(qualityOfThumb)
                 .setMaxHeight(maxHeight)
                 .setMaxWidth(maxWidth)
+                .setPreSelectMedias(selectMedias)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
-                .exceptMimeType(mimeTypeList)
-                .setIsUseDetailView(true);
+                .exceptMimeType(mimeTypeList);
 
         if (!textOnNothingSelected.isEmpty()) {
             fishBun.textOnNothingSelected(textOnNothingSelected);
@@ -198,20 +253,14 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         fishBun.startAlbum();
     }
 
-//    private static String acitivityResultSerialNum = ""; //防止onActivityResult回调2次
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
             finishWithError("CANCELLED", "The user has cancelled the selection");
         } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
-//            if (acitivityResultSerialNum.equals(data.getStringExtra(Define.INTENT_SERIAL_NUM))) {
-//                return true;
-//            }else {
-//                acitivityResultSerialNum = data.getStringExtra(Define.INTENT_SERIAL_NUM);
-//            }
             ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
             finishWithSuccess(result);
-//            return true;
+            return true;
         } else {
             finishWithSuccess(Collections.emptyList());
             clearMethodCallAndResult();

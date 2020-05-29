@@ -32,6 +32,8 @@ import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.define.Define;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopupCallBack;
+import com.sangcomz.fishbun.ui.detail.DetailActivity;
+import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 import com.sangcomz.fishbun.util.SquareFrameLayout;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopup;
@@ -46,7 +48,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public class PickerActivity extends BaseActivity implements View.OnClickListener {
+public class PickerActivity extends BaseActivity implements View.OnClickListener, MediaCompress.MediaCompressListener {
     private static final String TAG = "PickerActivity";
 
     private Button cancelBtn;
@@ -98,6 +100,8 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         initValue();
         initView();
         pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
+        compressingView.setVisibility(View.VISIBLE);
+        compressingTextView.setText("图片加载中...");
     }
 
     @Override
@@ -105,22 +109,6 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == define.ENTER_DETAIL_REQUEST_CODE && resultCode == RESULT_OK) {
             refreshThumb();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 28: {
-                if (grantResults.length > 0) {
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        pickerController.displayImage(album.bucketId, fishton.getExceptMimeTypeList(), fishton.getSpecifyFolderList());
-                    } else {
-                        finish();
-                    }
-                }
-                break;
-            }
         }
     }
 
@@ -136,7 +124,16 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
                 if (fishton.getSelectedMedias().size() < fishton.getMinCount()) {
                     Snackbar.make(recyclerView, fishton.getMessageNothingSelected(), Snackbar.LENGTH_SHORT).show();
                 } else {
-                    finishActivity();
+                    compressingView.setVisibility(View.VISIBLE);
+                    compressingTextView.setText(originBtn.isSelected() ? "拷贝中..." : "压缩中...");
+                    boolean thumb = !originBtn.isSelected();
+                    int quality = fishton.getQuality();
+                    int maxHeight = fishton.getMaxHeight();
+                    int maxWidth = fishton.getMaxWidth();
+                    List<Media> selectMedias = fishton.getSelectedMedias();
+                    MediaCompress mediaCompress = new MediaCompress(thumb, quality, maxHeight, maxWidth, selectMedias, new ArrayList<String>(), this);
+                    mediaCompress.setListener(this);
+                    mediaCompress.execute();
                 }
             } else if (v.equals(cancelBtn)) {
                 finish();
@@ -212,6 +209,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     }
 
     public void setAdapter(List<Media> result) {
+        compressingView.setVisibility(View.INVISIBLE);
         fishton.setPickerMedias(result);
         if (adapter == null) {
             adapter = new PickerGridAdapter(pickerController);
@@ -224,6 +222,12 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         }
         recyclerView.setAdapter(adapter);
         updateSendBtnTitle();
+        if (fishton.getPreSelectedMedias().size() > 0) {
+            Intent i = new Intent(this, DetailActivity.class);
+            i.putExtra(Define.BUNDLE_NAME.POSITION.name(), fishton.mediaIndexOfFirstPreSelectMedia());
+            startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
+            fishton.getPreSelectedMedias().clear();
+        }
     }
 
     private void refreshThumb() {
@@ -249,189 +253,13 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private HashMap compressImageAndFinish(Media media, boolean thumb, int quality, int maxHeight, int maxWidth) {
-        HashMap<String, Object> map = new HashMap<>();
-        String fileName = UUID.randomUUID().toString() + ".jpg";
-        String filePath = "";
-        Uri identify = Uri.parse(media.getIdentifier());
-        try {
-            InputStream is = getContentResolver().openInputStream(identify);
-            File tmpPicParentDir = new File(getCacheDir().getAbsolutePath() + "/muti_image_pick/");
-            if (!tmpPicParentDir.exists()) {
-                tmpPicParentDir.mkdirs();
-            }
-            File tmpPic = new File(getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
-            if (tmpPic.exists()) {
-                tmpPic.delete();
-            }
-            filePath = tmpPic.getAbsolutePath();
-            HashMap hashMap = transImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
-            if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
-                map.put("width", hashMap.get("width"));
-                map.put("height", hashMap.get("height"));
-            }else {
-                return map;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return map;
-        }
-
-        map.put("name", fileName);
-        map.put("filePath", filePath);
-        map.put("identifier", media.getIdentifier());
-        map.put("fileType", "image");
-        return map;
+    @Override
+    public void mediaCompressDidFinish(ArrayList<HashMap> result) {
+        compressingView.setVisibility(View.INVISIBLE);
+        Intent i = new Intent();
+        i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
+        i.putExtra(Define.INTENT_RESULT, result);
+        setResult(RESULT_OK, i);
+        finish();
     }
-
-    public HashMap transImage(InputStream fromFile, File toFile, int width, int height, int quality) {
-        HashMap result = new HashMap();
-        try {
-            Bitmap bitmap = BitmapFactory.decodeStream(fromFile);
-            int bitmapWidth = bitmap.getWidth();
-            int bitmapHeight = bitmap.getHeight();
-
-            float scaleWidth = -1 == width ? 1 : ((float) width / bitmapWidth);
-            float scaleHeight = -1 == width ? 1 : ((float) height / bitmapHeight);
-            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
-            Matrix matrix = new Matrix();
-            matrix.postScale(scale, scale);
-            result.put("width", (bitmapWidth * scale));
-            result.put("height", (bitmapHeight * scale));
-
-            Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
-            File myCaptureFile = toFile;
-            if (myCaptureFile.exists()) myCaptureFile.delete();
-            FileOutputStream out = new FileOutputStream(myCaptureFile);
-            if(resizeBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)){
-                out.flush();
-                out.close();
-            }
-            if(!bitmap.isRecycled()){
-                bitmap.recycle();//记得释放资源，否则会内存溢出
-            }
-            if(!resizeBitmap.isRecycled()){
-                resizeBitmap.recycle();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            result.clear();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            result.clear();
-        }
-        return result;
-    }
-
-    public static HashMap getLocalVideoBitmap(Media media, String savePath) {
-        HashMap result = new HashMap();
-        Bitmap bitmap = null;
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            retriever.setDataSource(media.getOriginPath());
-            int duration = Integer.parseInt(media.getDuration());
-            bitmap = retriever.getFrameAtTime(0);
-            File f = new File(savePath);
-            FileOutputStream out = new FileOutputStream(f);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            result.put("width", (bitmap.getWidth() * 1.0) + "");
-            result.put("height", (bitmap.getHeight() * 1.0) + "");
-            out.flush();
-            out.close();
-            if(!bitmap.isRecycled()){
-                bitmap.recycle();//记得释放资源，否则会内存溢出
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            retriever.release();
-        }
-        return result;
-    }
-
-    public void finishActivity() {
-        compressingView.setVisibility(View.VISIBLE);
-        compressingTextView.setText(originBtn.isSelected() ? "拷贝中..." : "压缩中...");
-        final boolean thumb = !originBtn.isSelected();
-        final int quality = fishton.getQuality();
-        final int maxHeight = fishton.getMaxHeight();
-        final int maxWidth = fishton.getMaxWidth();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final ArrayList<HashMap> result = new ArrayList<>();
-                for (int i = 0; i < fishton.getSelectedMedias().size(); i++) {
-                    Media media = fishton.getSelectedMedias().get(i);
-                    if ("video".equals(media.getFileType())) {
-                        String uuid = UUID.randomUUID().toString();
-                        String videoName = uuid + ".mp4";
-                        String imgName = uuid + ".jpg";
-                        String cacheDir = getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
-                        File tmpPicParentDir = new File(cacheDir);
-                        if (!tmpPicParentDir.exists()) {
-                            tmpPicParentDir.mkdirs();
-                        }
-                        File tmpPic = new File(cacheDir + imgName);
-                        if (tmpPic.exists()) {
-                            tmpPic.delete();
-                        }
-                        File tmpVideo = new File(cacheDir + videoName);
-                        if (tmpVideo.exists()) {
-                            tmpVideo.delete();
-                        }
-                        HashMap picInfo = getLocalVideoBitmap(media, tmpPic.getAbsolutePath());
-                        media.setThumbnailHeight((String) picInfo.get("height"));
-                        media.setThumbnailWidth((String) picInfo.get("width"));
-                        media.setThumbnailName(imgName);
-                        media.setThumbnailPath(tmpPic.getAbsolutePath());
-                        try {
-                            float width = Float.parseFloat(media.getThumbnailWidth());
-                            float height = Float.parseFloat(media.getThumbnailHeight());
-                            float scaleWidth = ((float) maxWidth / width);
-                            float scaleHeight = ((float) maxHeight / height);
-                            float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
-                            int outWidth = (int) (width * scale);
-                            int outHeight = (int) (height * scale);
-                            VideoProcessor.processor(PickerActivity.this).input(media.getOriginPath()).outHeight(outHeight).outWidth(outWidth).
-                                    output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(128000).process();
-                            HashMap info = new HashMap();
-                            info.put("identifier", media.getIdentifier());
-                            info.put("filePath", tmpVideo.getAbsolutePath());
-                            info.put("width", (float)outWidth);
-                            info.put("height",(float)outHeight);
-                            info.put("name", videoName);
-                            info.put("fileType", "video");
-                            info.put("thumbPath", media.getThumbnailPath());
-                            info.put("thumbName", media.getThumbnailName());
-                            info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
-                            info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
-                            result.add(info);
-                        } catch (Exception e) {
-                            HashMap info = new HashMap();
-                            info.put("error", media.toString());
-                            result.add(info);
-                            e.printStackTrace();
-                        }
-                    }else {
-                        result.add(compressImageAndFinish(media, thumb, quality, maxHeight, maxWidth));
-                    }
-                }
-                if (Looper.myLooper() != Looper.getMainLooper()) {
-                    Handler mainThread = new Handler(Looper.getMainLooper());
-                    mainThread.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            compressingView.setVisibility(View.INVISIBLE);
-                            Intent i = new Intent();
-                            i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
-                            i.putExtra(Define.INTENT_RESULT, result);
-                            setResult(RESULT_OK, i);
-                            finish();
-                        }
-                    });
-                }
-            }
-        }).start();
-    }
-
 }

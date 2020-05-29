@@ -48,8 +48,6 @@ interface CustomizationProperty {
 
     fun setMenuTextColor(color: Int): FishBunCreator
 
-    fun setIsUseDetailView(isUse: Boolean): FishBunCreator
-
     fun setSelectCircleStrokeColor(strokeColor: Int): FishBunCreator
 
     fun setSpecifyFolderList(specifyFolderList: List<String>): FishBunCreator

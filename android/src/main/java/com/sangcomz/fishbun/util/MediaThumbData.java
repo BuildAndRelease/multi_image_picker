@@ -36,7 +36,7 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
                 Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(fileId), MediaStore.Images.Thumbnails.MINI_KIND, null);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] bytes = stream.toByteArray().clone();
+                byte[] bytes = stream.toByteArray();
                 bitmap.recycle();
                 stream.close();
                 return bytes;
@@ -44,7 +44,7 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
                 Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(fileId), MediaStore.Images.Thumbnails.MINI_KIND, null);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] bytes = stream.toByteArray().clone();
+                byte[] bytes = stream.toByteArray();
                 bitmap.recycle();
                 stream.close();
                 return bytes;
@@ -59,7 +59,7 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
     protected void onPostExecute(byte[] bytes) {
         super.onPostExecute(bytes);
         if (listener != null) {
-            listener.mediaThumbDataDidFinish(bytes.clone());
+            listener.mediaThumbDataDidFinish(bytes);
         }
     }
 }

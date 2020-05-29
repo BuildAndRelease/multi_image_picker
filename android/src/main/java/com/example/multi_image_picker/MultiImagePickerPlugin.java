@@ -78,8 +78,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private final Activity activity;
     private final Context context;
     private final BinaryMessenger messenger;
-    private static Result pendingResult;
-    private static MethodCall methodCall;
+    private static Result currentPickerResult;
 
     public MultiImagePickerPlugin(Activity activity, Context context, MethodChannel channel, BinaryMessenger messenger) {
         this.activity = activity;
@@ -109,71 +108,77 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
 
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
-        setPendingMethodCallAndResult(call, result);
-        if (checkPermission()) {
-            switch (call.method) {
-                case PICK_IMAGES: {
-                    final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
-                    int maxImages = this.methodCall.argument(MAX_IMAGES);
-                    int maxHeight = this.methodCall.argument(MAX_HEIGHT);
-                    int maxWidth = this.methodCall.argument(MAX_WIDTH);
-                    int qualityOfThumb = this.methodCall.argument(QUALITY_OF_IMAGE);
-                    ArrayList<String> selectMedias = this.methodCall.argument(SELECTED_ASSETS);
-                    presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, selectMedias, options);
-                    break;
-                }
-                case FETCH_MEDIA_INFO: {
-                    ArrayList mimeTypeList = new ArrayList();
-                    mimeTypeList.add(MimeType.GIF);
-                    mimeTypeList.add(MimeType.WEBP);
-                    int pageNum = this.methodCall.argument(PAGE_NUM);
-                    int pageSize = this.methodCall.argument(PAGE_SIZE);
-                    DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, new ArrayList(), activity);
-                    displayImage.setRequestHashMap(true);
-                    displayImage.setPageNum(pageNum);
-                    displayImage.setPageSize(pageSize);
-                    displayImage.setListener(new DisplayImage.DisplayImageListener() {
-                        @Override
-                        public void OnDisplayImageDidSelectFinish(ArrayList medias) {
-                            finishWithSuccess(medias);
+        try {
+            if (checkPermission()) {
+                switch (call.method) {
+                    case PICK_IMAGES: {
+                        if (currentPickerResult != null) {
+                            currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
                         }
-                    });
-                    displayImage.execute();
-                    break;
+                        currentPickerResult = result;
+                        final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
+                        int maxImages = call.argument(MAX_IMAGES);
+                        int maxHeight = call.argument(MAX_HEIGHT);
+                        int maxWidth = call.argument(MAX_WIDTH);
+                        int qualityOfThumb = call.argument(QUALITY_OF_IMAGE);
+                        ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
+                        presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, selectMedias, options);
+                        break;
+                    }
+                    case FETCH_MEDIA_INFO: {
+                        ArrayList mimeTypeList = new ArrayList();
+                        mimeTypeList.add(MimeType.GIF);
+                        mimeTypeList.add(MimeType.WEBP);
+                        int pageNum = call.argument(PAGE_NUM);
+                        int pageSize = call.argument(PAGE_SIZE);
+                        DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, new ArrayList(), activity);
+                        displayImage.setRequestHashMap(true);
+                        displayImage.setPageNum(pageNum);
+                        displayImage.setPageSize(pageSize);
+                        displayImage.setListener(new DisplayImage.DisplayImageListener() {
+                            @Override
+                            public void OnDisplayImageDidSelectFinish(ArrayList medias) {
+                                result.success(medias);
+                            }
+                        });
+                        displayImage.execute();
+                        break;
+                    }
+                    case FETCH_MEDIA_THUMB_DATA: {
+                        String identify = call.argument(IDENTIFY);
+                        String fileType = call.argument(FILE_TYPE);
+                        MediaThumbData mediaThumbData = new MediaThumbData(identify, fileType, activity);
+                        mediaThumbData.setListener(new MediaThumbData.MediaThumbDataListener() {
+                            @Override
+                            public void mediaThumbDataDidFinish(byte[] bytes) {
+                                result.success(bytes);
+                            }
+                        });
+                        mediaThumbData.execute();
+                        break;
+                    }
+                    case REQUEST_MEDIA_DATA: {
+                        boolean thumb = call.argument("thumb");
+                        int quality = call.argument("qualityOfImage");
+                        int maxHeight = call.argument("maxHeight");
+                        int maxWidth = call.argument("maxWidth");
+                        List<String> selectMedias = call.argument("selectedAssets");
+                        MediaCompress mediaCompress = new MediaCompress(thumb, quality, maxHeight, maxWidth, new ArrayList<Media>(), selectMedias, activity);
+                        mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
+                            @Override
+                            public void mediaCompressDidFinish(ArrayList<HashMap> results) {
+                                result.success(results);
+                            }
+                        });
+                        mediaCompress.execute();
+                        break;
+                    }
                 }
-                case FETCH_MEDIA_THUMB_DATA: {
-                    String identify = this.methodCall.argument(IDENTIFY);
-                    String fileType = this.methodCall.argument(FILE_TYPE);
-                    MediaThumbData mediaThumbData = new MediaThumbData(identify, fileType, activity);
-                    mediaThumbData.setListener(new MediaThumbData.MediaThumbDataListener() {
-                        @Override
-                        public void mediaThumbDataDidFinish(byte[] bytes) {
-                            finishWithSuccess(bytes);
-                        }
-                    });
-                    mediaThumbData.execute();
-                    break;
-                }
-                case REQUEST_MEDIA_DATA: {
-                    boolean thumb = this.methodCall.argument("thumb");
-                    int quality = this.methodCall.argument("qualityOfImage");
-                    int maxHeight = this.methodCall.argument("maxHeight");
-                    int maxWidth = this.methodCall.argument("maxWidth");
-                    List<String> selectMedias = this.methodCall.argument("selectedAssets");
-                    MediaCompress mediaCompress = new MediaCompress(thumb, quality, maxHeight, maxWidth, new ArrayList<Media>(), selectMedias, activity);
-                    mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
-                        @Override
-                        public void mediaCompressDidFinish(ArrayList<HashMap> result) {
-                            finishWithSuccess(result);
-                        }
-                    });
-                    mediaCompress.execute();
-                    break;
-                }
+            }else {
+                result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
             }
-        }else {
-            finishWithError("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION");
-            return;
+        } catch (Exception e) {
+            result.error(e.getMessage(), e.getCause().toString(), null);
         }
     }
 
@@ -259,48 +264,18 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
-            finishWithError("CANCELLED", "The user has cancelled the selection");
+            currentPickerResult.error("CANCELLED", "The user has cancelled the selection", null);
+            currentPickerResult = null;
+            return false;
         } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
             ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
-            finishWithSuccess(result);
+            currentPickerResult.success(result);
+            currentPickerResult = null;
             return true;
         } else {
-            finishWithSuccess(Collections.emptyList());
-            clearMethodCallAndResult();
+            currentPickerResult.success(Collections.emptyList());
+            currentPickerResult = null;
+            return false;
         }
-        return false;
-    }
-
-
-    private void finishWithSuccess(Object mediaList) {
-        if (this.pendingResult != null)
-            this.pendingResult.success(mediaList);
-        clearMethodCallAndResult();
-    }
-
-    private void finishWithAlreadyActiveError(MethodChannel.Result result) {
-        if (result != null)
-            result.error("already_active", "Image picker is already active", null);
-    }
-
-    private void finishWithError(String errorCode, String errorMessage) {
-        if (this.pendingResult != null)
-            this.pendingResult.error(errorCode, errorMessage, null);
-        clearMethodCallAndResult();
-    }
-
-    private void clearMethodCallAndResult() {
-        this.methodCall = null;
-        this.pendingResult = null;
-    }
-
-    private boolean setPendingMethodCallAndResult(MethodCall methodCall, MethodChannel.Result result) {
-        if (this.pendingResult != null) {
-            this.pendingResult.error("new call coming", "Image picker come new picker", null);
-            clearMethodCallAndResult();
-        }
-        this.methodCall = methodCall;
-        this.pendingResult = result;
-        return true;
     }
 }

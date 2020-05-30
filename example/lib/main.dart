@@ -88,27 +88,27 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
     try {
-    //  resultList = await MultiImagePicker.pickImages(
-    //    maxImages: 9,
-    //    qualityOfImage: 80,
-    //    maxHeight: 1024,
-    //    maxWidth: 768,
-    //    selectedAssets: ['content://media/external/images/media/1617701'],
-    //    cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
-    //    materialOptions: MaterialOptions(
-    //      allViewTitle: "All Photos",
-    //    ),
-    //  );
-    //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(1, 10);
-    //  print(assets);
-
-     List<Asset> data = await MultiImagePicker.requestMediaData(
+     resultList = await MultiImagePicker.pickImages(
+       maxImages: 9,
        qualityOfImage: 80,
        maxHeight: 1024,
        maxWidth: 768,
-       selectedAssets: ['content://media/external/video/media/1613267']
+      //  selectedAssets: ['content://media/external/images/media/1617701'],
+       cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+       materialOptions: MaterialOptions(
+         allViewTitle: "All Photos",
+       ),
      );
-     print(data);
+    //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(1, 10);
+    //  print(assets);
+
+    //  List<Asset> data = await MultiImagePicker.requestMediaData(
+    //    qualityOfImage: 80,
+    //    maxHeight: 1024,
+    //    maxWidth: 768,
+    //    selectedAssets: ['content://media/external/video/media/1613267']
+    //  );
+    //  print(data);
       // Uint8List data = await MultiImagePicker.fetchMediaThumbData("content://media/external/video/media/1613267", "video");
       // print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");

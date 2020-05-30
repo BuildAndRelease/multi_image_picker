@@ -1,6 +1,7 @@
 package com.sangcomz.fishbun.ui.detail;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -21,13 +24,17 @@ import com.sangcomz.fishbun.BaseActivity;
 import com.sangcomz.fishbun.adapter.view.DetailViewPagerAdapter;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.define.Define;
+import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
-public class DetailActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, DetailViewPagerAdapter.OnVideoPlayActionListener {
+public class DetailActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, DetailViewPagerAdapter.OnVideoPlayActionListener, MediaCompress.MediaCompressListener {
     private static final String TAG = "DetailActivity";
 
     private int initPosition;
@@ -35,6 +42,10 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     private ViewPager vpDetailPager;
     private Button btnDetailBack;
     private VideoView currentPlayVideoView;
+    private Button originBtn;
+    private Button sendBtn;
+    private RelativeLayout compressingView;
+    private TextView compressingTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,12 +68,24 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         btnDetailCount = findViewById(R.id.btn_detail_count);
         vpDetailPager = findViewById(R.id.vp_detail_pager);
         btnDetailBack = findViewById(R.id.btn_detail_back);
+        originBtn = findViewById(R.id.photo_preview_origin_btn);
+        sendBtn = findViewById(R.id.photo_preview_send_btn);
+        compressingView = findViewById(R.id.compressing_content_view);
+        compressingTextView = findViewById(R.id.compressing_text_view);
         btnDetailCount.unselect();
         btnDetailCount.setTextColor(fishton.getColorActionBarTitle());
         btnDetailCount.setCircleColor(fishton.getColorSelectCircleStroke());
         btnDetailCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
         btnDetailCount.setOnClickListener(this);
         btnDetailBack.setOnClickListener(this);
+        originBtn.setOnClickListener(this);
+        sendBtn.setOnClickListener(this);
+        compressingView.setOnClickListener(this);
+        originBtn.setSelected(!fishton.isThumb());
+        Drawable drawable = getResources().getDrawable(fishton.isThumb() ?  R.drawable.radio_unchecked : R.drawable.radio_checked);
+        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+        originBtn.setCompoundDrawables(drawable,null,null,null);
+        updateSendBtnTitle();
     }
 
     private void initAdapter() {
@@ -89,6 +112,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         } else {
             btnDetailCount.unselect();
         }
+        updateSendBtnTitle();
     }
 
     public void updateRadioButton(RadioWithTextButton v, String text) {
@@ -98,9 +122,26 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
             v.setText(text);
     }
 
+    public void updateSendBtnTitle() {
+        if (fishton.getSelectedMedias().size() > 0) {
+            sendBtn.setEnabled(true);
+            sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedMedias().size() + "/" + fishton.getMaxCount() + ")");
+        }else {
+            sendBtn.setEnabled(false);
+            sendBtn.setText(getResources().getText(R.string.done));
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestory");
+    }
+
     @Override
     public void onBackPressed() {
-        finishActivity();
+        currentPlayVideoView = null;
+        finish();
     }
 
     @Override
@@ -109,7 +150,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
-            if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60000) {
+            if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60) {
                 Toast.makeText(this, "视屏长度不能超过60秒", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -124,9 +165,29 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
                     onCheckStateChange(media);
                 }
             }
-
         } else if (id == R.id.btn_detail_back) {
             finishActivity();
+        } else if (id == R.id.photo_preview_send_btn) {
+            if (fishton.getSelectedMedias().size() < fishton.getMinCount()) {
+                Toast.makeText(this, fishton.getMessageNothingSelected(), Toast.LENGTH_SHORT).show();
+            } else {
+                compressingView.setVisibility(View.VISIBLE);
+                compressingTextView.setText(fishton.isThumb() ? "压缩中..." : "拷贝中...");
+                boolean thumb = fishton.isThumb();
+                int quality = fishton.getQuality();
+                int maxHeight = fishton.getMaxHeight();
+                int maxWidth = fishton.getMaxWidth();
+                List<Media> selectMedias = fishton.getSelectedMedias();
+                MediaCompress mediaCompress = new MediaCompress(thumb, quality, maxHeight, maxWidth, selectMedias, new ArrayList<String>(), this);
+                mediaCompress.setListener(this);
+                mediaCompress.execute();
+            }
+        } else if (id == R.id.photo_preview_origin_btn) {
+            originBtn.setSelected(!originBtn.isSelected());
+            Drawable drawable = getResources().getDrawable(originBtn.isSelected() ? R.drawable.radio_checked : R.drawable.radio_unchecked);
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+            originBtn.setCompoundDrawables(drawable,null,null,null);
+            fishton.setThumb(!originBtn.isSelected());
         }
     }
 
@@ -146,18 +207,13 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     public void onPageScrollStateChanged(int state) {
         switch (state){
             case ViewPager.SCROLL_STATE_IDLE:
-                Log.i(TAG,"---->onPageScrollStateChanged无动作");
                 break;
             case ViewPager.SCROLL_STATE_DRAGGING:
-                //点击、滑屏
-                Log.i(TAG,"---->onPageScrollStateChanged点击、滑屏");
                 if (currentPlayVideoView != null) {
                     currentPlayVideoView.performClick();
                 }
                 break;
             case ViewPager.SCROLL_STATE_SETTLING:
-                //释放
-                Log.i(TAG,"---->onPageScrollStateChanged释放");
                 break;
         }
     }
@@ -165,7 +221,6 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     void finishActivity() {
         currentPlayVideoView = null;
         Intent i = new Intent();
-        i.putExtra(Define.INTENT_SERIAL_NUM, UUID.randomUUID().toString());
         setResult(RESULT_OK, i);
         finish();
     }
@@ -173,5 +228,14 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onVideoDidPlayer(@NotNull VideoView videoView) {
         currentPlayVideoView = videoView;
+    }
+
+    @Override
+    public void mediaCompressDidFinish(ArrayList<HashMap> result) {
+        compressingView.setVisibility(View.INVISIBLE);
+        Intent i = new Intent();
+        i.putExtra(Define.INTENT_RESULT, result);
+        setResult(define.FINISH_DETAIL_REQUEST_CODE, i);
+        finish();
     }
 }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,11 +32,9 @@ import java.util.ArrayList;
 
 
 public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
     private Fishton fishton;
     private PickerController pickerController;
     private OnPhotoActionListener actionListener;
-
 
     public PickerGridAdapter(PickerController pickerController) {
         this.pickerController = pickerController;
@@ -62,7 +61,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (media.getFileType().equals("video")) {
             vh.videoInfoContentView.setVisibility(View.VISIBLE);
             try {
-                int duration = Integer.parseInt(media.getDuration())/1000;
+                int duration = Integer.parseInt(media.getDuration());
                 vh.videoInfoDurationTextView.setText(String.format("%02d", duration/60) + ":" + String.format("%02d", duration%60));
             } catch (Exception e) {
                 vh.videoInfoDurationTextView.setText("00:00");
@@ -78,7 +77,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60000) {
+                if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60) {
                     Toast.makeText(vh.item.getContext(), "视屏长度不能超过60秒", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -159,16 +158,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemCount() {
-        int count;
-        if (fishton.getPickerMedias() == null)
-            count = 0;
-        else
-            count = fishton.getPickerMedias().size();
-
-        if (fishton.getPickerMedias() == null)
-            return 0;
-        else
-            return count;
+        return fishton.getPickerMedias() == null ? 0 : fishton.getPickerMedias().size();
     }
 
     public void setActionListener(OnPhotoActionListener actionListener) {

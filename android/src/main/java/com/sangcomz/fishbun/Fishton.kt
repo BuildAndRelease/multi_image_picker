@@ -25,6 +25,7 @@ class Fishton {
     var exceptMimeTypeList = emptyList<MimeType>()
     var selectedMedias = ArrayList<Media>()
     var preSelectedMedias = ArrayList<String>()
+    var isThumb : Boolean = true;
 
     var specifyFolderList = emptyList<String>()
     var photoSpanCount: Int = 0

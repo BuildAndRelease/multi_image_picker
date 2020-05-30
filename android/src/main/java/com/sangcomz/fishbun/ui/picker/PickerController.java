@@ -27,7 +27,9 @@ import java.util.List;
 public class PickerController implements DisplayImage.DisplayImageListener {
     private PickerActivity pickerActivity;
     private ArrayList<Media> addImagePaths = new ArrayList<>();
-
+    private long bucketId;
+    private List<MimeType> exceptMimeType;
+    private List<String> specifyFolderList;
     PickerController(PickerActivity pickerActivity) {
         this.pickerActivity = pickerActivity;
     }
@@ -45,6 +47,9 @@ public class PickerController implements DisplayImage.DisplayImageListener {
     }
 
     void displayImage(Long bucketId, List<MimeType> exceptMimeType, List<String> specifyFolderList) {
+        this.bucketId = bucketId;
+        this.exceptMimeType = exceptMimeType;
+        this.specifyFolderList = specifyFolderList;
         DisplayImage displayImage = new DisplayImage(bucketId, exceptMimeType, specifyFolderList, pickerActivity);
         displayImage.setListener(this);
         displayImage.execute();

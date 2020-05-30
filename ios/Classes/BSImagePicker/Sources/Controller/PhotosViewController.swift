@@ -234,7 +234,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     // MARK: Private helper methods
     func updateDoneButton() {
         if assetStore.assets.count > 0 {
-            doneBarButton.setTitle("\(doneBarButtonTitle)(\(assetStore.count)/\(settings.maxNumberOfSelections))", for: .normal)
+            doneBarButton.setTitle("\(doneBarButtonTitle)(\(assetStore.count))", for: .normal)
             var width : CGFloat = 90.0
             switch settings.maxNumberOfSelections {
             case 0..<10:

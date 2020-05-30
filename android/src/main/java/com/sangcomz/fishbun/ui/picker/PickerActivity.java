@@ -211,7 +211,7 @@ public class PickerActivity extends BaseActivity implements View.OnClickListener
     public void updateSendBtnTitle() {
         if (fishton.getSelectedMedias().size() > 0) {
             sendBtn.setEnabled(true);
-            sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedMedias().size() + "/" + fishton.getMaxCount() + ")");
+            sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedMedias().size() + ")");
         }else {
             sendBtn.setEnabled(false);
             sendBtn.setText(getResources().getText(R.string.done));

@@ -83,7 +83,6 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         selectionView.offset = 12.5
         selectionView.delegate = self
         navigationItem.leftBarButtonItem = cancelBarButton
-        navigationItem.title = NSLocalizedString("预览", comment: "")
         navigationItem.rightBarButtonItem = selectBarButton
     }
     

@@ -71,7 +71,4 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:3.0.0'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'org.mockito:mockito-android:3.0.0'
-
-    compileOnly "com.squareup.picasso:picasso:$picasso_version"
-    compileOnly "com.github.bumptech.glide:glide:$glide_version"
 }

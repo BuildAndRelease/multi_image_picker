@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
 import com.sangcomz.fishbun.MimeType;
-import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter;
+import com.sangcomz.fishbun.adapter.GlideAdapter;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.util.PermissionCheck;

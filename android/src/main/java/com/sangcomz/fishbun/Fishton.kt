@@ -3,18 +3,16 @@ package com.sangcomz.fishbun
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import com.example.multi_image_picker.R
-import com.sangcomz.fishbun.adapter.image.ImageAdapter
+import com.sangcomz.fishbun.adapter.GlideAdapter
 import com.sangcomz.fishbun.bean.Media
-import com.sangcomz.fishbun.util.getDimension
 import java.util.ArrayList
 
 /**
  * Created by seokwon.jeong on 04/01/2018.
  */
 class Fishton {
-    var imageAdapter: ImageAdapter? = null
+    var imageAdapter: GlideAdapter? = null
     var pickerMedias: List<Media> = ArrayList();
 
     var quality : Int = 1

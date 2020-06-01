@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.multi_image_picker.R;
 import com.sangcomz.fishbun.Fishton;
-import com.sangcomz.fishbun.adapter.view.AlbumListAdapter;
-import com.sangcomz.fishbun.adapter.view.AlbumListItemSelectListener;
+import com.sangcomz.fishbun.adapter.AlbumListAdapter;
+import com.sangcomz.fishbun.adapter.AlbumListItemSelectListener;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.util.DisplayAlbum;
 import com.sangcomz.fishbun.util.UiUtil;

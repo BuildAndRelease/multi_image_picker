@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
-import com.sangcomz.fishbun.adapter.image.ImageAdapter
+import com.sangcomz.fishbun.adapter.GlideAdapter
 import java.lang.ref.WeakReference
 
 class FishBun private constructor(activity: Activity?, fragment: Fragment?) {
@@ -14,7 +14,7 @@ class FishBun private constructor(activity: Activity?, fragment: Fragment?) {
 
     val fishBunContext: FishBunContext get() = FishBunContext()
 
-    fun setImageAdapter(imageAdapter: ImageAdapter): FishBunCreator {
+    fun setImageAdapter(imageAdapter: GlideAdapter): FishBunCreator {
         val fishton = Fishton.getInstance().apply {
             refresh()
             this.imageAdapter = imageAdapter

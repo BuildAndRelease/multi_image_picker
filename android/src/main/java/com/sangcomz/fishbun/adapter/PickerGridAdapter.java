@@ -1,4 +1,4 @@
-package com.sangcomz.fishbun.adapter.view;
+package com.sangcomz.fishbun.adapter;
 
 import android.content.Context;
 import android.graphics.Color;

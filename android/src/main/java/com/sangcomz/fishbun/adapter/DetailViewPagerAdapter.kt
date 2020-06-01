@@ -1,4 +1,4 @@
-package com.sangcomz.fishbun.adapter.view
+package com.sangcomz.fishbun.adapter
 
 import android.view.LayoutInflater
 import android.view.View

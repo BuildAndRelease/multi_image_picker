@@ -39,7 +39,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     let settings: BSImagePickerSettings
     private var assetStore: AssetStore
-    private var firstLoad : Bool = true
+    private var needScrollToBottom : Bool = true
     
     private var photosDataSource: PhotoCollectionViewDataSource?
     private var albumsDataSource: AlbumTableViewDataSource
@@ -134,10 +134,10 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     }
     
     override func viewDidLayoutSubviews() {
-        if firstLoad {
+        if needScrollToBottom {
             let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
             collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: true)
-            firstLoad = false
+            needScrollToBottom = false
         }
         super.viewDidLayoutSubviews()
     }
@@ -159,10 +159,10 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
             self.navigationController?.toolbar.addSubview(bottomContentView)
         }
-        if firstLoad {
+        if needScrollToBottom {
             let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
             collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: true)
-            firstLoad = false
+            needScrollToBottom = false
         }
     }
     
@@ -278,6 +278,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             NSSortDescriptor(key: "creationDate", ascending: true)
         ]
         let fetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
+        needScrollToBottom = true
         photosDataSource = PhotoCollectionViewDataSource(fetchResult: fetchResult, assetStore: assetStore, settings: settings)
         photosDataSource?.delegate = self
         collectionView?.dataSource = photosDataSource

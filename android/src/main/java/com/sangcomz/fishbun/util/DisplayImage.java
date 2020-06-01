@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
+
     public interface DisplayImageListener {
         void OnDisplayImageDidSelectFinish(ArrayList medias);
     }
@@ -29,6 +30,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     private int pageSize = -1;
     private int pageNum = -1;
     private boolean requestHashMap = false;
+    private boolean isInvertedPhotos = false;
 
     public void setPageNum(int pageNum) {
         this.pageNum = pageNum;
@@ -41,6 +43,9 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     }
     public void setListener(DisplayImageListener listener) {
         this.listener = listener;
+    }
+    public void setInvertedPhotos(boolean invertedPhotos) {
+        isInvertedPhotos = invertedPhotos;
     }
 
     public DisplayImage(Long bucketId, List<MimeType> exceptMimeType, Context context) {
@@ -87,7 +92,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     @NonNull
     private ArrayList getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList) {
         String bucketId = String.valueOf(id);
-        String sort = MediaStore.Files.FileColumns._ID + " DESC ";
+        String sort = isInvertedPhotos ? MediaStore.Files.FileColumns._ID + " ASC " : MediaStore.Files.FileColumns._ID + " DESC ";
         if (pageNum > 0 && pageSize > 0) {
             sort = sort + " LIMIT " + pageSize + " OFFSET " + (pageNum - 1) * pageSize;
         }

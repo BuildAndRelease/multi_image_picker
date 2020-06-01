@@ -223,6 +223,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
         fishton.setPickerMedias(result);
         PickerGridAdapter adapter = new PickerGridAdapter(pickerController);
         recyclerView.setAdapter(adapter);
+        recyclerView.scrollToPosition(adapter.getItemCount()-1);
         updateSendBtnTitle();
         if (fishton.getPreSelectedMedias().size() > 0) {
             Intent i = new Intent(this, DetailActivity.class);

@@ -41,6 +41,7 @@ public class PickerController implements DisplayImage.DisplayImageListener {
 
     void displayImage(Long bucketId, List<MimeType> exceptMimeType) {
         DisplayImage displayImage = new DisplayImage(bucketId, exceptMimeType, pickerActivity);
+        displayImage.setInvertedPhotos(true);
         displayImage.setListener(this);
         displayImage.execute();
     }

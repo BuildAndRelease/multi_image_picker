@@ -92,10 +92,11 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
             } else {
                 cell.selectionString = String(index+1)
             }
-            
             cell.photoSelected = true
+            cell.photoDisable = false
         } else {
             cell.photoSelected = false
+            cell.photoDisable = assetStore.assets.count >= (settings?.maxNumberOfSelections ?? 0)
         }
         
         cell.isAccessibilityElement = true

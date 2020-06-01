@@ -132,20 +132,11 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         }
     }
     
-//    override func viewDidLayoutSubviews() {
-//        super.viewDidLayoutSubviews()
-//        if firstLoad {
-//            let item = self.collectionView(self.collectionView, numberOfItemsInSection: 0) - 1
-//            let lastItemIndex = NSIndexPath(item: item, section: 0)
-//            self.collectionView.scrollToItem(at: lastItemIndex as IndexPath, at: .top, animated: true)
-//            firstLoad = false
-//        }
-//    }
-    
     // MARK: Appear/Disappear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateDoneButton()
+        collectionView.reloadData()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -292,9 +283,13 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                 guard index != NSNotFound else { return nil }
                 return IndexPath(item: index, section: 0)
             })
-            UIView.setAnimationsEnabled(false)
-            collectionView.reloadItems(at: selectedIndexPaths)
-            UIView.setAnimationsEnabled(true)
+            if (assetStore.count == settings.maxNumberOfSelections - 1) {
+                collectionView.reloadData()
+            }else {
+                UIView.setAnimationsEnabled(false)
+                collectionView.reloadItems(at: selectedIndexPaths)
+                UIView.setAnimationsEnabled(true)
+            }
             cell.photoSelected = false
             deselectionClosure?(asset)
         } else if assetStore.count < settings.maxNumberOfSelections {
@@ -315,6 +310,9 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                 cell.photoSelected = true
                 updateDoneButton()
                 selectionClosure?(asset)
+                if (assetStore.count >= settings.maxNumberOfSelections) {
+                    collectionView.reloadData()
+                }
             }
         } else if assetStore.count >= settings.maxNumberOfSelections {
             selectLimitReachedClosure?(assetStore.count)

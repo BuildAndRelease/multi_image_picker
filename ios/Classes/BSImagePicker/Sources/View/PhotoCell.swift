@@ -34,6 +34,7 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
     
     weak var delegate : PhotoCellDelegate?
     let imageView: UIImageView = UIImageView(frame: .zero)
+    private let disableOverlayView : UIView = UIView(frame: .zero)
     private let selectionOverlayView: UIView = UIView(frame: .zero)
     private let selectionView: SelectionView = SelectionView(frame: .zero)
     private let videoLabelContentView : UIView = UIView(frame: .zero)
@@ -76,14 +77,10 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
             let hasChanged = photoSelected != oldValue
             if UIView.areAnimationsEnabled && hasChanged {
                 UIView.animate(withDuration: TimeInterval(0.1), animations: { () -> Void in
-                    // Set alpha for views
                     self.updateAlpha(self.photoSelected)
-
-                    // Scale all views down a little
                     self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
                     }, completion: { (finished: Bool) -> Void in
                         UIView.animate(withDuration: TimeInterval(0.1), animations: { () -> Void in
-                            // And then scale them back upp again to give a bounce effect
                             self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
                             }, completion: nil)
                 })
@@ -93,6 +90,13 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
             selectionView.selected = photoSelected
         }
     }
+    
+    var photoDisable: Bool = false {
+        didSet {
+            self.disableOverlayView.alpha = photoDisable ? 0.5 : 0.0
+        }
+    }
+    
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -101,6 +105,10 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        disableOverlayView.backgroundColor = UIColor.white
+        disableOverlayView.translatesAutoresizingMaskIntoConstraints = false;
+        disableOverlayView.alpha = 0.0
         
         selectionOverlayView.backgroundColor = UIColor.darkGray
         selectionOverlayView.translatesAutoresizingMaskIntoConstraints = false
@@ -132,6 +140,7 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         contentView.addSubview(selectionOverlayView)
         contentView.addSubview(selectionView)
         contentView.addSubview(videoLabelContentView)
+        contentView.addSubview(disableOverlayView)
         videoLabelContentView.addSubview(videoLabelImageView)
         videoLabelContentView.addSubview(videoDurationLabel)
 
@@ -141,6 +150,11 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         NSLayoutConstraint(item: imageView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: 0),
         NSLayoutConstraint(item: imageView, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 0),
         NSLayoutConstraint(item: imageView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 0),
+        
+        NSLayoutConstraint(item: disableOverlayView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: disableOverlayView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: disableOverlayView, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: disableOverlayView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 0),
         
         NSLayoutConstraint(item: selectionOverlayView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 0),
         NSLayoutConstraint(item: selectionOverlayView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: 0),

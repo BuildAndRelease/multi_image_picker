@@ -158,10 +158,8 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)
             originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
             self.navigationController?.toolbar.addSubview(bottomContentView)
-        }
-        if needScrollToBottom {
             let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: false)
+            collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: true)
             needScrollToBottom = false
         }
     }

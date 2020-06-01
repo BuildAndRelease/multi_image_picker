@@ -39,6 +39,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     let settings: BSImagePickerSettings
     private var assetStore: AssetStore
+    private var firstLoad : Bool = true
     
     private var photosDataSource: PhotoCollectionViewDataSource?
     private var albumsDataSource: AlbumTableViewDataSource
@@ -132,6 +133,15 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         }
     }
     
+    override func viewDidLayoutSubviews() {
+        if firstLoad {
+            let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
+            collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: true)
+            firstLoad = false
+        }
+        super.viewDidLayoutSubviews()
+    }
+    
     // MARK: Appear/Disappear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -148,6 +158,11 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)
             originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
             self.navigationController?.toolbar.addSubview(bottomContentView)
+        }
+        if firstLoad {
+            let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
+            collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: true)
+            firstLoad = false
         }
     }
     
@@ -260,7 +275,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     func initializePhotosDataSource(_ album: PHAssetCollection) {
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [
-            NSSortDescriptor(key: "creationDate", ascending: false)
+            NSSortDescriptor(key: "creationDate", ascending: true)
         ]
         let fetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
         photosDataSource = PhotoCollectionViewDataSource(fetchResult: fetchResult, assetStore: assetStore, settings: settings)

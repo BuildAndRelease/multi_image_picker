@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.multi_image_picker.R
 import com.sangcomz.fishbun.Fishton
 import com.sangcomz.fishbun.bean.Album
+import com.sangcomz.fishbun.util.getDimension
 import kotlinx.android.synthetic.main.album_item.view.*
 
 interface AlbumListItemSelectListener {
@@ -15,7 +16,6 @@ interface AlbumListItemSelectListener {
 }
 
 class AlbumListAdapter : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
-
     private val fishton = Fishton.getInstance()
     var itemSelectListener : AlbumListItemSelectListener? = null
 
@@ -29,7 +29,7 @@ class AlbumListAdapter : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(parent, fishton.albumThumbnailSize)
+        return ViewHolder(parent, parent.context.getDimension(R.dimen.album_thum_size))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

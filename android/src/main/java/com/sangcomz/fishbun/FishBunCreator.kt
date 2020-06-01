@@ -2,10 +2,9 @@ package com.sangcomz.fishbun
 
 import android.content.Intent
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import com.sangcomz.fishbun.bean.Album
 import com.sangcomz.fishbun.bean.Media
-import com.sangcomz.fishbun.define.Define
+import com.sangcomz.fishbun.util.Define
 import com.sangcomz.fishbun.ui.picker.PickerActivity
 
 /**
@@ -20,14 +19,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
 
     override fun setSelectedMedias(selectedMedias: ArrayList<Media>): FishBunCreator = this.apply {
         fishton.selectedMedias = selectedMedias
-    }
-
-    override fun setAlbumThumbnailSize(size: Int): FishBunCreator = apply {
-        fishton.albumThumbnailSize = size
-    }
-
-    override fun setPickerSpanCount(spanCount: Int): FishBunCreator = this.apply {
-        fishton.photoSpanCount = if (spanCount <= 0) 3 else spanCount
     }
 
     override fun setMaxHeight(maxHeigth: Int): FishBunCreator = this.apply {
@@ -50,30 +41,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.minCount = if (count <= 0) 1 else count
     }
 
-    override fun setActionBarTitleColor(actionbarTitleColor: Int): FishBunCreator = this.apply {
-        fishton.colorActionBarTitle = actionbarTitleColor
-    }
-
-    override fun setActionBarColor(actionbarColor: Int): FishBunCreator = this.apply {
-        fishton.colorActionBar = actionbarColor
-    }
-
-    override fun setActionBarColor(actionbarColor: Int, statusBarColor: Int): FishBunCreator =
-        this.apply {
-            fishton.colorActionBar = actionbarColor
-            fishton.colorStatusBar = statusBarColor
-        }
-
-    override fun setActionBarColor(
-        actionbarColor: Int,
-        statusBarColor: Int,
-        isStatusBarLight: Boolean
-    ): FishBunCreator = this.apply {
-        fishton.colorActionBar = actionbarColor
-        fishton.colorStatusBar = statusBarColor
-        fishton.isStatusBarLight = isStatusBarLight
-    }
-
     override fun setRequestCode(requestCode: Int): FishBunCreator = this.apply {
         this.requestCode = requestCode
     }
@@ -84,27 +51,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
 
     override fun textOnImagesSelectionLimitReached(message: String?): FishBunCreator = this.apply {
         fishton.messageLimitReached = message
-    }
-
-    override fun setButtonInAlbumActivity(isButton: Boolean): FishBunCreator = this.apply {
-        fishton.isButton = isButton
-    }
-
-    override fun setAlbumSpanCount(
-        portraitSpanCount: Int,
-        landscapeSpanCount: Int
-    ): FishBunCreator = this.apply {
-        fishton.albumPortraitSpanCount = portraitSpanCount
-        fishton.albumLandscapeSpanCount = landscapeSpanCount
-    }
-
-    override fun setAlbumSpanCountOnlyLandscape(landscapeSpanCount: Int): FishBunCreator =
-        this.apply {
-            fishton.albumLandscapeSpanCount = landscapeSpanCount
-        }
-
-    override fun setAlbumSpanCountOnlPortrait(portraitSpanCount: Int): FishBunCreator = this.apply {
-        fishton.albumPortraitSpanCount = portraitSpanCount
     }
 
     override fun setAllViewTitle(allViewTitle: String?): FishBunCreator = this.apply {
@@ -127,32 +73,12 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.drawableAllDoneButton = icon
     }
 
-    override fun setIsUseAllDoneButton(isUse: Boolean): FishBunCreator = this.apply {
-        fishton.isUseAllDoneButton = isUse
-    }
-
     override fun exceptMimeType(exceptMimeTypeList: List<MimeType>) = this.apply {
         fishton.exceptMimeTypeList = exceptMimeTypeList
     }
 
-    override fun setMenuDoneText(text: String?): FishBunCreator = this.apply {
-        fishton.strDoneMenu = text
-    }
-
-    override fun setMenuAllDoneText(text: String?): FishBunCreator = this.apply {
-        fishton.strAllDoneMenu = text
-    }
-
-    override fun setMenuTextColor(color: Int): FishBunCreator = this.apply {
-        fishton.colorTextMenu = color
-    }
-
     override fun setSelectCircleStrokeColor(strokeColor: Int): FishBunCreator = this.apply {
         fishton.colorSelectCircleStroke = strokeColor
-    }
-
-    override fun setSpecifyFolderList(specifyFolderList: List<String>) = this.apply {
-        fishton.specifyFolderList = specifyFolderList
     }
 
     override fun startAlbum() {
@@ -163,8 +89,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
 
         with(fishton) {
             setDefaultMessage(context)
-            setMenuTextColor()
-            setDefaultDimen(context)
         }
 
         val intent: Intent = Intent(context, PickerActivity::class.java).apply {

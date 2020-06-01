@@ -61,4 +61,13 @@
         android:background="#000000"
         android:alpha="0"
         android:id="@+id/conver_view"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:alpha="0.5"
+        android:visibility="invisible"
+        android:id="@+id/ban_cover_view" />
+
 </com.sangcomz.fishbun.util.SquareFrameLayout>

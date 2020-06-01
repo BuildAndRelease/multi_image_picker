@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Media;
-import com.sangcomz.fishbun.ext.MimeTypeExt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +24,6 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     private Long bucketId;
     private ContentResolver resolver;
     private List<MimeType> exceptMimeType;
-    private List<String> specifyFolderList;
     private DisplayImageListener listener;
     private Context context;
     private int pageSize = -1;
@@ -35,30 +33,26 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     public void setPageNum(int pageNum) {
         this.pageNum = pageNum;
     }
-
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
-
     public void setRequestHashMap(boolean requestHashMap) {
         this.requestHashMap = requestHashMap;
     }
-
-    public DisplayImage(Long bucketId, List<MimeType> exceptMimeType, List<String> specifyFolderList, Context context) {
-        this.bucketId = bucketId;
-        this.exceptMimeType = exceptMimeType;
-        this.specifyFolderList = specifyFolderList;
-        this.resolver = context.getContentResolver();
-        this.context = context;
-    }
-
     public void setListener(DisplayImageListener listener) {
         this.listener = listener;
     }
 
+    public DisplayImage(Long bucketId, List<MimeType> exceptMimeType, Context context) {
+        this.bucketId = bucketId;
+        this.exceptMimeType = exceptMimeType;
+        this.resolver = context.getContentResolver();
+        this.context = context;
+    }
+
     @Override
     protected ArrayList doInBackground(Void... params) {
-        ArrayList<Media> medias = getAllMediaThumbnailsPath(bucketId, exceptMimeType, specifyFolderList);
+        ArrayList<Media> medias = getAllMediaThumbnailsPath(bucketId, exceptMimeType);
         if (requestHashMap) {
             ArrayList<HashMap> result = new ArrayList<>();
             for (Media media : medias) {
@@ -91,7 +85,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     }
 
     @NonNull
-    private ArrayList getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList, List<String> specifyFolderList) {
+    private ArrayList getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList) {
         String bucketId = String.valueOf(id);
         String sort = MediaStore.Files.FileColumns._ID + " DESC ";
         if (pageNum > 0 && pageSize > 0) {
@@ -121,7 +115,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                         Media media = new Media();
                         String mimeType = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE));
                         String buckName = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME));
-                        if (isExceptMemeType(exceptMimeTypeList, mimeType) || isNotContainsSpecifyFolderList(specifyFolderList, buckName)) continue;
+                        if (isExceptMemeType(exceptMimeTypeList, mimeType)) continue;
                         String originPath = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DATA));
                         String originName = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME));
                         String originWidth = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.WIDTH));
@@ -172,10 +166,5 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                 return true;
         }
         return false;
-    }
-
-    private boolean isNotContainsSpecifyFolderList(List<String> specifyFolderList, String displayBundleName) {
-        if (specifyFolderList.isEmpty()) return false;
-        return !specifyFolderList.contains(displayBundleName);
     }
 }

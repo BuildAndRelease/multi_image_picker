@@ -27,21 +27,6 @@ class Fishton {
     var preSelectedMedias = ArrayList<String>()
     var isThumb : Boolean = true;
 
-    var specifyFolderList = emptyList<String>()
-    var photoSpanCount: Int = 0
-    var albumPortraitSpanCount: Int = 0
-    var albumLandscapeSpanCount: Int = 0
-
-    var isButton: Boolean = false
-
-    var colorActionBar: Int = 0
-    var colorActionBarTitle: Int = 0
-    var colorStatusBar: Int = 0
-
-    var isStatusBarLight: Boolean = false
-
-    var albumThumbnailSize: Int = 0
-
     var messageNothingSelected: String? = null
     var messageLimitReached: String? = null
     var titleAlbumAllView: String? = null
@@ -52,12 +37,6 @@ class Fishton {
     var drawableThumbButton: Drawable? = null
     var drawableOriginButton: Drawable? = null
     var drawableAllDoneButton: Drawable? = null
-    var isUseAllDoneButton: Boolean = false
-
-    var strDoneMenu: String? = null
-    var strAllDoneMenu: String? = null
-
-    var colorTextMenu: Int = 0
 
     var colorSelectCircleStroke: Int = 0
     var colorDeSelectCircleStroke: Int = 0
@@ -69,7 +48,6 @@ class Fishton {
     fun refresh() = init()
 
     private fun init() {
-        //Adapter
         imageAdapter = null
 
         //BaseParams
@@ -80,21 +58,6 @@ class Fishton {
         selectedMedias = ArrayList()
         preSelectedMedias = ArrayList()
 
-        //CustomizationParams
-        specifyFolderList = emptyList()
-        photoSpanCount = 4
-        albumPortraitSpanCount = 1
-        albumLandscapeSpanCount = 2
-
-        isButton = false
-
-        colorActionBar = Color.parseColor("#2E2E2E")
-        colorActionBarTitle = Color.parseColor("#FFFFFF")
-        colorStatusBar = Color.parseColor("#2E2E2E")
-
-        isStatusBarLight = false
-
-        albumThumbnailSize = Integer.MAX_VALUE
 
         drawableHomeAsUpIndicator = null
         drawableDoneButton = null
@@ -102,48 +65,15 @@ class Fishton {
         drawableOriginButton = null
         drawableThumbButton = null
 
-        strDoneMenu = null
-        strAllDoneMenu = null
-
-        colorTextMenu = Integer.MAX_VALUE
-
-        isUseAllDoneButton = false
-
         colorSelectCircleStroke = Color.parseColor("#00BA5A")
         colorDeSelectCircleStroke = Color.parseColor("#FFFFFF")
     }
 
     fun setDefaultMessage(context: Context) {
-        messageNothingSelected =
-            messageNothingSelected ?: context.getString(R.string.msg_no_selected)
-
-        messageLimitReached =
-            messageLimitReached ?: context.getString(R.string.msg_full_image)
-
-        titleAlbumAllView =
-            titleAlbumAllView ?: context.getString(R.string.str_all_view)
-
-        titleActionBar =
-            titleActionBar ?: context.getString(R.string.album)
-    }
-
-    fun setMenuTextColor() {
-        if (drawableDoneButton != null
-            || drawableAllDoneButton != null
-            || strDoneMenu == null
-            || colorTextMenu != Integer.MAX_VALUE)
-            return
-
-        colorTextMenu = if (isStatusBarLight) Color.BLACK else colorTextMenu
-    }
-
-    fun setDefaultDimen(context: Context) {
-        albumThumbnailSize =
-            if (albumThumbnailSize == Int.MAX_VALUE) {
-                context.getDimension(R.dimen.album_thum_size)
-            } else {
-                albumThumbnailSize
-            }
+        messageNothingSelected = messageNothingSelected ?: context.getString(R.string.msg_no_selected)
+        messageLimitReached = messageLimitReached ?: context.getString(R.string.msg_full_image)
+        titleAlbumAllView = titleAlbumAllView ?: context.getString(R.string.str_all_view)
+        titleActionBar = titleActionBar ?: context.getString(R.string.album)
     }
 
     fun mediaIndexOfFirstPreSelectMedia(): Int {

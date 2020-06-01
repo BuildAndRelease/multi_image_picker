@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class Media implements Parcelable, Comparable<Media> {
 
@@ -235,6 +236,15 @@ public class Media implements Parcelable, Comparable<Media> {
 
     public void setMediaId(String mediaId) {
         this.mediaId = mediaId;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj instanceof Media) {
+            return mediaId.equals(((Media) obj).mediaId);
+        }else {
+            return false;
+        }
     }
 
     @Override

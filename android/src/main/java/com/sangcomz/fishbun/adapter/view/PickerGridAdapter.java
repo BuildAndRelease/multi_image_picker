@@ -1,20 +1,14 @@
 package com.sangcomz.fishbun.adapter.view;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.util.Log;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,9 +16,6 @@ import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.sangcomz.fishbun.Fishton;
 import com.sangcomz.fishbun.bean.Media;
-import com.sangcomz.fishbun.define.Define;
-import com.sangcomz.fishbun.ui.detail.DetailActivity;
-import com.sangcomz.fishbun.ui.picker.PickerActivity;
 import com.sangcomz.fishbun.ui.picker.PickerController;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 
@@ -34,8 +25,6 @@ import java.util.ArrayList;
 public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Fishton fishton;
     private PickerController pickerController;
-    private OnPhotoActionListener actionListener;
-
     public PickerGridAdapter(PickerController pickerController) {
         this.pickerController = pickerController;
         this.fishton = Fishton.getInstance();
@@ -48,16 +37,27 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     @Override
+    public int getItemCount() {
+        return fishton.getPickerMedias() == null ? 0 : fishton.getPickerMedias().size();
+    }
+
+    @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final int imagePos = position;
         final ViewHolderImage vh = (ViewHolderImage) holder;
         final Media media = fishton.getPickerMedias().get(imagePos);
-        final Context context = vh.item.getContext();
         vh.item.setTag(media);
         vh.btnThumbCount.unselect();
         vh.btnThumbCount.setCircleColor(fishton.getColorSelectCircleStroke());
-        vh.btnThumbCount.setTextColor(fishton.getColorActionBarTitle());
+        vh.btnThumbCount.setTextColor(Color.WHITE);
         vh.btnThumbCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
+
+        if (fishton.getSelectedMedias().size() >= fishton.getMaxCount() && !fishton.getSelectedMedias().contains(media)) {
+            vh.banCoverView.setVisibility(View.VISIBLE);
+        }else {
+            vh.banCoverView.setVisibility(View.INVISIBLE);
+        }
+
         if (media.getFileType().equals("video")) {
             vh.videoInfoContentView.setVisibility(View.VISIBLE);
             try {
@@ -70,103 +70,51 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             vh.videoInfoContentView.setVisibility(View.INVISIBLE);
         }
 
-        initState(fishton.getSelectedMedias().indexOf(media), vh);
-        if (media != null && vh.imgThumbImage != null && Fishton.getInstance().getImageAdapter() != null)
+        int selectedIndex = fishton.getSelectedMedias().indexOf(media);
+        if (selectedIndex != -1) {
+            vh.btnThumbCount.setText(String.valueOf(selectedIndex + 1));
+            vh.coverView.setAlpha(0.3f);
+        }
+        if (media != null && vh.imgThumbImage != null && Fishton.getInstance().getImageAdapter() != null) {
             Fishton.getInstance().getImageAdapter().loadImage(vh.imgThumbImage, media);
+        }
 
         vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60) {
-                    Toast.makeText(vh.item.getContext(), "视屏长度不能超过60秒", Toast.LENGTH_SHORT).show();
-                    return;
+                    Snackbar.make(vh.item, "视屏长度不能超过60秒", Snackbar.LENGTH_SHORT).show();
+                }else {
+                    ArrayList<Media> pickedImages = fishton.getSelectedMedias();
+                    boolean isContained = pickedImages.contains(media);
+                    if (fishton.getMaxCount() == pickedImages.size() && !isContained) {
+                        Snackbar.make(vh.item, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
+                    }else {
+                        RadioWithTextButton btnThumbCount = vh.item.findViewById(R.id.btn_thumb_count);
+                        View coverView = vh.item.findViewById(R.id.conver_view);
+                        if (isContained) {
+                            pickedImages.remove(media);
+                            btnThumbCount.unselect();
+                            ViewCompat.animate(coverView).setDuration(100).alpha(0.0f);
+                        } else {
+                            pickedImages.add(media);
+                            btnThumbCount.setText(String.valueOf(pickedImages.size()));
+                            ViewCompat.animate(coverView).setDuration(100).alpha(0.3f);
+                        }
+                        pickerController.onSelectCountDidChange();
+                        if (pickedImages.size() >= fishton.getMaxCount() || pickedImages.size() == (fishton.getMaxCount() - 1)) {
+                            notifyDataSetChanged();
+                        }
+                    }
                 }
-                onCheckStateChange(vh.item, media);
             }
         });
         vh.imgThumbImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (context instanceof PickerActivity) {
-                    PickerActivity activity = (PickerActivity) context;
-                    Intent i = new Intent(activity, DetailActivity.class);
-                    i.putExtra(Define.BUNDLE_NAME.POSITION.name(), imagePos);
-                    activity.startActivityForResult(i, new Define().ENTER_DETAIL_REQUEST_CODE);
-                }
+                pickerController.onSelectItem(imagePos);
             }
         });
-    }
-
-    private void initState(int selectedIndex, ViewHolderImage vh) {
-        if (selectedIndex != -1) {
-            updateRadioButton(vh.btnThumbCount, String.valueOf(selectedIndex + 1));
-            animScale(vh.coverView, false);
-        }
-    }
-
-    private void onCheckStateChange(View v, Media media) {
-        ArrayList<Media> pickedImages = fishton.getSelectedMedias();
-
-        boolean isContained = pickedImages.contains(media);
-        if (fishton.getMaxCount() == pickedImages.size() && !isContained) {
-            Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-        RadioWithTextButton btnThumbCount = v.findViewById(R.id.btn_thumb_count);
-        View coverView = v.findViewById(R.id.conver_view);
-        if (isContained) {
-            pickedImages.remove(media);
-            btnThumbCount.unselect();
-            animScale(coverView, true);
-        } else {
-            pickedImages.add(media);
-            updateRadioButton(btnThumbCount, String.valueOf(pickedImages.size()));
-            animScale(coverView, false);
-        }
-        pickerController.setToolbarTitle(pickedImages.size());
-    }
-
-    public void updateRadioButton(RadioWithTextButton v, String text) {
-        if (fishton.getMaxCount() == 1)
-            v.setDrawable(ContextCompat.getDrawable(v.getContext(), R.drawable.ic_done_white_24dp));
-        else
-            v.setText(text);
-    }
-
-    public void updateRadioButton(ImageView imageView, RadioWithTextButton v, String text, boolean isSelected) {
-        if (isSelected) {
-            if (fishton.getMaxCount() == 1)
-                v.setDrawable(ContextCompat.getDrawable(v.getContext(), R.drawable.ic_done_white_24dp));
-            else
-                v.setText(text);
-        } else {
-            v.unselect();
-        }
-    }
-
-    private void animScale(final View view, final boolean callBack) {
-        final int duration = 100;
-        ViewCompat.animate(view).setDuration(duration).alpha((callBack ? 0.0f : 0.3f)).withEndAction(new Runnable() {
-            @Override
-            public void run() {
-                if (callBack) {
-                    actionListener.onDeselect();
-                }
-            }
-        });
-    }
-
-    @Override
-    public int getItemCount() {
-        return fishton.getPickerMedias() == null ? 0 : fishton.getPickerMedias().size();
-    }
-
-    public void setActionListener(OnPhotoActionListener actionListener) {
-        this.actionListener = actionListener;
-    }
-
-    public interface OnPhotoActionListener {
-        void onDeselect();
     }
 
     public class ViewHolderImage extends RecyclerView.ViewHolder {
@@ -174,6 +122,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         ImageView imgThumbImage;
         RadioWithTextButton btnThumbCount;
         View coverView;
+        View banCoverView;
         LinearLayout videoInfoContentView;
         TextView videoInfoDurationTextView;
 
@@ -183,6 +132,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             imgThumbImage = view.findViewById(R.id.img_thumb_image);
             btnThumbCount = view.findViewById(R.id.btn_thumb_count);
             coverView = view.findViewById(R.id.conver_view);
+            banCoverView = view.findViewById(R.id.ban_cover_view);
             videoInfoContentView = view.findViewById(R.id.video_thumb_info_view);
             videoInfoDurationTextView = view.findViewById(R.id.video_thumb_duration_info_view);
         }

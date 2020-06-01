@@ -1,8 +1,8 @@
 package com.sangcomz.fishbun.ui.detail;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,15 +15,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
-import com.sangcomz.fishbun.BaseActivity;
+import com.sangcomz.fishbun.Fishton;
 import com.sangcomz.fishbun.adapter.view.DetailViewPagerAdapter;
 import com.sangcomz.fishbun.bean.Media;
-import com.sangcomz.fishbun.define.Define;
+import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 
@@ -32,12 +33,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
-public class DetailActivity extends BaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, DetailViewPagerAdapter.OnVideoPlayActionListener, MediaCompress.MediaCompressListener {
+public class DetailActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, DetailViewPagerAdapter.OnVideoPlayActionListener, MediaCompress.MediaCompressListener {
     private static final String TAG = "DetailActivity";
 
     private int initPosition;
+    private Fishton fishton;
     private RadioWithTextButton btnDetailCount;
     private ViewPager vpDetailPager;
     private Button btnDetailBack;
@@ -62,6 +63,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
     private void initValue() {
         Intent intent = getIntent();
         initPosition = intent.getIntExtra(Define.BUNDLE_NAME.POSITION.name(), -1);
+        fishton = Fishton.getInstance();
     }
 
     private void initView() {
@@ -73,7 +75,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         compressingView = findViewById(R.id.compressing_content_view);
         compressingTextView = findViewById(R.id.compressing_text_view);
         btnDetailCount.unselect();
-        btnDetailCount.setTextColor(fishton.getColorActionBarTitle());
+        btnDetailCount.setTextColor(Color.WHITE);
         btnDetailCount.setCircleColor(fishton.getColorSelectCircleStroke());
         btnDetailCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
         btnDetailCount.setOnClickListener(this);
@@ -235,7 +237,7 @@ public class DetailActivity extends BaseActivity implements View.OnClickListener
         compressingView.setVisibility(View.INVISIBLE);
         Intent i = new Intent();
         i.putExtra(Define.INTENT_RESULT, result);
-        setResult(define.FINISH_DETAIL_REQUEST_CODE, i);
+        setResult(Define.FINISH_DETAIL_REQUEST_CODE, i);
         finish();
     }
 }

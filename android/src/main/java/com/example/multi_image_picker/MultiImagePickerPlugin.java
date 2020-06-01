@@ -3,47 +3,26 @@ package com.example.multi_image_picker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.media.ThumbnailUtils;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.provider.MediaStore;
 
-import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
-import androidx.exifinterface.media.ExifInterface;
 
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter;
 import com.sangcomz.fishbun.bean.Media;
-import com.sangcomz.fishbun.define.Define;
-import com.sangcomz.fishbun.permission.PermissionCheck;
+import com.sangcomz.fishbun.util.Define;
+import com.sangcomz.fishbun.util.PermissionCheck;
 import com.sangcomz.fishbun.util.DisplayImage;
 import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.MediaThumbData;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -131,7 +110,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         mimeTypeList.add(MimeType.WEBP);
                         int pageNum = call.argument(PAGE_NUM);
                         int pageSize = call.argument(PAGE_SIZE);
-                        DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, new ArrayList(), activity);
+                        DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, activity);
                         displayImage.setRequestHashMap(true);
                         displayImage.setPageNum(pageNum);
                         displayImage.setPageSize(pageSize);
@@ -183,11 +162,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     }
 
     private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, ArrayList<String> selectMedias, HashMap<String, String> options) {
-        String actionBarColor = options.get("actionBarColor");
-        String statusBarColor = options.get("statusBarColor");
-        String lightStatusBar = options.get("lightStatusBar");
         String actionBarTitle = options.get("actionBarTitle");
-        String actionBarTitleColor = options.get("actionBarTitleColor");
         String allViewTitle =  options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
         String selectionLimitReachedText = options.get("selectionLimitReachedText");
@@ -222,20 +197,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             fishBun.setDoneButtonDrawable(ContextCompat.getDrawable(context, id));
         }
 
-        if (actionBarColor != null && !actionBarColor.isEmpty()) {
-            int color = Color.parseColor(actionBarColor);
-            if (statusBarColor != null && !statusBarColor.isEmpty()) {
-                int statusBarColorInt = Color.parseColor(statusBarColor);
-                if (lightStatusBar != null && !lightStatusBar.isEmpty()) {
-                    boolean lightStatusBarValue = lightStatusBar.equals("true");
-                    fishBun.setActionBarColor(color, statusBarColorInt, lightStatusBarValue);
-                } else {
-                    fishBun.setActionBarColor(color, statusBarColorInt);
-                }
-            } else {
-                fishBun.setActionBarColor(color);
-            }
-        }
 
         if (actionBarTitle != null && !actionBarTitle.isEmpty()) {
             fishBun.setActionBarTitle(actionBarTitle);
@@ -247,11 +208,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
 
         if (selectCircleStrokeColor != null && !selectCircleStrokeColor.isEmpty()) {
             fishBun.setSelectCircleStrokeColor(Color.parseColor(selectCircleStrokeColor));
-        }
-
-        if (actionBarTitleColor != null && !actionBarTitleColor.isEmpty()) {
-            int color = Color.parseColor(actionBarTitleColor);
-            fishBun.setActionBarTitleColor(color);
         }
 
         if (allViewTitle != null && !allViewTitle.isEmpty()) {

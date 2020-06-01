@@ -1,6 +1,6 @@
 @file:JvmName("MimeTypeExt")
 
-package com.sangcomz.fishbun.ext
+package com.sangcomz.fishbun.util
 
 import com.sangcomz.fishbun.MimeType
 

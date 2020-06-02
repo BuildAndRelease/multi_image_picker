@@ -47,8 +47,8 @@ class PreviewCollectionViewCell: UICollectionViewCell {
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(photoImageView)
         
-        playImageView.image = UIImage(named: "play_btn_unselect", in: Bundle(for: PhotosViewController.self), compatibleWith: nil)
-        playImageView.highlightedImage = UIImage(named: "play_btn_select", in: Bundle(for: PhotosViewController.self), compatibleWith: nil)
+        playImageView.image = UIImage(named: "play_btn_unselect")
+        playImageView.highlightedImage = UIImage(named: "play_btn_select")
         playImageView.contentMode = .scaleAspectFit
         playImageView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(playImageView)

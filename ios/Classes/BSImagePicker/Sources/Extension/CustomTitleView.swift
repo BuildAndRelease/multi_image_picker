@@ -37,7 +37,8 @@ class CustomTitleView: UIView {
 
         iconView.frame = CGRect(x: frame.size.width - iconWidth, y: 0, width: iconWidth, height: iconHeight)
         iconView.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
-        let image = UIImage(named: "arrow_down")
+
+        let image = UIImage(named: "arrow_down", in: Bundle(for: PhotosViewController.self), compatibleWith: nil)
         iconView.image = image
         iconView.contentMode = .center
         iconView.layer.masksToBounds = true

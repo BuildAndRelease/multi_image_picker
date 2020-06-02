@@ -127,7 +127,8 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         
         videoLabelImageView.clipsToBounds = true
         videoLabelImageView.contentMode = .scaleAspectFit
-        videoLabelImageView.image = UIImage(named: "video_btn")
+        let image = UIImage(named: "video_btn", in: Bundle(for: PhotosViewController.self), compatibleWith: nil)
+        videoLabelImageView.image = image
         videoLabelImageView.translatesAutoresizingMaskIntoConstraints = false
     
         videoDurationLabel.text = "00:20"

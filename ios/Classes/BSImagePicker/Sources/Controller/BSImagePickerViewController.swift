@@ -51,14 +51,6 @@ open class BSImagePickerViewController : UINavigationController {
         return [cameraRollResult, albumResult]
     }()
     
-    static var bundle: Bundle {
-        if let path = Bundle(for: PhotosViewController.self).path(forResource: "BSImagePicker", ofType: "bundle"), let b = Bundle(path: path) {
-            return b
-        } else {
-            return Bundle(for: PhotosViewController.self)
-        }
-    }
-    
     @objc lazy var photosViewController: PhotosViewController = {
         var selections: [PHAsset] = []
         defaultSelections?.enumerateObjects({ (asset, idx, stop) in

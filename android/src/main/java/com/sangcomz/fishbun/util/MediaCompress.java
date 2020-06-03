@@ -126,18 +126,12 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                 try {
                     float width = Float.parseFloat(media.getThumbnailWidth());
                     float height = Float.parseFloat(media.getThumbnailHeight());
-                    float scaleWidth = ((float) maxWidth / width);
-                    float scaleHeight = ((float) maxHeight / height);
-                    float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
-                    int outWidth = (int) (width * scale);
-                    int outHeight = (int) (height * scale);
-                    VideoProcessor.processor(context).input(Uri.parse(media.getIdentifier())).outHeight(outHeight).outWidth(outWidth).
-                            output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(128000).process();
+                    VideoProcessor.processor(context).input(Uri.parse(media.getIdentifier())).output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(2048000).process();
                     HashMap info = new HashMap();
                     info.put("identifier", media.getIdentifier());
                     info.put("filePath", tmpVideo.getAbsolutePath());
-                    info.put("width", (float)outWidth);
-                    info.put("height",(float)outHeight);
+                    info.put("width", width);
+                    info.put("height",height);
                     info.put("name", videoName);
                     info.put("fileType", "video");
                     info.put("thumbPath", media.getThumbnailPath());

@@ -73,7 +73,7 @@ extension PHAsset {
                         return
                     }
                     
-                    let exportSession = AVAssetExportSession(asset: avAsset!, presetName: AVAssetExportPresetMediumQuality)
+                    let exportSession = AVAssetExportSession(asset: avAsset!, presetName: AVAssetExportPreset960x540)
                     exportSession?.outputURL = URL(fileURLWithPath: videoPath)
                     exportSession?.shouldOptimizeForNetworkUse = true
                     exportSession?.outputFileType = .mp4

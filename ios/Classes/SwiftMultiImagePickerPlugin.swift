@@ -78,55 +78,61 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let pageNum = arguments["pageNum"] as! Int
             let pageSize = arguments["pageSize"] as! Int
-            if pageNum < 1 {
-                result(FlutterError(code: "PARAM ERROR", message: "pageNum must cannot be \(pageNum)", details: nil))
-                break
+            weak var weakSelf = self
+            DispatchQueue.global().async {
+                  if pageNum < 1 {
+                      result(FlutterError(code: "PARAM ERROR", message: "pageNum must cannot be \(pageNum)", details: nil))
+                      return
+                  }
+                  if pageSize < 1 {
+                      result(FlutterError(code: "PARAM ERROR", message: "pageSize must cannot be \(pageSize)", details: nil))
+                      return
+                  }
+                  let medias = NSMutableArray()
+                  let fetchOptions = PHFetchOptions()
+                  fetchOptions.sortDescriptors = [
+                      NSSortDescriptor(key: "creationDate", ascending: false)
+                  ]
+                  let assets = PHAsset.fetchAssets(with: fetchOptions)
+                
+                  for i in ((pageNum - 1) * pageSize) ..< (pageNum * pageSize) {
+                      let asset = assets.object(at: i)
+                      let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
+                      let dictionary = NSMutableDictionary()
+                      dictionary.setValue(asset.localIdentifier, forKey: "identifier")
+                      dictionary.setValue("", forKey: "filePath")
+                      dictionary.setValue(CGFloat(size.width), forKey: "width")
+                      dictionary.setValue(CGFloat(size.height), forKey: "height")
+                      dictionary.setValue(asset.originalFilename, forKey: "name")
+                      dictionary.setValue(asset.duration, forKey: "duration")
+                      if asset.mediaType == .video {
+                          dictionary.setValue("video", forKey: "fileType")
+                      }else if asset.mediaType == .image {
+                          dictionary.setValue("image", forKey: "fileType")
+                      }
+                      medias.add(dictionary)
+                  }
+                  result(medias)
             }
-            if pageSize < 1 {
-                result(FlutterError(code: "PARAM ERROR", message: "pageSize must cannot be \(pageSize)", details: nil))
-                break
-            }
-            let medias = NSMutableArray()
-            let fetchOptions = PHFetchOptions()
-            fetchOptions.sortDescriptors = [
-                NSSortDescriptor(key: "creationDate", ascending: false)
-            ]
-            let assets = PHAsset.fetchAssets(with: fetchOptions)
-          
-            for i in ((pageNum - 1) * pageSize) ..< (pageNum * pageSize) {
-                let asset = assets.object(at: i)
-                let size = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
-                let dictionary = NSMutableDictionary()
-                dictionary.setValue(asset.localIdentifier, forKey: "identifier")
-                dictionary.setValue("", forKey: "filePath")
-                dictionary.setValue(CGFloat(size.width), forKey: "width")
-                dictionary.setValue(CGFloat(size.height), forKey: "height")
-                dictionary.setValue(asset.originalFilename, forKey: "name")
-                dictionary.setValue(asset.duration, forKey: "duration")
-                if asset.mediaType == .video {
-                    dictionary.setValue("video", forKey: "fileType")
-                }else if asset.mediaType == .image {
-                    dictionary.setValue("image", forKey: "fileType")
-                }
-                medias.add(dictionary)
-            }
-            result(medias)
         case "fetchMediaThumbData":
-            let imageRequestOptions = PHImageRequestOptions()
-            imageRequestOptions.isNetworkAccessAllowed = false
-            imageRequestOptions.deliveryMode = .highQualityFormat
-            imageRequestOptions.resizeMode = .fast
-            imageRequestOptions.isSynchronous = false
-            let imageContentMode: PHImageContentMode = .aspectFill
-            
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let localIdentifier = arguments["identifier"] as! String
-            if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject {
-                PHCachingImageManager.default().requestImage(for: asset, targetSize: getThumbnailSize(originSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight))), contentMode: imageContentMode, options: imageRequestOptions) { (image, info) in
-                    result(image?.jpegData(compressionQuality: 1.0) ?? FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
+            weak var weakSelf = self
+            DispatchQueue.global().async {
+                let imageRequestOptions = PHImageRequestOptions()
+                imageRequestOptions.isNetworkAccessAllowed = false
+                imageRequestOptions.deliveryMode = .highQualityFormat
+                imageRequestOptions.resizeMode = .fast
+                imageRequestOptions.isSynchronous = false
+                let imageContentMode: PHImageContentMode = .aspectFill
+                
+                if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject {
+                    PHCachingImageManager.default().requestImage(for: asset, targetSize: weakSelf?.getThumbnailSize(originSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight))) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2), contentMode: imageContentMode, options: imageRequestOptions) { (image, info) in
+                        result(image?.jpegData(compressionQuality: 1.0) ?? FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
+                    }
+                }else {
+                    result(FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
                 }
-            }else {
-                result(FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
             }
         case "pickImages":
             let status: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()

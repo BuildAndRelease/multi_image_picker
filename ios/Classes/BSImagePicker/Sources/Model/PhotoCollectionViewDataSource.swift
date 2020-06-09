@@ -96,7 +96,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
             cell.photoDisable = false
         } else {
             cell.photoSelected = false
-            cell.photoDisable = assetStore.assets.count >= (settings?.maxNumberOfSelections ?? 0)
+            cell.photoDisable = !assetStore.canAppend()
         }
         
         cell.isAccessibilityElement = true

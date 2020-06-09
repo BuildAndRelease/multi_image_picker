@@ -42,9 +42,37 @@ class AssetStore {
         guard contains(asset) == false else { return }
         assets.append(asset)
     }
+    
+    func isContainVideo() -> Bool {
+        for asset in assets {
+            if asset.mediaType == .video {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func isContainPic() -> Bool {
+        for asset in assets {
+            if asset.mediaType == .image {
+                return true
+            }
+        }
+        return false
+    }
 
     func remove(_ asset: PHAsset) {
         guard let index = assets.firstIndex(of: asset) else { return }
         assets.remove(at: index)
+    }
+    
+    func canAppend() -> Bool {
+        if isContainVideo() {
+            return false
+        }else if assets.count >= 9 {
+            return false
+        }else {
+            return true
+        }
     }
 }

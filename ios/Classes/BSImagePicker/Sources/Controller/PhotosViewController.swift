@@ -290,14 +290,16 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         guard let asset = cell.asset else { return }
 
         if assetStore.contains(asset) {
+            let canSelectBefore = assetStore.canAppend()
             assetStore.remove(asset)
+            let canSelectAfter = assetStore.canAppend()
             updateDoneButton()
             let selectedIndexPaths = assetStore.assets.compactMap({ (asset) -> IndexPath? in
                 let index = photosDataSource.fetchResult.index(of: asset)
                 guard index != NSNotFound else { return nil }
                 return IndexPath(item: index, section: 0)
             })
-            if (assetStore.count == settings.maxNumberOfSelections - 1) {
+            if (canSelectBefore != canSelectAfter) {
                 collectionView.reloadData()
             }else {
                 UIView.setAnimationsEnabled(false)
@@ -306,16 +308,47 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             }
             cell.photoSelected = false
             deselectionClosure?(asset)
-        } else if assetStore.count < settings.maxNumberOfSelections {
-            if asset.mediaType == .video , asset.duration > 61 {
+        } else {
+            if assetStore.count >= settings.maxNumberOfSelections {
+                selectLimitReachedClosure?(assetStore.count)
+                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                hud.mode = MBProgressHUDMode.text
+                hud.bezelView.backgroundColor = UIColor.darkGray
+                hud.label.text = NSLocalizedString("选择的图片数量超过限制", comment: "")
+                hud.offset = CGPoint(x: 0, y: 0)
+                hud.hide(animated: true, afterDelay: 2.0)
+            }else if asset.mediaType == .video, assetStore.isContainPic() {
+                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                hud.mode = MBProgressHUDMode.text
+                hud.bezelView.backgroundColor = UIColor.darkGray
+                hud.label.text = NSLocalizedString("不能同时选择图片和视频", comment: "")
+                hud.offset = CGPoint(x: 0, y: 0)
+                hud.hide(animated: true, afterDelay: 2.0)
+            }else if asset.mediaType == .video, assetStore.count > 0 {
+                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                hud.mode = MBProgressHUDMode.text
+                hud.bezelView.backgroundColor = UIColor.darkGray
+                hud.label.text = NSLocalizedString("一次只能选择一个视频", comment: "")
+                hud.offset = CGPoint(x: 0, y: 0)
+                hud.hide(animated: true, afterDelay: 2.0)
+            }else if asset.mediaType == .video , asset.duration > 61 {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray
                 hud.label.text = NSLocalizedString("请选择60秒以下的视频", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
-            }else {
+            }else if asset.mediaType == .image, assetStore.isContainVideo() {
+                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                hud.mode = MBProgressHUDMode.text
+                hud.bezelView.backgroundColor = UIColor.darkGray
+                hud.label.text = NSLocalizedString("不能同时选择图片和视频", comment: "")
+                hud.offset = CGPoint(x: 0, y: 0)
+                hud.hide(animated: true, afterDelay: 2.0)
+            }else{
+                let canSelectBefore = assetStore.canAppend()
                 assetStore.append(asset)
+                let canSelectAfter = assetStore.canAppend()
                 if let selectionCharacter = settings.selectionCharacter {
                     cell.selectionString = String(selectionCharacter)
                 } else {
@@ -324,18 +357,10 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                 cell.photoSelected = true
                 updateDoneButton()
                 selectionClosure?(asset)
-                if (assetStore.count >= settings.maxNumberOfSelections) {
+                if (canSelectBefore != canSelectAfter) {
                     collectionView.reloadData()
                 }
             }
-        } else if assetStore.count >= settings.maxNumberOfSelections {
-            selectLimitReachedClosure?(assetStore.count)
-            let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-            hud.mode = MBProgressHUDMode.text
-            hud.bezelView.backgroundColor = UIColor.darkGray
-            hud.label.text = NSLocalizedString("选择的图片数量超过限制", comment: "")
-            hud.offset = CGPoint(x: 0, y: 0)
-            hud.hide(animated: true, afterDelay: 2.0)
         }
     }
 }
@@ -357,6 +382,24 @@ extension PhotosViewController {
         return (assetStore.assets.firstIndex(of: asset) ?? -1) + 1
     }
     
+    func previewViewControllerCanSelectImageItem(_ asset: PHAsset) -> NSError? {
+        if assetStore.contains(asset) {
+            return nil
+        }else if asset.mediaType == .video, assetStore.isContainPic() {
+            return NSError(domain: "不能同时选择图片和视频", code: 1, userInfo: nil)
+        }else if asset.mediaType == .video, assetStore.count > 0 {
+            return NSError(domain: "一次只能选择一个视频", code: 2, userInfo: nil)
+        }else if asset.mediaType == .video , asset.duration > 61 {
+            return NSError(domain: "请选择60秒以下的视频", code: 3, userInfo: nil)
+        }else if asset.mediaType == .image, assetStore.isContainVideo() {
+            return NSError(domain: "不能同时选择图片和视频", code: 4, userInfo: nil)
+        }else if assetStore.count >= settings.maxNumberOfSelections {
+            selectLimitReachedClosure?(assetStore.count)
+            return NSError(domain: "图片选择数量超过最大限制", code: 5, userInfo: nil)
+        }
+        return nil
+    }
+    
     func previewViewControllerDidSelectImageItem(_ asset: PHAsset) -> Int {
         guard let photosDataSource = photosDataSource, collectionView.isUserInteractionEnabled else { return -1 }
 
@@ -364,14 +407,6 @@ extension PhotosViewController {
         if assetStore.contains(asset) {
             assetStore.remove(asset)
             updateDoneButton()
-            let selectedIndexPaths = assetStore.assets.compactMap({ (asset) -> IndexPath? in
-                let index = photosDataSource.fetchResult.index(of: asset)
-                guard index != NSNotFound else { return nil }
-                return IndexPath(item: index, section: 0)
-            })
-            UIView.setAnimationsEnabled(false)
-            collectionView.reloadItems(at: selectedIndexPaths)
-            UIView.setAnimationsEnabled(true)
             cell?.photoSelected = false
             deselectionClosure?(asset)
             return -1
@@ -382,14 +417,10 @@ extension PhotosViewController {
             } else {
                 cell?.selectionString = String(assetStore.count)
             }
-
             cell?.photoSelected = true
             updateDoneButton()
             selectionClosure?(asset)
             return assetStore.count
-        } else if assetStore.count >= settings.maxNumberOfSelections {
-            selectLimitReachedClosure?(assetStore.count)
-            return -2
         }
         return -1
     }

@@ -27,6 +27,7 @@ import AVKit
 protocol PreviewViewControllerDelegate : class {
     func previewViewControllerDidSelectImageItem(_ asset : PHAsset) -> Int
     func previewViewControllerIsSelectImageItem(_ asset : PHAsset) -> Int
+    func previewViewControllerCanSelectImageItem(_ asset : PHAsset) -> NSError?
 }
 
 final class PreviewViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, SelectionViewDelegate {
@@ -105,6 +106,15 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         super.viewDidLayoutSubviews()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        if loadingView {
+            collectionView.scrollToItem(at: IndexPath(row: currentAssetIndex, section: 0), at: .centeredHorizontally, animated: false)
+            refreshSelectIndex()
+            loadingView = false
+        }
+        super.viewDidAppear(animated)
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         loadingView = true
@@ -167,29 +177,22 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     func selectViewDidSelectDidAction(_ view: SelectionView) {
         if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset {
-            if asset.mediaType == .video , asset.duration > 61 {
+            if let error = self.delegate?.previewViewControllerCanSelectImageItem(asset) {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
-                hud.label.text = NSLocalizedString("请选择60秒以下的视频", comment: "")
                 hud.bezelView.backgroundColor = UIColor.darkGray
+                hud.label.text = NSLocalizedString(error.domain, comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
-            }else if let selectIndex = self.delegate?.previewViewControllerDidSelectImageItem(asset) {
-                if selectIndex > 0 {
-                    selectionView.selectionString = "\(selectIndex)"
-                    selectionView.selected = true
-                }else if selectIndex == -1 {
-                    selectionView.selectionString = ""
-                    selectionView.selected = false
-                }else if selectIndex == -2 {
-                    selectionView.selectionString = ""
-                    selectionView.selected = false
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString("选择的图片数量超过限制", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+            }else {
+                if let selectIndex = self.delegate?.previewViewControllerDidSelectImageItem(asset) {
+                    if selectIndex > 0 {
+                        selectionView.selectionString = "\(selectIndex)"
+                        selectionView.selected = true
+                    }else if selectIndex == -1 {
+                        selectionView.selectionString = ""
+                        selectionView.selected = false
+                    }
                 }
             }
         }

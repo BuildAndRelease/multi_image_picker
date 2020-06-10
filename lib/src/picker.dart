@@ -231,8 +231,11 @@ static Future<List<Asset>> requestMediaData({
         return _cacheThumbnail[identifier];
       }else {
         Uint8List data = await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
-        print(data.length);
-        _cacheThumbnail[identifier] = data;
+        // print(data.length);
+        // if (_cacheThumbnail.length >= 1000) {
+        //   _cacheThumbnail.
+        // }
+        // _cacheThumbnail[identifier] = data;
         return data;
       }
     } on PlatformException catch (e) {

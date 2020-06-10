@@ -9,6 +9,7 @@ import 'package:multi_image_picker/src/exceptions.dart';
 
 class MultiImagePicker {
   static const MethodChannel _channel = const MethodChannel('multi_image_picker');
+  static final Map<String, Uint8List> _cacheThumbnail = Map();
 
   /// Invokes the multi image picker selector.
   ///
@@ -185,7 +186,13 @@ static Future<List<Asset>> requestMediaData({
 
   static Future<Uint8List> fetchMediaThumbData(String identifier, String fileType) async {
     try {
-      return await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
+      if (_cacheThumbnail.containsKey(identifier)) {
+        return _cacheThumbnail[identifier];
+      }else {
+        Uint8List data = await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
+        _cacheThumbnail[identifier] = data;
+        return data;
+      }
     } on PlatformException catch (e) {
       throw e;
     }

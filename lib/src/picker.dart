@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -10,6 +11,8 @@ import 'package:multi_image_picker/src/exceptions.dart';
 class MultiImagePicker {
   static const MethodChannel _channel = const MethodChannel('multi_image_picker');
   static final Map<String, Uint8List> _cacheThumbnail = Map();
+  static final List<Asset> _cacheMediaData = List();
+  static bool isCacheMediaData = false;
 
   /// Invokes the multi image picker selector.
   ///
@@ -110,7 +113,6 @@ static Future<List<Asset>> requestMediaData({
     bool thumb = true,
     List<String> selectedAssets = const []
   }) async {
-
     try {
       final List<dynamic> images = await _channel.invokeMethod(
         'requestMediaData',
@@ -159,8 +161,46 @@ static Future<List<Asset>> requestMediaData({
     }
   }
 
+  static Future<void> cacheMediaData() async {
+    try {
+      final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{
+        'pageNum': -1,
+        'pageSize': -1
+        });
+      for (var item in images) {
+        var asset = Asset(
+          item['identifier'],
+          item['filePath'],
+          item['name'],
+          item['width'],
+          item['height'],
+          item['fileType'],
+          duration: item['duration']
+        );
+        _cacheMediaData.add(asset);
+      }
+      isCacheMediaData = true;
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   static Future<List<Asset>> fetchMediaInfo(int pageNum, int pageSize) async {
     try {
+      if (isCacheMediaData) {
+        if (pageNum == -1 && pageSize == -1) {
+          return _cacheMediaData;
+        }else {
+          int start = (pageNum - 1) * pageSize;
+          int end = pageNum * pageSize;
+          int cachedLength = _cacheMediaData.length;
+          if (start >= cachedLength) {
+            return List();
+          }else {
+            return _cacheMediaData.sublist(start, min(end, cachedLength));
+          }
+        }
+      }else {
       final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{
         'pageNum': pageNum,
         'pageSize': pageSize
@@ -179,6 +219,7 @@ static Future<List<Asset>> requestMediaData({
         assets.add(asset);
       }
       return assets;
+      }
     } on PlatformException catch (e) {
       throw e;
     }
@@ -197,4 +238,14 @@ static Future<List<Asset>> requestMediaData({
       throw e;
     }
   }
+
+  static void clearThumbCache() {
+    _cacheThumbnail.clear();
+  }
+
+  static void clearMediaDataCache() {
+    _cacheMediaData.clear();
+    isCacheMediaData = false;
+  }
+
 }

@@ -80,22 +80,31 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let pageSize = arguments["pageSize"] as! Int
             weak var weakSelf = self
             DispatchQueue.global().async {
-                  if pageNum < -1 {
-                      result(FlutterError(code: "PARAM ERROR", message: "pageNum must cannot be \(pageNum)", details: nil))
-                      return
-                  }
-                  if pageSize < -1 {
-                      result(FlutterError(code: "PARAM ERROR", message: "pageSize must cannot be \(pageSize)", details: nil))
-                      return
-                  }
-                  let medias = NSMutableArray()
-                  let fetchOptions = PHFetchOptions()
-                  fetchOptions.sortDescriptors = [
-                      NSSortDescriptor(key: "creationDate", ascending: false)
-                  ]
-                  let assets = PHAsset.fetchAssets(with: fetchOptions)
+                if pageNum < -1 {
+                    result(FlutterError(code: "PARAM ERROR", message: "pageNum must cannot be \(pageNum)", details: nil))
+                    return
+                }
+                if pageSize < -1 {
+                    result(FlutterError(code: "PARAM ERROR", message: "pageSize must cannot be \(pageSize)", details: nil))
+                    return
+                }
+                let medias = NSMutableArray()
+                let fetchOptions = PHFetchOptions()
+                fetchOptions.sortDescriptors = [
+                    NSSortDescriptor(key: "creationDate", ascending: false)
+                ]
                 
-                  for i in ((pageNum - 1) * pageSize) ..< (pageNum * pageSize) {
+                let assets = PHAsset.fetchAssets(with: fetchOptions)
+                var start = 0
+                var end =  0
+                if pageNum == -1, pageSize == -1 {
+                    start = 0
+                    end = assets.count
+                }else {
+                    start = ((pageNum - 1) * pageSize)
+                    end = (pageNum * pageSize)
+                }
+                for i in start ..< end {
                       let asset = assets.object(at: i)
                       let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
                       let dictionary = NSMutableDictionary()

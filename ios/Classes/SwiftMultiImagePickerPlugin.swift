@@ -80,11 +80,11 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let pageSize = arguments["pageSize"] as! Int
             weak var weakSelf = self
             DispatchQueue.global().async {
-                  if pageNum < 1 {
+                  if pageNum < -1 {
                       result(FlutterError(code: "PARAM ERROR", message: "pageNum must cannot be \(pageNum)", details: nil))
                       return
                   }
-                  if pageSize < 1 {
+                  if pageSize < -1 {
                       result(FlutterError(code: "PARAM ERROR", message: "pageSize must cannot be \(pageSize)", details: nil))
                       return
                   }

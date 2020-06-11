@@ -120,8 +120,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                           dictionary.setValue("image", forKey: "fileType")
                       }
                       medias.add(dictionary)
-                  }
-                  result(medias)
+                }
+                result(medias)
             }
         case "fetchMediaThumbData":
             let arguments = call.arguments as! Dictionary<String, AnyObject>

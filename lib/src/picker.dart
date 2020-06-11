@@ -179,7 +179,11 @@ static Future<List<Asset>> requestMediaData({
         );
         _cacheMediaData.add(asset);
       }
-      isCacheMediaData = true;
+      if (_cacheMediaData.length > 0) {
+        isCacheMediaData = true;
+      }else {
+        isCacheMediaData = false;
+      }
     } on PlatformException catch (e) {
       throw e;
     }
@@ -227,24 +231,10 @@ static Future<List<Asset>> requestMediaData({
 
   static Future<Uint8List> fetchMediaThumbData(String identifier, String fileType) async {
     try {
-      if (_cacheThumbnail.containsKey(identifier)) {
-        return _cacheThumbnail[identifier];
-      }else {
-        Uint8List data = await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
-        // print(data.length);
-        // if (_cacheThumbnail.length >= 1000) {
-        //   _cacheThumbnail.
-        // }
-        // _cacheThumbnail[identifier] = data;
-        return data;
-      }
+        return await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
     } on PlatformException catch (e) {
       throw e;
     }
-  }
-
-  static void clearThumbCache() {
-    _cacheThumbnail.clear();
   }
 
   static void clearMediaDataCache() {

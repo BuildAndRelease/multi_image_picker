@@ -10,7 +10,6 @@ import 'package:multi_image_picker/src/exceptions.dart';
 
 class MultiImagePicker {
   static const MethodChannel _channel = const MethodChannel('multi_image_picker');
-  static final Map<String, Uint8List> _cacheThumbnail = Map();
   static final List<Asset> _cacheMediaData = List();
   static bool isCacheMediaData = false;
 
@@ -205,12 +204,12 @@ static Future<List<Asset>> requestMediaData({
           }
         }
       }else {
-      final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{
+        final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{
         'pageNum': pageNum,
         'pageSize': pageSize
         });
-      var assets = List<Asset>();
-      for (var item in images) {
+        var assets = List<Asset>();
+        for (var item in images) {
         var asset = Asset(
           item['identifier'],
           item['filePath'],
@@ -221,8 +220,12 @@ static Future<List<Asset>> requestMediaData({
           duration: item['duration']
         );
         assets.add(asset);
-      }
-      return assets;
+        }
+        if (assets.length > 0 && pageNum == -1 && pageSize == -1) {
+          _cacheMediaData.addAll(assets);
+          isCacheMediaData = true;
+        }
+        return assets;
       }
     } on PlatformException catch (e) {
       throw e;

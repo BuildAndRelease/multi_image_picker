@@ -79,7 +79,7 @@ class Asset {
      return _fileType;
   }
 
-  Map toJsonMap() {
+  Map<String, dynamic> toJsonMap() {
     Map assetInfo = {};
     assetInfo['identifier'] = identifier ?? '';
     assetInfo['filePath'] = filePath ?? '';

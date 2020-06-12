@@ -80,7 +80,7 @@ class Asset {
   }
 
   Map<String, dynamic> toJsonMap() {
-    Map assetInfo = {};
+    Map<String, dynamic> assetInfo = {};
     assetInfo['identifier'] = identifier ?? '';
     assetInfo['filePath'] = filePath ?? '';
     assetInfo['name'] = name ?? '';

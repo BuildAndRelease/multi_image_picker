@@ -166,6 +166,7 @@ static Future<List<Asset>> requestMediaData({
         'pageNum': -1,
         'pageSize': -1
         });
+      final List<Asset> medias = [];
       for (var item in images) {
         var asset = Asset(
           item['identifier'],
@@ -176,8 +177,10 @@ static Future<List<Asset>> requestMediaData({
           item['fileType'],
           duration: item['duration']
         );
-        _cacheMediaData.add(asset);
+        medias.add(asset);
       }
+      _cacheMediaData.clear();
+      _cacheMediaData.addAll(medias);
       if (_cacheMediaData.length > 0) {
         isCacheMediaData = true;
       }else {
@@ -222,6 +225,7 @@ static Future<List<Asset>> requestMediaData({
         assets.add(asset);
         }
         if (assets.length > 0 && pageNum == -1 && pageSize == -1) {
+          _cacheMediaData.clear();
           _cacheMediaData.addAll(assets);
           isCacheMediaData = true;
         }

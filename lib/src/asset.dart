@@ -81,25 +81,26 @@ class Asset {
 
   Map toJsonMap() {
     Map assetInfo = {};
-    assetInfo['identifier'] = identifier;
-    assetInfo['filePath'] = filePath;
-    assetInfo['name'] = name;
-    assetInfo['originalWidth'] = originalWidth;
-    assetInfo['originalHeight'] = originalHeight;
-    assetInfo['fileType'] = fileType;
-    assetInfo['duration'] = duration;
-    assetInfo['thumbFilePath'] = thumbFilePath;
-    assetInfo['thumbHeight'] = thumbHeight;
-    assetInfo['thumbWidth'] = thumbWidth;
-    assetInfo['thumbName'] = thumbName;
-    assetInfo['url'] = url;
-    assetInfo['hash'] = hash;
+    assetInfo['identifier'] = identifier ?? '';
+    assetInfo['filePath'] = filePath ?? '';
+    assetInfo['name'] = name ?? '';
+    assetInfo['originalWidth'] = originalWidth ?? 0.0;
+    assetInfo['originalHeight'] = originalHeight ?? 0.0;
+    assetInfo['fileType'] = fileType ?? '';
+    assetInfo['duration'] = duration ?? 0.0;
+    assetInfo['thumbFilePath'] = thumbFilePath ?? '';
+    assetInfo['thumbHeight'] = thumbHeight ?? 0.0;
+    assetInfo['thumbWidth'] = thumbWidth ?? 0.0;
+    assetInfo['thumbName'] = thumbName ?? '';
+    assetInfo['url'] = url ?? '';
+    assetInfo['hash'] = hash ?? '';
     return assetInfo;
   }
 
   factory Asset.fromJson(Map<String, dynamic> srcJson) {
-    return Asset(srcJson['identifier'], srcJson['filePath'], srcJson['name'], srcJson['originalWidth'], srcJson['originalHeight'], srcJson['fileType'],
-    duration: srcJson['duration'], thumbFilePath: srcJson['thumbFilePath'], thumbHeight: srcJson['thumbHeight'], thumbWidth: srcJson['thumbWidth'], 
-    thumbName: srcJson['thumbName'], url: srcJson['url'], hash: srcJson['hash']);
+    return Asset(srcJson['identifier'] ?? '', srcJson['filePath'] ?? '', srcJson['name'] ?? '', srcJson['originalWidth'] ?? 0.0,
+    srcJson['originalHeight'] ?? 0.0, srcJson['fileType'] ?? '',duration: srcJson['duration'] ?? 0.0, thumbFilePath: srcJson['thumbFilePath'] ?? '',
+    thumbHeight: srcJson['thumbHeight'] ?? 0.0, thumbWidth: srcJson['thumbWidth'] ?? 0.0, thumbName: srcJson['thumbName'] ?? '', 
+    url: srcJson['url'] ?? '', hash: srcJson['hash'] ?? '');
   }
 }

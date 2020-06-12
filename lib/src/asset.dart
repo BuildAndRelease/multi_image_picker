@@ -26,6 +26,10 @@ class Asset {
 
   double thumbHeight = 0.0;
 
+  String url = "";
+
+  String hash = "";
+
   Asset(
     this._identifier,
     this._filePath,
@@ -33,7 +37,7 @@ class Asset {
     this._originalWidth,
     this._originalHeight,
     this._fileType,
-    {this.thumbFilePath, this.thumbName, this.thumbWidth, this.thumbHeight, this.duration}
+    {this.thumbFilePath, this.thumbName, this.thumbWidth, this.thumbHeight, this.duration, this.hash, this.url}
   );
 
   /// Returns the original image width
@@ -88,6 +92,14 @@ class Asset {
     assetInfo['thumbHeight'] = thumbHeight;
     assetInfo['thumbWidth'] = thumbWidth;
     assetInfo['thumbName'] = thumbName;
+    assetInfo['url'] = url;
+    assetInfo['hash'] = hash;
     return assetInfo;
+  }
+
+  factory Asset.fromJson(Map<String, dynamic> srcJson) {
+    return Asset(srcJson['identifier'], srcJson['filePath'], srcJson['name'], srcJson['originalWidth'], srcJson['originalHeight'], srcJson['fileType'],
+    duration: srcJson['duration'], thumbFilePath: srcJson['thumbFilePath'], thumbHeight: srcJson['thumbHeight'], thumbWidth: srcJson['thumbWidth'], 
+    thumbName: srcJson['thumbName'], url: srcJson['url'], hash: srcJson['hash']);
   }
 }

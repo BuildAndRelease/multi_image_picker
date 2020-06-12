@@ -74,4 +74,20 @@ class Asset {
   String get fileType {
      return _fileType;
   }
+
+  Map toJsonMap() {
+    Map assetInfo = {};
+    assetInfo['identifier'] = identifier;
+    assetInfo['filePath'] = filePath;
+    assetInfo['name'] = name;
+    assetInfo['originalWidth'] = originalWidth;
+    assetInfo['originalHeight'] = originalHeight;
+    assetInfo['fileType'] = fileType;
+    assetInfo['duration'] = duration;
+    assetInfo['thumbFilePath'] = thumbFilePath;
+    assetInfo['thumbHeight'] = thumbHeight;
+    assetInfo['thumbWidth'] = thumbWidth;
+    assetInfo['thumbName'] = thumbName;
+    return assetInfo;
+  }
 }

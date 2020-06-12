@@ -177,6 +177,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         let quality = settings.qualityOfThumb
         let thumb = !originBarButton.isSelected
         let assets = self.assetStore.assets
+        doneBarButton.isEnabled = false
         
         weak var hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         hud?.label.text = originBarButton.isSelected ? NSLocalizedString("拷贝中", comment: "") : NSLocalizedString("压缩中", comment: "")
@@ -209,6 +210,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             }
             
             DispatchQueue.main.async {
+                weakSelf?.doneBarButton.isEnabled = true
                 hud?.hide(animated: true)
                 weakSelf?.finishClosure?(results, assets.count == results.count, error)
                 weakSelf?.dismiss(animated: true, completion: nil)

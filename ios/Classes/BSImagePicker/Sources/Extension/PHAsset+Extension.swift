@@ -93,12 +93,12 @@ extension PHAsset {
                             dictionary.setValue(videoName, forKey: "name")
                             dictionary.setValue("video", forKey: "fileType")
                             finish?(dictionary)
-                            return
+                        }else {
+                            failed?(NSError(domain: "视频请求失败", code: 2, userInfo: nil))
                         }
                     })
                 }else {
                     failed?(NSError(domain: "视频请求失败", code: 2, userInfo: nil))
-                    return
                 }
             }
         }else {
@@ -133,6 +133,8 @@ extension PHAsset {
                         "name": fileName,
                         "fileType":"image"
                     ])
+                }else {
+                    failed?(NSError(domain: "图片请求失败", code: 2, userInfo: nil))
                 }
             })
         }

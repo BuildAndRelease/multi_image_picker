@@ -27,16 +27,16 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     private List<MimeType> exceptMimeType;
     private DisplayImageListener listener;
     private Context context;
-    private int pageSize = -1;
-    private int pageNum = -1;
+    private int limit = -1;
+    private int offset = -1;
     private boolean requestHashMap = false;
     private boolean isInvertedPhotos = false;
 
-    public void setPageNum(int pageNum) {
-        this.pageNum = pageNum;
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
     public void setRequestHashMap(boolean requestHashMap) {
         this.requestHashMap = requestHashMap;
@@ -93,8 +93,8 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     private ArrayList getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList) {
         String bucketId = String.valueOf(id);
         String sort = isInvertedPhotos ? MediaStore.Files.FileColumns._ID + " ASC " : MediaStore.Files.FileColumns._ID + " DESC ";
-        if (pageNum > 0 && pageSize > 0) {
-            sort = sort + " LIMIT " + pageSize + " OFFSET " + (pageNum - 1) * pageSize;
+        if (limit > 0 && offset > 0) {
+            sort = sort + " LIMIT " + limit + " OFFSET " + offset;
         }
 
         Uri images = MediaStore.Files.getContentUri("external");

@@ -47,8 +47,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String MAX_WIDTH = "maxWidth";
     private static final String IDENTIFY = "identifier";
     private static final String FILE_TYPE = "fileType";
-    private static final String PAGE_NUM = "pageNum";
-    private static final String PAGE_SIZE = "pageSize";
+    private static final String LIMIT = "limit";
+    private static final String OFFSET = "offset";
     private static final String QUALITY_OF_IMAGE = "qualityOfImage";
     private static final String SELECTED_ASSETS = "selectedAssets";
     private static final String ANDROID_OPTIONS = "androidOptions";
@@ -108,12 +108,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         ArrayList mimeTypeList = new ArrayList();
                         mimeTypeList.add(MimeType.GIF);
                         mimeTypeList.add(MimeType.WEBP);
-                        int pageNum = call.argument(PAGE_NUM);
-                        int pageSize = call.argument(PAGE_SIZE);
+                        int limit = call.argument(LIMIT);
+                        int offset = call.argument(OFFSET);
                         DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, activity);
                         displayImage.setRequestHashMap(true);
-                        displayImage.setPageNum(pageNum);
-                        displayImage.setPageSize(pageSize);
+                        displayImage.setLimit(limit);
+                        displayImage.setOffset(offset);
                         displayImage.setListener(new DisplayImage.DisplayImageListener() {
                             @Override
                             public void OnDisplayImageDidSelectFinish(ArrayList medias) {

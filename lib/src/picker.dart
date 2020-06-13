@@ -11,6 +11,7 @@ import 'package:multi_image_picker/src/exceptions.dart';
 class MultiImagePicker {
   static const MethodChannel _channel = const MethodChannel('multi_image_picker');
   static final List<Asset> _cacheMediaData = List();
+  static final Map<String, Uint8List> _cacheThumbData = Map();
   static int _cachedTimeStamp = DateTime.now().millisecondsSinceEpoch;
   static bool isCacheMediaData = false;
 
@@ -173,6 +174,7 @@ static Future<List<Asset>> requestMediaData({
         });
       final List<Asset> medias = [];
       for (var item in images) {
+        
         var asset = Asset(
           item['identifier'],
           item['filePath'],
@@ -197,25 +199,23 @@ static Future<List<Asset>> requestMediaData({
     }
   }
 
-  static Future<List<Asset>> fetchMediaInfo(int pageNum, int pageSize) async {
+  static Future<List<Asset>> fetchMediaInfo(int offset, int limit) async {
     try {
       if (isCacheMediaData) {
-        if (pageNum == -1 && pageSize == -1) {
+        if (limit == -1 && offset == -1) {
           return _cacheMediaData;
         }else {
-          int start = (pageNum - 1) * pageSize;
-          int end = pageNum * pageSize;
           int cachedLength = _cacheMediaData.length;
-          if (start >= cachedLength) {
+          if (offset >= cachedLength) {
             return List();
           }else {
-            return _cacheMediaData.sublist(start, min(end, cachedLength));
+            return _cacheMediaData.sublist(offset, min(limit, cachedLength));
           }
         }
       }else {
         final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{
-        'pageNum': pageNum,
-        'pageSize': pageSize
+        'limit': limit,
+        'offset': offset
         });
         var assets = List<Asset>();
         for (var item in images) {
@@ -230,7 +230,7 @@ static Future<List<Asset>> requestMediaData({
         );
         assets.add(asset);
         }
-        if (assets.length > 0 && pageNum == -1 && pageSize == -1) {
+        if (assets.length > 0 && limit == -1 && offset == -1) {
           _cacheMediaData.clear();
           _cacheMediaData.addAll(assets);
           isCacheMediaData = true;
@@ -245,7 +245,17 @@ static Future<List<Asset>> requestMediaData({
 
   static Future<Uint8List> fetchMediaThumbData(String identifier, String fileType) async {
     try {
-        return await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
+      if (_cacheThumbData.containsKey(identifier)) {
+        return _cacheThumbData[identifier];
+      }else {
+        Uint8List data = await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
+        if (_cacheThumbData.length > 500) {
+          _cacheThumbData.remove(_cacheThumbData.keys.first);
+        }
+        _cacheThumbData[identifier] = data;
+        return data;
+      }
+        
     } on PlatformException catch (e) {
       throw e;
     }

@@ -95,7 +95,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 ]
                 
                 let assets = PHAsset.fetchAssets(with: fetchOptions)
-                for i in offset ..< (limit + offset) {
+                for i in offset ..< min((limit + offset), assets.count) {
                       let asset = assets.object(at: i)
                       let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
                       let dictionary = NSMutableDictionary()

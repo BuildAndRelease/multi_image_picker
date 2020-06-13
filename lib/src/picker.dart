@@ -255,9 +255,21 @@ static Future<List<Asset>> requestMediaData({
         _cacheThumbData[identifier] = data;
         return data;
       }
-        
     } on PlatformException catch (e) {
       throw e;
+    }
+  }
+
+  static bool containCacheData(String identifier) {
+    return _cacheThumbData.containsKey(identifier);
+  }
+
+  static Uint8List fetchCacheThumbData(String identifier) {
+    try {
+      return _cacheThumbData[identifier];
+    }on Exception catch(e) {
+      print(e);
+      return Uint8List(0);
     }
   }
 

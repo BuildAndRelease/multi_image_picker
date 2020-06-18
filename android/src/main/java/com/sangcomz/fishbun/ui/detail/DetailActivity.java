@@ -152,7 +152,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
-            if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60) {
+            if (media.getFileType().startsWith("video") && Integer.parseInt(media.getDuration()) > 60) {
                 Toast.makeText(this, "视屏长度不能超过60秒", Toast.LENGTH_SHORT).show();
                 return;
             }

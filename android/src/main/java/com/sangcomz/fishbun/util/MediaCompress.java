@@ -15,6 +15,7 @@ import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Media;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -50,7 +51,9 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         this.selectMediaIdentifiers = selectMediaIdentifiers;
         if (selectMediaIdentifiers != null && selectMediaIdentifiers.size() > 0) {
             for (String identify : selectMediaIdentifiers) {
-                Cursor c = context.getContentResolver().query(Uri.parse(identify), null, null, null, null);
+                Uri uri = MediaStore.Files.getContentUri("external");
+                String selection = MediaStore.Files.FileColumns._ID + "=" + identify;
+                Cursor c = context.getContentResolver().query(uri, null, selection, null, null);
                 if (c != null) {
                     try {
                         if (c.moveToFirst()) {
@@ -63,7 +66,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                             String originHeight = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
                             String duration = "0";
                             if (mimeType.contains("video")) {
-                                c.getString(c.getColumnIndex(MediaStore.MediaColumns.DURATION));
+                                duration = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DURATION));
                             }
                             int imgId = c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
                             media.setBucketId("0");
@@ -80,13 +83,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                             }
                             media.setMimeType(mimeType);
                             media.setMediaId("" + imgId);
-                            if (mimeType.contains("video")) {
-                                media.setFileType("video");
-                                selectMedias.add(media);
-                            }else if (mimeType.contains("image")) {
-                                media.setFileType("image");
-                                selectMedias.add(media);
-                            }
+                            media.setFileType(mimeType);
                             c.close();
                         }
                     } catch (Exception e) {
@@ -104,7 +101,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         ArrayList<HashMap> result = new ArrayList<>();
         for (int i = 0; i < selectMedias.size(); i++) {
             Media media = selectMedias.get(i);
-            if ("video".equals(media.getFileType())) {
+            if (media.getFileType().startsWith("video")) {
                 String uuid = UUID.randomUUID().toString();
                 String videoName = uuid + ".mp4";
                 String imgName = uuid + ".jpg";
@@ -129,7 +126,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                 try {
                     float width = Float.parseFloat(media.getThumbnailWidth());
                     float height = Float.parseFloat(media.getThumbnailHeight());
-                    VideoProcessor.processor(context).input(Uri.parse(media.getIdentifier())).output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(2048000).process();
+                    VideoProcessor.processor(context).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(2048000).process();
                     HashMap info = new HashMap();
                     info.put("identifier", media.getIdentifier());
                     info.put("filePath", tmpVideo.getAbsolutePath());
@@ -156,9 +153,8 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         HashMap<String, Object> map = new HashMap<>();
         String fileName = UUID.randomUUID().toString() + ".jpg";
         String filePath = "";
-        Uri identify = Uri.parse(media.getIdentifier());
         try {
-            InputStream is = context.getContentResolver().openInputStream(identify);
+            InputStream is = new FileInputStream(media.getOriginPath());
             File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
             if (!tmpPicParentDir.exists()) {
                 tmpPicParentDir.mkdirs();

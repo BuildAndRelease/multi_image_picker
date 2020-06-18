@@ -4,8 +4,9 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import com.sangcomz.fishbun.bean.Album
 import com.sangcomz.fishbun.bean.Media
-import com.sangcomz.fishbun.util.Define
+import com.sangcomz.fishbun.ui.detail.DetailActivity
 import com.sangcomz.fishbun.ui.picker.PickerActivity
+import com.sangcomz.fishbun.util.Define
 
 /**
  * Created by sangcomz on 17/05/2017.
@@ -95,6 +96,10 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
             putExtra(Define.BUNDLE_NAME.ALBUM.name, Album(0, fishton.titleAlbumAllView, null, 0))
             putExtra(Define.BUNDLE_NAME.POSITION.name, 0)
         }
+
+//        val i : Intent = Intent(context, DetailActivity::class.java).apply {
+//            putExtra(Define.BUNDLE_NAME.POSITION.name, fishton.mediaIndexOfFirstPreSelectMedia())
+//        }
 
         fishBunContext.startActivityForResult(intent, requestCode)
     }

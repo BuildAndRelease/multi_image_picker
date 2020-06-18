@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
 
 public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
     public interface MediaThumbDataListener {
@@ -30,10 +29,8 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
     @Override
     protected byte[] doInBackground(Void... voids) {
         try {
-            String[] splits = identify.split("/");
-            String fileId = splits[splits.length - 1];
             if ("video".equals(fileType)) {
-                Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(fileId), MediaStore.Images.Thumbnails.MINI_KIND, null);
+                Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 byte[] bytes = stream.toByteArray();
@@ -41,7 +38,7 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
                 stream.close();
                 return bytes;
             }else if ("image".equals(fileType)) {
-                Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(fileId), MediaStore.Images.Thumbnails.MINI_KIND, null);
+                Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 byte[] bytes = stream.toByteArray();

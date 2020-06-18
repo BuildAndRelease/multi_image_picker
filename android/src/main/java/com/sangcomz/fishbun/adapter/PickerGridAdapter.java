@@ -58,7 +58,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             vh.banCoverView.setVisibility(View.INVISIBLE);
         }
 
-        if (media.getFileType().equals("video")) {
+        if (media.getFileType().startsWith("video")) {
             vh.videoInfoContentView.setVisibility(View.VISIBLE);
             try {
                 int duration = Integer.parseInt(media.getDuration());
@@ -82,7 +82,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ("video".equals(media.getFileType()) && Integer.parseInt(media.getDuration()) > 60) {
+                if (media.getFileType().startsWith("video") && Integer.parseInt(media.getDuration()) > 60) {
                     Snackbar.make(vh.item, "视屏长度不能超过60秒", Snackbar.LENGTH_SHORT).show();
                 }else {
                     ArrayList<Media> pickedImages = fishton.getSelectedMedias();

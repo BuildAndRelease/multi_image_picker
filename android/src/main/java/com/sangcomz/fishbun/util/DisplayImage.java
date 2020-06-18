@@ -7,12 +7,14 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Media;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -111,49 +113,78 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
             String[] selectionArgs = {bucketId};
             c = resolver.query(images, null, selection, selectionArgs, sort);
         }
-        ArrayList<Media> medias = new ArrayList<>();
+        ArrayList medias = new ArrayList<>();
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
-                    do {
-                        Media media = new Media();
-                        String mimeType = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE));
-                        String buckName = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME));
-                        if (isExceptMemeType(exceptMimeTypeList, mimeType)) continue;
-                        String originPath = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DATA));
-                        String originName = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME));
-                        String originWidth = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.WIDTH));
-                        String originHeight = c.getString(c.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT));
-                        String duration = "0";
-                        String imgId = c.getString(c.getColumnIndex(MediaStore.MediaColumns._ID));
-                        String identifier = "";
-                        if (mimeType.startsWith("image")) {
-                            identifier = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imgId).toString();
-                            media.setFileType("image");
-                        }else if (mimeType.startsWith("video")) {
-                            Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
-                            retriever.setDataSource(context, uri);
-                            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                            duration = Long.parseLong(time)/1000 + "";
-                            identifier = uri.toString();
-                            media.setFileType("video");
-                        }else {
-                            identifier = Uri.withAppendedPath(MediaStore.Files.getContentUri("external"), imgId).toString();
-                            media.setFileType("file");
-                        }
-                        media.setBucketId(bucketId);
-                        media.setBucketName(buckName);
-                        media.setOriginName(originName);
-                        media.setOriginHeight(originHeight);
-                        media.setOriginWidth(originWidth);
-                        media.setOriginPath(originPath);
-                        media.setDuration(duration);
-                        media.setIdentifier(identifier);
-                        media.setMimeType(mimeType);
-                        media.setMediaId(imgId);
-                        medias.add(media);
-                    } while (c.moveToNext());
+                    int MIME_TYPE = c.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE);
+                    int BUCKET_DISPLAY_NAME = c.getColumnIndex(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME);
+                    int DATA = c.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                    int DISPLAY_NAME = c.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME);
+                    int WIDTH = c.getColumnIndex(MediaStore.Files.FileColumns.WIDTH);
+                    int HEIGHT = c.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT);
+                    int _ID = c.getColumnIndex(MediaStore.Files.FileColumns._ID);
+                    int DURATION = c.getColumnIndex(MediaStore.Video.VideoColumns.DURATION);
+                    if (requestHashMap) {
+                        do {
+                            HashMap media = new HashMap();
+                            String mimeType = c.getString(MIME_TYPE);
+                            String imgId = c.getString(_ID);
+                            media.put("identifier", imgId);
+                            media.put("filePath", c.getString(DATA));
+                            media.put("width", Float.parseFloat(c.getString(WIDTH)));
+                            media.put("height",Float.parseFloat(c.getString(HEIGHT)));
+                            if (mimeType.contains("video")) {
+                                Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
+                                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+                                if (cursor.moveToFirst()) {
+                                    media.put("duration", cursor.getInt(DURATION)/1000);
+                                }
+                                cursor.close();
+                            }else {
+                                media.put("duration", 0);
+                            }
+                            media.put("name", c.getString(DISPLAY_NAME));
+                            media.put("fileType", mimeType);
+                            media.put("thumbPath", "");
+                            media.put("thumbName", "");
+                            media.put("thumbHeight", 0.0);
+                            media.put("thumbWidth", 0.0);
+                            medias.add(media);
+                        } while (c.moveToNext());
+                    }else {
+
+                        do {
+                            Media media = new Media();
+                            String mimeType = c.getString(MIME_TYPE);
+                            String imgId = c.getString(_ID);
+                            if (isExceptMemeType(exceptMimeTypeList, mimeType)) continue;
+                            media.setFileType(mimeType);
+                            media.setBucketId(bucketId);
+                            media.setBucketName(c.getString(BUCKET_DISPLAY_NAME));
+                            media.setOriginName(c.getString(DISPLAY_NAME));
+                            media.setOriginHeight(c.getString(HEIGHT));
+                            media.setOriginWidth(c.getString(WIDTH));
+                            media.setOriginPath(c.getString(DATA));
+                            if (media.getFileType().contains("video")) {
+                                Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
+                                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+                                if (cursor.moveToFirst()) {
+                                    media.setDuration(cursor.getInt(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION))/1000 + "");
+                                }else {
+                                    media.setDuration("0");
+                                }
+                                cursor.close();
+                            }else{
+                                media.setDuration("0");
+                            }
+                            media.setIdentifier(imgId);
+                            media.setMimeType(mimeType);
+                            media.setMediaId(imgId);
+                            medias.add(media);
+                        } while (c.moveToNext());
+                    }
                 }
                 c.close();
                 retriever.release();

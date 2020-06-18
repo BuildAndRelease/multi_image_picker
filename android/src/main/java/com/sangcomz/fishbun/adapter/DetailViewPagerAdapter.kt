@@ -36,7 +36,7 @@ class DetailViewPagerAdapter(private val inflater: LayoutInflater, private val m
         val playBtn = itemView.video_play_btn
         val imageView = itemView.img_detail_image
         val media = medias[position]
-        if ("video".equals(media.fileType)) {
+        if (media.fileType.startsWith("video")) {
             imageView.visibility = View.INVISIBLE
             playBtn.visibility = View.VISIBLE
             mVideoView.visibility = View.VISIBLE

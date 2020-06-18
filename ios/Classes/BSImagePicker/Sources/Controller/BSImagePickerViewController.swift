@@ -176,7 +176,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if bottomContentView.superview == nil {
+        if bottomContentView.superview == nil && assetStore?.count ?? 0 > 0 {
             self.setToolbarHidden(false, animated: true)
             self.toolbar.layoutIfNeeded()
             bottomContentView.frame = self.toolbar.bounds

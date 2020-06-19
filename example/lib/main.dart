@@ -102,14 +102,14 @@ class _MyHomePageState extends State<MyHomePage> {
     //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(0, 50);
     //  print(assets);
 
-    //  List<Asset> data = await MultiImagePicker.requestMediaData(
-    //    qualityOfImage: 80,
-    //    maxHeight: 1024,
-    //    maxWidth: 768,
-    //    selectedAssets: ['content://media/external/video/media/1613267']
-    //  );
+     List<Asset> data = await MultiImagePicker.requestMediaData(
+       qualityOfImage: 80,
+       maxHeight: 1024,
+       maxWidth: 768,
+       selectedAssets: ['187053']
+     );
     //  print(data);
-      Uint8List data = await MultiImagePicker.fetchMediaThumbData("187053", "video");
+      // Uint8List data = await MultiImagePicker.fetchMediaThumbData("187053", "video");
       // print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");
       // print(data);

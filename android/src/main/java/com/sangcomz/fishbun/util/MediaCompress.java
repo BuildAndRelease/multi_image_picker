@@ -85,6 +85,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                             media.setMediaId("" + imgId);
                             media.setFileType(mimeType);
                             c.close();
+                            selectMedias.add(media);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

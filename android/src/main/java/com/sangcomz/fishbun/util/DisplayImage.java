@@ -59,28 +59,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
 
     @Override
     protected ArrayList doInBackground(Void... params) {
-        ArrayList<Media> medias = getAllMediaThumbnailsPath(bucketId, exceptMimeType);
-        if (requestHashMap) {
-            ArrayList<HashMap> result = new ArrayList<>();
-            for (Media media : medias) {
-                HashMap info = new HashMap();
-                info.put("identifier", media.getIdentifier());
-                info.put("filePath", media.getOriginPath());
-                info.put("width", Float.parseFloat(media.getOriginWidth()));
-                info.put("height",Float.parseFloat(media.getOriginHeight()));
-                info.put("duration", Float.parseFloat(media.getDuration()));
-                info.put("name", media.getOriginName());
-                info.put("fileType", media.getFileType());
-                info.put("thumbPath", media.getThumbnailPath());
-                info.put("thumbName", media.getThumbnailName());
-                info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
-                info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
-                result.add(info);
-            }
-            return result;
-        }else {
-            return medias;
-        }
+        return getAllMediaThumbnailsPath(bucketId, exceptMimeType);
     }
 
     @Override
@@ -95,7 +74,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     private ArrayList getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList) {
         String bucketId = String.valueOf(id);
         String sort = isInvertedPhotos ? MediaStore.Files.FileColumns._ID + " ASC " : MediaStore.Files.FileColumns._ID + " DESC ";
-        if (limit > 0 && offset > 0) {
+        if (limit >= 0 && offset >= 0) {
             sort = sort + " LIMIT " + limit + " OFFSET " + offset;
         }
 
@@ -114,7 +93,6 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
             c = resolver.query(images, null, selection, selectionArgs, sort);
         }
         ArrayList medias = new ArrayList<>();
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
@@ -125,36 +103,40 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                     int WIDTH = c.getColumnIndex(MediaStore.Files.FileColumns.WIDTH);
                     int HEIGHT = c.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT);
                     int _ID = c.getColumnIndex(MediaStore.Files.FileColumns._ID);
-                    int DURATION = c.getColumnIndex(MediaStore.Video.VideoColumns.DURATION);
                     if (requestHashMap) {
                         do {
-                            HashMap media = new HashMap();
-                            String mimeType = c.getString(MIME_TYPE);
-                            String imgId = c.getString(_ID);
-                            media.put("identifier", imgId);
-                            media.put("filePath", c.getString(DATA));
-                            media.put("width", Float.parseFloat(c.getString(WIDTH)));
-                            media.put("height",Float.parseFloat(c.getString(HEIGHT)));
-                            if (mimeType.contains("video")) {
-                                Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
-                                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                                if (cursor.moveToFirst()) {
-                                    media.put("duration", cursor.getInt(DURATION)/1000);
+                            try {
+                                HashMap media = new HashMap();
+                                String mimeType = c.getString(MIME_TYPE);
+                                String imgId = c.getString(_ID);
+                                media.put("identifier", imgId);
+                                media.put("filePath", c.getString(DATA));
+                                if (mimeType.contains("video")) {
+                                    Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
+                                    Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+                                    if (cursor.moveToFirst()) {
+                                        media.put("width", cursor.getFloat(cursor.getColumnIndex(MediaStore.Video.VideoColumns.WIDTH)));
+                                        media.put("height", cursor.getFloat(cursor.getColumnIndex(MediaStore.Video.VideoColumns.HEIGHT)));
+                                        media.put("duration", cursor.getFloat(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION))/1000);
+                                    }
+                                    cursor.close();
+                                }else {
+                                    media.put("width", c.getFloat(WIDTH));
+                                    media.put("height",c.getFloat(HEIGHT));
+                                    media.put("duration", 0.0);
                                 }
-                                cursor.close();
-                            }else {
-                                media.put("duration", 0);
+                                media.put("name", c.getString(DISPLAY_NAME));
+                                media.put("fileType", mimeType);
+                                media.put("thumbPath", "");
+                                media.put("thumbName", "");
+                                media.put("thumbHeight", 0.0);
+                                media.put("thumbWidth", 0.0);
+                                medias.add(media);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                            media.put("name", c.getString(DISPLAY_NAME));
-                            media.put("fileType", mimeType);
-                            media.put("thumbPath", "");
-                            media.put("thumbName", "");
-                            media.put("thumbHeight", 0.0);
-                            media.put("thumbWidth", 0.0);
-                            medias.add(media);
                         } while (c.moveToNext());
                     }else {
-
                         do {
                             Media media = new Media();
                             String mimeType = c.getString(MIME_TYPE);
@@ -164,8 +146,6 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                             media.setBucketId(bucketId);
                             media.setBucketName(c.getString(BUCKET_DISPLAY_NAME));
                             media.setOriginName(c.getString(DISPLAY_NAME));
-                            media.setOriginHeight(c.getString(HEIGHT));
-                            media.setOriginWidth(c.getString(WIDTH));
                             media.setOriginPath(c.getString(DATA));
                             if (media.getFileType().contains("video")) {
                                 Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
@@ -177,6 +157,8 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                                 }
                                 cursor.close();
                             }else{
+                                media.setOriginHeight(c.getString(HEIGHT));
+                                media.setOriginWidth(c.getString(WIDTH));
                                 media.setDuration("0");
                             }
                             media.setIdentifier(imgId);
@@ -187,10 +169,8 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                     }
                 }
                 c.close();
-                retriever.release();
             } catch (Exception e) {
                 if (!c.isClosed()) c.close();
-                retriever.release();
             }
         }
         return medias;

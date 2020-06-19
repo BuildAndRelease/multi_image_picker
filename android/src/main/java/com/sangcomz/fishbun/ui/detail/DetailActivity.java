@@ -153,12 +153,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestory");
-    }
-
-    @Override
     public void onBackPressed() {
         currentPlayVideoView = null;
         finish();

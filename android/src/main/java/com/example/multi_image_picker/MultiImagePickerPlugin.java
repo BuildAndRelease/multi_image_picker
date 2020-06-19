@@ -229,7 +229,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
             if (currentPickerResult != null) {
                 ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
-                currentPickerResult.success(result);
+                currentPickerResult.success(result != null ? result : Collections.EMPTY_LIST);
                 currentPickerResult = null;
             }
             return true;

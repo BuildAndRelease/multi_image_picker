@@ -93,20 +93,23 @@ class _MyHomePageState extends State<MyHomePage> {
        qualityOfImage: 80,
        maxHeight: 1024,
        maxWidth: 768,
-       selectedAssets: ['187053'],
+       selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
        materialOptions: MaterialOptions(
          allViewTitle: "All Photos",
        ),
      );
     //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(0, 50);
+    //  for (var asset in assets) {
+    //    print(asset.identifier);
+    //  }
     //  print(assets);
 
     //  List<Asset> data = await MultiImagePicker.requestMediaData(
     //    qualityOfImage: 80,
     //    maxHeight: 1024,
     //    maxWidth: 768,
-    //    selectedAssets: ['187053']
+    //    selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001']
     //  );
     //  print(data);
       // Uint8List data = await MultiImagePicker.fetchMediaThumbData("187053", "video");

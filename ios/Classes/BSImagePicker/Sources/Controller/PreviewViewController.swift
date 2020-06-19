@@ -172,7 +172,11 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         for cell in collectionView.visibleCells {
             (cell as! PreviewCollectionViewCell).stopPlayVideo()
         }
-        self.navigationController?.popViewController(animated: true)
+        if self.navigationController?.viewControllers[0] == self {
+            self.dismiss(animated: true, completion: nil)
+        }else{
+            self.navigationController?.popViewController(animated: true)
+        }
     }
     
     func selectViewDidSelectDidAction(_ view: SelectionView) {

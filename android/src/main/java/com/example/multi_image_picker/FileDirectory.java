@@ -83,11 +83,11 @@ public class FileDirectory {
                 final String type = split[0];
 
                 Uri contentUri = null;
-                if ("image".equals(type)) {
+                if (type.contains("image")) {
                     contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
+                } else if (type.contains("video")) {
                     contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
+                } else if (type.contains("audio")) {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 }
 

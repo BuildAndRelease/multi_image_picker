@@ -191,7 +191,9 @@ static Future<List<Asset>> requestMediaData({
         if (_cacheThumbData.length > 500) {
           _cacheThumbData.remove(_cacheThumbData.keys.first);
         }
-        _cacheThumbData[identifier] = data;
+        if (data != null) {
+          _cacheThumbData[identifier] = data;
+        }
         return data;
       }
     } on PlatformException catch (e) {

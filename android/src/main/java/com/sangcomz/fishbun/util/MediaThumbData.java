@@ -29,7 +29,7 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
     @Override
     protected byte[] doInBackground(Void... voids) {
         try {
-            if ("video".equals(fileType)) {
+            if (fileType.contains("video")) {
                 Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -37,7 +37,7 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
                 bitmap.recycle();
                 stream.close();
                 return bytes;
-            }else if ("image".equals(fileType)) {
+            }else if (fileType.contains("image")) {
                 Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);

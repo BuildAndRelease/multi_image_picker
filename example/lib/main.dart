@@ -93,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
        qualityOfImage: 80,
        maxHeight: 1024,
        maxWidth: 768,
-      //  selectedAssets: ['62D9F08A-F43F-41B3-8A28-19419C34DBB3/L0/001'],
+       selectedAssets: ['187053'],
        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
        materialOptions: MaterialOptions(
          allViewTitle: "All Photos",

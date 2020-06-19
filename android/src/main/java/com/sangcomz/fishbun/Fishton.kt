@@ -75,12 +75,16 @@ class Fishton {
     }
 
     fun mediaIndexOfFirstPreSelectMedia(): Int {
-        if (preSelectedMedias.size > 0) {
-            for (i in 0..pickerMedias.size) {
-                if (pickerMedias[i].identifier.equals(preSelectedMedias[0])) {
-                    return i;
+        try {
+            if (preSelectedMedias.size > 0) {
+                for (i in pickerMedias.indices) {
+                    if (pickerMedias[i].identifier.equals(preSelectedMedias[0])) {
+                        return i;
+                    }
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return 0
     }

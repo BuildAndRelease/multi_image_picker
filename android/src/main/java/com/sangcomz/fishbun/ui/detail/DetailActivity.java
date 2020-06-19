@@ -22,9 +22,11 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.sangcomz.fishbun.Fishton;
+import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.DetailViewPagerAdapter;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
+import com.sangcomz.fishbun.util.DisplayImage;
 import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 
@@ -57,7 +59,23 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_detail_actiivy);
         initValue();
         initView();
-        initAdapter();
+        if (initPosition == -1) {
+            ArrayList mimeTypeList = new ArrayList();
+            mimeTypeList.add(MimeType.GIF);
+            mimeTypeList.add(MimeType.WEBP);
+            DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, this);
+            displayImage.setListener(new DisplayImage.DisplayImageListener() {
+                @Override
+                public void OnDisplayImageDidSelectFinish(ArrayList medias) {
+                    fishton.setPickerMedias(medias);
+                    initPosition = fishton.mediaIndexOfFirstPreSelectMedia();
+                    initAdapter();
+                }
+            });
+            displayImage.execute();
+        }else {
+            initAdapter();
+        }
     }
 
     private void initValue() {

@@ -225,11 +225,5 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
         recyclerView.setAdapter(adapter);
         recyclerView.scrollToPosition(adapter.getItemCount()-1);
         updateSendBtnTitle();
-        if (fishton.getPreSelectedMedias().size() > 0) {
-            Intent i = new Intent(this, DetailActivity.class);
-            i.putExtra(Define.BUNDLE_NAME.POSITION.name(), fishton.mediaIndexOfFirstPreSelectMedia());
-            startActivityForResult(i, Define.ENTER_DETAIL_REQUEST_CODE);
-            fishton.getPreSelectedMedias().clear();
-        }
     }
 }

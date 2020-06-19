@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import androidx.core.content.ContextCompat;
@@ -232,7 +233,14 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 currentPickerResult = null;
             }
             return true;
-        } else {
+        } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Define.FINISH_DETAIL_REQUEST_CODE) {
+            if (currentPickerResult != null) {
+                ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                currentPickerResult.success(result);
+                currentPickerResult = null;
+            }
+            return true;
+        }else {
             if (currentPickerResult != null) {
                 currentPickerResult.success(Collections.emptyList());
                 currentPickerResult = null;

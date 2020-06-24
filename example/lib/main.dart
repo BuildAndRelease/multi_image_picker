@@ -79,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
       crossAxisCount: 3,
       children: List.generate(images.length, (index) {
         Asset asset = images[index];
+        // return Image.network('https://upfile.asqql.com/2009pasdfasdfic2009s305985-ts/2020-6/2020679131113978.gif');
         return Image.file(File(asset.filePath));
       }),
     );
@@ -93,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
        qualityOfImage: 80,
        maxHeight: 1024,
        maxWidth: 768,
-       selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
+      //  selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
        materialOptions: MaterialOptions(
          allViewTitle: "All Photos",

@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 
 import com.hw.videoprocessor.VideoProcessor;
-import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Media;
 
 import java.io.File;
@@ -102,7 +101,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         ArrayList<HashMap> result = new ArrayList<>();
         for (int i = 0; i < selectMedias.size(); i++) {
             Media media = selectMedias.get(i);
-            if (media.getFileType().startsWith("video")) {
+            if (media.getFileType().contains("video")) {
                 String uuid = UUID.randomUUID().toString();
                 String videoName = uuid + ".mp4";
                 String imgName = uuid + ".jpg";
@@ -151,37 +150,73 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
     }
 
     private HashMap fetchImageThumb(Media media, boolean thumb, int quality, int maxHeight, int maxWidth) {
-        HashMap<String, Object> map = new HashMap<>();
-        String fileName = UUID.randomUUID().toString() + ".jpg";
-        String filePath = "";
-        try {
-            InputStream is = new FileInputStream(media.getOriginPath());
-            File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
-            if (!tmpPicParentDir.exists()) {
-                tmpPicParentDir.mkdirs();
+        if (media.getFileType().contains("gif")) {
+            String fileName = UUID.randomUUID().toString() + ".gif";
+            String filePath = "";
+            try {
+                InputStream is = new FileInputStream(media.getOriginPath());
+                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
+                if (!tmpPicParentDir.exists()) {
+                    tmpPicParentDir.mkdirs();
+                }
+                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
+                if (tmpPic.exists()) {
+                    tmpPic.delete();
+                }
+                filePath = tmpPic.getAbsolutePath();
+                FileOutputStream os = new FileOutputStream(tmpPic);
+                int bytesRead = 0;
+                byte[] buffer = new byte[8192];
+                while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+                    os.write(buffer, 0, bytesRead);
+                }
+                os.close();
+                is.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
-            if (tmpPic.exists()) {
-                tmpPic.delete();
-            }
-            filePath = tmpPic.getAbsolutePath();
-            HashMap hashMap = compressImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
-            if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
-                map.put("width", hashMap.get("width"));
-                map.put("height", hashMap.get("height"));
-            }else {
+
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("width", maxWidth);
+            map.put("height", maxHeight);
+            map.put("name", fileName);
+            map.put("filePath", filePath);
+            map.put("identifier", media.getIdentifier());
+            map.put("fileType", "image/gif");
+            return map;
+        }else {
+            HashMap<String, Object> map = new HashMap<>();
+            String fileName = UUID.randomUUID().toString() + ".jpg";
+            String filePath = "";
+            try {
+                InputStream is = new FileInputStream(media.getOriginPath());
+                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/");
+                if (!tmpPicParentDir.exists()) {
+                    tmpPicParentDir.mkdirs();
+                }
+                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/muti_image_pick/" + fileName);
+                if (tmpPic.exists()) {
+                    tmpPic.delete();
+                }
+                filePath = tmpPic.getAbsolutePath();
+                HashMap hashMap = compressImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
+                if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
+                    map.put("width", hashMap.get("width"));
+                    map.put("height", hashMap.get("height"));
+                }else {
+                    return map;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
                 return map;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            map.put("name", fileName);
+            map.put("filePath", filePath);
+            map.put("identifier", media.getIdentifier());
+            map.put("fileType", "image/jpg");
             return map;
         }
-
-        map.put("name", fileName);
-        map.put("filePath", filePath);
-        map.put("identifier", media.getIdentifier());
-        map.put("fileType", "image");
-        return map;
     }
 
     private HashMap compressImage(InputStream fromFile, File toFile, int width, int height, int quality) {

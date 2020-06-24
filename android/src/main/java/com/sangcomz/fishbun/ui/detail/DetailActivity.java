@@ -61,7 +61,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         initView();
         if (initPosition == -1) {
             ArrayList mimeTypeList = new ArrayList();
-            mimeTypeList.add(MimeType.GIF);
             mimeTypeList.add(MimeType.WEBP);
             DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, this);
             displayImage.setListener(new DisplayImage.DisplayImageListener() {
@@ -164,7 +163,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
-            if (media.getFileType().startsWith("video") && Integer.parseInt(media.getDuration()) > 60) {
+            if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 60) {
                 Toast.makeText(this, "视屏长度不能超过60秒", Toast.LENGTH_SHORT).show();
                 return;
             }

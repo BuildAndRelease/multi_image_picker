@@ -108,7 +108,11 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                       if asset.mediaType == .video {
                           dictionary.setValue("video", forKey: "fileType")
                       }else if asset.mediaType == .image {
-                          dictionary.setValue("image", forKey: "fileType")
+                        if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
+                            dictionary.setValue("image/gif", forKey: "fileType")
+                        }else {
+                            dictionary.setValue("image/jpg", forKey: "fileType")
+                        }
                       }
                       medias.add(dictionary)
                 }

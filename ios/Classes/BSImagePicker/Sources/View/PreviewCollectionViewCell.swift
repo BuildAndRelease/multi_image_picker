@@ -33,8 +33,14 @@ class PreviewCollectionViewCell: UICollectionViewCell {
                 if self.tag != 0 {
                     PHCachingImageManager.default().cancelImageRequest(PHImageRequestID(Int32(self.tag)))
                 }
-                self.tag = Int(PHCachingImageManager.default().requestImage(for: asset!, targetSize:UIScreen.main.bounds.size, contentMode: .aspectFit, options: options) { (result, info) in
-                    weakSelf?.photoImageView.image = result
+
+                self.tag = Int(PHCachingImageManager.default().requestImageData(for: asset!, options: options) { (data, uti, orientation, info) in
+                    guard let tUti = uti, let result = data else { return }
+                    if (tUti.contains("gif")) {
+                        weakSelf?.photoImageView.image = UIImage.gifImageWithData(result)
+                    }else {
+                        weakSelf?.photoImageView.image = UIImage(data: result)
+                    }
                 })
             }
         }

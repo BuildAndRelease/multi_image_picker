@@ -107,7 +107,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     }
                     case FETCH_MEDIA_INFO: {
                         ArrayList mimeTypeList = new ArrayList();
-                        mimeTypeList.add(MimeType.GIF);
                         mimeTypeList.add(MimeType.WEBP);
                         int limit = call.argument(LIMIT);
                         int offset = call.argument(OFFSET);
@@ -172,7 +171,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         String okButtonDrawable = options.get("okButtonDrawable");
 
         ArrayList mimeTypeList = new ArrayList();
-        mimeTypeList.add(MimeType.GIF);
         mimeTypeList.add(MimeType.WEBP);
         FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
                 .setImageAdapter(new GlideAdapter())

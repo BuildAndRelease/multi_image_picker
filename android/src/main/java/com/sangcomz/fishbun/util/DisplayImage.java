@@ -102,12 +102,19 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                     int DISPLAY_NAME = c.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME);
                     int WIDTH = c.getColumnIndex(MediaStore.Files.FileColumns.WIDTH);
                     int HEIGHT = c.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT);
+                    int FILESIZE = c.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
                     int _ID = c.getColumnIndex(MediaStore.Files.FileColumns._ID);
                     if (requestHashMap) {
                         do {
                             try {
-                                HashMap media = new HashMap();
                                 String mimeType = c.getString(MIME_TYPE);
+                                if (mimeType.contains("gif")) {
+                                    int size = c.getInt(FILESIZE);
+                                    if (size > 1024*1024*20) {
+                                        continue;
+                                    }
+                                }
+                                HashMap media = new HashMap();
                                 String imgId = c.getString(_ID);
                                 media.put("identifier", imgId);
                                 media.put("filePath", c.getString(DATA));
@@ -138,8 +145,14 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                         } while (c.moveToNext());
                     }else {
                         do {
-                            Media media = new Media();
                             String mimeType = c.getString(MIME_TYPE);
+                            if (mimeType.contains("gif")) {
+                                int size = c.getInt(FILESIZE);
+                                if (size > 1024*1024*20) {
+                                    continue;
+                                }
+                            }
+                            Media media = new Media();
                             String imgId = c.getString(_ID);
                             if (isExceptMemeType(exceptMimeTypeList, mimeType)) continue;
                             media.setFileType(mimeType);

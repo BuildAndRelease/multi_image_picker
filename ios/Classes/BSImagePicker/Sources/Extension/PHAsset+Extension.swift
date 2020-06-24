@@ -115,28 +115,58 @@ extension PHAsset {
                     targetHeight = widthCompressRatio * CGFloat(self.pixelHeight)
                 }
             }
-            manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
-                let uuid = UUID().uuidString
-                let fileName = "\(uuid).jpg"
-                let filePath = saveDir + fileName
-                if FileManager.default.fileExists(atPath: filePath) {
-                    try? FileManager.default.removeItem(atPath: filePath)
+            if let uti = self.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
+                manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
+                    do {
+                        if let file = data {
+                            let uuid = UUID().uuidString
+                            let fileName = "\(uuid).gif"
+                            let filePath = saveDir + fileName
+                            if FileManager.default.fileExists(atPath: filePath) {
+                                try? FileManager.default.removeItem(atPath: filePath)
+                            }
+                            try file.write(to: URL(fileURLWithPath: filePath))
+                            if FileManager.default.fileExists(atPath: filePath) {
+                                finish?([
+                                    "identifier": self.localIdentifier,
+                                    "filePath":filePath,
+                                    "width": targetWidth,
+                                    "height": targetHeight,
+                                    "name": fileName,
+                                    "fileType":"image/gif"
+                                ])
+                            }else {
+                                failed?(NSError(domain: "图片请求失败", code: 2, userInfo: nil))
+                            }
+                        }
+                    }catch {
+                        
+                    }
                 }
-                let imageData = image?.jpegData(compressionQuality: thumb ? CGFloat(quality) : 1.0) as NSData?
-                imageData?.write(toFile: filePath, atomically: true)
-                if FileManager.default.fileExists(atPath: filePath) {
-                    finish?([
-                        "identifier": self.localIdentifier,
-                        "filePath":filePath,
-                        "width": targetWidth,
-                        "height": targetHeight,
-                        "name": fileName,
-                        "fileType":"image"
-                    ])
-                }else {
-                    failed?(NSError(domain: "图片请求失败", code: 2, userInfo: nil))
-                }
-            })
+            }else {
+                manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
+                    let uuid = UUID().uuidString
+                    let fileName = "\(uuid).jpg"
+                    let filePath = saveDir + fileName
+                    if FileManager.default.fileExists(atPath: filePath) {
+                        try? FileManager.default.removeItem(atPath: filePath)
+                    }
+                    let imageData = image?.jpegData(compressionQuality: thumb ? CGFloat(quality) : 1.0) as NSData?
+                    imageData?.write(toFile: filePath, atomically: true)
+                    if FileManager.default.fileExists(atPath: filePath) {
+                        finish?([
+                            "identifier": self.localIdentifier,
+                            "filePath":filePath,
+                            "width": targetWidth,
+                            "height": targetHeight,
+                            "name": fileName,
+                            "fileType":"image/jpg"
+                        ])
+                    }else {
+                        failed?(NSError(domain: "图片请求失败", code: 2, userInfo: nil))
+                    }
+                })
+            }
         }
     }
 }

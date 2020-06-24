@@ -139,8 +139,8 @@ extension PHAsset {
                                 failed?(NSError(domain: "图片请求失败", code: 2, userInfo: nil))
                             }
                         }
-                    }catch {
-                        
+                    }catch let err as NSError {
+                        print(err)
                     }
                 }
             }else {

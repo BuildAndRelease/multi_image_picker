@@ -66,7 +66,8 @@ class MultiImagePicker {
       var assets = List<Asset>();
       for (var item in images) {
         var asset;
-        if (item['fileType'] == 'image') {
+        final String fileType = item['fileType'];
+        if (fileType.contains('image')) {
         asset = Asset(
           item['identifier'],
           item['filePath'],
@@ -75,7 +76,7 @@ class MultiImagePicker {
           item['height'],
           item['fileType'],
         );
-        }else if (item['fileType'] == 'video') {
+        }else if (fileType.contains('video')) {
         asset = Asset(
           item['identifier'],
           item['filePath'],
@@ -121,7 +122,8 @@ static Future<List<Asset>> requestMediaData({
       var assets = List<Asset>();
       for (var item in images) {
         var asset;
-        if (item['fileType'] == 'image') {
+        final String fileType = item['fileType'];
+        if (fileType.contains('image')) {
         asset = Asset(
           item['identifier'],
           item['filePath'],
@@ -130,7 +132,7 @@ static Future<List<Asset>> requestMediaData({
           item['height'],
           item['fileType'],
         );
-        }else if (item['fileType'] == 'video') {
+        }else if (fileType.contains('video')) {
         asset = Asset(
           item['identifier'],
           item['filePath'],

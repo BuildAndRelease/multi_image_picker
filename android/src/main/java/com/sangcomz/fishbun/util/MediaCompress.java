@@ -61,8 +61,8 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                             String buckName = c.getString(c.getColumnIndex(MediaStore.MediaColumns.BUCKET_DISPLAY_NAME));
                             String originPath = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
                             String originName = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
-                            String originWidth = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
-                            String originHeight = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
+                            double originWidth = c.getFloat(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
+                            double originHeight = c.getFloat(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
                             String duration = "0";
                             if (mimeType.contains("video")) {
                                 duration = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DURATION));
@@ -71,8 +71,8 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                             media.setBucketId("0");
                             media.setBucketName(buckName);
                             media.setOriginName(originName);
-                            media.setOriginHeight(originHeight);
-                            media.setOriginWidth(originWidth);
+                            media.setOriginHeight(originHeight + "");
+                            media.setOriginWidth(originWidth + "");
                             media.setOriginPath(originPath);
                             media.setIdentifier(identify);
                             try {

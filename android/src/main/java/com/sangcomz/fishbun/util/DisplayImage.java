@@ -170,8 +170,8 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                                 }
                                 cursor.close();
                             }else{
-                                media.setOriginHeight(c.getString(HEIGHT));
-                                media.setOriginWidth(c.getString(WIDTH));
+                                media.setOriginHeight(c.getFloat(HEIGHT) + "");
+                                media.setOriginWidth(c.getFloat(WIDTH) + "");
                                 media.setDuration("0");
                             }
                             media.setIdentifier(imgId);

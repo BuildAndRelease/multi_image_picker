@@ -18,7 +18,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     super.initState();
@@ -33,9 +32,10 @@ class _MyAppState extends State<MyApp> {
         DemoLocalizationsDelegate.delegate,
       ],
       supportedLocales: [
-      const Locale('en'), // English
-      const Locale('he', 'IL'), // Hebrew
-      const Locale.fromSubtags(languageCode: 'zh'), // Chinese *See Advanced Locales below*
+        const Locale('en'), // English
+        const Locale('he', 'IL'), // Hebrew
+        const Locale.fromSubtags(
+            languageCode: 'zh'), // Chinese *See Advanced Locales below*
       ],
       home: new MyHomePage(),
     );
@@ -56,22 +56,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        appBar: new AppBar(
-          title: Text(DemoLocalizations.of(context).titleBarTitle),
-        ),
-        body: Column(
-          children: <Widget>[
-            Center(child: Text('Error: $_error')),
-            RaisedButton(
-              child: Text(DemoLocalizations.of(context).imagePick),
-              onPressed: loadAssets,
-            ),
-            Expanded(
-              child: buildGridView(),
-            )
-          ],
-        ),
-      );
+      appBar: new AppBar(
+        title: Text(DemoLocalizations.of(context).titleBarTitle),
+      ),
+      body: Column(
+        children: <Widget>[
+          Center(child: Text('Error: $_error')),
+          RaisedButton(
+            child: Text(DemoLocalizations.of(context).imagePick),
+            onPressed: loadAssets,
+          ),
+          Expanded(
+            child: buildGridView(),
+          )
+        ],
+      ),
+    );
   }
 
   Widget buildGridView() {
@@ -89,30 +89,29 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
     try {
-    //  resultList = await MultiImagePicker.pickImages(
-    //    maxImages: 9,
-    //    qualityOfImage: 80,
-    //    maxHeight: 1024,
-    //    maxWidth: 768,
-    //    selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
-    //    cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
-    //    materialOptions: MaterialOptions(
-    //      allViewTitle: "All Photos",
-    //    ),
-    //  );
-    //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(0, 50);
-    //  for (var asset in assets) {
-    //    print(asset.identifier);
-    //  }
-    //  print(assets);
+      resultList = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        qualityOfImage: 80,
+        maxHeight: 1024,
+        maxWidth: 768,
+        selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
+        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+        materialOptions: MaterialOptions(
+          allViewTitle: "All Photos",
+        ),
+      );
+      //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(0, 50);
+      //  for (var asset in assets) {
+      //    print(asset.identifier);
+      //  }
+      //  print(assets);
 
-     List<Asset> data = await MultiImagePicker.requestMediaData(
-       qualityOfImage: 80,
-       maxHeight: 1024,
-       maxWidth: 768,
-       selectedAssets: ['2BC808C8-1B92-4588-8573-6C019035A9D3/L0/001']
-     );
-    //  print(data);
+      // List<Asset> data = await MultiImagePicker.requestMediaData(
+      //     qualityOfImage: 80,
+      //     maxHeight: 1024,
+      //     maxWidth: 768,
+      //     selectedAssets: ['2BC808C8-1B92-4588-8573-6C019035A9D3/L0/001']);
+      //  print(data);
       // Uint8List data = await MultiImagePicker.fetchMediaThumbData("187053", "video");
       // print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");
@@ -131,5 +130,4 @@ class _MyHomePageState extends State<MyHomePage> {
       _error = error;
     });
   }
-
 }

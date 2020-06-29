@@ -7,7 +7,8 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:multi_image_picker/src/exceptions.dart';
 
 class MultiImagePicker {
-  static const MethodChannel _channel = const MethodChannel('multi_image_picker');
+  static const MethodChannel _channel =
+      const MethodChannel('multi_image_picker');
   static final Map<String, Uint8List> _cacheThumbData = Map();
 
   /// Invokes the multi image picker selector.
@@ -68,27 +69,27 @@ class MultiImagePicker {
         var asset;
         final String fileType = item['fileType'];
         if (fileType.contains('image')) {
-        asset = Asset(
-          item['identifier'],
-          item['filePath'],
-          item['name'],
-          item['width'],
-          item['height'],
-          item['fileType'],
-        );
-        }else if (fileType.contains('video')) {
-        asset = Asset(
-          item['identifier'],
-          item['filePath'],
-          item['name'],
-          item['width'],
-          item['height'],
-          item['fileType'],
-          thumbFilePath: item['thumbPath'],
-          thumbName: item['thumbName'],
-          thumbHeight: item['thumbHeight'],
-          thumbWidth: item['thumbWidth'],
-        );
+          asset = Asset(
+            item['identifier'],
+            item['filePath'],
+            item['name'],
+            item['width'],
+            item['height'],
+            item['fileType'],
+          );
+        } else if (fileType.contains('video')) {
+          asset = Asset(
+            item['identifier'],
+            item['filePath'],
+            item['name'],
+            item['width'],
+            item['height'],
+            item['fileType'],
+            thumbFilePath: item['thumbPath'],
+            thumbName: item['thumbName'],
+            thumbHeight: item['thumbHeight'],
+            thumbWidth: item['thumbWidth'],
+          );
         }
         assets.add(asset);
       }
@@ -103,48 +104,47 @@ class MultiImagePicker {
     }
   }
 
-static Future<List<Asset>> requestMediaData({
-    int qualityOfImage = 80,
-    int maxWidth = 750,
-    int maxHeight = 1334,
-    bool thumb = true,
-    List<String> selectedAssets = const []
-  }) async {
+  static Future<List<Asset>> requestMediaData(
+      {int qualityOfImage = 80,
+      int maxWidth = 750,
+      int maxHeight = 1334,
+      bool thumb = true,
+      List<String> selectedAssets = const []}) async {
     try {
-      final List<dynamic> images = await _channel.invokeMethod(
-        'requestMediaData',
-        <String, dynamic>{
-          'qualityOfImage': qualityOfImage,
-          'maxHeight': maxHeight,
-          'maxWidth': maxWidth,
-          'thumb': thumb,
-          'selectedAssets': selectedAssets});
+      final List<dynamic> images =
+          await _channel.invokeMethod('requestMediaData', <String, dynamic>{
+        'qualityOfImage': qualityOfImage,
+        'maxHeight': maxHeight,
+        'maxWidth': maxWidth,
+        'thumb': thumb,
+        'selectedAssets': selectedAssets
+      });
       var assets = List<Asset>();
       for (var item in images) {
         var asset;
         final String fileType = item['fileType'];
         if (fileType.contains('image')) {
-        asset = Asset(
-          item['identifier'],
-          item['filePath'],
-          item['name'],
-          item['width'],
-          item['height'],
-          item['fileType'],
-        );
-        }else if (fileType.contains('video')) {
-        asset = Asset(
-          item['identifier'],
-          item['filePath'],
-          item['name'],
-          item['width'],
-          item['height'],
-          item['fileType'],
-          thumbFilePath: item['thumbPath'],
-          thumbName: item['thumbName'],
-          thumbHeight: item['thumbHeight'],
-          thumbWidth: item['thumbWidth'],
-        );
+          asset = Asset(
+            item['identifier'],
+            item['filePath'],
+            item['name'],
+            item['width'],
+            item['height'],
+            item['fileType'],
+          );
+        } else if (fileType.contains('video')) {
+          asset = Asset(
+            item['identifier'],
+            item['filePath'],
+            item['name'],
+            item['width'],
+            item['height'],
+            item['fileType'],
+            thumbFilePath: item['thumbPath'],
+            thumbName: item['thumbName'],
+            thumbHeight: item['thumbHeight'],
+            thumbWidth: item['thumbWidth'],
+          );
         }
         assets.add(asset);
       }
@@ -161,35 +161,29 @@ static Future<List<Asset>> requestMediaData({
 
   static Future<List<Asset>> fetchMediaInfo(int offset, int limit) async {
     try {
-        final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo', <String, dynamic>{
-        'limit': limit,
-        'offset': offset
-        });
-        var assets = List<Asset>();
-        for (var item in images) {
-        var asset = Asset(
-          item['identifier'],
-          item['filePath'],
-          item['name'],
-          item['width'],
-          item['height'],
-          item['fileType'],
-          duration: item['duration']
-        );
+      final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo',
+          <String, dynamic>{'limit': limit, 'offset': offset});
+      var assets = List<Asset>();
+      for (var item in images) {
+        var asset = Asset(item['identifier'], item['filePath'], item['name'],
+            item['width'], item['height'], item['fileType'],
+            duration: item['duration']);
         assets.add(asset);
-        }
-        return assets;
+      }
+      return assets;
     } on PlatformException catch (e) {
       throw e;
     }
   }
 
-  static Future<Uint8List> fetchMediaThumbData(String identifier, String fileType) async {
+  static Future<Uint8List> fetchMediaThumbData(
+      String identifier, String fileType) async {
     try {
       if (_cacheThumbData.containsKey(identifier)) {
         return _cacheThumbData[identifier];
-      }else {
-        Uint8List data = await _channel.invokeMethod('fetchMediaThumbData', <String, dynamic>{'identifier': identifier, 'fileType': fileType});
+      } else {
+        Uint8List data = await _channel.invokeMethod('fetchMediaThumbData',
+            <String, dynamic>{'identifier': identifier, 'fileType': fileType});
         if (_cacheThumbData.length > 500) {
           _cacheThumbData.remove(_cacheThumbData.keys.first);
         }
@@ -210,7 +204,7 @@ static Future<List<Asset>> requestMediaData({
   static Uint8List fetchCacheThumbData(String identifier) {
     try {
       return _cacheThumbData[identifier];
-    }on Exception catch(e) {
+    } on Exception catch (e) {
       print(e);
       return Uint8List(0);
     }

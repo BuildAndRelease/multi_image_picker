@@ -31,8 +31,8 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
 
     private boolean thumb = false;
     private int quality = 80;
-    private int maxHeight = 1024;
-    private int maxWidth = 768;
+    private double maxHeight = 1024;
+    private double maxWidth = 768;
     private List<Media> selectMedias = new ArrayList<>();
     private List<String> selectMediaIdentifiers = new ArrayList<>();
     private Context context;
@@ -41,7 +41,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         this.listener = listener;
     }
 
-    public MediaCompress(boolean thumb, int quality, int maxHeight, int maxWidth, List<Media> selectMedias, List<String> selectMediaIdentifiers, Context context) {
+    public MediaCompress(boolean thumb, int quality, double maxHeight, double maxWidth, List<Media> selectMedias, List<String> selectMediaIdentifiers, Context context) {
         this.thumb = thumb;
         this.quality = quality;
         this.maxHeight = maxHeight;
@@ -149,7 +149,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         return result;
     }
 
-    private HashMap fetchImageThumb(Media media, boolean thumb, int quality, int maxHeight, int maxWidth) {
+    private HashMap fetchImageThumb(Media media, boolean thumb, int quality, double maxHeight, double maxWidth) {
         if (media.getFileType().contains("gif")) {
             String fileName = UUID.randomUUID().toString() + ".gif";
             String filePath = "";
@@ -199,7 +199,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                     tmpPic.delete();
                 }
                 filePath = tmpPic.getAbsolutePath();
-                HashMap hashMap = compressImage(is, tmpPic, thumb ? maxWidth : -1, thumb ? maxHeight : -1, thumb ? quality : 100);
+                HashMap hashMap = compressImage(is, tmpPic, thumb ? maxWidth : -1.0, thumb ? maxHeight : -1.0, thumb ? quality : 100);
                 if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
                     map.put("width", hashMap.get("width"));
                     map.put("height", hashMap.get("height"));
@@ -219,7 +219,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         }
     }
 
-    private HashMap compressImage(InputStream fromFile, File toFile, int width, int height, int quality) {
+    private HashMap compressImage(InputStream fromFile, File toFile, double width, double height, int quality) {
         HashMap result = new HashMap();
         try {
             Bitmap bitmap = BitmapFactory.decodeStream(fromFile);

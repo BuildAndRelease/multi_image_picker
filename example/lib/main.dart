@@ -97,10 +97,10 @@ class _MyHomePageState extends State<MyHomePage> {
         // selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
-            selectionStrokeColor: "#98FB98",
-            selectionFillColor: "#98FB98"),
+            selectionStrokeColor: "#ff6179f2",
+            selectionFillColor: "#ff6179f2"),
         materialOptions: MaterialOptions(
-            allViewTitle: "All Photos", selectCircleStrokeColor: "#98FB98"),
+            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
       );
       //  List<Asset>  assets = await MultiImagePicker.fetchMediaInfo(0, 50);
       //  for (var asset in assets) {

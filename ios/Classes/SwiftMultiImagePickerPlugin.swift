@@ -213,18 +213,27 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             cString.remove(at: cString.startIndex)
         }
 
-        if ((cString.count) != 6) {
+        if (cString.count == 6) {
+            var rgbValue:UInt32 = 0
+            Scanner(string: cString).scanHexInt32(&rgbValue)
+
+            return UIColor(
+                red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+                green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+                blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+                alpha: CGFloat(1.0))
+        }else if (cString.count == 8) {
+            var rgbValue:UInt32 = 0
+            Scanner(string: cString).scanHexInt32(&rgbValue)
+
+            return UIColor(
+                red: CGFloat((rgbValue & 0x00FF0000) >> 16) / 255.0,
+                green: CGFloat((rgbValue & 0x0000FF00) >> 8) / 255.0,
+                blue: CGFloat(rgbValue & 0x000000FF) / 255.0,
+                alpha: CGFloat((rgbValue & 0xFF000000) >> 24) / 255.0)
+        }else {
             return UIColor.gray
         }
-
-        var rgbValue:UInt32 = 0
-        Scanner(string: cString).scanHexInt32(&rgbValue)
-
-        return UIColor(
-            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
-            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
-            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
-            alpha: CGFloat(1.0)
-        )
+    
     }
 }

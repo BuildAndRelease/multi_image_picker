@@ -33,7 +33,12 @@ class AlbumListAdapter : RecyclerView.Adapter<AlbumListAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val uri: Uri = Uri.parse(albumList[position].thumbnailPath)
+        var uri: Uri = Uri.EMPTY
+        try {
+            uri = Uri.parse(albumList[position].thumbnailPath)
+        }catch (e: Exception) {
+            uri = Uri.EMPTY
+        }
         fishton.imageAdapter?.loadImage(holder.imgALbumThumb, uri)
 
         holder.itemView.tag = albumList[position]

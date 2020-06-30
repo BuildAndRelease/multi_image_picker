@@ -94,8 +94,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         }
 
         if (fishton.preSelectedMedias.size > 0) {
-            val fishBunContext = fishBun.fishBunContext
-            val context = fishBunContext.getContext()
             val i = Intent(context, DetailActivity::class.java)
             fishBunContext.startActivityForResult(i, requestCode)
         }else{

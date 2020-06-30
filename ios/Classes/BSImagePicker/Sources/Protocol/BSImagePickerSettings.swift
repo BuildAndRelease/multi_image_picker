@@ -59,11 +59,6 @@ public protocol BSImagePickerSettings {
     var selectionStrokeColor: UIColor { get set }
     
     /**
-    Shadow color
-    */
-    var selectionShadowColor: UIColor { get set }
-    
-    /**
     Attributes for text inside circle. Color, font, etc
     */
     var selectionTextAttributes: [NSAttributedString.Key: AnyObject] { get set }

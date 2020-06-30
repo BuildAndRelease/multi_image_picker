@@ -46,6 +46,14 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
     var selectBarButton: UIBarButtonItem = UIBarButtonItem()
     var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+    var settings: BSImagePickerSettings {
+        get {
+            return selectionView.settings
+        }
+        set {
+            selectionView.settings = newValue
+        }
+    }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)

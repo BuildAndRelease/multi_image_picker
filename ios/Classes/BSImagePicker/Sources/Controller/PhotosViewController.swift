@@ -90,11 +90,11 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         bottomContentView.backgroundColor = UIColor.clear
         
         doneBarButton.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
-        doneBarButton.backgroundColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
+        doneBarButton.backgroundColor = settings.selectionStrokeColor
         doneBarButton.setTitleColor(UIColor.white, for: .normal)
         doneBarButton.setTitleColor(UIColor.gray, for: .disabled)
         doneBarButton.setTitle(doneBarButtonTitle, for: .normal)
-        doneBarButton.setBackgroundColor(color: UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0), for: .normal)
+        doneBarButton.setBackgroundColor(color: settings.selectionStrokeColor, for: .normal)
         doneBarButton.setBackgroundColor(color: UIColor.darkGray, for: .disabled)
         doneBarButton.layer.masksToBounds = true
         doneBarButton.layer.cornerRadius = 5.0
@@ -105,7 +105,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         originBarButton.setTitle(originBarButtonTitle, for: .normal)
         originBarButton.isSelected = false
         originBarButton.circleRadius = 8.0
-        originBarButton.circleColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
+        originBarButton.circleColor = settings.selectionStrokeColor
         originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
         originBarButton.addTarget(self, action: #selector(PhotosViewController.originButtonPressed(_:)), for: .touchUpInside)
         
@@ -123,6 +123,8 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         
         photosDataSource?.registerCellIdentifiersForCollectionView(collectionView)
         photosDataSource?.delegate = self
+        
+        previewViewContoller.settings = settings;
         
         if assetStore.count > 0 {
             previewViewContoller.delegate = self

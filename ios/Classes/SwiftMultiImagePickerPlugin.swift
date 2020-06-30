@@ -170,10 +170,6 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
             }
 
-            if let selectionShadowColor = options["selectionShadowColor"], !selectionShadowColor.isEmpty {
-                vc.selectionShadowColor = hexStringToUIColor(hex: selectionShadowColor)
-            }
-
             if let selectionStrokeColor = options["selectionStrokeColor"] ,!selectionStrokeColor.isEmpty {
                 vc.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
             }

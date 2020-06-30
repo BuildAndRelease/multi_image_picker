@@ -79,7 +79,6 @@
             android:textSize="@dimen/normal_text_size"
             android:gravity="center"
             android:textColor="@drawable/select_text_drawable"
-            android:drawableLeft="@drawable/image_pick_radio_btn"
             android:background="#00ffffff"
             android:layout_centerInParent="true"
             android:id="@+id/photo_picker_origin_btn"/>
@@ -93,7 +92,7 @@
             android:text="@string/done"
             android:textSize="@dimen/normal_text_size"
             android:textColor="@drawable/select_text_drawable"
-            android:background="@drawable/image_pick_button"
+            android:background="#555555"
             android:layout_marginRight="15dp"
             android:id="@+id/photo_picker_send_btn" />
 

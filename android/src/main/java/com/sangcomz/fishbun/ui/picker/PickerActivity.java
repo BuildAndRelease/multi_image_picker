@@ -1,7 +1,10 @@
 package com.sangcomz.fishbun.ui.picker;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -98,7 +101,13 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                 updateSendBtnTitle();
                 recyclerView.getAdapter().notifyDataSetChanged();
                 originBtn.setSelected(!fishton.isThumb());
-                Drawable drawable = getResources().getDrawable(fishton.isThumb() ?  R.drawable.radio_unchecked : R.drawable.radio_checked);
+                Drawable drawable;
+                if (fishton.isThumb()) {
+                    drawable = getResources().getDrawable(R.drawable.ic_baseline_radio_button_unchecked_24);
+                }else {
+                    drawable = getResources().getDrawable(R.drawable.ic_baseline_radio_button_checked_24);
+                    drawable.setColorFilter(fishton.getColorSelectCircleStroke(), PorterDuff.Mode.SRC_IN);
+                }
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
                 originBtn.setCompoundDrawables(drawable,null,null,null);
             }else if (resultCode == Define.FINISH_DETAIL_REQUEST_CODE){
@@ -116,7 +125,13 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
         if (v != null) {
             if (v.equals(originBtn)) {
                 originBtn.setSelected(!originBtn.isSelected());
-                Drawable drawable = getResources().getDrawable(originBtn.isSelected() ? R.drawable.radio_checked : R.drawable.radio_unchecked);
+                Drawable drawable;
+                if (originBtn.isSelected()) {
+                    drawable = getResources().getDrawable(R.drawable.ic_baseline_radio_button_checked_24);
+                    drawable.setColorFilter(fishton.getColorSelectCircleStroke(), PorterDuff.Mode.SRC_IN);
+                }else {
+                    drawable = getResources().getDrawable(R.drawable.ic_baseline_radio_button_unchecked_24);
+                }
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
                 originBtn.setCompoundDrawables(drawable,null,null,null);
                 fishton.setThumb(!originBtn.isSelected());
@@ -188,6 +203,15 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
         compressingTextView = findViewById(R.id.compressing_text_view);
 
         originBtn = findViewById(R.id.photo_picker_origin_btn);
+        Drawable drawable;
+        if (fishton.isThumb()) {
+            drawable = getResources().getDrawable(R.drawable.ic_baseline_radio_button_unchecked_24);
+        }else {
+            drawable = getResources().getDrawable(R.drawable.ic_baseline_radio_button_checked_24);
+            drawable.setColorFilter(fishton.getColorSelectCircleStroke(), PorterDuff.Mode.SRC_IN);
+        }
+        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+        originBtn.setCompoundDrawables(drawable,null,null,null);
         originBtn.setOnClickListener(this);
 
         sendBtn = findViewById(R.id.photo_picker_send_btn);
@@ -210,10 +234,22 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
 
     public void updateSendBtnTitle() {
         if (fishton.getSelectedMedias().size() > 0) {
+            GradientDrawable drawable=new GradientDrawable();
+            drawable.setShape(GradientDrawable.RECTANGLE);
+            drawable.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+            drawable.setCornerRadius(8);
+            drawable.setColor(fishton.getColorSelectCircleStroke());
             sendBtn.setEnabled(true);
+            sendBtn.setBackground(drawable);
             sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedMedias().size() + ")");
         }else {
+            GradientDrawable drawable=new GradientDrawable();
+            drawable.setShape(GradientDrawable.RECTANGLE);
+            drawable.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+            drawable.setCornerRadius(8);
+            drawable.setColor(Color.parseColor("#555555"));
             sendBtn.setEnabled(false);
+            sendBtn.setBackground(drawable);
             sendBtn.setText(getResources().getText(R.string.done));
         }
     }

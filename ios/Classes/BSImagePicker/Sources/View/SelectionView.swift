@@ -86,7 +86,7 @@ Used as an overlay on selected cells
         //// CheckedOval Drawing
         let checkedOvalPath = UIBezierPath(ovalIn: CGRect(x: group.minX + floor(group.width * 0.0 + 0.5), y: group.minY + floor(group.height * 0.0 + 0.5), width: floor(group.width * 1.0 + 0.5) - floor(group.width * 0.0 + 0.5), height: floor(group.height * 1.0 + 0.5) - floor(group.height * 0.0 + 0.5)))
         context?.saveGState()
-        context?.setShadow(offset: shadow2Offset, blur: shadow2BlurRadius, color: settings.selectionShadowColor.cgColor)
+        context?.setShadow(offset: shadow2Offset, blur: shadow2BlurRadius, color: UIColor.clear.cgColor)
 
         selected ? settings.selectionFillColor.setFill() : UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).setFill()
         checkedOvalPath.fill()

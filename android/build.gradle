@@ -40,7 +40,7 @@ rootProject.allprojects {
 }
 
 android {
-    compileSdkVersion 'android-R'
+    compileSdkVersion 28
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'

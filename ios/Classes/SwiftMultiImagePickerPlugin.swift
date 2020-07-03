@@ -138,6 +138,26 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                     result(FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
                 }
             }
+        case "requestTakePicture":
+            let vc = WMCameraViewController()
+            vc.videoMaxLength = 20
+            vc.completeBlock = { url, type, duration, width, height in
+                let dictionary = NSMutableDictionary()
+                dictionary.setValue(url, forKey: "identifier")
+                dictionary.setValue(url, forKey: "filePath")
+                dictionary.setValue(width, forKey: "width")
+                dictionary.setValue(height, forKey: "height")
+                dictionary.setValue(url, forKey: "name")
+                dictionary.setValue(duration, forKey: "duration")
+                if type == .video {
+                    dictionary.setValue("video", forKey: "fileType")
+                }else if type == .image {
+                    dictionary.setValue("image/jpg", forKey: "fileType")
+                }
+                result(dictionary)
+            }
+            vc.modalPresentationStyle = .fullScreen
+            controller.present(vc, animated: true, completion: nil)
         case "pickImages":
             let status: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
             

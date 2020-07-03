@@ -38,7 +38,7 @@ class CustomTitleView: UIView {
         iconView.frame = CGRect(x: frame.size.width - iconWidth, y: 0, width: iconWidth, height: iconHeight)
         iconView.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
 
-        iconView.image = UIImage(named: "arrow_down")
+        iconView.image = UIImage.wm_imageWithName_WMCameraResource(named: "arrow_down_more")
         iconView.contentMode = .center
         iconView.layer.masksToBounds = true
         iconView.layer.cornerRadius = iconWidth/2.0

@@ -53,8 +53,8 @@ class PreviewCollectionViewCell: UICollectionViewCell {
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(photoImageView)
         
-        playImageView.image = UIImage(named: "play_btn_unselect")
-        playImageView.highlightedImage = UIImage(named: "play_btn_select")
+        playImageView.image = UIImage.wm_imageWithName_WMCameraResource(named: "play_btn_unselect")
+        playImageView.highlightedImage = UIImage.wm_imageWithName_WMCameraResource(named: "play_btn_select")
         playImageView.contentMode = .scaleAspectFit
         playImageView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(playImageView)

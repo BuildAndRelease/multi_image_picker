@@ -159,6 +159,18 @@ class MultiImagePicker {
     }
   }
 
+  static Future<Asset> requestTakePicture() async {
+    try {
+      final dynamic item = await _channel.invokeMethod('requestTakePicture');
+      var asset = Asset(item['identifier'], item['filePath'], item['name'],
+          item['width'], item['height'], item['fileType'],
+          duration: item['duration']);
+      return asset;
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   static Future<List<Asset>> fetchMediaInfo(int offset, int limit) async {
     try {
       final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo',

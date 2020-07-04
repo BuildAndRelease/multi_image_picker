@@ -141,7 +141,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
         case "requestTakePicture":
             let vc = WMCameraViewController()
             vc.videoMaxLength = 20
-            vc.completeBlock = { url, type, duration, width, height in
+            vc.completeBlock = { url, type, duration, width, height, thumbPath, thumbWidth, thumbHeight in
                 let dictionary = NSMutableDictionary()
                 dictionary.setValue(url, forKey: "identifier")
                 dictionary.setValue(url, forKey: "filePath")
@@ -154,6 +154,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 }else if type == .image {
                     dictionary.setValue("image/jpg", forKey: "fileType")
                 }
+                dictionary.setValue(thumbPath, forKey: "thumbPath")
+                dictionary.setValue(thumbPath, forKey: "thumbName")
+                dictionary.setValue(thumbHeight, forKey: "thumbHeight")
+                dictionary.setValue(thumbWidth, forKey: "thumbWidth")
                 result(dictionary)
             }
             vc.modalPresentationStyle = .fullScreen

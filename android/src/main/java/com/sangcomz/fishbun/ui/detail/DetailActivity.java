@@ -1,15 +1,12 @@
 package com.sangcomz.fishbun.ui.detail;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -276,7 +273,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         compressingView.setVisibility(View.INVISIBLE);
         Intent i = new Intent();
         i.putExtra(Define.INTENT_RESULT, result);
-        setResult(Define.FINISH_DETAIL_REQUEST_CODE, i);
+        setResult(Define.FINISH_DETAIL_RESULT_CODE, i);
         finish();
     }
 }

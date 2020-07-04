@@ -28,7 +28,6 @@ import com.sangcomz.fishbun.adapter.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
-import com.sangcomz.fishbun.ui.detail.DetailActivity;
 import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopup;
 
@@ -96,7 +95,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Define.ENTER_DETAIL_REQUEST_CODE) {
+        if (requestCode == Define.ENTER_DETAIL_RESULT_CODE) {
             if (resultCode == RESULT_OK) {
                 updateSendBtnTitle();
                 recyclerView.getAdapter().notifyDataSetChanged();
@@ -110,7 +109,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                 }
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
                 originBtn.setCompoundDrawables(drawable,null,null,null);
-            }else if (resultCode == Define.FINISH_DETAIL_REQUEST_CODE){
+            }else if (resultCode == Define.FINISH_DETAIL_RESULT_CODE){
                 ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
                 Intent i = new Intent();
                 i.putExtra(Define.INTENT_RESULT, result);

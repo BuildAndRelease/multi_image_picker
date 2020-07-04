@@ -28,13 +28,19 @@ class WMCameraViewController: UIViewController {
     var height : CGFloat = 0.0
     // output width
     var width : CGFloat = 0.0
+    // output thumbPath
+    var thumbPath = ""
+    // output thumbHeight
+    var thumbHeight : CGFloat = 0.0
+    // output thumbWidth
+    var thumbWidth : CGFloat = 0.0
     // input tupe
     var inputType:WMCameraType = WMCameraType.imageAndVideo
     // record video max length
     var videoMaxLength: Double = 10
     
     
-    var completeBlock: (String, WMCameraType, CGFloat, CGFloat, CGFloat) -> () = {_,_,_,_,_   in }
+    var completeBlock: (String, WMCameraType, CGFloat, CGFloat, CGFloat, String, CGFloat, CGFloat) -> () = {_,_,_,_,_,_,_,_ in }
     
     let previewImageView = UIImageView()
     var videoPlayer: WMVideoPlayer!
@@ -110,7 +116,7 @@ extension WMCameraViewController: WMCameraControlDelegate {
     
     func cameraControlDidComplete() {
         dismiss(animated: true) {
-            self.completeBlock(self.url!, self.type!, self.duration, self.width, self.height)
+            self.completeBlock(self.url!, self.type!, self.duration, self.width, self.height, self.thumbPath, self.thumbWidth, self.thumbHeight)
         }
     }
     
@@ -150,15 +156,38 @@ extension WMCameraViewController: WMCameraControlDelegate {
             self.videoPlayer.play()
             self.controlView.showCompleteAnimation()
             
-            let asset = self.videoPlayer.player.currentItem?.asset
-            let duration = CMTimeGetSeconds(asset?.duration ?? CMTime(value: 0, timescale: 0))
-            let size = asset?.tracks(withMediaType: .video).first?.naturalSize
-            let width = size?.width ?? 0.0
-            let height = size?.height ?? 0.0
-            self.duration = CGFloat(duration)
-            self.width = width
-            self.height = height
+            if let asset = self.videoPlayer.player.currentItem?.asset, let image = self.fetchVideoPreViewImage(asset) {
+                let duration = CMTimeGetSeconds(asset.duration)
+                let size = asset.tracks(withMediaType: .video).first?.naturalSize
+                let width = size?.width ?? 0.0
+                let height = size?.height ?? 0.0
+                let imagePath = WMCameraFileTools.wm_createFileUrl("jpg")
+                let imageJpegData = image.jpegData(compressionQuality: 1.0)
+                do {
+                    try imageJpegData?.write(to: URL(fileURLWithPath: imagePath as String))
+                } catch let e as NSError {
+                    print("Error: \(e.localizedDescription)")
+                }
+                self.thumbPath = imagePath
+                self.thumbHeight = image.size.height
+                self.thumbWidth = image.size.width
+                self.duration = CGFloat(duration)
+                self.width = width
+                self.height = height
+            }
         }
+    }
+    
+    func fetchVideoPreViewImage(_ asset : AVAsset) -> UIImage? {
+        let assetGen = AVAssetImageGenerator(asset: asset)
+        assetGen.appliesPreferredTrackTransform = true
+        var thumbnail: UIImage?
+        do {
+            thumbnail = try UIImage(cgImage: assetGen.copyCGImage(at: CMTime(seconds: 0, preferredTimescale: 1), actualTime: nil))
+        } catch let e as NSError {
+            print("Error: \(e.localizedDescription)")
+        }
+        return thumbnail
     }
     
     func cameraControlDidChangeFocus(focus: Double) {

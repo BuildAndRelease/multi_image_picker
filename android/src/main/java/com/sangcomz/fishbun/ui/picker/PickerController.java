@@ -28,7 +28,7 @@ public class PickerController implements DisplayImage.DisplayImageListener {
     public void onSelectItem(int selectIndex) {
         Intent i = new Intent(pickerActivity, DetailActivity.class);
         i.putExtra(Define.BUNDLE_NAME.POSITION.name(), selectIndex);
-        pickerActivity.startActivityForResult(i, Define.ENTER_DETAIL_REQUEST_CODE);
+        pickerActivity.startActivityForResult(i, Define.ENTER_DETAIL_RESULT_CODE);
     }
 
     protected ArrayList<Media> getAddImagePaths() {

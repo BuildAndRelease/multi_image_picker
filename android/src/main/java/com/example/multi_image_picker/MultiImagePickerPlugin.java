@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import androidx.core.content.ContextCompat;
@@ -14,6 +13,7 @@ import com.sangcomz.fishbun.FishBunCreator;
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.GlideAdapter;
 import com.sangcomz.fishbun.bean.Media;
+import com.sangcomz.fishbun.ui.camera.CameraActivity;
 import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.util.PermissionCheck;
 import com.sangcomz.fishbun.util.DisplayImage;
@@ -42,6 +42,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String FETCH_MEDIA_THUMB_DATA = "fetchMediaThumbData";
     private static final String FETCH_MEDIA_INFO = "fetchMediaInfo";
     private static final String REQUEST_MEDIA_DATA = "requestMediaData";
+    private static final String REQUEST_TAKE_PICTURE = "requestTakePicture";
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
     private static final String MAX_HEIGHT = "maxHeight";
@@ -54,6 +55,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String SELECTED_ASSETS = "selectedAssets";
     private static final String ANDROID_OPTIONS = "androidOptions";
     private static final int REQUEST_CODE_CHOOSE = 1001;
+    private static final int REQUEST_CODE_TAKE = 1002;
     private final MethodChannel channel;
     private final Activity activity;
     private final Context context;
@@ -121,6 +123,14 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                             }
                         });
                         displayImage.execute();
+                        break;
+                    }
+                    case REQUEST_TAKE_PICTURE: {
+                        if (currentPickerResult != null) {
+                            currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
+                        }
+                        currentPickerResult = result;
+                        activity.startActivityForResult(new Intent(activity, CameraActivity.class), REQUEST_CODE_TAKE);
                         break;
                     }
                     case FETCH_MEDIA_THUMB_DATA: {
@@ -196,7 +206,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             fishBun.setDoneButtonDrawable(ContextCompat.getDrawable(context, id));
         }
 
-
         if (actionBarTitle != null && !actionBarTitle.isEmpty()) {
             fishBun.setActionBarTitle(actionBarTitle);
         }
@@ -231,9 +240,16 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 currentPickerResult = null;
             }
             return true;
-        } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Define.FINISH_DETAIL_REQUEST_CODE) {
+        } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Define.FINISH_DETAIL_RESULT_CODE) {
             if (currentPickerResult != null) {
                 ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                currentPickerResult.success(result);
+                currentPickerResult = null;
+            }
+            return true;
+        } else if (requestCode == REQUEST_CODE_TAKE && resultCode == Define.ENTER_TAKE_RESULT_CODE) {
+            if (currentPickerResult != null) {
+                HashMap result = (HashMap) data.getSerializableExtra(Define.INTENT_RESULT);
                 currentPickerResult.success(result);
                 currentPickerResult = null;
             }

@@ -82,7 +82,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     boolean checkPermission() {
         PermissionCheck permissionCheck = new PermissionCheck(activity);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return permissionCheck.CheckStoragePermission() && permissionCheck.CheckCameraPermission();
+            return permissionCheck.CheckStoragePermission() && permissionCheck.CheckCameraPermission() && permissionCheck.CheckRecordAudioPermission();
         } else {
             return true;
         }

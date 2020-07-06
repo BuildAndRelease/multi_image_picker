@@ -44,6 +44,7 @@ class WMCameraControl: UIView {
     let takeButton = UIButton()
     let exitButton = UIButton()
     let changeCameraButton = UIButton()
+    let tipLbl = UILabel()
     
     var timer: Timer?
     
@@ -51,6 +52,14 @@ class WMCameraControl: UIView {
         super.init(frame: frame)
         
         setupCameraButton()
+        
+        tipLbl.frame = CGRect(x: 0, y: 0, width: 140, height: 30)
+        tipLbl.textAlignment = .center
+        tipLbl.textColor = UIColor.white
+        tipLbl.font = UIFont.systemFont(ofSize: 12)
+        tipLbl.text = "轻触拍照，长按摄像"
+        tipLbl.center = CGPoint(x: cameraButton.center.x, y: cameraButton.center.y - cameraButton.bounds.height/2 - 20)
+        self.addSubview(tipLbl)
         
         retakeButton.frame = cameraButton.frame
         retakeButton.isHidden = true
@@ -64,25 +73,23 @@ class WMCameraControl: UIView {
         takeButton.addTarget(self, action: #selector(takeButtonClick), for: .touchUpInside)
         self.addSubview(takeButton)
         
-        
         exitButton.setImage(UIImage.wm_imageWithName_WMCameraResource(named: "arrow_down"), for: .normal)
-        exitButton.frame = CGRect(x: 50, y: self.wm_height * 0.5 - 20, width: 40, height: 40)
+        exitButton.frame = CGRect(x: 50, y: self.wm_height - 75 - 20, width: 40, height: 40)
         exitButton.addTarget(self, action: #selector(exitButtonClick), for: .touchUpInside)
         self.addSubview(exitButton)
         
-        
         changeCameraButton.setImage(UIImage.wm_imageWithName_WMCameraResource(named: "change_camera"), for: .normal)
-        changeCameraButton.frame = CGRect(x: self.wm_width - 50 - 40, y: self.wm_height * 0.5 - 20, width: 40, height: 40)
+        changeCameraButton.imageEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        changeCameraButton.frame = CGRect(x: self.wm_width - 20 - 40, y: 20, width: 40, height: 40)
         changeCameraButton.addTarget(self, action: #selector(changeCameraButtonClick), for: .touchUpInside)
         self.addSubview(changeCameraButton)
-        
         
     }
     
     func setupCameraButton() {
         cameraButton.frame = CGRect(x: 0, y: 0, width: 70, height: 70)
         cameraButton.alpha = 1.0
-        cameraButton.center = CGPoint(x: self.wm_width * 0.5, y: self.wm_height * 0.5)
+        cameraButton.center = CGPoint(x: self.wm_width * 0.5, y: self.wm_height - 75)
         cameraButton.layer.cornerRadius = cameraButton.wm_width * 0.5
         cameraButton.layer.masksToBounds = true
         self.addSubview(cameraButton)
@@ -141,6 +148,9 @@ class WMCameraControl: UIView {
         guard self.inputType == .image || self.inputType == .imageAndVideo else {
             return
         }
+        UIView.animate(withDuration: 0.2) {
+            self.tipLbl.alpha = 0.0
+        }
         guard let delegate = delegate else { return }
         delegate.cameraControlDidTakePhoto()
         cameraButton.isHidden = true
@@ -158,6 +168,7 @@ class WMCameraControl: UIView {
             guard let `self` = self else { return }
             self.cameraButton.transform = CGAffineTransform.init(scaleX: 1.5, y: 1.5)
             self.centerView.transform = CGAffineTransform.init(scaleX: 0.5, y: 0.5)
+            self.tipLbl.alpha = 0.0
         })
     }
     

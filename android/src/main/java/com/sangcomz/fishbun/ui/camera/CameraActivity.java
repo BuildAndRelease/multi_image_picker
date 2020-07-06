@@ -34,7 +34,7 @@ public class CameraActivity extends Activity {
         jCameraView = (JCameraView) findViewById(R.id.jcameraview);
         jCameraView.setSaveVideoPath(Environment.getExternalStorageDirectory().getPath() + File.separator + "JCamera");
         jCameraView.setFeatures(JCameraView.BUTTON_STATE_BOTH);
-        jCameraView.setTip("");
+        jCameraView.setTip("轻触拍照，长按摄像。");
         jCameraView.setMediaQuality(JCameraView.MEDIA_QUALITY_MIDDLE);
         jCameraView.setErrorLisenter(new ErrorListener() {
             @Override

@@ -90,7 +90,7 @@ class WMCameraViewController: UIViewController {
         previewImageView.isHidden = true
         cameraContentView.addSubview(previewImageView)
         
-        controlView = WMCameraControl.init(frame: CGRect(x: 0, y: cameraContentView.wm_height - 150, width: self.view.wm_width, height: 150))
+        controlView = WMCameraControl.init(frame: self.view.bounds)
         controlView.delegate = self
         controlView.videoLength = self.videoMaxLength
         controlView.inputType = self.inputType

@@ -65,4 +65,34 @@ public class PermissionCheck {
         }
         return true;
     }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    public boolean CheckRecordAudioPermission() {
+        try {
+            PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
+            String[] permissions = info.requestedPermissions;
+
+            if (permissions != null && permissions.length > 0) {
+                for (String permission : permissions) {
+                    if (permission.equals(Manifest.permission.RECORD_AUDIO)) {
+                        int cameraPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO);
+                        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
+                            if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.RECORD_AUDIO)) {
+                                ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.RECORD_AUDIO}, Define.PERMISSION_RECORD_AUDIO);
+                            } else {
+                                ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.RECORD_AUDIO}, Define.PERMISSION_RECORD_AUDIO);
+                            }
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
 }

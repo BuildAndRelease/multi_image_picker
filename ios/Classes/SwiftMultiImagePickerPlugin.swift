@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import Photos
 
-public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
+public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDelegate {
     var controller: UIViewController!
     var imagesResult: FlutterResult?
     var messenger: FlutterBinaryMessenger;
@@ -31,8 +31,31 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
         let instance = SwiftMultiImagePickerPlugin.init(cont: controller, messenger: registrar.messenger())
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
+    
+    func permissionCheck() -> Bool {
+        var authStatus = AVCaptureDevice.authorizationStatus(for: .video)
+        if authStatus == .denied || authStatus == .restricted {
+            let alertView = UIAlertView(title: "温馨提示", message: "您需要授予此APP拍摄权限", delegate: self, cancelButtonTitle: "取消", otherButtonTitles: "去设置")
+            alertView.tag = 0x01
+            alertView.show()
+            return false
+        }
+        
+        authStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+        if authStatus == .denied || authStatus == .restricted {
+            let alertView = UIAlertView(title: "温馨提示", message: "您需要授予此APP录音权限", delegate: self, cancelButtonTitle: "取消", otherButtonTitles: "去设置")
+            alertView.tag = 0x02
+            alertView.show()
+            return false
+        }
+        
+        return true
+    }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if !permissionCheck() {
+            return
+        }
         switch (call.method) {
         case "requestMediaData":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
@@ -259,5 +282,9 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             return UIColor.gray
         }
     
+    }
+    
+    public func alertView(_ alertView: UIAlertView, didDismissWithButtonIndex buttonIndex: Int) {
+        UIApplication.shared.openURL(URL(string: UIApplication.openSettingsURLString)!)
     }
 }

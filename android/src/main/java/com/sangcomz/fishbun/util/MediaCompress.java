@@ -177,8 +177,8 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
             }
 
             HashMap<String, Object> map = new HashMap<>();
-            map.put("width", media.getOriginWidth());
-            map.put("height", media.getOriginHeight());
+            map.put("width", Float.parseFloat(media.getOriginWidth()));
+            map.put("height", Float.parseFloat(media.getOriginHeight()));
             map.put("name", fileName);
             map.put("filePath", filePath);
             map.put("identifier", media.getIdentifier());

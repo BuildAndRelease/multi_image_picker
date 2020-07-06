@@ -162,9 +162,19 @@ class MultiImagePicker {
   static Future<Asset> requestTakePicture() async {
     try {
       final dynamic item = await _channel.invokeMethod('requestTakePicture');
-      var asset = Asset(item['identifier'], item['filePath'], item['name'],
-          item['width'], item['height'], item['fileType'],
-          duration: item['duration']);
+      var asset = Asset(
+        item['identifier'],
+        item['filePath'],
+        item['name'],
+        item['width'],
+        item['height'],
+        item['fileType'],
+        duration: item['duration'],
+        thumbFilePath: item['thumbPath'],
+        thumbName: item['thumbName'],
+        thumbHeight: item['thumbHeight'],
+        thumbWidth: item['thumbWidth'],
+      );
       return asset;
     } on PlatformException catch (e) {
       throw e;

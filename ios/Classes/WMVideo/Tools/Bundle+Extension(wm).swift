@@ -14,9 +14,6 @@ extension Bundle{
     ///
     /// - Returns: Bundle
     class func wm_videoBundle() -> Bundle{
-//        var bundle:Bundle = Bundle.init(for: WMCameraViewController.self)
-//        let url:URL = bundle.url(forResource: "WMCameraResource", withExtension: "bundle")!
-//        bundle = Bundle.init(url: url)!
         return Bundle.init(for: WMCameraViewController.self)
     }
     

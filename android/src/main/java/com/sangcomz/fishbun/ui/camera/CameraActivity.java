@@ -51,13 +51,12 @@ public class CameraActivity extends Activity {
                 finish();
             }
         });
-
         jCameraView.setJCameraLisenter(new JCameraListener() {
             @Override
             public void captureSuccess(Bitmap bitmap) {
                 HashMap map = new HashMap();
-                map.put("width", (float)bitmap.getHeight());
-                map.put("height", (float)bitmap.getWidth());
+                map.put("width", (float)bitmap.getWidth());
+                map.put("height", (float)bitmap.getHeight());
                 String path = FileUtil.saveBitmap("JCamera", bitmap);
                 map.put("identifier", path);
                 map.put("filePath", path);

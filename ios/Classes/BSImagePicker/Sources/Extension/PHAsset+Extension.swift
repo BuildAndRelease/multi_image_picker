@@ -130,7 +130,7 @@ extension PHAsset {
                     targetHeight = widthCompressRatio * CGFloat(self.pixelHeight)
                 }
             }
-            if let uti = self.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
+            if let uti = self.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF") {
                 manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                     do {
                         if let file = data {

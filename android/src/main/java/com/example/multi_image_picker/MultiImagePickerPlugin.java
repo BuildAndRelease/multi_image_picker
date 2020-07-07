@@ -15,6 +15,7 @@ import com.sangcomz.fishbun.adapter.GlideAdapter;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.ui.camera.CameraActivity;
 import com.sangcomz.fishbun.util.Define;
+import com.sangcomz.fishbun.util.MediaInfoData;
 import com.sangcomz.fishbun.util.PermissionCheck;
 import com.sangcomz.fishbun.util.DisplayImage;
 import com.sangcomz.fishbun.util.MediaCompress;
@@ -43,6 +44,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String FETCH_MEDIA_INFO = "fetchMediaInfo";
     private static final String REQUEST_MEDIA_DATA = "requestMediaData";
     private static final String REQUEST_TAKE_PICTURE = "requestTakePicture";
+    private static final String REQUEST_FILE_SIZE = "requestFileSize";
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
     private static final String MAX_HEIGHT = "maxHeight";
@@ -144,6 +146,19 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                             }
                         });
                         mediaThumbData.execute();
+                        break;
+                    }
+                    case REQUEST_FILE_SIZE: {
+                        String identify = call.argument(IDENTIFY);
+                        String fileType = call.argument(FILE_TYPE);
+                        MediaInfoData mediaInfoData = new MediaInfoData(identify, fileType, activity);
+                        mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
+                            @Override
+                            public void mediaInfoDataDidFinish(String size) {
+                                result.success(size);
+                            }
+                        });
+                        mediaInfoData.execute();
                         break;
                     }
                     case REQUEST_MEDIA_DATA: {

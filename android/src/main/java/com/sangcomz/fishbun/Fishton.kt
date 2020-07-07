@@ -74,6 +74,24 @@ class Fishton {
         titleActionBar = titleActionBar ?: context.getString(R.string.album)
     }
 
+    fun isContainVideo(): Boolean {
+        for (media in selectedMedias) {
+            if (media.fileType.contains("video")) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun isContainPic(): Boolean {
+        for (media in selectedMedias) {
+            if (media.fileType.contains("image")) {
+                return true
+            }
+        }
+        return false
+    }
+
     fun mediaIndexOfFirstPreSelectMedia(): Int {
         try {
             if (preSelectedMedias.size > 0) {

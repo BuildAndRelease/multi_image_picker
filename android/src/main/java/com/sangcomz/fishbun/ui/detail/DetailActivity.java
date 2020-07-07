@@ -182,19 +182,30 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
-            if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 60) {
-                Toast.makeText(this, "视屏长度不能超过60秒", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (fishton.getSelectedMedias().contains(media)) {
-                fishton.getSelectedMedias().remove(media);
-                onCheckStateChange(media);
+
+            if (media.getFileType().contains("video") && fishton.isContainPic()) {
+                Snackbar.make(btnDetailCount, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
+            } else if (media.getFileType().contains("video") && fishton.getSelectedMedias().size() > 0) {
+                Snackbar.make(btnDetailCount, "一次只能选择一个视频", Snackbar.LENGTH_SHORT).show();
+            } else if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 60) {
+                Snackbar.make(btnDetailCount, "视屏长度不能超过60秒", Snackbar.LENGTH_SHORT).show();
+            } else if (media.getFileType().contains("image") && fishton.isContainVideo()) {
+                Snackbar.make(btnDetailCount, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
+            } else if (media.getFileType().contains("gif") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
+                Snackbar.make(btnDetailCount, "不能选择超过8M的图片", Snackbar.LENGTH_SHORT).show();
+            } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
+                Snackbar.make(btnDetailCount, "选择数量超过最大限制", Snackbar.LENGTH_SHORT).show();
             } else {
-                if (fishton.getSelectedMedias().size() == fishton.getMaxCount()) {
-                    Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
-                } else {
-                    fishton.getSelectedMedias().add(media);
+                if (fishton.getSelectedMedias().contains(media)) {
+                    fishton.getSelectedMedias().remove(media);
                     onCheckStateChange(media);
+                } else {
+                    if (fishton.getSelectedMedias().size() == fishton.getMaxCount()) {
+                        Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        fishton.getSelectedMedias().add(media);
+                        onCheckStateChange(media);
+                    }
                 }
             }
         } else if (id == R.id.btn_detail_back) {

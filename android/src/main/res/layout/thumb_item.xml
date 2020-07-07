@@ -21,6 +21,27 @@
         android:layout_height="25dp"
         android:background="@drawable/drawable_image_fade_annotation"
         android:weightSum="1.0"
+        android:visibility="invisible"
+        android:layout_gravity="bottom"
+        android:id="@+id/gif_thumb_info_view">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.7"
+            android:text="GIF"
+            android:textColor="@android:color/white"
+            android:gravity="center|left"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/gif_thumb_info_text_view"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:background="@drawable/drawable_image_fade_annotation"
+        android:weightSum="1.0"
         android:layout_gravity="bottom"
         android:id="@+id/video_thumb_info_view">
 

@@ -19,6 +19,8 @@ import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.ui.picker.PickerController;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 
@@ -52,13 +54,14 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setTextColor(Color.WHITE);
         vh.btnThumbCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
 
-        if (fishton.getSelectedMedias().size() >= fishton.getMaxCount() && !fishton.getSelectedMedias().contains(media)) {
+        if ((fishton.getSelectedMedias().size() >= fishton.getMaxCount() || fishton.isContainVideo()) && !fishton.getSelectedMedias().contains(media)) {
             vh.banCoverView.setVisibility(View.VISIBLE);
         }else {
             vh.banCoverView.setVisibility(View.INVISIBLE);
         }
 
         if (media.getFileType().contains("video")) {
+            vh.gifInfoContentView.setVisibility(View.INVISIBLE);
             vh.videoInfoContentView.setVisibility(View.VISIBLE);
             try {
                 int duration = Integer.parseInt(media.getDuration());
@@ -68,6 +71,11 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
         }else {
             vh.videoInfoContentView.setVisibility(View.INVISIBLE);
+            if (media.getFileType().contains("gif")) {
+                vh.gifInfoContentView.setVisibility(View.VISIBLE);
+            }else {
+                vh.gifInfoContentView.setVisibility(View.INVISIBLE);
+            }
         }
 
         int selectedIndex = fishton.getSelectedMedias().indexOf(media);
@@ -82,29 +90,39 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 60) {
-                    Snackbar.make(vh.item, "视屏长度不能超过60秒", Snackbar.LENGTH_SHORT).show();
-                }else {
+                if (fishton.getSelectedMedias().contains(media)) {
                     ArrayList<Media> pickedImages = fishton.getSelectedMedias();
-                    boolean isContained = pickedImages.contains(media);
-                    if (fishton.getMaxCount() == pickedImages.size() && !isContained) {
-                        Snackbar.make(vh.item, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
-                    }else {
-                        RadioWithTextButton btnThumbCount = vh.item.findViewById(R.id.btn_thumb_count);
-                        View coverView = vh.item.findViewById(R.id.conver_view);
-                        if (isContained) {
-                            pickedImages.remove(media);
-                            btnThumbCount.unselect();
-                            ViewCompat.animate(coverView).setDuration(100).alpha(0.0f);
-                        } else {
-                            pickedImages.add(media);
-                            btnThumbCount.setText(String.valueOf(pickedImages.size()));
-                            ViewCompat.animate(coverView).setDuration(100).alpha(0.3f);
-                        }
-                        pickerController.onSelectCountDidChange();
-                        if (pickedImages.size() >= fishton.getMaxCount() || pickedImages.size() == (fishton.getMaxCount() - 1)) {
-                            notifyDataSetChanged();
-                        }
+                    RadioWithTextButton btnThumbCount = vh.item.findViewById(R.id.btn_thumb_count);
+                    View coverView = vh.item.findViewById(R.id.conver_view);
+                    pickedImages.remove(media);
+                    btnThumbCount.unselect();
+                    ViewCompat.animate(coverView).setDuration(100).alpha(0.0f);
+                    pickerController.onSelectCountDidChange();
+//                    if (pickedImages.size() == (fishton.getMaxCount() - 1) || pickedImages.size() == 0) {
+                        notifyDataSetChanged();
+//                    }
+                }else if (media.getFileType().contains("video") && fishton.isContainPic()) {
+                    Snackbar.make(vh.item, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
+                } else if (media.getFileType().contains("video") && fishton.getSelectedMedias().size() > 0) {
+                    Snackbar.make(vh.item, "一次只能选择一个视频", Snackbar.LENGTH_SHORT).show();
+                } else if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 60) {
+                    Snackbar.make(vh.item, "视屏长度不能超过60秒", Snackbar.LENGTH_SHORT).show();
+                } else if (media.getFileType().contains("image") && fishton.isContainVideo()) {
+                    Snackbar.make(vh.item, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
+                } else if (media.getFileType().contains("gif") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
+                    Snackbar.make(vh.item, "不能选择超过8M的图片", Snackbar.LENGTH_SHORT).show();
+                } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size()) {
+                    Snackbar.make(vh.item, "选择数量超过最大限制", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    ArrayList<Media> pickedImages = fishton.getSelectedMedias();
+                    RadioWithTextButton btnThumbCount = vh.item.findViewById(R.id.btn_thumb_count);
+                    View coverView = vh.item.findViewById(R.id.conver_view);
+                    pickedImages.add(media);
+                    btnThumbCount.setText(String.valueOf(pickedImages.size()));
+                    ViewCompat.animate(coverView).setDuration(100).alpha(0.3f);
+                    pickerController.onSelectCountDidChange();
+                    if (pickedImages.size() >= fishton.getMaxCount() || fishton.isContainVideo()) {
+                        notifyDataSetChanged();
                     }
                 }
             }
@@ -125,6 +143,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         View banCoverView;
         LinearLayout videoInfoContentView;
         TextView videoInfoDurationTextView;
+        LinearLayout gifInfoContentView;
+        TextView gifInfoTextView;
 
         public ViewHolderImage(View view) {
             super(view);
@@ -135,6 +155,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             banCoverView = view.findViewById(R.id.ban_cover_view);
             videoInfoContentView = view.findViewById(R.id.video_thumb_info_view);
             videoInfoDurationTextView = view.findViewById(R.id.video_thumb_duration_info_view);
+            gifInfoContentView = view.findViewById(R.id.gif_thumb_info_view);
+            gifInfoTextView = view.findViewById(R.id.gif_thumb_info_text_view);
         }
     }
 }

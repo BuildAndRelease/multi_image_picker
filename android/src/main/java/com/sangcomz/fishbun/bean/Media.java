@@ -22,6 +22,7 @@ public class Media implements Parcelable, Comparable<Media> {
     private String thumbnailName = "";
     private String mediaId = "";
     private String fileType = "";
+    private String fileSize = "0";
     private String mimeType = "";
     private String identifier = "";
 
@@ -250,5 +251,13 @@ public class Media implements Parcelable, Comparable<Media> {
     @Override
     public int compareTo(Media media) {
         return mediaId.compareTo(media.mediaId);
+    }
+
+    public String getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(String fileSize) {
+        this.fileSize = fileSize;
     }
 }

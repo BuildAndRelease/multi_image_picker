@@ -40,14 +40,26 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
     private let videoLabelContentView : UIView = UIView(frame: .zero)
     private let videoLabelImageView : UIImageView = UIImageView(frame: .zero)
     private let videoDurationLabel : UILabel = UILabel(frame: .zero)
+    private let gifLabel : UILabel = UILabel(frame: .zero)
     
     weak var asset: PHAsset? {
         didSet {
             if (asset != nil && .video == asset?.mediaType) {
                 videoLabelContentView.isHidden = false
+                videoDurationLabel.isHidden = false
+                videoLabelImageView.isHidden = false
+                gifLabel.isHidden = true
                 videoDurationLabel.text = "\(String(format: "%02d", (Int)(asset?.duration ?? 0)/60)):\(String(format: "%02d", (Int)(asset?.duration ?? 0)%60))"
             }else {
-                videoLabelContentView.isHidden = true
+                let fileName = String(describing: asset?.value(forKey: "filename") ?? "")
+                if fileName.hasSuffix("GIF") {
+                    videoLabelContentView.isHidden = false
+                    gifLabel.isHidden = false
+                    videoDurationLabel.isHidden = true
+                    videoLabelImageView.isHidden = true
+                }else {
+                    videoLabelContentView.isHidden = true
+                }
             }
         }
     }
@@ -136,11 +148,18 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         videoDurationLabel.font = UIFont.systemFont(ofSize: 12.0)
         videoDurationLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        gifLabel.text = "GIF"
+        gifLabel.textColor = UIColor.white
+        gifLabel.textAlignment = .left
+        gifLabel.font = UIFont.systemFont(ofSize: 12.0)
+        gifLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         contentView.addSubview(imageView)
         contentView.addSubview(selectionOverlayView)
         contentView.addSubview(selectionView)
         contentView.addSubview(videoLabelContentView)
         contentView.addSubview(disableOverlayView)
+        videoLabelContentView.addSubview(gifLabel)
         videoLabelContentView.addSubview(videoLabelImageView)
         videoLabelContentView.addSubview(videoDurationLabel)
 
@@ -175,6 +194,11 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         NSLayoutConstraint(item: videoLabelImageView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 20),
         NSLayoutConstraint(item: videoLabelImageView, attribute: .leading, relatedBy: .equal, toItem: videoLabelContentView, attribute: .leading, multiplier: 1, constant: 2),
         NSLayoutConstraint(item: videoLabelImageView, attribute: .bottom, relatedBy: .equal, toItem: videoLabelContentView, attribute: .bottom, multiplier: 1, constant: 0),
+        
+        NSLayoutConstraint(item: gifLabel, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 20),
+        NSLayoutConstraint(item: gifLabel, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 100),
+        NSLayoutConstraint(item: gifLabel, attribute: .leading, relatedBy: .equal, toItem: videoLabelContentView, attribute: .leading, multiplier: 1, constant: 2),
+        NSLayoutConstraint(item: gifLabel, attribute: .bottom, relatedBy: .equal, toItem: videoLabelContentView, attribute: .bottom, multiplier: 1, constant: 0),
         
         NSLayoutConstraint(item: videoDurationLabel, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 20),
         NSLayoutConstraint(item: videoDurationLabel, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 40),

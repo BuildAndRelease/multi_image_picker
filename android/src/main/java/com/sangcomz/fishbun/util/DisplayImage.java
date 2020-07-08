@@ -108,9 +108,9 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                         do {
                             try {
                                 String mimeType = c.getString(MIME_TYPE);
+                                int fileSize = c.getInt(FILESIZE);
                                 if (mimeType.contains("gif")) {
-                                    int size = c.getInt(FILESIZE);
-                                    if (size > 1024*1024*20) {
+                                    if (fileSize > 1024*1024*20) {
                                         continue;
                                     }
                                 }
@@ -134,6 +134,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                                 }
                                 media.put("name", c.getString(DISPLAY_NAME));
                                 media.put("fileType", mimeType);
+                                media.put("fileSize", fileSize + "");
                                 media.put("thumbPath", "");
                                 media.put("thumbName", "");
                                 media.put("thumbHeight", 0.0);
@@ -146,8 +147,8 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                     }else {
                         do {
                             String mimeType = c.getString(MIME_TYPE);
+                            int fileSize = c.getInt(FILESIZE);
                             if (mimeType.contains("gif")) {
-                                int fileSize = c.getInt(FILESIZE);
                                 if (fileSize > 1024*1024*20) {
                                     continue;
                                 }
@@ -176,6 +177,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                             }
                             media.setIdentifier(imgId);
                             media.setMimeType(mimeType);
+                            media.setFileSize(fileSize + "");
                             media.setMediaId(imgId);
                             medias.add(media);
                         } while (c.moveToNext());

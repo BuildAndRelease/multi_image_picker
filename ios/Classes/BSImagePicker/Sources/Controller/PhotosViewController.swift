@@ -349,7 +349,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                 hud.label.text = NSLocalizedString("不能同时选择图片和视频", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
-            }else if let fileName = asset.value(forKey: "filename"), (fileName as! String).hasSuffix("GIF"), asset.fileSize > 8.0 {
+            }else if let fileName = asset.value(forKey: "filename"), (fileName as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 8.0 {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray

@@ -89,19 +89,19 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
     try {
-      resultList = await MultiImagePicker.pickImages(
-        maxImages: 9,
-        qualityOfImage: 80,
-        maxHeight: 1024,
-        maxWidth: 768,
-        // selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
-        cupertinoOptions: CupertinoOptions(
-            takePhotoIcon: "chat",
-            selectionStrokeColor: "#ff6179f2",
-            selectionFillColor: "#ff6179f2"),
-        materialOptions: MaterialOptions(
-            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      );
+      // resultList = await MultiImagePicker.pickImages(
+      //   maxImages: 9,
+      //   qualityOfImage: 80,
+      //   maxHeight: 1024,
+      //   maxWidth: 768,
+      //   // selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
+      //   cupertinoOptions: CupertinoOptions(
+      //       takePhotoIcon: "chat",
+      //       selectionStrokeColor: "#ff6179f2",
+      //       selectionFillColor: "#ff6179f2"),
+      //   materialOptions: MaterialOptions(
+      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      // );E3733F84-50D3-4343-AF8C-D18ABB3CF852/L0/001
       // Asset asset = await MultiImagePicker.requestTakePicture();
       // resultList.add(asset);
       // print(asset);
@@ -110,6 +110,10 @@ class _MyHomePageState extends State<MyHomePage> {
       //  }
       //  print(assets);
 
+      final fileSize = await MultiImagePicker.requestFileSize(
+          "E3733F84-50D3-4343-AF8C-D18ABB3CF852/L0/001");
+      if (double.parse(fileSize) > 1024 * 1024 * 8) {}
+      print(fileSize);
       // List<Asset> data = await MultiImagePicker.requestMediaData(
       //     qualityOfImage: 80,
       //     maxHeight: 1024,

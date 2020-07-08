@@ -79,7 +79,7 @@ class WMCameraControl: UIView {
         self.addSubview(exitButton)
         
         changeCameraButton.setImage(UIImage.wm_imageWithName_WMCameraResource(named: "change_camera"), for: .normal)
-        changeCameraButton.imageEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        changeCameraButton.imageEdgeInsets = UIEdgeInsets(top: 10, left: 8, bottom: 10, right: 8)
         changeCameraButton.frame = CGRect(x: self.wm_width - 20 - 40, y: 20, width: 40, height: 40)
         changeCameraButton.addTarget(self, action: #selector(changeCameraButtonClick), for: .touchUpInside)
         self.addSubview(changeCameraButton)

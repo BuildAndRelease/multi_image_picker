@@ -15,8 +15,7 @@ extension PHAsset {
             if #available(iOS 9, *) {
                 let resource = PHAssetResource.assetResources(for: self)
                 let imageSizeByte = resource.first?.value(forKey: "fileSize") as? Float ?? 0
-                let imageSizeMB = imageSizeByte / (1024.0*1024.0)
-                return imageSizeMB
+                return imageSizeByte
             } else {
                 // Fallback on earlier versions
                 return 5.0

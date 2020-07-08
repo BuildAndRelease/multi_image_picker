@@ -130,17 +130,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 let assets = PHAsset.fetchAssets(with: fetchOptions)
                 for i in offset ..< min((limit + offset), assets.count) {
                     let asset = assets.object(at: i)
-                    var fileSize = "0.0"
-                    if #available(iOS 9, *) {
-                        fileSize = String(describing: PHAssetResource.assetResources(for: asset).first?.value(forKey: "fileSize") ?? "0.0")
-                    } else {
-                        fileSize = "0.0"
-                    }
                     let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
                     let dictionary = NSMutableDictionary()
                     dictionary.setValue(asset.localIdentifier, forKey: "identifier")
                     dictionary.setValue("", forKey: "filePath")
-                    dictionary.setValue(fileSize, forKey: "fileSize")
                     dictionary.setValue(CGFloat(size.width), forKey: "width")
                     dictionary.setValue(CGFloat(size.height), forKey: "height")
                     dictionary.setValue(asset.originalFilename, forKey: "name")

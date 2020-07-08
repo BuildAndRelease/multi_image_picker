@@ -181,6 +181,15 @@ class MultiImagePicker {
     }
   }
 
+  static Future<String> requestFileSize(String identifier) async {
+    try {
+      return await _channel.invokeMethod(
+          'requestFileSize', <String, dynamic>{'identifier': identifier});
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   static Future<List<Asset>> fetchMediaInfo(int offset, int limit) async {
     try {
       final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo',

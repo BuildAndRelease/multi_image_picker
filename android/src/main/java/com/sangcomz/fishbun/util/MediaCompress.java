@@ -61,6 +61,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                             String buckName = c.getString(c.getColumnIndex(MediaStore.MediaColumns.BUCKET_DISPLAY_NAME));
                             String originPath = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
                             String originName = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
+                            String fileSize = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
                             double originWidth = c.getFloat(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
                             double originHeight = c.getFloat(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
                             String duration = "0";
@@ -75,6 +76,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                             media.setOriginWidth(originWidth + "");
                             media.setOriginPath(originPath);
                             media.setIdentifier(identify);
+                            media.setFileSize(fileSize);
                             try {
                                 media.setDuration(Long.parseLong(duration)/1000 + "");
                             } catch (Exception e) {

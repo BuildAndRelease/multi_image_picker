@@ -150,8 +150,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     }
                     case REQUEST_FILE_SIZE: {
                         String identify = call.argument(IDENTIFY);
-                        String fileType = call.argument(FILE_TYPE);
-                        MediaInfoData mediaInfoData = new MediaInfoData(identify, fileType, activity);
+                        MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
                         mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
                             @Override
                             public void mediaInfoDataDidFinish(String size) {

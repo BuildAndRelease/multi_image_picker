@@ -129,25 +129,32 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 
                 let assets = PHAsset.fetchAssets(with: fetchOptions)
                 for i in offset ..< min((limit + offset), assets.count) {
-                      let asset = assets.object(at: i)
-                      let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
-                      let dictionary = NSMutableDictionary()
-                      dictionary.setValue(asset.localIdentifier, forKey: "identifier")
-                      dictionary.setValue("", forKey: "filePath")
-                      dictionary.setValue(CGFloat(size.width), forKey: "width")
-                      dictionary.setValue(CGFloat(size.height), forKey: "height")
-                      dictionary.setValue(asset.originalFilename, forKey: "name")
-                      dictionary.setValue(asset.duration, forKey: "duration")
-                      if asset.mediaType == .video {
-                          dictionary.setValue("video", forKey: "fileType")
-                      }else if asset.mediaType == .image {
-                        if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
-                            dictionary.setValue("image/gif", forKey: "fileType")
-                        }else {
-                            dictionary.setValue("image/jpg", forKey: "fileType")
-                        }
+                    let asset = assets.object(at: i)
+                    var fileSize = "0.0"
+                    if #available(iOS 9, *) {
+                        fileSize = String(describing: PHAssetResource.assetResources(for: asset).first?.value(forKey: "fileSize") ?? "0.0")
+                    } else {
+                        fileSize = "0.0"
+                    }
+                    let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
+                    let dictionary = NSMutableDictionary()
+                    dictionary.setValue(asset.localIdentifier, forKey: "identifier")
+                    dictionary.setValue("", forKey: "filePath")
+                    dictionary.setValue(fileSize, forKey: "fileSize")
+                    dictionary.setValue(CGFloat(size.width), forKey: "width")
+                    dictionary.setValue(CGFloat(size.height), forKey: "height")
+                    dictionary.setValue(asset.originalFilename, forKey: "name")
+                    dictionary.setValue(asset.duration, forKey: "duration")
+                    if asset.mediaType == .video {
+                        dictionary.setValue("video", forKey: "fileType")
+                    }else if asset.mediaType == .image {
+                      if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
+                          dictionary.setValue("image/gif", forKey: "fileType")
+                      }else {
+                          dictionary.setValue("image/jpg", forKey: "fileType")
                       }
-                      medias.add(dictionary)
+                    }
+                    medias.add(dictionary)
                 }
                 result(medias)
             }

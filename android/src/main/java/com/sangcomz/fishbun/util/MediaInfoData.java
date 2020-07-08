@@ -12,16 +12,14 @@ public class MediaInfoData extends AsyncTask<Void, Void, String> {
     }
 
     private String identify;
-    private String fileType;
     private Context context;
     private MediaInfoDataListener listener;
     public void setListener(MediaInfoDataListener listener) {
         this.listener = listener;
     }
 
-    public MediaInfoData(String identify, String fileType, Context context) {
+    public MediaInfoData(String identify, Context context) {
         this.context = context;
-        this.fileType = fileType;
         this.identify = identify;
     }
 

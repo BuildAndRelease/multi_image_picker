@@ -105,8 +105,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     Snackbar.make(vh.item, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
                 } else if (media.getFileType().contains("video") && fishton.getSelectedMedias().size() > 0) {
                     Snackbar.make(vh.item, "一次只能选择一个视频", Snackbar.LENGTH_SHORT).show();
-                } else if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 60) {
-                    Snackbar.make(vh.item, "视屏长度不能超过60秒", Snackbar.LENGTH_SHORT).show();
+                } else if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 301) {
+                    Snackbar.make(vh.item, "视屏长度不能超过5分钟", Snackbar.LENGTH_SHORT).show();
                 } else if (media.getFileType().contains("image") && fishton.isContainVideo()) {
                     Snackbar.make(vh.item, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
                 } else if (media.getFileType().contains("gif") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {

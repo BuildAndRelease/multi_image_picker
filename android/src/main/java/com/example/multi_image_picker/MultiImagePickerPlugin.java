@@ -45,6 +45,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String REQUEST_MEDIA_DATA = "requestMediaData";
     private static final String REQUEST_TAKE_PICTURE = "requestTakePicture";
     private static final String REQUEST_FILE_SIZE = "requestFileSize";
+    private static final String REQUEST_THUMB_DIRECTORY = "requestThumbDirectory";
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
     private static final String MAX_HEIGHT = "maxHeight";
@@ -158,6 +159,10 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                             }
                         });
                         mediaInfoData.execute();
+                        break;
+                    }
+                    case REQUEST_THUMB_DIRECTORY: {
+                        result.success(context.getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
                         break;
                     }
                     case REQUEST_MEDIA_DATA: {

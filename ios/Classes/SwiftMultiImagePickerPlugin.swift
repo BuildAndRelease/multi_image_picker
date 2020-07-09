@@ -171,6 +171,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     result(FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
                 }
             }
+        case "requestThumbDirectory":
+            result((NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/")
         case "requestTakePicture":
             let vc = WMCameraViewController()
             vc.videoMaxLength = 20

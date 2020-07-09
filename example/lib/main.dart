@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:multi_image_picker_example/DemoLocalizations.dart';
@@ -105,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Asset asset = await MultiImagePicker.requestTakePicture();
       resultList.add(asset);
       print(asset);
+      // print(await MultiImagePicker.requestThumbDirectory());
       // for (var asset in assets) {
       //   print(asset.identifier);
       // }

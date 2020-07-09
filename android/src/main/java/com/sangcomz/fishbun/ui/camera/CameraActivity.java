@@ -18,7 +18,10 @@ import com.cjt2325.cameralibrary.util.FileUtil;
 import com.example.multi_image_picker.R;
 import com.sangcomz.fishbun.util.Define;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class CameraActivity extends Activity {
@@ -31,8 +34,9 @@ public class CameraActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_camera);
 
+
         jCameraView = (JCameraView) findViewById(R.id.jcameraview);
-        jCameraView.setSaveVideoPath(Environment.getExternalStorageDirectory().getPath() + File.separator + "JCamera");
+        jCameraView.setSaveVideoPath(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
         jCameraView.setFeatures(JCameraView.BUTTON_STATE_BOTH);
         jCameraView.setTip("轻触拍照，长按摄像。");
         jCameraView.setMediaQuality(JCameraView.MEDIA_QUALITY_MIDDLE);
@@ -57,7 +61,7 @@ public class CameraActivity extends Activity {
                 HashMap map = new HashMap();
                 map.put("width", (float)bitmap.getWidth());
                 map.put("height", (float)bitmap.getHeight());
-                String path = FileUtil.saveBitmap("JCamera", bitmap);
+                String path = saveBitmap(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/", bitmap);
                 map.put("identifier", path);
                 map.put("filePath", path);
                 map.put("name", path);
@@ -129,5 +133,25 @@ public class CameraActivity extends Activity {
     protected void onPause() {
         super.onPause();
         jCameraView.onPause();
+    }
+
+    public String saveBitmap(String dir, Bitmap b) {
+        long dataTake = System.currentTimeMillis();
+        String jpegName = dir + File.separator + "picture_" + dataTake + ".jpg";
+        try {
+            File directory = new File(dir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            FileOutputStream fout = new FileOutputStream(jpegName);
+            BufferedOutputStream bos = new BufferedOutputStream(fout);
+            b.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+            bos.flush();
+            bos.close();
+            return jpegName;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }

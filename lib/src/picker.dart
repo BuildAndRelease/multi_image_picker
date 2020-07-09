@@ -190,6 +190,14 @@ class MultiImagePicker {
     }
   }
 
+  static Future<String> requestThumbDirectory() async {
+    try {
+      return await _channel.invokeMethod('requestThumbDirectory');
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   static Future<List<Asset>> fetchMediaInfo(int offset, int limit) async {
     try {
       final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo',

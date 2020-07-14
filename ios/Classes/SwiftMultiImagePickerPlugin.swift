@@ -109,18 +109,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             }
         case "fetchMediaInfo":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let limit = arguments["limit"] as! Int
-            let offset = arguments["offset"] as! Int
+            var limit = arguments["limit"] as! Int
+            var offset = arguments["offset"] as! Int
             weak var weakSelf = self
             DispatchQueue.global().async {
-                if limit < -1 {
-                    result(FlutterError(code: "PARAM ERROR", message: "limit must cannot be \(limit)", details: nil))
-                    return
-                }
-                if offset < -1 {
-                    result(FlutterError(code: "PARAM ERROR", message: "offset must cannot be \(offset)", details: nil))
-                    return
-                }
                 let medias = NSMutableArray()
                 let fetchOptions = PHFetchOptions()
                 fetchOptions.sortDescriptors = [
@@ -128,6 +120,16 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 ]
                 
                 let assets = PHAsset.fetchAssets(with: fetchOptions)
+                if limit == -1, offset == -1 {
+                    limit = assets.count
+                    offset = 0
+                }else if limit < -1 {
+                    result(FlutterError(code: "PARAM ERROR", message: "limit must cannot be \(limit)", details: nil))
+                    return
+                }else if offset < -1 {
+                    result(FlutterError(code: "PARAM ERROR", message: "offset must cannot be \(offset)", details: nil))
+                    return
+                }
                 for i in offset ..< min((limit + offset), assets.count) {
                     let asset = assets.object(at: i)
                     let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)

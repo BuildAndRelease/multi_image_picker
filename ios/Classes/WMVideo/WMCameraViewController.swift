@@ -111,18 +111,16 @@ class WMCameraViewController: UIViewController {
     }
 
     open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print("touchesBegan \(touches)")
-     }
+
+    }
      
      open override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print("touchesMoved \(touches)")
-     }
+
+    }
      
      open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print("touchesEnded \(touches)")
-     }
 
-    
+    }
 }
 
 extension WMCameraViewController: WMCameraControlDelegate {

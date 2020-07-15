@@ -118,7 +118,7 @@ class WMCameraViewController: UIViewController {
 
     }
      
-     open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 
     }
 }

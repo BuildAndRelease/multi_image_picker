@@ -10,11 +10,11 @@ import Photos
 
 extension PHAsset {
     
-    var fileSize: Float {
+    var fileSize: Double {
         get {
             if #available(iOS 9, *) {
                 let resource = PHAssetResource.assetResources(for: self)
-                let imageSizeByte = resource.first?.value(forKey: "fileSize") as? Float ?? 0
+                let imageSizeByte = resource.first?.value(forKey: "fileSize") as? Double ?? 0
                 return imageSizeByte
             } else {
                 // Fallback on earlier versions

@@ -109,15 +109,15 @@ class _MyHomePageState extends State<MyHomePage> {
       // }
       // print(assets);
 
-      // final fileSize = await MultiImagePicker.requestFileSize(
-      //     "334D2E75-7DFD-4D76-B8E3-BB2B5A84B533/L0/001");
+      final fileSize = await MultiImagePicker.requestFileSize(
+          "334D2E75-7DFD-4D76-B8E3-BB2B5A84B533/L0/001");
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
-      List<Asset> data = await MultiImagePicker.requestMediaData(
-          qualityOfImage: 80,
-          maxHeight: 1024,
-          maxWidth: 768,
-          selectedAssets: ['196245', '192980']);
+      // List<Asset> data = await MultiImagePicker.requestMediaData(
+      //     qualityOfImage: 80,
+      //     maxHeight: 1024,
+      //     maxWidth: 768,
+      //     selectedAssets: ['196245', '192980']);
       // print(data);
       // Uint8List data = await MultiImagePicker.fetchMediaThumbData("187053", "video");
       // print(data);

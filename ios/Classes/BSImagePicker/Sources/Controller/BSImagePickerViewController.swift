@@ -214,8 +214,8 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
             return NSError(domain: "不能同时选择图片和视频", code: 1, userInfo: nil)
         }else if asset.mediaType == .video, assetStore?.count ?? 100 > 0 {
             return NSError(domain: "一次只能选择一个视频", code: 2, userInfo: nil)
-        }else if asset.mediaType == .video , asset.duration > 61 {
-            return NSError(domain: "请选择60秒以下的视频", code: 3, userInfo: nil)
+        }else if asset.mediaType == .video , asset.duration > 301 {
+            return NSError(domain: "请选择5分钟以下的视频", code: 3, userInfo: nil)
         }else if asset.mediaType == .image, assetStore?.isContainVideo() ?? false {
             return NSError(domain: "不能同时选择图片和视频", code: 4, userInfo: nil)
         }else if assetStore?.count ?? 100 >= settings.maxNumberOfSelections {

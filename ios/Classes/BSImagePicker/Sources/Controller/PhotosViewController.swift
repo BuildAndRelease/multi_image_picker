@@ -335,11 +335,11 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                 hud.label.text = NSLocalizedString("一次只能选择一个视频", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
-            }else if asset.mediaType == .video , asset.duration > 61 {
+            }else if asset.mediaType == .video , asset.duration > 301 {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("请选择60秒以下的视频", comment: "")
+                hud.label.text = NSLocalizedString("请选择5分钟以下的视频", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
             }else if asset.mediaType == .image, assetStore.isContainVideo() {
@@ -400,14 +400,14 @@ extension PhotosViewController {
             return NSError(domain: "不能同时选择图片和视频", code: 1, userInfo: nil)
         }else if asset.mediaType == .video, assetStore.count > 0 {
             return NSError(domain: "一次只能选择一个视频", code: 2, userInfo: nil)
-        }else if asset.mediaType == .video , asset.duration > 61 {
-            return NSError(domain: "请选择60秒以下的视频", code: 3, userInfo: nil)
+        }else if asset.mediaType == .video , asset.duration > 301 {
+            return NSError(domain: "请选择5分钟以下的视频", code: 3, userInfo: nil)
         }else if asset.mediaType == .image, assetStore.isContainVideo() {
             return NSError(domain: "不能同时选择图片和视频", code: 4, userInfo: nil)
         }else if assetStore.count >= settings.maxNumberOfSelections {
             selectLimitReachedClosure?(assetStore.count)
             return NSError(domain: "图片选择数量超过最大限制", code: 5, userInfo: nil)
-        }else if let fileName = asset.value(forKey: "filename"), (fileName as! String).hasSuffix("GIF"), asset.fileSize > 8.0 {
+        }else if let fileName = asset.value(forKey: "filename"), (fileName as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 8.0 {
             return NSError(domain: "发送的GIF图片大小不能超过8M", code: 6, userInfo: nil)
         }
         return nil

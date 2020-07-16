@@ -100,8 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
       //   materialOptions: MaterialOptions(
       //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
       // );E3733F84-50D3-4343-AF8C-D18ABB3CF852/L0/001
-      // Asset asset = await MultiImagePicker.requestTakePicture();
-      // resultList.add(asset);
+      Asset asset = await MultiImagePicker.requestTakePicture();
+      resultList.add(asset);
       // print(asset);
       // print(await MultiImagePicker.requestThumbDirectory());
       // for (var asset in assets) {
@@ -109,8 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // }
       // print(assets);
 
-      final fileSize = await MultiImagePicker.requestFileSize(
-          "334D2E75-7DFD-4D76-B8E3-BB2B5A84B533/L0/001");
+      // final fileSize = await MultiImagePicker.requestFileSize(
+      //     "334D2E75-7DFD-4D76-B8E3-BB2B5A84B533/L0/001");
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
       // List<Asset> data = await MultiImagePicker.requestMediaData(

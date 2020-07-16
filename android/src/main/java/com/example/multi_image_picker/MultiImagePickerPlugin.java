@@ -82,10 +82,17 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         channel.setMethodCallHandler(instance);
     }
 
-    boolean checkPermission() {
+    boolean checkPermission(boolean checkCamera, boolean checkRecord) {
         PermissionCheck permissionCheck = new PermissionCheck(activity);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return permissionCheck.CheckStoragePermission() && permissionCheck.CheckCameraPermission() && permissionCheck.CheckRecordAudioPermission();
+            boolean result = true;
+            if (checkCamera) {
+                result = result && permissionCheck.CheckCameraPermission();
+            }
+            if (checkRecord) {
+                result = result && permissionCheck.CheckRecordAudioPermission();
+            }
+            return result;
         } else {
             return true;
         }
@@ -94,9 +101,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
         try {
-            if (checkPermission()) {
-                switch (call.method) {
-                    case PICK_IMAGES: {
+            switch (call.method) {
+                case PICK_IMAGES: {
+                    if (checkPermission(true, false)) {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
                         }
@@ -108,9 +115,13 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         int qualityOfThumb = call.argument(QUALITY_OF_IMAGE);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
                         presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, selectMedias, options);
-                        break;
+                    }else {
+                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
-                    case FETCH_MEDIA_INFO: {
+                    break;
+                }
+                case FETCH_MEDIA_INFO: {
+                    if (checkPermission(true, false)) {
                         ArrayList mimeTypeList = new ArrayList();
                         mimeTypeList.add(MimeType.WEBP);
                         int limit = call.argument(LIMIT);
@@ -126,17 +137,25 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                             }
                         });
                         displayImage.execute();
-                        break;
+                    }else {
+                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
-                    case REQUEST_TAKE_PICTURE: {
+                    break;
+                }
+                case REQUEST_TAKE_PICTURE: {
+                    if (checkPermission(true, true)) {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
                         }
                         currentPickerResult = result;
                         activity.startActivityForResult(new Intent(activity, CameraActivity.class), REQUEST_CODE_TAKE);
-                        break;
+                    }else  {
+                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
-                    case FETCH_MEDIA_THUMB_DATA: {
+                    break;
+                }
+                case FETCH_MEDIA_THUMB_DATA: {
+                    if (checkPermission(true, false)) {
                         String identify = call.argument(IDENTIFY);
                         String fileType = call.argument(FILE_TYPE);
                         MediaThumbData mediaThumbData = new MediaThumbData(identify, fileType, activity);
@@ -147,9 +166,13 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                             }
                         });
                         mediaThumbData.execute();
-                        break;
+                    }else {
+                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
-                    case REQUEST_FILE_SIZE: {
+                    break;
+                }
+                case REQUEST_FILE_SIZE: {
+                    if (checkPermission( true, false)) {
                         String identify = call.argument(IDENTIFY);
                         MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
                         mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
@@ -159,13 +182,17 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                             }
                         });
                         mediaInfoData.execute();
-                        break;
+                    }else {
+                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
-                    case REQUEST_THUMB_DIRECTORY: {
-                        result.success(context.getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
-                        break;
-                    }
-                    case REQUEST_MEDIA_DATA: {
+                    break;
+                }
+                case REQUEST_THUMB_DIRECTORY: {
+                    result.success(context.getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
+                    break;
+                }
+                case REQUEST_MEDIA_DATA: {
+                    if (checkPermission(true, false)) {
                         boolean thumb = call.argument("thumb");
                         int quality = call.argument("qualityOfImage");
                         int maxHeight = call.argument("maxHeight");
@@ -179,11 +206,11 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                             }
                         });
                         mediaCompress.execute();
-                        break;
+                    }else {
+                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
+                    break;
                 }
-            }else {
-                result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
             }
         } catch (Exception e) {
             result.error(e.getMessage(), e.getCause().toString(), null);

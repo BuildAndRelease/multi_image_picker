@@ -100,7 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
       //   materialOptions: MaterialOptions(
       //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
       // );
-      Asset asset = await MultiImagePicker.requestTakePicture();
+      Asset asset =
+          await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
       resultList.add(asset);
       print(asset);
       // print(await MultiImagePicker.requestThumbDirectory());

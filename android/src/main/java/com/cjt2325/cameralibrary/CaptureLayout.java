@@ -63,6 +63,7 @@ public class CaptureLayout extends FrameLayout {
     private int button_size;
     private int iconLeft = 0;
     private int iconRight = 0;
+    private int themeColor = 0xFF00CC00;
 
     private boolean isFirst = true;
 
@@ -144,6 +145,7 @@ public class CaptureLayout extends FrameLayout {
         LayoutParams btn_capture_param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         btn_capture_param.gravity = Gravity.CENTER;
         btn_capture.setLayoutParams(btn_capture_param);
+        btn_capture.setProgress_color(themeColor);
         btn_capture.setCaptureLisenter(new CaptureListener() {
             @Override
             public void takePictures() {
@@ -193,7 +195,7 @@ public class CaptureLayout extends FrameLayout {
         });
 
         //取消按钮
-        btn_cancel = new TypeButton(getContext(), TypeButton.TYPE_CANCEL, button_size);
+        btn_cancel = new TypeButton(getContext(), TypeButton.TYPE_CANCEL, button_size, themeColor);
         final LayoutParams btn_cancel_param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         btn_cancel_param.gravity = Gravity.CENTER_VERTICAL;
         btn_cancel_param.setMargins((layout_width / 4) - button_size / 2, 0, 0, 0);
@@ -210,7 +212,7 @@ public class CaptureLayout extends FrameLayout {
         });
 
         //确认按钮
-        btn_confirm = new TypeButton(getContext(), TypeButton.TYPE_CONFIRM, button_size);
+        btn_confirm = new TypeButton(getContext(), TypeButton.TYPE_CONFIRM, button_size, themeColor);
         LayoutParams btn_confirm_param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         btn_confirm_param.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
         btn_confirm_param.setMargins(0, 0, (layout_width / 4) - button_size / 2, 0);
@@ -355,6 +357,12 @@ public class CaptureLayout extends FrameLayout {
         } else {
             iv_custom_right.setVisibility(GONE);
         }
+    }
+
+    public void setThemeColor(int themeColor) {
+        this.themeColor = themeColor;
+        this.btn_capture.setProgress_color(themeColor);
+        this.btn_confirm.setThemeColor(themeColor);
     }
 
     public void setLeftClickListener(ClickListener leftClickListener) {

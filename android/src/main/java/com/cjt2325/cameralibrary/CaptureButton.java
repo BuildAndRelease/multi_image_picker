@@ -343,6 +343,10 @@ public class CaptureButton extends View {
         timer = new RecordCountDownTimer(duration, duration / 360);    //录制定时器
     }
 
+    public void setProgress_color(int progress_color) {
+        this.progress_color = progress_color;
+    }
+
     //设置最短录制时间
     public void setMinDuration(int duration) {
         this.min_duration = duration;

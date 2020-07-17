@@ -32,13 +32,15 @@ public class TypeButton extends View{
 
     private float index;
     private RectF rectF;
+    private int themeColor = 0xFF00CC00;
 
     public TypeButton(Context context) {
         super(context);
     }
 
-    public TypeButton(Context context, int type, int size) {
+    public TypeButton(Context context, int type, int size, int themeColor) {
         super(context);
+        this.themeColor = themeColor;
         this.button_type = type;
         button_size = size;
         button_radius = size / 2.0f;
@@ -50,6 +52,11 @@ public class TypeButton extends View{
         strokeWidth = size / 50f;
         index = button_size / 12f;
         rectF = new RectF(center_X, center_Y - index, center_X + index * 2, center_Y + index);
+    }
+
+    public void setThemeColor(int themeColor) {
+        this.themeColor = themeColor;
+        invalidate();
     }
 
     @Override
@@ -95,7 +102,7 @@ public class TypeButton extends View{
             canvas.drawCircle(center_X, center_Y, button_radius, mPaint);
             mPaint.setAntiAlias(true);
             mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setColor(0xFF00CC00);
+            mPaint.setColor(themeColor);
             mPaint.setStrokeWidth(strokeWidth);
 
             path.moveTo(center_X - button_size / 6f, center_Y);

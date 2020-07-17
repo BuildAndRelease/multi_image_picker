@@ -159,9 +159,11 @@ class MultiImagePicker {
     }
   }
 
-  static Future<Asset> requestTakePicture() async {
+  static Future<Asset> requestTakePicture(
+      {String themeColor = "0xFF00CC00"}) async {
     try {
-      final dynamic item = await _channel.invokeMethod('requestTakePicture');
+      final dynamic item = await _channel.invokeMethod(
+          'requestTakePicture', <String, dynamic>{'themeColor': themeColor});
       var asset = Asset(
         item['identifier'],
         item['filePath'],

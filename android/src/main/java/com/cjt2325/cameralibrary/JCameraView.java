@@ -109,6 +109,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
     private int iconLeft = 0;       //左图标
     private int iconRight = 0;      //右图标
     private int duration = 0;       //录制时间
+    private int themeColor = 0xFF00CC00;
 
     //缩放梯度
     private int zoomGradient = 0;
@@ -171,6 +172,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         mCaptureLayout = (CaptureLayout) view.findViewById(R.id.capture_layout);
         mCaptureLayout.setDuration(duration);
         mCaptureLayout.setIconSrc(iconLeft, iconRight);
+        mCaptureLayout.setThemeColor(themeColor);
         mFoucsView = (FoucsView) view.findViewById(R.id.fouce_view);
         mVideoView.getHolder().addCallback(this);
         //切换摄像头
@@ -396,6 +398,10 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         CameraInterface.getInstance().setSaveVideoPath(path);
     }
 
+    public void setThemeColor(int themeColor) {
+        this.themeColor = themeColor;
+        mCaptureLayout.setThemeColor(themeColor);
+    }
 
     public void setJCameraLisenter(JCameraListener jCameraLisenter) {
         this.jCameraLisenter = jCameraLisenter;

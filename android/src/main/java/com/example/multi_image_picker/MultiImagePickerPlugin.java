@@ -57,6 +57,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String QUALITY_OF_IMAGE = "qualityOfImage";
     private static final String SELECTED_ASSETS = "selectedAssets";
     private static final String ANDROID_OPTIONS = "androidOptions";
+    private static final String THEME_COLOR = "themeColor";
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private static final int REQUEST_CODE_TAKE = 1002;
     private final MethodChannel channel;
@@ -147,8 +148,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         if (currentPickerResult != null) {
                             currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
                         }
+                        String color = call.argument(THEME_COLOR);
+                        int themeColor = color == null || color.isEmpty() ? 0xFF00CC00 : Color.parseColor(color);
                         currentPickerResult = result;
-                        activity.startActivityForResult(new Intent(activity, CameraActivity.class), REQUEST_CODE_TAKE);
+                        Intent i = new Intent(activity, CameraActivity.class);
+                        i.putExtra(THEME_COLOR, themeColor);
+                        activity.startActivityForResult(i, REQUEST_CODE_TAKE);
                     }else  {
                         result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }

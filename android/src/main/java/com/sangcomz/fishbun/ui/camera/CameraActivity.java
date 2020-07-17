@@ -34,9 +34,17 @@ public class CameraActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_camera);
 
+        int themeColor = 0xFF00CC00;
+        try {
+            themeColor = getIntent().getIntExtra("themeColor",0xFF00CC00);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         jCameraView = (JCameraView) findViewById(R.id.jcameraview);
         jCameraView.setSaveVideoPath(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb");
         jCameraView.setFeatures(JCameraView.BUTTON_STATE_BOTH);
+        jCameraView.setThemeColor(themeColor);
         jCameraView.setTip("轻触拍照，长按摄像");
         jCameraView.setMediaQuality(JCameraView.MEDIA_QUALITY_MIDDLE);
         jCameraView.setErrorLisenter(new ErrorListener() {
@@ -81,7 +89,7 @@ public class CameraActivity extends Activity {
                 map.put("name", url);
                 map.put("fileType", "video/mp4");
 
-                String path = FileUtil.saveBitmap("JCamera", firstFrame);
+                String path = saveBitmap(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/", firstFrame);
                 map.put("thumbPath", path);
                 map.put("thumbName", path);
                 map.put("thumbHeight", (float)firstFrame.getHeight());

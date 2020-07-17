@@ -99,10 +99,10 @@ class _MyHomePageState extends State<MyHomePage> {
       //       selectionFillColor: "#ff6179f2"),
       //   materialOptions: MaterialOptions(
       //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      // );E3733F84-50D3-4343-AF8C-D18ABB3CF852/L0/001
+      // );
       Asset asset = await MultiImagePicker.requestTakePicture();
       resultList.add(asset);
-      // print(asset);
+      print(asset);
       // print(await MultiImagePicker.requestThumbDirectory());
       // for (var asset in assets) {
       //   print(asset.identifier);

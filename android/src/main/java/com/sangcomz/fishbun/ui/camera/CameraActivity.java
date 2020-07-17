@@ -34,11 +34,10 @@ public class CameraActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_camera);
 
-
         jCameraView = (JCameraView) findViewById(R.id.jcameraview);
-        jCameraView.setSaveVideoPath(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
+        jCameraView.setSaveVideoPath(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb");
         jCameraView.setFeatures(JCameraView.BUTTON_STATE_BOTH);
-        jCameraView.setTip("轻触拍照，长按摄像。");
+        jCameraView.setTip("轻触拍照，长按摄像");
         jCameraView.setMediaQuality(JCameraView.MEDIA_QUALITY_MIDDLE);
         jCameraView.setErrorLisenter(new ErrorListener() {
             @Override

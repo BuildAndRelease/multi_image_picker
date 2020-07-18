@@ -191,7 +191,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 Snackbar.make(btnDetailCount, "视屏长度不能超过5分钟", Snackbar.LENGTH_SHORT).show();
             } else if (media.getFileType().contains("image") && fishton.isContainVideo()) {
                 Snackbar.make(btnDetailCount, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
-            } else if (Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
+            } else if (media.getFileType().contains("image") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
                 Snackbar.make(btnDetailCount, "不能选择超过8M的图片", Snackbar.LENGTH_SHORT).show();
             } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
                 Snackbar.make(btnDetailCount, "选择数量超过最大限制", Snackbar.LENGTH_SHORT).show();

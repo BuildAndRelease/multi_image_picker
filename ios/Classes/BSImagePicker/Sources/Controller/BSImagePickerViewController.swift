@@ -221,8 +221,8 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
         }else if assetStore?.count ?? 100 >= settings.maxNumberOfSelections {
             selectLimitReachedClosure?(assetStore?.count ?? 0)
             return NSError(domain: "图片选择数量超过最大限制", code: 5, userInfo: nil)
-        }else if asset.fileSize > 1024 * 1024 * 8.0 {
-            return NSError(domain: "发送的图片大小不能超过8M", code: 6, userInfo: nil)
+        }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 8.0 {
+            return NSError(domain: "图片大小不能超过8M", code: 6, userInfo: nil)
         }
         return nil
     }

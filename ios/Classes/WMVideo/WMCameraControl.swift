@@ -34,6 +34,8 @@ class WMCameraControl: UIView {
     
     var recordTime: Double = 0
     
+    var themeColor = UIColor.green
+    
     // input tupe
     var inputType:WMCameraType = WMCameraType.imageAndVideo
     
@@ -48,8 +50,10 @@ class WMCameraControl: UIView {
     
     var timer: Timer?
     
-    override init(frame: CGRect) {
+    init(frame: CGRect, themeColor : UIColor) {
         super.init(frame: frame)
+        
+        self.themeColor = themeColor
         
         setupCameraButton()
         
@@ -67,9 +71,14 @@ class WMCameraControl: UIView {
         retakeButton.addTarget(self, action: #selector(retakeButtonClick), for: .touchUpInside)
         self.addSubview(retakeButton)
         
+        let finishImage = UIImage.wm_imageWithName_WMCameraResource(named: "icon_finish")?.maskImageWithColor(color: themeColor)
         takeButton.frame = cameraButton.frame
         takeButton.isHidden = true
-        takeButton.setBackgroundImage(UIImage.wm_imageWithName_WMCameraResource(named: "icon_finish"), for: .normal)
+        takeButton.setImage(finishImage, for: .normal)
+        takeButton.setBackgroundColor(color: UIColor.white, for: .normal)
+        takeButton.layer.cornerRadius = cameraButton.frame.width/2.0
+        takeButton.layer.masksToBounds = true
+        takeButton.imageEdgeInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
         takeButton.addTarget(self, action: #selector(takeButtonClick), for: .touchUpInside)
         self.addSubview(takeButton)
         
@@ -113,7 +122,7 @@ class WMCameraControl: UIView {
         
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = cameraButton.bounds
-        gradientLayer.colors = [#colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1).cgColor, #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1).cgColor]
+        gradientLayer.colors = [themeColor.cgColor, themeColor.cgColor]
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientLayer.endPoint = CGPoint(x: 0, y: 1)
         gradientLayer.mask = progressLayer

@@ -80,13 +80,14 @@ public class CameraActivity extends Activity {
             }
 
             @Override
-            public void recordSuccess(String url, Bitmap firstFrame) {
+            public void recordSuccess(String url, Bitmap firstFrame, float duration) {
                 HashMap map = new HashMap();
                 map.put("width", (float)firstFrame.getHeight());
                 map.put("height", (float)firstFrame.getWidth());
                 map.put("identifier", url);
                 map.put("filePath", url);
                 map.put("name", url);
+                map.put("duration", duration);
                 map.put("fileType", "video/mp4");
 
                 String path = saveBitmap(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/", firstFrame);

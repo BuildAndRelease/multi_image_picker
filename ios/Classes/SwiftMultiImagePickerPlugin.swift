@@ -176,8 +176,11 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
         case "requestThumbDirectory":
             result((NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/")
         case "requestTakePicture":
+            let arguments = call.arguments as! Dictionary<String, AnyObject>
+            let themeColor = arguments["themeColor"] as! String
             let vc = WMCameraViewController()
             vc.videoMaxLength = 20
+            vc.themeColor = hexStringToUIColor(hex: themeColor)
             vc.completeBlock = { url, type, duration, width, height, thumbPath, thumbWidth, thumbHeight in
                 let dictionary = NSMutableDictionary()
                 dictionary.setValue(url, forKey: "identifier")

@@ -58,6 +58,7 @@ extension PHAsset {
                     let videoName = "\(uuid).mp4"
                     let thumbPath = saveDir + thumbName
                     let videoPath = saveDir + videoName
+                    let duration = CMTimeGetSeconds(avAsset?.duration ?? CMTime(seconds: 0, preferredTimescale: 0))
                     if FileManager.default.fileExists(atPath: videoPath) {
                         try? FileManager.default.removeItem(atPath: videoPath)
                     }
@@ -105,6 +106,7 @@ extension PHAsset {
                             dictionary.setValue(thumbVideoSize.width, forKey: "width")
                             dictionary.setValue(thumbVideoSize.height, forKey: "height")
                             dictionary.setValue(videoName, forKey: "name")
+                            dictionary.setValue(duration, forKey: "duration")
                             dictionary.setValue("video", forKey: "fileType")
                             finish?(dictionary)
                         }else {

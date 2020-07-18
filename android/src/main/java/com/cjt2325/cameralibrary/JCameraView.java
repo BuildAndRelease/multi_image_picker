@@ -100,6 +100,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
     private Bitmap captureBitmap;   //捕获的图片
     private Bitmap firstFrame;      //第一帧图片
     private String videoUrl;        //视频URL
+    private float videoDuration = 0;
 
 
     //切换摄像头按钮的参数
@@ -137,7 +138,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
         iconSrc = a.getResourceId(R.styleable.JCameraView_iconSrc, R.drawable.ic_camera);
         iconLeft = a.getResourceId(R.styleable.JCameraView_iconLeft, 0);
         iconRight = a.getResourceId(R.styleable.JCameraView_iconRight, 0);
-        duration = a.getInteger(R.styleable.JCameraView_duration_max, 10 * 1000);       //没设置默认为10s
+        duration = a.getInteger(R.styleable.JCameraView_duration_max, 15 * 1000);       //没设置默认为10s
         a.recycle();
         initData();
         initView();
@@ -458,7 +459,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
                 mVideoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
                 machine.start(mVideoView.getHolder(), screenProp);
                 if (jCameraLisenter != null) {
-                    jCameraLisenter.recordSuccess(videoUrl, firstFrame);
+                    jCameraLisenter.recordSuccess(videoUrl, firstFrame, videoDuration);
                 }
                 break;
             case TYPE_PICTURE:
@@ -521,6 +522,7 @@ public class JCameraView extends FrameLayout implements CameraInterface.CameraOp
                         @Override
                         public void onPrepared(MediaPlayer mp) {
                             mMediaPlayer.start();
+                            videoDuration = mMediaPlayer.getDuration()/1000;
                         }
                     });
                     mMediaPlayer.setLooping(true);

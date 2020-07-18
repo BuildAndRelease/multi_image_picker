@@ -39,7 +39,8 @@ class WMCameraViewController: UIViewController {
     // record video max length
     var videoMaxLength: Double = 10
     
-    
+    var themeColor = UIColor.green
+        
     var completeBlock: (String, WMCameraType, CGFloat, CGFloat, CGFloat, String, CGFloat, CGFloat) -> () = {_,_,_,_,_,_,_,_ in }
     
     let previewImageView = UIImageView()
@@ -90,7 +91,7 @@ class WMCameraViewController: UIViewController {
         previewImageView.isHidden = true
         cameraContentView.addSubview(previewImageView)
         
-        controlView = WMCameraControl.init(frame: cameraContentView.bounds)
+        controlView = WMCameraControl.init(frame: cameraContentView.bounds, themeColor: themeColor)
         controlView.delegate = self
         controlView.videoLength = self.videoMaxLength
         controlView.inputType = self.inputType

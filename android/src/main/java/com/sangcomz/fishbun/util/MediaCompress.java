@@ -136,6 +136,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                     info.put("height",height);
                     info.put("name", videoName);
                     info.put("fileType", "video");
+                    info.put("duration", media.getDuration());
                     info.put("thumbPath", media.getThumbnailPath());
                     info.put("thumbName", media.getThumbnailName());
                     info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));

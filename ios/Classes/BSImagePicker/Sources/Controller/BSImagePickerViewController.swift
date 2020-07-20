@@ -44,14 +44,20 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     /**
      Default selections
      */
-    @objc open var defaultSelections: PHFetchResult<PHAsset>? {
+    @objc open var selectMedias: [String] = [] {
         didSet {
-            var selections: [PHAsset] = []
-            defaultSelections?.enumerateObjects({ (asset, idx, stop) in
-                selections.append(asset)
-            })
-
-            self.assetStore = AssetStore(assets: selections)
+            let assets : PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectMedias, options: nil)
+            var sortedSelections : [PHAsset] = []
+            for identify in selectMedias {
+                for i in 0 ..< assets.count {
+                    if assets.object(at: i).localIdentifier == identify {
+                        sortedSelections.append(assets.object(at: i))
+                        break
+                    }
+                }
+            }
+            
+            self.assetStore = AssetStore(assets: sortedSelections)
         }
     }
     

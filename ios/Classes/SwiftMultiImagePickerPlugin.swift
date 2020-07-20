@@ -204,15 +204,11 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             vc.qualityOfThumb = CGFloat(compressionQuality)
             
             if !defaultAsset.isEmpty {
-                let assets : PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [defaultAsset], options: nil)
-                vc.defaultSelections = assets
+                vc.defaultSelectMedia = defaultAsset
             }
             
             if selectedAssets.count > 0 {
-                let assets : PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
-                assets.enumerateObjects { (asset, index, error) in
-                    vc.assetStore?.append(asset)
-                }
+                vc.selectMedias = selectedAssets
             }
 
             if let selectionFillColor = options["selectionFillColor"] , !selectionFillColor.isEmpty{

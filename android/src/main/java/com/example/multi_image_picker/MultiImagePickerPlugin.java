@@ -123,7 +123,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         String defaultAsset = call.argument(DEFAULT_ASSETS);
                         presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, defaultAsset, selectMedias, options);
                     }else {
-                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        if (currentPickerResult != null) {
+                            currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                            currentPickerResult = null;
+                        }else {
+                            result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        }
                     }
                     break;
                 }
@@ -161,7 +166,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         i.putExtra(THEME_COLOR, themeColor);
                         activity.startActivityForResult(i, REQUEST_CODE_TAKE);
                     }else  {
-                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        if (currentPickerResult != null) {
+                            currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                            currentPickerResult = null;
+                        }else {
+                            result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        }
                     }
                     break;
                 }
@@ -224,7 +234,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }
             }
         } catch (Exception e) {
-            result.error(e.getMessage(), e.getCause().toString(), null);
+            if (currentPickerResult != null) {
+                currentPickerResult.error(e.getMessage(), e.getCause().toString(), null);
+                currentPickerResult = null;
+            }else {
+                result.error(e.getMessage(), e.getCause().toString(), null);
+            }
         }
     }
 

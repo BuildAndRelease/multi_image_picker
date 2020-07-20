@@ -232,7 +232,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     
                 }, deselect: { (asset: PHAsset) -> Void in
 
-                }, cancel: { (assets: [String]) -> Void in
+                }, cancel: { (assets: [Dictionary<String, String>]) -> Void in
                     result(FlutterError(code: "CANCELLED", message: "The user has cancelled the selection", details: assets))
             }, finish: { (assets: [NSDictionary], success : Bool, error : NSError) -> Void in
                 success ? result(assets) : result(FlutterError(code: "\(error.code)", message: error.domain, details: nil))

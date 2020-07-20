@@ -26,7 +26,7 @@ import Photos
 final class PhotosViewController : UICollectionViewController , CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate , PreviewViewControllerDelegate {
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
-    var cancelClosure: ((_ assets: [String]) -> Void)?
+    var cancelClosure: ((_ assets: [Dictionary<String, String>]) -> Void)?
     var finishClosure: ((_ assets: [NSDictionary], _ success : Bool, _ error : NSError) -> Void)?
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
@@ -168,12 +168,23 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     // MARK: Button actions
     @objc func cancelButtonPressed(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
-        var assetIdentify : [String] = []
+        var mediaList = [Dictionary<String, String>]()
         for asset in assetStore.assets {
-            assetIdentify.append(asset.localIdentifier)
+            var dictionary = Dictionary<String, String>()
+            dictionary["identify"] = asset.localIdentifier
+            if asset.mediaType == .video {
+                dictionary["fileType"] = "video"
+            }else if asset.mediaType == .image {
+              if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
+                dictionary["fileType"] = "image/gif"
+              }else {
+                dictionary["fileType"] = "image/jpg"
+              }
+            }
+            mediaList.append(dictionary)
         }
-        cancelClosure?(assetIdentify)
+        cancelClosure?(mediaList)
+        dismiss(animated: true, completion: nil)
     }
     
     @objc func doneButtonPressed(_ sender: UIButton) {
@@ -442,12 +453,23 @@ extension PhotosViewController {
         return -1
     }
     
-    func previewViewControllerNeedSelectedIdentify() -> [String] {
-        var assetIdentify : [String] = []
+    func previewViewControllerNeedSelectedIdentify() -> [Dictionary<String, String>] {
+        var mediaList = [Dictionary<String, String>]()
         for asset in assetStore.assets {
-            assetIdentify.append(asset.localIdentifier)
+            var dictionary = Dictionary<String, String>()
+            dictionary["identify"] = asset.localIdentifier
+            if asset.mediaType == .video {
+                dictionary["fileType"] = "video"
+            }else if asset.mediaType == .image {
+              if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
+                dictionary["fileType"] = "image/gif"
+              }else {
+                dictionary["fileType"] = "image/jpg"
+              }
+            }
+            mediaList.append(dictionary)
         }
-        return assetIdentify
+        return mediaList
     }
 }
 

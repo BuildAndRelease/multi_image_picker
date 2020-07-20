@@ -151,12 +151,15 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                 }
             } else if (v.equals(cancelBtn)) {
                 List<Media> selectMedias = fishton.getSelectedMedias();
-                ArrayList<String> selectMediaIds = new ArrayList<>();
+                ArrayList<HashMap<String, String>> selectMediaInfos = new ArrayList<>();
                 for (Media media : selectMedias) {
-                    selectMediaIds.add(media.getIdentifier());
+                    HashMap<String, String> mediaInfo = new HashMap<>();
+                    mediaInfo.put("identify", media.getIdentifier());
+                    mediaInfo.put("fileType", media.getFileType());
+                    selectMediaInfos.add(mediaInfo);
                 }
                 Intent i = new Intent();
-                i.putExtra(Define.INTENT_RESULT, selectMediaIds);
+                i.putExtra(Define.INTENT_RESULT, selectMediaInfos);
                 setResult(RESULT_CANCELED, i);
                 finish();
             } else if (v.equals(moreContentView)) {

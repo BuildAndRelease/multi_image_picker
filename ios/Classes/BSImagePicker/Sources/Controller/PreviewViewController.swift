@@ -26,7 +26,7 @@ import AVKit
 
 protocol PreviewViewControllerDelegate : class {
     func previewViewControllerDidSelectImageItem(_ asset : PHAsset) -> Int
-    func previewViewControllerNeedSelectedIdentify() -> [String]
+    func previewViewControllerNeedSelectedIdentify() -> [Dictionary<String, String>]
     func previewViewControllerIsSelectImageItem(_ asset : PHAsset) -> Int
     func previewViewControllerCanSelectImageItem(_ asset : PHAsset) -> NSError?
 }
@@ -47,7 +47,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
     var selectBarButton: UIBarButtonItem = UIBarButtonItem()
     var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-    var cancelClosure: ((_ assets: [String]) -> Void)?
+    var cancelClosure: ((_ assets: [Dictionary<String, String>]) -> Void)?
     var settings: BSImagePickerSettings {
         get {
             return selectionView.settings
@@ -183,8 +183,8 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
             (cell as! PreviewCollectionViewCell).stopPlayVideo()
         }
         if self.navigationController?.viewControllers[0] == self {
-            if let selectIdentifier = self.delegate?.previewViewControllerNeedSelectedIdentify() {
-                cancelClosure?(selectIdentifier)
+            if let dictionary = self.delegate?.previewViewControllerNeedSelectedIdentify() {
+                cancelClosure?(dictionary)
             }
             self.dismiss(animated: true, completion: nil)
         }else{

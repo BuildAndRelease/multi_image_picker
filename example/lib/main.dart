@@ -87,12 +87,20 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
     try {
+      final preSelectMedias = [
+        '4D1A6122-2B8D-4B19-807E-9FDDB28748C2/L0/001',
+        '9EF3E2D4-398D-4EAA-B1AB-404C278A8AC7/L0/001',
+        'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001',
+        '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
+      ];
+      final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
       resultList = await MultiImagePicker.pickImages(
         maxImages: 9,
         qualityOfImage: 80,
         maxHeight: 1024,
         maxWidth: 768,
-        // selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
+        defaultAsset: preSelectMedia,
+        selectedAssets: preSelectMedias,
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
             selectionStrokeColor: "#ff6179f2",

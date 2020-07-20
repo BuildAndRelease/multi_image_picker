@@ -29,6 +29,7 @@ Use settings or buttons to customize it to your needs.
 */
 open class BSImagePickerViewController : UINavigationController , PreviewViewControllerDelegate{
     var assetStore : AssetStore?
+    var defaultSelectMedia : String = ""
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
     var cancelClosure: ((_ assets: [PHAsset]) -> Void)?
@@ -89,8 +90,14 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
                 NSSortDescriptor(key: "creationDate", ascending: true)
             ]
             let fetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
-            
-            let index = fetchResult.index(of: self.assetStore!.assets.first!)
+            var index = 0
+            if (!self.defaultSelectMedia.isEmpty) {
+                if let defaultAsset = PHAsset.fetchAssets(withLocalIdentifiers: [self.defaultSelectMedia], options: fetchOptions).firstObject {
+                    index = fetchResult.index(of: defaultAsset)
+                }
+            }else{
+                index = fetchResult.index(of: self.assetStore!.assets.first!)
+            }
             vc.currentAssetIndex = index
             vc.fetchResult = fetchResult
         }

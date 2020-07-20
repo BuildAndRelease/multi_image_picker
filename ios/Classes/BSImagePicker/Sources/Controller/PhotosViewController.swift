@@ -353,7 +353,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("图片大小不能超过8M", comment: "")
+                hud.label.text = NSLocalizedString("不能分享超过8M的文件", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
             }else {
@@ -408,7 +408,7 @@ extension PhotosViewController {
             selectLimitReachedClosure?(assetStore.count)
             return NSError(domain: "图片选择数量超过最大限制", code: 5, userInfo: nil)
         }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 8.0 {
-            return NSError(domain: "图片大小不能超过8M", code: 6, userInfo: nil)
+            return NSError(domain: "不能分享超过8M的文件", code: 6, userInfo: nil)
         }
         return nil
     }

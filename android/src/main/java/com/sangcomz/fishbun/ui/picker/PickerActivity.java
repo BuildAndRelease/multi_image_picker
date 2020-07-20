@@ -96,7 +96,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Define.ENTER_DETAIL_RESULT_CODE) {
-            if (resultCode == RESULT_OK) {
+            if (resultCode == RESULT_CANCELED) {
                 updateSendBtnTitle();
                 recyclerView.getAdapter().notifyDataSetChanged();
                 originBtn.setSelected(!fishton.isThumb());
@@ -150,6 +150,14 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                     mediaCompress.execute();
                 }
             } else if (v.equals(cancelBtn)) {
+                List<Media> selectMedias = fishton.getSelectedMedias();
+                ArrayList<String> selectMediaIds = new ArrayList<>();
+                for (Media media : selectMedias) {
+                    selectMediaIds.add(media.getIdentifier());
+                }
+                Intent i = new Intent();
+                i.putExtra(Define.INTENT_RESULT, selectMediaIds);
+                setResult(RESULT_CANCELED, i);
                 finish();
             } else if (v.equals(moreContentView)) {
                 ViewCompat.animate(moreArrowImageView).setDuration(300).rotationBy(180).start();

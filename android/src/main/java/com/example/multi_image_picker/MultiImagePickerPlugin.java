@@ -304,7 +304,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
             if (currentPickerResult != null) {
-                currentPickerResult.error("CANCELLED", "The user has cancelled the selection", null);
+                ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                currentPickerResult.error("CANCELLED", "", result);
                 currentPickerResult = null;
             }
             return false;
@@ -312,6 +313,13 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             if (currentPickerResult != null) {
                 ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
                 currentPickerResult.success(result != null ? result : Collections.EMPTY_LIST);
+                currentPickerResult = null;
+            }
+            return true;
+        } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
+            if (currentPickerResult != null) {
+                ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                currentPickerResult.error("CANCELLED", "", result);
                 currentPickerResult = null;
             }
             return true;

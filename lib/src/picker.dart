@@ -98,12 +98,7 @@ class MultiImagePicker {
       }
       return assets;
     } on PlatformException catch (e) {
-      switch (e.code) {
-        case "CANCELLED":
-          throw NoImagesSelectedException(e.message);
-        default:
-          throw e;
-      }
+      throw e;
     }
   }
 
@@ -154,12 +149,7 @@ class MultiImagePicker {
       }
       return assets;
     } on PlatformException catch (e) {
-      switch (e.code) {
-        case "CANCELLED":
-          throw NoImagesSelectedException(e.message);
-        default:
-          throw e;
-      }
+      throw e;
     }
   }
 

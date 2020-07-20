@@ -32,7 +32,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     var defaultSelectMedia : String = ""
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
-    var cancelClosure: ((_ assets: [PHAsset]) -> Void)?
+    var cancelClosure: ((_ assets: [String]) -> Void)?
     var finishClosure: ((_ assets: [NSDictionary], _ success : Bool, _ error : NSError) -> Void)?
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
@@ -90,6 +90,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
         let vc = PreviewViewController(nibName: nil, bundle: nil);
         vc.delegate = self
         vc.settings = settings
+        vc.cancelClosure = cancelClosure
         if let album = fetchResults.first?.firstObject {
             let fetchOptions = PHFetchOptions()
             fetchOptions.sortDescriptors = [
@@ -214,6 +215,14 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
             return self.assetStore?.count ?? 0
         }
         return -1
+    }
+    
+    func previewViewControllerNeedSelectedIdentify() -> [String] {
+        var assetIdentify : [String] = []
+        for asset in assetStore?.assets ?? [] {
+            assetIdentify.append(asset.localIdentifier)
+        }
+        return assetIdentify
     }
     
     func previewViewControllerIsSelectImageItem(_ asset : PHAsset) -> Int {

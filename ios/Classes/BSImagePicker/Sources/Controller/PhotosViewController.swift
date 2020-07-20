@@ -26,7 +26,7 @@ import Photos
 final class PhotosViewController : UICollectionViewController , CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate , PreviewViewControllerDelegate {
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
-    var cancelClosure: ((_ assets: [PHAsset]) -> Void)?
+    var cancelClosure: ((_ assets: [String]) -> Void)?
     var finishClosure: ((_ assets: [NSDictionary], _ success : Bool, _ error : NSError) -> Void)?
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
@@ -169,7 +169,11 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     // MARK: Button actions
     @objc func cancelButtonPressed(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
-        cancelClosure?(assetStore.assets)
+        var assetIdentify : [String] = []
+        for asset in assetStore.assets {
+            assetIdentify.append(asset.localIdentifier)
+        }
+        cancelClosure?(assetIdentify)
     }
     
     @objc func doneButtonPressed(_ sender: UIButton) {
@@ -436,6 +440,14 @@ extension PhotosViewController {
             return assetStore.count
         }
         return -1
+    }
+    
+    func previewViewControllerNeedSelectedIdentify() -> [String] {
+        var assetIdentify : [String] = []
+        for asset in assetStore.assets {
+            assetIdentify.append(asset.localIdentifier)
+        }
+        return assetIdentify
     }
 }
 

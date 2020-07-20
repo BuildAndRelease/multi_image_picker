@@ -1,6 +1,8 @@
 class NoImagesSelectedException implements Exception {
   final String message;
-  const NoImagesSelectedException(this.message);
+  final List<String> selectIdentifies;
+
+  const NoImagesSelectedException(this.message, this.selectIdentifies);
   String toString() => message;
 }
 

@@ -172,8 +172,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onBackPressed() {
-        currentPlayVideoView = null;
-        finish();
+        finishActivity();
     }
 
     @Override
@@ -269,8 +268,14 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     void finishActivity() {
         currentPlayVideoView = null;
+        List<Media> selectMedias = fishton.getSelectedMedias();
+        ArrayList<String> selectMediaIds = new ArrayList<>();
+        for (Media media : selectMedias) {
+            selectMediaIds.add(media.getIdentifier());
+        }
         Intent i = new Intent();
-        setResult(RESULT_OK, i);
+        i.putExtra(Define.INTENT_RESULT, selectMediaIds);
+        setResult(RESULT_CANCELED, i);
         finish();
     }
 

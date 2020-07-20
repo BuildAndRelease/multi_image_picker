@@ -199,7 +199,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     break;
                 }
                 case REQUEST_THUMB_DIRECTORY: {
-                    result.success(context.getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
+                    result.success(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
                     break;
                 }
                 case REQUEST_MEDIA_DATA: {

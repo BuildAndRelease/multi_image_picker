@@ -42,7 +42,7 @@ public class CameraActivity extends Activity {
         }
 
         jCameraView = (JCameraView) findViewById(R.id.jcameraview);
-        jCameraView.setSaveVideoPath(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb");
+        jCameraView.setSaveVideoPath(getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb");
         jCameraView.setFeatures(JCameraView.BUTTON_STATE_BOTH);
         jCameraView.setThemeColor(themeColor);
         jCameraView.setTip("轻触拍照，长按摄像");
@@ -68,7 +68,7 @@ public class CameraActivity extends Activity {
                 HashMap map = new HashMap();
                 map.put("width", (float)bitmap.getWidth());
                 map.put("height", (float)bitmap.getHeight());
-                String path = saveBitmap(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/", bitmap);
+                String path = saveBitmap(getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/", bitmap);
                 map.put("identifier", path);
                 map.put("filePath", path);
                 map.put("name", path);
@@ -90,7 +90,7 @@ public class CameraActivity extends Activity {
                 map.put("duration", duration);
                 map.put("fileType", "video/mp4");
 
-                String path = saveBitmap(getExternalCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/", firstFrame);
+                String path = saveBitmap(getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/", firstFrame);
                 map.put("thumbPath", path);
                 map.put("thumbName", path);
                 map.put("thumbHeight", (float)firstFrame.getHeight());

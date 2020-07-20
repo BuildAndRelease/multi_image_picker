@@ -16,9 +16,11 @@ class Fishton {
     var pickerMedias: List<Media> = ArrayList()
         set(value) {
             field = value
-            for (item in value) {
-                if (preSelectedMedias.contains(item.identifier)) {
-                    selectedMedias.add(item);
+            for (identify in preSelectedMedias) {
+                for (item in value) {
+                    if (item.identifier.equals(identify)) {
+                        selectedMedias.add(item);
+                    }
                 }
             }
         }

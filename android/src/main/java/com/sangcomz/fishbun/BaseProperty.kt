@@ -6,6 +6,8 @@ import com.sangcomz.fishbun.bean.Media
  * Created by sangcomz on 13/05/2017.
  */
 interface BaseProperty {
+    fun setPreSelectMedia(preSelectMedia: String): FishBunCreator
+
     fun setPreSelectMedias(preSelectMedias: ArrayList<String>): FishBunCreator
 
     fun setSelectedMedias(selectedMedias: ArrayList<Media>): FishBunCreator

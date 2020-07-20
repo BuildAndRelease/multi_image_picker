@@ -191,6 +191,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let maxImages = arguments["maxImages"] as! Int
             let options = arguments["iosOptions"] as! Dictionary<String, String>
+            let defaultAsset = arguments["defaultAsset"] as! String
             let selectedAssets = arguments["selectedAssets"] as! Array<String>
             let quality = (arguments["qualityOfImage"] as? Int) ?? 100
             let maxHeight = (arguments["maxHeight"] as? Int) ?? 1024
@@ -202,9 +203,16 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             vc.maxHeightOfImage = maxHeight
             vc.qualityOfThumb = CGFloat(compressionQuality)
             
-            if selectedAssets.count > 0{
-                let assets : PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
+            if !defaultAsset.isEmpty {
+                let assets : PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [defaultAsset], options: nil)
                 vc.defaultSelections = assets
+            }
+            
+            if selectedAssets.count > 0 {
+                let assets : PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
+                assets.enumerateObjects { (asset, index, error) in
+                    vc.assetStore?.append(asset)
+                }
             }
 
             if let selectionFillColor = options["selectionFillColor"] , !selectionFillColor.isEmpty{

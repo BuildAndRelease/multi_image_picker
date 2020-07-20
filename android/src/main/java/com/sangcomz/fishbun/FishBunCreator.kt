@@ -7,7 +7,6 @@ import com.sangcomz.fishbun.bean.Media
 import com.sangcomz.fishbun.ui.detail.DetailActivity
 import com.sangcomz.fishbun.ui.picker.PickerActivity
 import com.sangcomz.fishbun.util.Define
-import com.sangcomz.fishbun.util.DisplayImage
 
 /**
  * Created by sangcomz on 17/05/2017.
@@ -17,6 +16,10 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
 
     override fun setPreSelectMedias(preSelectMedias: ArrayList<String>): FishBunCreator = this.apply {
         fishton.preSelectedMedias = preSelectMedias
+    }
+
+    override fun setPreSelectMedia(preSelectMedia: String): FishBunCreator = this.apply {
+        fishton.preSelectedMedia = preSelectMedia
     }
 
     override fun setSelectedMedias(selectedMedias: ArrayList<Media>): FishBunCreator = this.apply {
@@ -93,7 +96,7 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
             setDefaultMessage(context)
         }
 
-        if (fishton.preSelectedMedias.size > 0) {
+        if (fishton.preSelectedMedia.isNotEmpty()) {
             val i = Intent(context, DetailActivity::class.java)
             fishBunContext.startActivityForResult(i, requestCode)
         }else{

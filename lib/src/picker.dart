@@ -40,6 +40,7 @@ class MultiImagePicker {
     int maxWidth = 300,
     int maxHeight = 300,
     bool enableCamera = false,
+    String defaultAsset = "",
     List<String> selectedAssets = const [],
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
     MaterialOptions materialOptions = const MaterialOptions(),
@@ -61,6 +62,7 @@ class MultiImagePicker {
           'enableCamera': enableCamera,
           'iosOptions': cupertinoOptions.toJson(),
           'androidOptions': materialOptions.toJson(),
+          'defaultAsset': defaultAsset,
           'selectedAssets': selectedAssets,
         },
       );

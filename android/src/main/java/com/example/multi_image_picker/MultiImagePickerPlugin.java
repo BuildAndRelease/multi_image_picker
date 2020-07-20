@@ -21,6 +21,7 @@ import com.sangcomz.fishbun.util.DisplayImage;
 import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.MediaThumbData;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,6 +57,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String OFFSET = "offset";
     private static final String QUALITY_OF_IMAGE = "qualityOfImage";
     private static final String SELECTED_ASSETS = "selectedAssets";
+    private static final String DEFAULT_ASSETS = "defaultAsset";
     private static final String ANDROID_OPTIONS = "androidOptions";
     private static final String THEME_COLOR = "themeColor";
     private static final int REQUEST_CODE_CHOOSE = 1001;
@@ -118,7 +120,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         int maxWidth = call.argument(MAX_WIDTH);
                         int qualityOfThumb = call.argument(QUALITY_OF_IMAGE);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
-                        presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, selectMedias, options);
+                        String defaultAsset = call.argument(DEFAULT_ASSETS);
+                        presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, defaultAsset, selectMedias, options);
                     }else {
                         result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
@@ -225,7 +228,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         }
     }
 
-    private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, ArrayList<String> selectMedias, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, String defaultAsset, ArrayList<String> selectMedias, HashMap<String, String> options) {
         String actionBarTitle = options.get("actionBarTitle");
         String allViewTitle =  options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
@@ -242,6 +245,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 .setQuality(qualityOfThumb)
                 .setMaxHeight(maxHeight)
                 .setMaxWidth(maxWidth)
+                .setPreSelectMedia(defaultAsset)
                 .setPreSelectMedias(selectMedias)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
                 .exceptMimeType(mimeTypeList);

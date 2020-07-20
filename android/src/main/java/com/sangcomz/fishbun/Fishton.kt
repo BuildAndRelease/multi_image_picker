@@ -13,7 +13,15 @@ import java.util.ArrayList
  */
 class Fishton {
     var imageAdapter: GlideAdapter? = null
-    var pickerMedias: List<Media> = ArrayList();
+    var pickerMedias: List<Media> = ArrayList()
+        set(value) {
+            field = value
+            for (item in value) {
+                if (preSelectedMedias.contains(item.identifier)) {
+                    selectedMedias.add(item);
+                }
+            }
+        }
 
     var quality : Int = 1
     var maxHeight : Int = 300
@@ -23,7 +31,8 @@ class Fishton {
     var exceptMimeTypeList = emptyList<MimeType>()
     var selectedMedias = ArrayList<Media>()
     var preSelectedMedias = ArrayList<String>()
-    var isThumb : Boolean = true;
+    var preSelectedMedia = ""
+    var isThumb : Boolean = true
 
     var messageNothingSelected: String? = null
     var messageLimitReached: String? = null
@@ -54,7 +63,7 @@ class Fishton {
         minCount = 1
         exceptMimeTypeList = emptyList()
         selectedMedias = ArrayList()
-        preSelectedMedias = ArrayList()
+        preSelectedMedia = ""
 
 
         drawableHomeAsUpIndicator = null
@@ -94,9 +103,9 @@ class Fishton {
 
     fun mediaIndexOfFirstPreSelectMedia(): Int {
         try {
-            if (preSelectedMedias.size > 0) {
+            if (preSelectedMedia.isNotEmpty()) {
                 for (i in pickerMedias.indices) {
-                    if (pickerMedias[i].identifier.equals(preSelectedMedias[0])) {
+                    if (pickerMedias[i].identifier.equals(preSelectedMedia)) {
                         return i;
                     }
                 }

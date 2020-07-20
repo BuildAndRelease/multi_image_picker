@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.core.content.ContextCompat;
 
@@ -121,6 +122,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         int qualityOfThumb = call.argument(QUALITY_OF_IMAGE);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
                         String defaultAsset = call.argument(DEFAULT_ASSETS);
+                        defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
                         presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, defaultAsset, selectMedias, options);
                     }else {
                         if (currentPickerResult != null) {
@@ -235,10 +237,10 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             }
         } catch (Exception e) {
             if (currentPickerResult != null) {
-                currentPickerResult.error(e.getMessage(), e.getCause().toString(), null);
+                currentPickerResult.error(e.getMessage(), e.toString(), null);
                 currentPickerResult = null;
             }else {
-                result.error(e.getMessage(), e.getCause().toString(), null);
+                result.error(e.getMessage(), e.toString(), null);
             }
         }
     }

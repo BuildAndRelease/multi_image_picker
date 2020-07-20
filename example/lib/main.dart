@@ -87,19 +87,19 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
     try {
-      // resultList = await MultiImagePicker.pickImages(
-      //   maxImages: 9,
-      //   qualityOfImage: 80,
-      //   maxHeight: 1024,
-      //   maxWidth: 768,
-      //   // selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
-      //   cupertinoOptions: CupertinoOptions(
-      //       takePhotoIcon: "chat",
-      //       selectionStrokeColor: "#ff6179f2",
-      //       selectionFillColor: "#ff6179f2"),
-      //   materialOptions: MaterialOptions(
-      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      // );
+      resultList = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        qualityOfImage: 80,
+        maxHeight: 1024,
+        maxWidth: 768,
+        // selectedAssets: ['654C82F9-67F2-4A1E-B5F0-257739167E1B/L0/001'],
+        cupertinoOptions: CupertinoOptions(
+            takePhotoIcon: "chat",
+            selectionStrokeColor: "#ff6179f2",
+            selectionFillColor: "#ff6179f2"),
+        materialOptions: MaterialOptions(
+            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      );
       // Asset asset =
       //     await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
       // resultList.add(asset);
@@ -114,12 +114,12 @@ class _MyHomePageState extends State<MyHomePage> {
       //     "334D2E75-7DFD-4D76-B8E3-BB2B5A84B533/L0/001");
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
-      List<Asset> data = await MultiImagePicker.requestMediaData(
-          qualityOfImage: 80,
-          maxHeight: 1024,
-          maxWidth: 768,
-          selectedAssets: ['196274']);
-      print(data);
+      // List<Asset> data = await MultiImagePicker.requestMediaData(
+      //     qualityOfImage: 80,
+      //     maxHeight: 1024,
+      //     maxWidth: 768,
+      //     selectedAssets: ['196274']);
+      // print(data);
       // Uint8List data = await MultiImagePicker.fetchMediaThumbData("187053", "video");
       // print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");

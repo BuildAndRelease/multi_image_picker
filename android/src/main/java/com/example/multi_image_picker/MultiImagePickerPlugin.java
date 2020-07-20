@@ -83,7 +83,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         channel.setMethodCallHandler(instance);
     }
 
-    boolean checkPermission(boolean checkCamera, boolean checkRecord) {
+    boolean checkPermission(boolean checkCamera, boolean checkRecord, boolean checkStorage) {
         PermissionCheck permissionCheck = new PermissionCheck(activity);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             boolean result = true;
@@ -92,6 +92,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             }
             if (checkRecord) {
                 result = result && permissionCheck.CheckRecordAudioPermission();
+            }
+            if (checkStorage) {
+                result = result && permissionCheck.CheckStoragePermission();
             }
             return result;
         } else {
@@ -104,7 +107,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         try {
             switch (call.method) {
                 case PICK_IMAGES: {
-                    if (checkPermission(true, false)) {
+                    if (checkPermission(false, false, true)) {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
                         }
@@ -122,7 +125,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     break;
                 }
                 case FETCH_MEDIA_INFO: {
-                    if (checkPermission(true, false)) {
+                    if (checkPermission(false, false, true)) {
                         ArrayList mimeTypeList = new ArrayList();
                         mimeTypeList.add(MimeType.WEBP);
                         int limit = call.argument(LIMIT);
@@ -144,7 +147,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     break;
                 }
                 case REQUEST_TAKE_PICTURE: {
-                    if (checkPermission(true, true)) {
+                    if (checkPermission(true, true, true)) {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
                         }
@@ -160,7 +163,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     break;
                 }
                 case FETCH_MEDIA_THUMB_DATA: {
-                    if (checkPermission(true, false)) {
+                    if (checkPermission(false, false, true)) {
                         String identify = call.argument(IDENTIFY);
                         String fileType = call.argument(FILE_TYPE);
                         MediaThumbData mediaThumbData = new MediaThumbData(identify, fileType, activity);
@@ -177,7 +180,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     break;
                 }
                 case REQUEST_FILE_SIZE: {
-                    if (checkPermission( true, false)) {
+                    if (checkPermission( false, false, true)) {
                         String identify = call.argument(IDENTIFY);
                         MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
                         mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
@@ -197,7 +200,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     break;
                 }
                 case REQUEST_MEDIA_DATA: {
-                    if (checkPermission(true, false)) {
+                    if (checkPermission(false, false, true)) {
                         boolean thumb = call.argument("thumb");
                         int quality = call.argument("qualityOfImage");
                         int maxHeight = call.argument("maxHeight");

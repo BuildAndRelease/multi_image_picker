@@ -145,7 +145,7 @@ public class CameraActivity extends Activity {
 
     public String saveBitmap(String dir, Bitmap b) {
         long dataTake = System.currentTimeMillis();
-        String jpegName = dir + File.separator + "picture_" + dataTake + ".jpg";
+        String jpegName = dir + "picture_" + dataTake + ".jpg";
         try {
             File directory = new File(dir);
             if (!directory.exists()) {

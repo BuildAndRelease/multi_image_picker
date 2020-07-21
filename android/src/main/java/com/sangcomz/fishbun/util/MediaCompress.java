@@ -158,11 +158,11 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
             String filePath = "";
             try {
                 InputStream is = new FileInputStream(media.getOriginPath());
-                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb");
+                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
                 if (!tmpPicParentDir.exists()) {
                     tmpPicParentDir.mkdirs();
                 }
-                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb" + fileName);
+                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName);
                 if (tmpPic.exists()) {
                     tmpPic.delete();
                 }
@@ -193,11 +193,11 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
             String filePath = "";
             try {
                 InputStream is = new FileInputStream(media.getOriginPath());
-                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb");
+                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
                 if (!tmpPicParentDir.exists()) {
                     tmpPicParentDir.mkdirs();
                 }
-                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb" + fileName);
+                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName);
                 if (tmpPic.exists()) {
                     tmpPic.delete();
                 }

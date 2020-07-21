@@ -30,7 +30,7 @@ class WMCameraControl: UIView {
     
     weak open var delegate: WMCameraControlDelegate?
     // record video length
-    var videoLength: Double = 10
+    var videoLength: Double = 15
     
     var recordTime: Double = 0
     

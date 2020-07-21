@@ -94,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //   '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
       // ];
       // final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
-      // final preSelectMedias = ['1960636', '1960635', '1960634', '1960633'];
+      final preSelectMedias = ['1960636', '1960635', '1960634', '1960633'];
       // final preSelectMedia = '1960634';
       resultList = await MultiImagePicker.pickImages(
         maxImages: 9,
@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
         maxHeight: 1024,
         maxWidth: 768,
         defaultAsset: null,
-        selectedAssets: null,
+        selectedAssets: preSelectMedias,
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
             selectionStrokeColor: "#ff6179f2",

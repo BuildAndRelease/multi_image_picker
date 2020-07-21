@@ -125,14 +125,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         photosDataSource?.delegate = self
         
         previewViewContoller.settings = settings;
-        
-        if assetStore.count > 0 {
-            previewViewContoller.delegate = self
-            let index = photosDataSource?.fetchResult.index(of: assetStore.assets.first!) ?? 0
-            previewViewContoller.currentAssetIndex = index
-            previewViewContoller.fetchResult = photosDataSource?.fetchResult
-            navigationController?.pushViewController(previewViewContoller, animated: true)
-        }
     }
     
     override func viewDidLayoutSubviews() {

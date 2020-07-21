@@ -151,7 +151,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
         
         // Make sure we really are authorized
         if PHPhotoLibrary.authorizationStatus() == .authorized {
-            if assetStore?.count ?? 0 > 0 {
+            if !defaultSelectMedia.isEmpty {
                 bottomContentView.frame = self.toolbar.bounds
                 bottomContentView.backgroundColor = UIColor.clear
                 

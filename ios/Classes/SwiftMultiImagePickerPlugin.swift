@@ -202,14 +202,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             vc.maxWidthOfImage = maxWidth
             vc.maxHeightOfImage = maxHeight
             vc.qualityOfThumb = CGFloat(compressionQuality)
-            
-            if !defaultAsset.isEmpty {
-                vc.defaultSelectMedia = defaultAsset
-            }
-            
-            if selectedAssets.count > 0 {
-                vc.selectMedias = selectedAssets
-            }
+            vc.selectMedias = selectedAssets
+            vc.defaultSelectMedia = defaultAsset
 
             if let selectionFillColor = options["selectionFillColor"] , !selectionFillColor.isEmpty{
                 vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)

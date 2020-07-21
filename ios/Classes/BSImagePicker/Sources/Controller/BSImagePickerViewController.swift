@@ -208,7 +208,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
             deselectionClosure?(asset)
             updateDoneButton()
             return -1
-        } else if self.assetStore?.count ?? 100 < settings.maxNumberOfSelections {
+        } else if self.assetStore?.count ?? 0 < settings.maxNumberOfSelections {
             self.assetStore?.append(asset)
             selectionClosure?(asset)
             updateDoneButton()
@@ -245,13 +245,13 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
             return nil
         }else if asset.mediaType == .video, assetStore?.isContainPic() ?? false {
             return NSError(domain: "不能同时选择图片和视频", code: 1, userInfo: nil)
-        }else if asset.mediaType == .video, assetStore?.count ?? 100 > 0 {
+        }else if asset.mediaType == .video, assetStore?.count ?? 0 > 0 {
             return NSError(domain: "一次只能选择一个视频", code: 2, userInfo: nil)
         }else if asset.mediaType == .video , asset.duration > 301 {
             return NSError(domain: "请选择5分钟以下的视频", code: 3, userInfo: nil)
         }else if asset.mediaType == .image, assetStore?.isContainVideo() ?? false {
             return NSError(domain: "不能同时选择图片和视频", code: 4, userInfo: nil)
-        }else if assetStore?.count ?? 100 >= settings.maxNumberOfSelections {
+        }else if assetStore?.count ?? 0 >= settings.maxNumberOfSelections {
             selectLimitReachedClosure?(assetStore?.count ?? 0)
             return NSError(domain: "图片选择数量超过最大限制", code: 5, userInfo: nil)
         }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 8.0 {

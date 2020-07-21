@@ -305,13 +305,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
             if (currentPickerResult != null) {
-//                if (data.get())
-                ArrayList result;
-                if (data != null) {
-                    result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
-                }else {
-                    result = new ArrayList();
-                }
+                ArrayList result = data != null ? data.getParcelableArrayListExtra(Define.INTENT_RESULT) : new ArrayList();
                 currentPickerResult.error("CANCELLED", "", result);
                 currentPickerResult = null;
             }

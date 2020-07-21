@@ -36,7 +36,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
         switch (call.method) {
         case "requestMediaData":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let selectedAssets = arguments["selectedAssets"] as! Array<String>
+            let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? []
             let quality = (arguments["qualityOfImage"] as? Int) ?? 100
             let maxHeight = (arguments["maxHeight"] as? Int) ?? 1024
             let maxWidth = (arguments["maxWidth"] as? Int) ?? 768
@@ -76,7 +76,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             }
         case "requestFileSize":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let localIdentifier = arguments["identifier"] as! String
+            let localIdentifier = (arguments["identifier"] as? String) ?? ""
             DispatchQueue.global().async {
                 if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject {
                     result("\(asset.fileSize)")
@@ -86,8 +86,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             }
         case "fetchMediaInfo":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            var limit = arguments["limit"] as! Int
-            var offset = arguments["offset"] as! Int
+            var limit = (arguments["limit"] as? Int) ?? 5
+            var offset = (arguments["offset"] as? Int) ?? 0
             weak var weakSelf = self
             DispatchQueue.global().async {
                 let medias = NSMutableArray()
@@ -132,7 +132,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             }
         case "fetchMediaThumbData":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let localIdentifier = arguments["identifier"] as! String
+            let localIdentifier = (arguments["identifier"] as? String) ?? ""
             weak var weakSelf = self
             DispatchQueue.global().async {
                 let imageRequestOptions = PHImageRequestOptions()
@@ -154,7 +154,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             result((NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/")
         case "requestTakePicture":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let themeColor = arguments["themeColor"] as! String
+            let themeColor = (arguments["themeColor"] as? String) ?? "#ff6179f2"
             let vc = WMCameraViewController()
             vc.videoMaxLength = 20
             vc.themeColor = hexStringToUIColor(hex: themeColor)
@@ -189,10 +189,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let vc = BSImagePickerViewController()
             
             let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let maxImages = arguments["maxImages"] as! Int
-            let options = arguments["iosOptions"] as! Dictionary<String, String>
-            let defaultAsset = arguments["defaultAsset"] as! String
-            let selectedAssets = arguments["selectedAssets"] as! Array<String>
+            let maxImages = (arguments["maxImages"] as? Int) ?? 9
+            let options = (arguments["iosOptions"] as? Dictionary<String, String>) ?? Dictionary<String, String>()
+            let defaultAsset = (arguments["defaultAsset"] as? String) ?? ""
+            let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
             let quality = (arguments["qualityOfImage"] as? Int) ?? 100
             let maxHeight = (arguments["maxHeight"] as? Int) ?? 1024
             let maxWidth = (arguments["maxWidth"] as? Int) ?? 768

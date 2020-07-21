@@ -10,7 +10,7 @@ import UIKit
 import Photos
 import AVKit
 
-class PreviewCollectionViewCell: UICollectionViewCell {
+class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelegate {
     var photoImageView : UIImageView = UIImageView(frame: CGRect.zero)
     var playImageView : UIImageView = UIImageView(frame: CGRect.zero)
     
@@ -57,6 +57,8 @@ class PreviewCollectionViewCell: UICollectionViewCell {
         playImageView.highlightedImage = UIImage.wm_imageWithName_WMCameraResource(named: "play_btn_select")
         playImageView.contentMode = .scaleAspectFit
         playImageView.translatesAutoresizingMaskIntoConstraints = false
+        playImageView.isUserInteractionEnabled = true
+        playImageView.isMultipleTouchEnabled = true
         self.addSubview(playImageView)
         
         NSLayoutConstraint.activate([
@@ -70,6 +72,14 @@ class PreviewCollectionViewCell: UICollectionViewCell {
             NSLayoutConstraint(item: playImageView, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1, constant: 0),
             NSLayoutConstraint(item: playImageView, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1, constant: 0)
         ])
+        
+        let pinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(pinchView(_:)))
+        pinchGestureRecognizer.delegate = self
+        playImageView.addGestureRecognizer(pinchGestureRecognizer)
+        
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panView(_:)))
+        panGestureRecognizer.delegate = self
+        playImageView.addGestureRecognizer(panGestureRecognizer)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -121,6 +131,23 @@ class PreviewCollectionViewCell: UICollectionViewCell {
             }
         }
     }
+    
+    @objc func pinchView(_ pinchGestureRecognizer : UIPinchGestureRecognizer) {
+        let view = pinchGestureRecognizer.view
+        if pinchGestureRecognizer.state == .began || pinchGestureRecognizer.state == .changed {
+            view?.transform = CGAffineTransform.init(scaleX: pinchGestureRecognizer.scale, y: pinchGestureRecognizer.scale)
+            pinchGestureRecognizer.scale = 1;
+        }
+    }
+    
+    @objc func panView(_ panGestureRecognizer : UIPanGestureRecognizer) {
+        if let view = panGestureRecognizer.view, panGestureRecognizer.state == .began || panGestureRecognizer.state == .changed {
+            let translation = panGestureRecognizer.translation(in: view.superview)
+            view.center = CGPoint(x: view.center.x + translation.x, y: view.center.y + translation.y)
+            panGestureRecognizer.setTranslation(CGPoint.zero, in: view.superview)
+        }
+    }
+    
     
     func stopPlayVideo() {
         if asset?.mediaType == .video {

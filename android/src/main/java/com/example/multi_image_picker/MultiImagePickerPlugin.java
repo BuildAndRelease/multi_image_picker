@@ -121,6 +121,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         int maxWidth = call.argument(MAX_WIDTH);
                         int qualityOfThumb = call.argument(QUALITY_OF_IMAGE);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
+                        selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
                         String defaultAsset = call.argument(DEFAULT_ASSETS);
                         defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
                         presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, defaultAsset, selectMedias, options);
@@ -304,7 +305,13 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
             if (currentPickerResult != null) {
-                ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+//                if (data.get())
+                ArrayList result;
+                if (data != null) {
+                    result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                }else {
+                    result = new ArrayList();
+                }
                 currentPickerResult.error("CANCELLED", "", result);
                 currentPickerResult = null;
             }

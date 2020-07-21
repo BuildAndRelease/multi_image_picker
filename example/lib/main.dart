@@ -101,8 +101,8 @@ class _MyHomePageState extends State<MyHomePage> {
         qualityOfImage: 80,
         maxHeight: 1024,
         maxWidth: 768,
-        defaultAsset: "",
-        selectedAssets: [],
+        defaultAsset: null,
+        selectedAssets: null,
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
             selectionStrokeColor: "#ff6179f2",

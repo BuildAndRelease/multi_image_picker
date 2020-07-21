@@ -101,7 +101,7 @@ public class CaptureButton extends View {
         state = STATE_IDLE;                //初始化为空闲状态
         button_state = BUTTON_STATE_BOTH;  //初始化按钮为可录制可拍照
         KLog.i(TAG,"CaptureButtom start");
-        duration = 10 * 1000;              //默认最长录制时间为10s
+        duration = 16 * 1000;              //默认最长录制时间为10s
         KLog.i(TAG,"CaptureButtom end");
         min_duration = 1500;              //默认最短录制时间为1.5s
 

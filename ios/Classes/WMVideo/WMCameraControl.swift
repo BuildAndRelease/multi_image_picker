@@ -178,6 +178,7 @@ class WMCameraControl: UIView {
             self.cameraButton.transform = CGAffineTransform.init(scaleX: 1.5, y: 1.5)
             self.centerView.transform = CGAffineTransform.init(scaleX: 0.5, y: 0.5)
             self.tipLbl.alpha = 0.0
+            self.exitButton.alpha = 0.0
         })
     }
     
@@ -185,7 +186,8 @@ class WMCameraControl: UIView {
         guard let timer = timer else { return }
         timer.invalidate()
         self.timer = nil
-        
+
+        self.exitButton.alpha = 1.0
         cameraButton.isHidden = true
         changeCameraButton.isHidden = true
         exitButton.isHidden = true

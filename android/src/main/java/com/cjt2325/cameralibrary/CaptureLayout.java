@@ -160,6 +160,7 @@ public class CaptureLayout extends FrameLayout {
                     captureLisenter.recordShort(time);
                 }
                 startAlphaAnimation();
+                btn_return.setAlpha(1.0f);
             }
 
             @Override
@@ -168,6 +169,7 @@ public class CaptureLayout extends FrameLayout {
                     captureLisenter.recordStart();
                 }
                 startAlphaAnimation();
+                btn_return.setAlpha(0.0f);
             }
 
             @Override
@@ -177,6 +179,7 @@ public class CaptureLayout extends FrameLayout {
                 }
                 startAlphaAnimation();
                 startTypeBtnAnimator();
+                btn_return.setAlpha(1.0f);
             }
 
             @Override

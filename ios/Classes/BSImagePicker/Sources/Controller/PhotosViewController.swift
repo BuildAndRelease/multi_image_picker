@@ -394,7 +394,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
 // MARK: UICollectionViewDelegate
 extension PhotosViewController {
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset {
+        if let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset, !cell.photoDisable {
             previewViewContoller.delegate = self
             let index = photosDataSource?.fetchResult.index(of: asset) ?? 0
             previewViewContoller.currentAssetIndex = index

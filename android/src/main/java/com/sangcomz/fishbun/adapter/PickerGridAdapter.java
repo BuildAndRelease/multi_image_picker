@@ -56,8 +56,12 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         if ((fishton.getSelectedMedias().size() >= fishton.getMaxCount() || fishton.isContainVideo()) && !fishton.getSelectedMedias().contains(media)) {
             vh.banCoverView.setVisibility(View.VISIBLE);
+            vh.imgThumbImage.setEnabled(false);
+            vh.btnThumbCount.setEnabled(false);
         }else {
             vh.banCoverView.setVisibility(View.INVISIBLE);
+            vh.imgThumbImage.setEnabled(true);
+            vh.btnThumbCount.setEnabled(true);
         }
 
         if (media.getFileType().contains("video")) {
@@ -98,9 +102,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     btnThumbCount.unselect();
                     ViewCompat.animate(coverView).setDuration(100).alpha(0.0f);
                     pickerController.onSelectCountDidChange();
-//                    if (pickedImages.size() == (fishton.getMaxCount() - 1) || pickedImages.size() == 0) {
-                        notifyDataSetChanged();
-//                    }
+                    notifyDataSetChanged();
                 }else if (media.getFileType().contains("video") && fishton.isContainPic()) {
                     Snackbar.make(vh.item, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
                 } else if (media.getFileType().contains("video") && fishton.getSelectedMedias().size() > 0) {

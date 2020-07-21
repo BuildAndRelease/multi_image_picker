@@ -18,6 +18,8 @@ interface BaseProperty {
 
     fun setMaxHeight(maxHeigth: Int): FishBunCreator
 
+    fun setThumb(thumb: Boolean): FishBunCreator
+
     fun setMaxWidth(maxWidth: Int): FishBunCreator
 
     fun setQuality(qualityOfThumb: Int): FishBunCreator

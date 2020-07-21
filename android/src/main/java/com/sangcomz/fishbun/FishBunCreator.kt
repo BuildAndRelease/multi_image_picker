@@ -14,6 +14,10 @@ import com.sangcomz.fishbun.util.Define
 class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton) : BaseProperty, CustomizationProperty {
     private var requestCode = 27
 
+    override fun setThumb(thumb: Boolean): FishBunCreator = this.apply {
+        fishton.isThumb = thumb;
+    }
+
     override fun setPreSelectMedias(preSelectMedias: ArrayList<String>): FishBunCreator = this.apply {
         fishton.preSelectedMedias = preSelectMedias
     }

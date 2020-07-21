@@ -181,7 +181,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
-
             if (media.getFileType().contains("video") && fishton.isContainPic()) {
                 Snackbar.make(btnDetailCount, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
             } else if (media.getFileType().contains("video") && fishton.getSelectedMedias().size() > 0) {

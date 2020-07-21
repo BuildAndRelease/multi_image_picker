@@ -263,6 +263,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 .setQuality(qualityOfThumb)
                 .setMaxHeight(maxHeight)
                 .setMaxWidth(maxWidth)
+                .setThumb(true)
                 .setPreSelectMedia(defaultAsset)
                 .setPreSelectMedias(selectMedias)
                 .setRequestCode(REQUEST_CODE_CHOOSE)

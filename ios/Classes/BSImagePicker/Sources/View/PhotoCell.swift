@@ -142,7 +142,7 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         videoLabelImageView.image = UIImage.wm_imageWithName_WMCameraResource(named: "video_btn")
         videoLabelImageView.translatesAutoresizingMaskIntoConstraints = false
     
-        videoDurationLabel.text = "00:20"
+        videoDurationLabel.text = "00:15"
         videoDurationLabel.textColor = UIColor.white
         videoDurationLabel.textAlignment = .center
         videoDurationLabel.font = UIFont.systemFont(ofSize: 12.0)

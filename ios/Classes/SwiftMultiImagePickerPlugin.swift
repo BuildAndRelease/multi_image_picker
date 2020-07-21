@@ -156,7 +156,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let themeColor = (arguments["themeColor"] as? String) ?? "#ff6179f2"
             let vc = WMCameraViewController()
-            vc.videoMaxLength = 20
+            vc.videoMaxLength = 15
             vc.themeColor = hexStringToUIColor(hex: themeColor)
             vc.completeBlock = { url, type, duration, width, height, thumbPath, thumbWidth, thumbHeight in
                 let dictionary = NSMutableDictionary()

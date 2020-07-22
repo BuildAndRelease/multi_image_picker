@@ -134,7 +134,9 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         gradientLayer.startPoint = CGPoint(x: 0, y: 1.0)
         gradientLayer.endPoint = CGPoint(x: 0, y: 0)
         gradientLayer.frame = CGRect(x: 0, y: 0, width: 320, height: 25)
+        gradientLayer.masksToBounds = true
         videoLabelContentView.layer.addSublayer(gradientLayer)
+        videoLabelContentView.layer.masksToBounds = true
         videoLabelContentView.translatesAutoresizingMaskIntoConstraints = false
         
         videoLabelImageView.clipsToBounds = true

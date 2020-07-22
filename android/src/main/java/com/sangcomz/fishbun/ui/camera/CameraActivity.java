@@ -1,12 +1,16 @@
 package com.sangcomz.fishbun.ui.camera;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -16,12 +20,16 @@ import com.cjt2325.cameralibrary.listener.ErrorListener;
 import com.cjt2325.cameralibrary.listener.JCameraListener;
 import com.cjt2325.cameralibrary.util.FileUtil;
 import com.example.multi_image_picker.R;
+import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 
 public class CameraActivity extends Activity {
@@ -69,10 +77,18 @@ public class CameraActivity extends Activity {
                 map.put("width", (float)bitmap.getWidth());
                 map.put("height", (float)bitmap.getHeight());
                 String path = saveBitmap(getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/", bitmap);
+                String fileName = "image";
+                try {
+                    String[] pathSplits = path.split("/");
+                    fileName = pathSplits[pathSplits.length - 1];
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
                 map.put("identifier", path);
                 map.put("filePath", path);
-                map.put("name", path);
+                map.put("name", fileName);
                 map.put("fileType", "image/jpg");
+                MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, fileName, fileName);
                 Intent intent = new Intent();
                 intent.putExtra(Define.INTENT_RESULT, map);
                 setResult(Define.ENTER_TAKE_RESULT_CODE, intent);
@@ -95,6 +111,8 @@ public class CameraActivity extends Activity {
                 map.put("thumbName", path);
                 map.put("thumbHeight", (float)firstFrame.getHeight());
                 map.put("thumbWidth", (float)firstFrame.getWidth());
+
+                saveVideo(new File(url));
 
                 Intent intent = new Intent();
                 intent.putExtra(Define.INTENT_RESULT, map);
@@ -141,6 +159,30 @@ public class CameraActivity extends Activity {
     protected void onPause() {
         super.onPause();
         jCameraView.onPause();
+    }
+
+    public String saveVideo(File f) {
+        ContentValues values = new ContentValues(2);
+        values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+        Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+
+        try {
+            InputStream is = new FileInputStream(f);
+            OutputStream os = getContentResolver().openOutputStream(uri);
+            byte[] buffer = new byte[4096]; // tweaking this number may increase performance
+            int len;
+            while ((len = is.read(buffer)) != -1){
+                os.write(buffer, 0, len);
+            }
+            os.flush();
+            is.close();
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+        return uri.toString();
     }
 
     public String saveBitmap(String dir, Bitmap b) {

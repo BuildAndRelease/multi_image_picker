@@ -137,7 +137,6 @@ public class CaptureLayout extends FrameLayout {
         set.start();
     }
 
-
     private void initView() {
         setWillNotDraw(false);
         //拍照按钮

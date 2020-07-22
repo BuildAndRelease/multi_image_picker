@@ -115,7 +115,7 @@ class WMCameraViewController: UIViewController {
 
     }
      
-     open override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+    open override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 
     }
      
@@ -127,8 +127,19 @@ class WMCameraViewController: UIViewController {
 extension WMCameraViewController: WMCameraControlDelegate {
     
     func cameraControlDidComplete() {
-        dismiss(animated: true) {
-            self.completeBlock(self.url!, self.type!, self.duration, self.width, self.height, self.thumbPath, self.thumbWidth, self.thumbHeight)
+        if self.type == .video {
+            ALAssetsLibrary().writeVideoAtPath(toSavedPhotosAlbum: URL(fileURLWithPath: self.url!)) {[weak self] (url, error) in
+                if let object = self {
+                    object.dismiss(animated: true) {
+                        object.completeBlock(object.url!, object.type!, object.duration, object.width, object.height, object.thumbPath, object.thumbWidth, object.thumbHeight)
+                    }
+                }
+            }
+        }else if self.type == .image {
+            UIImageWriteToSavedPhotosAlbum(UIImage(contentsOfFile: self.url!) ?? UIImage(), nil, nil, nil)
+            self.dismiss(animated: true) {
+                self.completeBlock(self.url!, self.type!, self.duration, self.width, self.height, self.thumbPath, self.thumbWidth, self.thumbHeight)
+            }
         }
     }
     

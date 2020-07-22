@@ -1,6 +1,5 @@
 package com.sangcomz.fishbun.ui.camera;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;

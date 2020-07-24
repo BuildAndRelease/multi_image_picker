@@ -213,7 +213,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 Toast.makeText(this, fishton.getMessageNothingSelected(), Toast.LENGTH_SHORT).show();
             } else {
                 compressingView.setVisibility(View.VISIBLE);
-                compressingTextView.setText(fishton.isThumb() ? "压缩中..." : "拷贝中...");
+                compressingTextView.setText(fishton.isThumb() ? "压缩中..." : "处理中...");
                 boolean thumb = fishton.isThumb();
                 int quality = fishton.getQuality();
                 int maxHeight = fishton.getMaxHeight();

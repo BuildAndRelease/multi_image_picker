@@ -206,8 +206,12 @@ class WMCameraManger: NSObject {
                     return
             }
             let rotete = self.imageRotateWith(imageOrientation)
-            let newImage = WMImageRotate.rotateImage(originImage, withAngle: rotete)
+            var newImage = WMImageRotate.rotateImage(originImage, withAngle: rotete)
             
+            if let cgImage = newImage.cgImage, self.videoInput.device.position == .front {
+                newImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: UIImage.Orientation.leftMirrored)
+            }
+ 
             try? newImage.jpegData(compressionQuality: 1)?.write(to: URL.init(fileURLWithPath: self.currentUrl))
             complete(self.currentUrl)
         })

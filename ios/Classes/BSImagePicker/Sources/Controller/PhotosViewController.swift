@@ -189,7 +189,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         doneBarButton.isEnabled = false
         
         weak var hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-        hud?.label.text = originBarButton.isSelected ? NSLocalizedString("拷贝中", comment: "") : NSLocalizedString("压缩中", comment: "")
+        hud?.label.text = originBarButton.isSelected ? NSLocalizedString("处理中", comment: "") : NSLocalizedString("压缩中", comment: "")
         hud?.bezelView.backgroundColor = UIColor.darkGray
         DispatchQueue.global().async {
             let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"

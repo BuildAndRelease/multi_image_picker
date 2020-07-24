@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.cjt2325.cameralibrary.listener.ErrorListener;
@@ -330,8 +331,14 @@ public class CameraInterface implements Camera.PreviewCallback {
     public synchronized void switchCamera(SurfaceHolder holder, float screenProp) {
         if (SELECTED_CAMERA == CAMERA_POST_POSITION) {
             SELECTED_CAMERA = CAMERA_FRONT_POSITION;
+            if (mFlashLamp != null) {
+                mFlashLamp.setVisibility(View.INVISIBLE);
+            }
         } else {
             SELECTED_CAMERA = CAMERA_POST_POSITION;
+            if (mFlashLamp != null) {
+                mFlashLamp.setVisibility(View.VISIBLE);
+            }
         }
         doDestroyCamera();
         KLog.i(TAG,"open start");
@@ -437,8 +444,8 @@ public class CameraInterface implements Camera.PreviewCallback {
         if (null != mCamera) {
             try {
                 mCamera.setPreviewCallback(null);
-                mSwitchView = null;
-                mFlashLamp = null;
+//                mSwitchView = null;
+//                mFlashLamp = null;
                 mCamera.stopPreview();
                 //这句要在stopPreview后执行，不然会卡顿或者花屏
                 mCamera.setPreviewDisplay(null);

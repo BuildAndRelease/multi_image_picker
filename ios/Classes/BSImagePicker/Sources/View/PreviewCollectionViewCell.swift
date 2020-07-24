@@ -10,13 +10,31 @@ import UIKit
 import Photos
 import AVKit
 
-class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelegate {
+class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelegate, UIScrollViewDelegate {
     var photoImageView : UIImageView = UIImageView(frame: CGRect.zero)
     var playImageView : UIImageView = UIImageView(frame: CGRect.zero)
+    var scrollView : UIScrollView = UIScrollView(frame: CGRect.zero)
     
     var mediaPlayer : AVPlayer?
     var playerLayer : AVPlayerLayer?
     var videoAsset : AVAsset?
+    var scale : CGFloat = 1.0
+    var image : UIImage? {
+        didSet{
+            if image != nil {
+                photoImageView.image = image
+                photoImageView.sizeToFit()
+
+                let scaleW = scrollView.frame.width/image!.size.width
+                let scaleH = scrollView.frame.height/image!.size.height
+                scale = min(min(scaleW, scaleH), 1.0)
+                scrollView.minimumZoomScale = scale
+                scrollView.maximumZoomScale = scale * 8
+                scrollView.zoomScale = scale
+                scrollViewDidZoom(scrollView)
+            }
+        }
+    }
     
     var asset: PHAsset? {
         didSet {
@@ -37,9 +55,9 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
                 self.tag = Int(PHCachingImageManager.default().requestImageData(for: asset!, options: options) { (data, uti, orientation, info) in
                     guard let tUti = uti, let result = data else { return }
                     if (tUti.contains("gif")) {
-                        weakSelf?.photoImageView.image = UIImage.gifImageWithData(result)
+                        weakSelf?.image = UIImage.gifImageWithData(result)
                     }else {
-                        weakSelf?.photoImageView.image = UIImage(data: result)
+                        weakSelf?.image = UIImage(data: result)
                     }
                 })
             }
@@ -49,37 +67,39 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        photoImageView.contentMode = .scaleAspectFit
+        photoImageView.frame = CGRect(x: 0, y: 0, width: contentView.frame.size.width, height: contentView.frame.size.height)
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(photoImageView)
+        scrollView.addSubview(photoImageView)
+        
+        scrollView.frame = CGRect(x: 0, y: 0, width: contentView.frame.size.width, height: contentView.frame.size.height)
+        scrollView.isUserInteractionEnabled = true;
+        scrollView.isScrollEnabled = true;
+        scrollView.bounces = true;
+        scrollView.maximumZoomScale = 8.0
+        scrollView.minimumZoomScale = 0.2
+        scrollView.delegate = self;
+        scrollView.clipsToBounds = true;
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(scrollView)
         
         playImageView.image = UIImage.wm_imageWithName_WMCameraResource(named: "play_btn_unselect")
         playImageView.highlightedImage = UIImage.wm_imageWithName_WMCameraResource(named: "play_btn_select")
         playImageView.contentMode = .scaleAspectFit
         playImageView.translatesAutoresizingMaskIntoConstraints = false
-        playImageView.isUserInteractionEnabled = true
-        playImageView.isMultipleTouchEnabled = true
-        self.addSubview(playImageView)
+        contentView.addSubview(playImageView)
         
         NSLayoutConstraint.activate([
-            NSLayoutConstraint(item: photoImageView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: photoImageView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: photoImageView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: photoImageView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: scrollView, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: scrollView, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: scrollView, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: scrollView, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 0),
             
             NSLayoutConstraint(item: playImageView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 50),
             NSLayoutConstraint(item: playImageView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 50),
-            NSLayoutConstraint(item: playImageView, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: playImageView, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1, constant: 0)
+            NSLayoutConstraint(item: playImageView, attribute: .centerX, relatedBy: .equal, toItem: contentView, attribute: .centerX, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: playImageView, attribute: .centerY, relatedBy: .equal, toItem: contentView, attribute: .centerY, multiplier: 1, constant: 0)
         ])
         
-        let pinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(pinchView(_:)))
-        pinchGestureRecognizer.delegate = self
-        playImageView.addGestureRecognizer(pinchGestureRecognizer)
-        
-        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panView(_:)))
-        panGestureRecognizer.delegate = self
-        playImageView.addGestureRecognizer(panGestureRecognizer)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -132,29 +152,30 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
         }
     }
     
-    @objc func pinchView(_ pinchGestureRecognizer : UIPinchGestureRecognizer) {
-        let view = pinchGestureRecognizer.view
-        if pinchGestureRecognizer.state == .began || pinchGestureRecognizer.state == .changed {
-            view?.transform = CGAffineTransform.init(scaleX: pinchGestureRecognizer.scale, y: pinchGestureRecognizer.scale)
-            pinchGestureRecognizer.scale = 1;
-        }
-    }
-    
-    @objc func panView(_ panGestureRecognizer : UIPanGestureRecognizer) {
-        if let view = panGestureRecognizer.view, panGestureRecognizer.state == .began || panGestureRecognizer.state == .changed {
-            let translation = panGestureRecognizer.translation(in: view.superview)
-            view.center = CGPoint(x: view.center.x + translation.x, y: view.center.y + translation.y)
-            panGestureRecognizer.setTranslation(CGPoint.zero, in: view.superview)
-        }
-    }
-    
-    
     func stopPlayVideo() {
         if asset?.mediaType == .video {
             if self.mediaPlayer?.rate != 0.0 {//正在播放
                 self.bringSubviewToFront(self.playImageView)
                 self.mediaPlayer?.rate = 0.0
             }
+        }
+    }
+    
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return photoImageView
+    }
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        let imageViewSize = photoImageView.frame.size
+        let scrollViewSize = scrollView.frame.size
+        
+        let verticalPadding = (imageViewSize.height < scrollViewSize.height ? (scrollViewSize.height - imageViewSize.height) / 2 : 0)
+        let horizontalPadding = (imageViewSize.width < scrollViewSize.width ? (scrollViewSize.width - imageViewSize.width) / 2 : 0)
+                
+        if verticalPadding >= 0 {
+            scrollView.contentInset = UIEdgeInsets(top: verticalPadding, left: horizontalPadding, bottom: verticalPadding, right: horizontalPadding)
+        } else {
+            scrollView.contentSize = imageViewSize
         }
     }
     

@@ -24,7 +24,7 @@ public class ZoomImageView extends ImageView implements ViewTreeObserver.OnGloba
     /**
      * 最大放大倍数
      */
-    public static final float mMaxScale = 4.0f;
+    public static final float mMaxScale = 10.0f;
 
     /**
      * 默认缩放

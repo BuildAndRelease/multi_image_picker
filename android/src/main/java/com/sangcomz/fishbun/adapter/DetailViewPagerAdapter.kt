@@ -61,6 +61,8 @@ class DetailViewPagerAdapter(private val inflater: LayoutInflater, private val m
                 e.printStackTrace()
             }
         }else {
+            imageView!!.scale = 1.0f
+            imageView!!.maximumScale = 10.0f
             imageView!!.visibility = View.VISIBLE
             playBtn!!.visibility = View.INVISIBLE
             mVideoView!!.visibility = View.INVISIBLE

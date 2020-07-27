@@ -5,11 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.sangcomz.fishbun.util.ZoomImageView
-        android:id="@+id/img_detail_image"
+    <com.github.chrisbanes.photoview.PhotoView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="matrix" />
+        android:id="@+id/img_detail_image"/>
+
+<!--    <com.sangcomz.fishbun.util.ZoomImageView-->
+<!--        android:id="@+id/img_detail_image"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:scaleType="matrix" />-->
 
     <VideoView
         android:id="@+id/video_play_view"

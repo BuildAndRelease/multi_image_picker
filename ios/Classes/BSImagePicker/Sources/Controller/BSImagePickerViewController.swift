@@ -94,7 +94,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
         if let album = fetchResults.first?.firstObject {
             let fetchOptions = PHFetchOptions()
             fetchOptions.sortDescriptors = [
-                NSSortDescriptor(key: "creationDate", ascending: true)
+                NSSortDescriptor(key: "creationDate", ascending:false)
             ]
             let fetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
             var index = 0

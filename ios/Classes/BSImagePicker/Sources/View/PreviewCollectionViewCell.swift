@@ -18,7 +18,6 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     var mediaPlayer : AVPlayer?
     var playerLayer : AVPlayerLayer?
     var videoAsset : AVAsset?
-    var scale : CGFloat = 1.0
     var image : UIImage? {
         didSet{
             if image != nil {
@@ -27,9 +26,9 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
 
                 let scaleW = scrollView.frame.width/image!.size.width
                 let scaleH = scrollView.frame.height/image!.size.height
-                scale = min(min(scaleW, scaleH), 1.0)
+                let scale = min(min(scaleW, scaleH), 1.0)
                 scrollView.minimumZoomScale = scale
-                scrollView.maximumZoomScale = scale * 8
+                scrollView.maximumZoomScale = scale * 10
                 scrollView.zoomScale = scale
                 scrollViewDidZoom(scrollView)
             }
@@ -40,6 +39,7 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
         didSet {
             if asset != nil {
                 self.playImageView.isHidden = self.asset?.mediaType != .video
+                self.scrollView.isUserInteractionEnabled = self.asset?.mediaType != .video
                 self.mediaPlayer?.currentItem?.cancelPendingSeeks()
                 self.mediaPlayer?.currentItem?.asset.cancelLoading()
                 self.playerLayer?.removeFromSuperlayer()
@@ -123,15 +123,20 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
                                 weakSelf?.mediaPlayer = AVPlayer(playerItem: AVPlayerItem(asset: avasset!))
                                 weakSelf?.playerLayer = AVPlayerLayer(player: weakSelf?.mediaPlayer)
                             }
-                            weakSelf?.playerLayer?.frame = weakSelf?.bounds ?? UIScreen.main.bounds
-                            weakSelf?.layer.addSublayer((weakSelf?.playerLayer)!)
+                            
+                            let originX = ((weakSelf?.contentView.frame.width ?? 0) - (weakSelf?.photoImageView.frame.width ?? 0))/2
+                            let originY = ((weakSelf?.contentView.frame.height ?? 0) - (weakSelf?.photoImageView.frame.height ?? 0))/2
+                            weakSelf?.playerLayer?.frame = CGRect(x: originX, y: originY, width: weakSelf?.photoImageView.frame.width ?? 0, height: weakSelf?.photoImageView.frame.height ?? 0)
+                            weakSelf?.contentView.layer.addSublayer((weakSelf?.playerLayer)!)
+                            weakSelf?.contentView.bringSubviewToFront(weakSelf!.playImageView)
+                            weakSelf?.playImageView.isHidden = true
                             weakSelf?.mediaPlayer?.play()
                             weakSelf?.mediaPlayer?.addPeriodicTimeObserver(forInterval:weakSelf?.videoAsset?.duration ?? CMTimeMake(value: 1, timescale: 1), queue: DispatchQueue.main, using: { (time) in
                                 if time == weakSelf?.videoAsset?.duration {
                                     let timeToStart = CMTimeMake(value: 0, timescale: weakSelf?.mediaPlayer?.currentTime().timescale ?? 600)
                                     weakSelf?.mediaPlayer?.seek(to: timeToStart)
                                     if weakSelf != nil {
-                                        weakSelf?.bringSubviewToFront(weakSelf!.playImageView)
+                                        weakSelf?.playImageView.isHidden = false
                                     }
                                 }
                             })
@@ -143,11 +148,13 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
                 self.mediaPlayer?.seek(to: timeToStart)
                 self.mediaPlayer?.play()
             }else if self.mediaPlayer?.rate != 0.0 {//正在播放
-                self.bringSubviewToFront(self.playImageView)
+//                self.contentView.bringSubviewToFront(self.playImageView)
+                self.playImageView.isHidden = false
                 self.mediaPlayer?.rate = 0.0
             }else if self.mediaPlayer?.rate == 0.0 {//暂停
                 self.mediaPlayer?.rate = 1.0
-                self.sendSubviewToBack(self.playImageView)
+//                self.contentView.sendSubviewToBack(self.playImageView)
+                self.playImageView.isHidden = true
             }
         }
     }
@@ -155,7 +162,8 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     func stopPlayVideo() {
         if asset?.mediaType == .video {
             if self.mediaPlayer?.rate != 0.0 {//正在播放
-                self.bringSubviewToFront(self.playImageView)
+//                self.contentView.bringSubviewToFront(self.playImageView)
+                self.playImageView.isHidden = false
                 self.mediaPlayer?.rate = 0.0
             }
         }

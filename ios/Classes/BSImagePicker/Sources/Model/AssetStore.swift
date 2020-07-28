@@ -67,9 +67,7 @@ class AssetStore {
     }
     
     func canAppend() -> Bool {
-        if isContainVideo() {
-            return false
-        }else if assets.count >= 9 {
+        if assets.count >= 9 {
             return false
         }else {
             return true

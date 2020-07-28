@@ -54,7 +54,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setTextColor(Color.WHITE);
         vh.btnThumbCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
 
-        if ((fishton.getSelectedMedias().size() >= fishton.getMaxCount() || fishton.isContainVideo()) && !fishton.getSelectedMedias().contains(media)) {
+        if ((fishton.getSelectedMedias().size() >= fishton.getMaxCount()) && !fishton.getSelectedMedias().contains(media)) {
             vh.banCoverView.setVisibility(View.VISIBLE);
             vh.imgThumbImage.setEnabled(false);
             vh.btnThumbCount.setEnabled(false);
@@ -86,6 +86,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (selectedIndex != -1) {
             vh.btnThumbCount.setText(String.valueOf(selectedIndex + 1));
             vh.coverView.setAlpha(0.3f);
+        }else {
+            vh.coverView.setAlpha(0.0f);
         }
         if (media != null && vh.imgThumbImage != null && Fishton.getInstance().getImageAdapter() != null) {
             Fishton.getInstance().getImageAdapter().loadImage(vh.imgThumbImage, media);
@@ -103,14 +105,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     ViewCompat.animate(coverView).setDuration(100).alpha(0.0f);
                     pickerController.onSelectCountDidChange();
                     notifyDataSetChanged();
-                }else if (media.getFileType().contains("video") && fishton.isContainPic()) {
-                    Snackbar.make(vh.item, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
-                } else if (media.getFileType().contains("video") && fishton.getSelectedMedias().size() > 0) {
-                    Snackbar.make(vh.item, "一次只能选择一个视频", Snackbar.LENGTH_SHORT).show();
                 } else if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 301) {
                     Snackbar.make(vh.item, "视屏长度不能超过5分钟", Snackbar.LENGTH_SHORT).show();
-                } else if (media.getFileType().contains("image") && fishton.isContainVideo()) {
-                    Snackbar.make(vh.item, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
                 } else if (media.getFileType().contains("image") &&  Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
                     Snackbar.make(vh.item, "不能分享超过8M的文件", Snackbar.LENGTH_SHORT).show();
                 } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size()) {

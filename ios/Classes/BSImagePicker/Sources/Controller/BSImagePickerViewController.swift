@@ -243,19 +243,13 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     func previewViewControllerCanSelectImageItem(_ asset : PHAsset) -> NSError? {
         if assetStore?.contains(asset) ?? false {
             return nil
-        }else if asset.mediaType == .video, assetStore?.isContainPic() ?? false {
-            return NSError(domain: "不能同时选择图片和视频", code: 1, userInfo: nil)
-        }else if asset.mediaType == .video, assetStore?.count ?? 0 > 0 {
-            return NSError(domain: "一次只能选择一个视频", code: 2, userInfo: nil)
         }else if asset.mediaType == .video , asset.duration > 301 {
             return NSError(domain: "请选择5分钟以下的视频", code: 3, userInfo: nil)
-        }else if asset.mediaType == .image, assetStore?.isContainVideo() ?? false {
-            return NSError(domain: "不能同时选择图片和视频", code: 4, userInfo: nil)
         }else if assetStore?.count ?? 0 >= settings.maxNumberOfSelections {
             selectLimitReachedClosure?(assetStore?.count ?? 0)
-            return NSError(domain: "图片选择数量超过最大限制", code: 5, userInfo: nil)
+            return NSError(domain: "选择数量超过最大限制", code: 5, userInfo: nil)
         }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 8.0 {
-            return NSError(domain: "不能分享超过8M的文件", code: 6, userInfo: nil)
+            return NSError(domain: "不能分享超过8M的图片", code: 6, userInfo: nil)
         }
         return nil
     }

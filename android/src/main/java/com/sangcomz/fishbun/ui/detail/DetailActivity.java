@@ -181,14 +181,8 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
-            if (media.getFileType().contains("video") && fishton.isContainPic()) {
-                Snackbar.make(btnDetailCount, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
-            } else if (media.getFileType().contains("video") && fishton.getSelectedMedias().size() > 0) {
-                Snackbar.make(btnDetailCount, "一次只能选择一个视频", Snackbar.LENGTH_SHORT).show();
-            } else if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 301) {
+            if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 301) {
                 Snackbar.make(btnDetailCount, "视屏长度不能超过5分钟", Snackbar.LENGTH_SHORT).show();
-            } else if (media.getFileType().contains("image") && fishton.isContainVideo()) {
-                Snackbar.make(btnDetailCount, "不能同时选择视频和照片", Snackbar.LENGTH_SHORT).show();
             } else if (media.getFileType().contains("image") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
                 Snackbar.make(btnDetailCount, "不能分享超过8M的文件", Snackbar.LENGTH_SHORT).show();
             } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {

@@ -340,7 +340,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     }
                 }else {
                     if (currentPickerResult != null) {
-                        currentPickerResult.success(new HashMap());
+                        currentPickerResult.error("CANCELLED", "", new HashMap<>());
                         currentPickerResult = null;
                     }
                 }

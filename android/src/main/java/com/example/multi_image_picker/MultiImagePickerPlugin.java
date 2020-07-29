@@ -305,37 +305,49 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
-            if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
-                if (currentPickerResult != null) {
-                    ArrayList result = data != null ? data.getParcelableArrayListExtra(Define.INTENT_RESULT) : new ArrayList();
-                    currentPickerResult.error("CANCELLED", "", result);
-                    currentPickerResult = null;
+            if (requestCode == REQUEST_CODE_CHOOSE) {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (currentPickerResult != null) {
+                        ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                        currentPickerResult.success(result != null ? result : Collections.EMPTY_LIST);
+                        currentPickerResult = null;
+                    }
+                }else if (resultCode == Define.FINISH_DETAIL_RESULT_CODE) {
+                    if (currentPickerResult != null) {
+                        ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                        currentPickerResult.success(result);
+                        currentPickerResult = null;
+                    }
+                }else if (resultCode == Activity.RESULT_CANCELED) {
+                    if (currentPickerResult != null) {
+                        ArrayList result = data != null ? data.getParcelableArrayListExtra(Define.INTENT_RESULT) : new ArrayList();
+                        currentPickerResult.error("CANCELLED", "", result);
+                        currentPickerResult = null;
+                    }
+                }else {
+                    if (currentPickerResult != null) {
+                        currentPickerResult.error("CANCELLED", "", new ArrayList<>());
+                        currentPickerResult = null;
+                    }
                 }
                 return true;
-            } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
-                if (currentPickerResult != null) {
-                    ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
-                    currentPickerResult.success(result != null ? result : Collections.EMPTY_LIST);
-                    currentPickerResult = null;
-                }
-                return true;
-            } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Define.FINISH_DETAIL_RESULT_CODE) {
-                if (currentPickerResult != null) {
-                    ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
-                    currentPickerResult.success(result);
-                    currentPickerResult = null;
-                }
-                return true;
-            } else if (requestCode == REQUEST_CODE_TAKE && resultCode == Define.ENTER_TAKE_RESULT_CODE) {
-                if (currentPickerResult != null) {
-                    HashMap result = (HashMap) data.getSerializableExtra(Define.INTENT_RESULT);
-                    currentPickerResult.success(result);
-                    currentPickerResult = null;
+            } else if (requestCode == REQUEST_CODE_TAKE) {
+                if (resultCode == Define.ENTER_TAKE_RESULT_CODE) {
+                    if (currentPickerResult != null) {
+                        HashMap result = (HashMap) data.getSerializableExtra(Define.INTENT_RESULT);
+                        currentPickerResult.success(result);
+                        currentPickerResult = null;
+                    }
+                }else {
+                    if (currentPickerResult != null) {
+                        currentPickerResult.success(new HashMap());
+                        currentPickerResult = null;
+                    }
                 }
                 return true;
             }else {
                 if (currentPickerResult != null) {
-                    currentPickerResult.success(Collections.emptyList());
+                    currentPickerResult.success(new Object());
                     currentPickerResult = null;
                 }
                 return true;

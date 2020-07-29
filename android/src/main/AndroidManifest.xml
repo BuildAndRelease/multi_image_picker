@@ -21,7 +21,7 @@
             android:theme="@style/DetailViewTheme" />
 
         <activity
-            android:name="com.sangcomz.fishbun.ui.camera.CameraActivity"/>
+            android:name="com.sangcomz.fishbun.ui.camera.CameraActivity" android:launchMode="singleTop"/>
 
     </application>
 

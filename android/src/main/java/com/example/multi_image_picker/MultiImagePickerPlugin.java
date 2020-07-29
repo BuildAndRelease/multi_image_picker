@@ -311,7 +311,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     currentPickerResult.error("CANCELLED", "", result);
                     currentPickerResult = null;
                 }
-                return false;
+                return true;
             } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
                 if (currentPickerResult != null) {
                     ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
@@ -338,14 +338,14 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     currentPickerResult.success(Collections.emptyList());
                     currentPickerResult = null;
                 }
-                return false;
+                return true;
             }
         } catch (Exception e) {
             if (currentPickerResult != null) {
                 currentPickerResult.error("CANCELLED", "", new ArrayList<>());
                 currentPickerResult = null;
             }
-            return false;
+            return true;
         }
     }
 }

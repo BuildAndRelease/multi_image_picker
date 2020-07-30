@@ -167,10 +167,7 @@ extension PHAsset {
                     if FileManager.default.fileExists(atPath: filePath) {
                         try? FileManager.default.removeItem(atPath: filePath)
                     }
-                    let fileSize = self.fileSize / (1024 * 1024)
-//                  图片大小1-10M 压缩比率 1-0.1
-                    let quality = fileSize >= 10.0 ? 0.1 : (10.0 - fileSize) / 10.0
-                    let imageData = image?.jpegData(compressionQuality: thumb ? CGFloat(quality) : 1.0) as NSData?
+                    let imageData = image?.jpegData(compressionQuality: thumb ? 0.8 : 1.0) as NSData?
                     imageData?.write(toFile: filePath, atomically: true)
                     if FileManager.default.fileExists(atPath: filePath) {
                         finish?([

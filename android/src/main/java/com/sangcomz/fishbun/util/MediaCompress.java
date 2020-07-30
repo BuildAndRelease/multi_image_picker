@@ -200,14 +200,8 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                     tmpPic.delete();
                 }
                 filePath = tmpPic.getAbsolutePath();
-                float fileSize = 1.0f;
-                try {
-                    fileSize = Float.parseFloat(media.getFileSize()) / (1024 * 1024);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                int quality = (int) ((fileSize >= 10.0 ? 10.0f : (10 - fileSize) / 10.0f) * 100);
-                HashMap hashMap = compressImage(is, tmpPic, thumb ? maxWidth : -1.0, thumb ? maxHeight : -1.0, thumb ? quality : 100);
+
+                HashMap hashMap = compressImage(is, tmpPic, thumb ? maxWidth : -1.0, thumb ? maxHeight : -1.0, thumb ? 80 : 100);
                 if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
                     map.put("width", hashMap.get("width"));
                     map.put("height", hashMap.get("height"));

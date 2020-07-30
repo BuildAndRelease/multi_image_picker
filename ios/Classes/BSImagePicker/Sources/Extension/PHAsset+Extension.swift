@@ -38,7 +38,7 @@ extension PHAsset {
         return fname
     }
     
-    func compressAsset(_ maxWidth : Int, maxHeight : Int, quality : CGFloat, thumb : Bool, saveDir : String, process: ((NSDictionary) -> Void)?, failed: ((NSError) -> Void)?, finish: ((NSDictionary) -> Void)?) {
+    func compressAsset(_ maxWidth : Int, maxHeight : Int, thumb : Bool, saveDir : String, process: ((NSDictionary) -> Void)?, failed: ((NSError) -> Void)?, finish: ((NSDictionary) -> Void)?) {
         let manager = PHImageManager.default()
         let thumbOptions = PHImageRequestOptions()
         thumbOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
@@ -167,6 +167,9 @@ extension PHAsset {
                     if FileManager.default.fileExists(atPath: filePath) {
                         try? FileManager.default.removeItem(atPath: filePath)
                     }
+                    let fileSize = self.fileSize / (1024 * 1024)
+//                  图片大小1-10M 压缩比率 1-0.1
+                    let quality = fileSize >= 10.0 ? 0.1 : (10.0 - fileSize) / 10.0
                     let imageData = image?.jpegData(compressionQuality: thumb ? CGFloat(quality) : 1.0) as NSData?
                     imageData?.write(toFile: filePath, atomically: true)
                     if FileManager.default.fileExists(atPath: filePath) {

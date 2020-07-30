@@ -25,7 +25,6 @@ class Fishton {
             }
         }
 
-    var quality : Int = 1
     var maxHeight : Int = 300
     var maxWidth : Int = 300
     var maxCount: Int = 0
@@ -61,7 +60,6 @@ class Fishton {
 
         //BaseParams
         maxCount = 10
-        quality = 1
         minCount = 1
         exceptMimeTypeList = emptyList()
         selectedMedias = ArrayList()

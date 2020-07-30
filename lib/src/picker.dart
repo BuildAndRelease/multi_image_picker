@@ -36,7 +36,6 @@ class MultiImagePicker {
   /// you can refer to the docs for the Asset class.
   static Future<List<Asset>> pickImages({
     @required int maxImages,
-    int qualityOfImage = 50,
     int maxWidth = 300,
     int maxHeight = 300,
     bool enableCamera = false,
@@ -56,7 +55,6 @@ class MultiImagePicker {
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,
-          'qualityOfImage': qualityOfImage,
           'maxHeight': maxHeight,
           'maxWidth': maxWidth,
           'enableCamera': enableCamera,

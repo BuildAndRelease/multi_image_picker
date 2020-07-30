@@ -56,7 +56,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String FILE_TYPE = "fileType";
     private static final String LIMIT = "limit";
     private static final String OFFSET = "offset";
-    private static final String QUALITY_OF_IMAGE = "qualityOfImage";
     private static final String SELECTED_ASSETS = "selectedAssets";
     private static final String DEFAULT_ASSETS = "defaultAsset";
     private static final String ANDROID_OPTIONS = "androidOptions";
@@ -119,12 +118,11 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         int maxImages = call.argument(MAX_IMAGES);
                         int maxHeight = call.argument(MAX_HEIGHT);
                         int maxWidth = call.argument(MAX_WIDTH);
-                        int qualityOfThumb = call.argument(QUALITY_OF_IMAGE);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
                         selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
                         String defaultAsset = call.argument(DEFAULT_ASSETS);
                         defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
-                        presentPicker(maxImages, qualityOfThumb, maxHeight, maxWidth, defaultAsset, selectMedias, options);
+                        presentPicker(maxImages, maxHeight, maxWidth, defaultAsset, selectMedias, options);
                     }else {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
@@ -218,11 +216,10 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 case REQUEST_MEDIA_DATA: {
                     if (checkPermission(false, false, true)) {
                         boolean thumb = call.argument("thumb");
-                        int quality = call.argument("qualityOfImage");
                         int maxHeight = call.argument("maxHeight");
                         int maxWidth = call.argument("maxWidth");
                         List<String> selectMedias = call.argument("selectedAssets");
-                        MediaCompress mediaCompress = new MediaCompress(thumb, quality, maxHeight, maxWidth, new ArrayList<Media>(), selectMedias, activity);
+                        MediaCompress mediaCompress = new MediaCompress(thumb, maxHeight, maxWidth, new ArrayList<Media>(), selectMedias, activity);
                         mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
                             @Override
                             public void mediaCompressDidFinish(ArrayList<HashMap> results) {
@@ -246,7 +243,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         }
     }
 
-    private void presentPicker(int maxImages, int qualityOfThumb, int maxHeight, int maxWidth, String defaultAsset, ArrayList<String> selectMedias, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, int maxHeight, int maxWidth, String defaultAsset, ArrayList<String> selectMedias, HashMap<String, String> options) {
         String actionBarTitle = options.get("actionBarTitle");
         String allViewTitle =  options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
@@ -260,7 +257,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
                 .setImageAdapter(new GlideAdapter())
                 .setMaxCount(maxImages)
-                .setQuality(qualityOfThumb)
                 .setMaxHeight(maxHeight)
                 .setMaxWidth(maxWidth)
                 .setThumb(true)

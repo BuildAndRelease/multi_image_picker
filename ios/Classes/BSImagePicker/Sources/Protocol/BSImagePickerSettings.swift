@@ -35,10 +35,6 @@ public protocol BSImagePickerSettings {
     */
     var maxWidthOfImage: Int { get set }
     /**
-    quality of images user can select
-    */
-    var qualityOfThumb: CGFloat { get set }
-    /**
     Max number of images user can select
     */
     var maxNumberOfSelections: Int { get set }

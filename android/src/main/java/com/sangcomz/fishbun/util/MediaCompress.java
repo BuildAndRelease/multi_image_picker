@@ -30,7 +30,6 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
     }
 
     private boolean thumb = false;
-    private int quality = 80;
     private double maxHeight = 1024;
     private double maxWidth = 768;
     private List<Media> selectMedias = new ArrayList<>();
@@ -41,9 +40,8 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         this.listener = listener;
     }
 
-    public MediaCompress(boolean thumb, int quality, double maxHeight, double maxWidth, List<Media> selectMedias, List<String> selectMediaIdentifiers, Context context) {
+    public MediaCompress(boolean thumb, double maxHeight, double maxWidth, List<Media> selectMedias, List<String> selectMediaIdentifiers, Context context) {
         this.thumb = thumb;
-        this.quality = quality;
         this.maxHeight = maxHeight;
         this.maxWidth = maxWidth;
         this.context = context;
@@ -146,13 +144,13 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                     e.printStackTrace();
                 }
             }else {
-                result.add(fetchImageThumb(media, thumb, quality, maxHeight, maxWidth));
+                result.add(fetchImageThumb(media, thumb, maxHeight, maxWidth));
             }
         }
         return result;
     }
 
-    private HashMap fetchImageThumb(Media media, boolean thumb, int quality, double maxHeight, double maxWidth) {
+    private HashMap fetchImageThumb(Media media, boolean thumb, double maxHeight, double maxWidth) {
         if (media.getFileType().contains("gif")) {
             String fileName = UUID.randomUUID().toString() + ".gif";
             String filePath = "";
@@ -202,6 +200,13 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                     tmpPic.delete();
                 }
                 filePath = tmpPic.getAbsolutePath();
+                float fileSize = 1.0f;
+                try {
+                    fileSize = Float.parseFloat(media.getFileSize()) / (1024 * 1024);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                int quality = (int) ((fileSize >= 10.0 ? 10.0f : (10 - fileSize) / 10.0f) * 100);
                 HashMap hashMap = compressImage(is, tmpPic, thumb ? maxWidth : -1.0, thumb ? maxHeight : -1.0, thumb ? quality : 100);
                 if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
                     map.put("width", hashMap.get("width"));

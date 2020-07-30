@@ -22,8 +22,6 @@ interface BaseProperty {
 
     fun setMaxWidth(maxWidth: Int): FishBunCreator
 
-    fun setQuality(qualityOfThumb: Int): FishBunCreator
-
     fun setRequestCode(requestCode: Int): FishBunCreator
 
     fun exceptMimeType(exceptMimeTypeList: List<MimeType>): FishBunCreator

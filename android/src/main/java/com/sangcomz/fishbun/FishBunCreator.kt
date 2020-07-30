@@ -38,10 +38,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.maxWidth = if (maxWidth < 0) 300 else maxWidth
     }
 
-    override fun setQuality(qualityOfThumb: Int): FishBunCreator = this.apply {
-        fishton.quality = if (qualityOfThumb in 1..100) qualityOfThumb else 50
-    }
-
     override fun setMaxCount(count: Int): FishBunCreator = this.apply {
         fishton.maxCount = if (count <= 0) 1 else count
     }

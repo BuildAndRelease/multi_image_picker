@@ -183,7 +183,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         weak var weakSelf = self
         let maxWidth = settings.maxWidthOfImage
         let maxHeight = settings.maxHeightOfImage
-        let quality = settings.qualityOfThumb
         let thumb = !originBarButton.isSelected
         let assets = self.assetStore.assets
         doneBarButton.isEnabled = false
@@ -204,7 +203,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             var error = NSError()
             for asset in assets {
                 var compressing = true
-                asset.compressAsset(maxWidth, maxHeight: maxHeight, quality: quality, thumb: thumb, saveDir: thumbDir, process: { (process) in
+                asset.compressAsset(maxWidth, maxHeight: maxHeight, thumb: thumb, saveDir: thumbDir, process: { (process) in
                     
                 }, failed: { (err) in
                     error = err

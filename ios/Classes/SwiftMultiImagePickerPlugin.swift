@@ -40,7 +40,6 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let quality = (arguments["qualityOfImage"] as? Int) ?? 100
             let maxHeight = (arguments["maxHeight"] as? Int) ?? 1024
             let maxWidth = (arguments["maxWidth"] as? Int) ?? 768
-            let compressionQuality = CGFloat(quality) / CGFloat(100)
             let thumb = (arguments["thumb"] as? Bool) ?? true
             let fetchOptions = PHFetchOptions()
             fetchOptions.sortDescriptors = [
@@ -60,7 +59,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 for index in 0 ..< assets.count {
                     let asset = assets.object(at: index)
                     var compressing = true
-                    asset.compressAsset(maxWidth, maxHeight: maxHeight, quality: compressionQuality, thumb: thumb, saveDir: thumbDir, process: { (process) in
+                    asset.compressAsset(maxWidth, maxHeight: maxHeight, thumb: thumb, saveDir: thumbDir, process: { (process) in
                         
                     }, failed: { (err) in
                         compressing = false
@@ -193,15 +192,12 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let options = (arguments["iosOptions"] as? Dictionary<String, String>) ?? Dictionary<String, String>()
             let defaultAsset = (arguments["defaultAsset"] as? String) ?? ""
             let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
-            let quality = (arguments["qualityOfImage"] as? Int) ?? 100
             let maxHeight = (arguments["maxHeight"] as? Int) ?? 1024
             let maxWidth = (arguments["maxWidth"] as? Int) ?? 768
-            let compressionQuality = Float(quality) / Float(100)
             
             vc.maxNumberOfSelections = maxImages
             vc.maxWidthOfImage = maxWidth
             vc.maxHeightOfImage = maxHeight
-            vc.qualityOfThumb = CGFloat(compressionQuality)
             vc.selectMedias = selectedAssets
             vc.defaultSelectMedia = defaultAsset
 

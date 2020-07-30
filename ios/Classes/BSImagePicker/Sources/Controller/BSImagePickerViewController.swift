@@ -258,7 +258,6 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
         weak var weakSelf = self
         let maxWidth = settings.maxWidthOfImage
         let maxHeight = settings.maxHeightOfImage
-        let quality = settings.qualityOfThumb
         let thumb = !originBarButton.isSelected
         let assets = self.assetStore!.assets
         doneBarButton.isEnabled = false
@@ -279,7 +278,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
             var error = NSError()
             for asset in assets {
                 var compressing = true
-                asset.compressAsset(maxWidth, maxHeight: maxHeight, quality: quality, thumb: thumb, saveDir: thumbDir, process: { (process) in
+                asset.compressAsset(maxWidth, maxHeight: maxHeight, thumb: thumb, saveDir: thumbDir, process: { (process) in
                     
                 }, failed: { (err) in
                     error = err
@@ -371,17 +370,6 @@ extension BSImagePickerViewController: BSImagePickerSettings {
         }
         set {
             settings.maxWidthOfImage = newValue
-        }
-    }
-    /**
-     See BSImagePicketSettings for documentation
-     */
-    @objc public var qualityOfThumb: CGFloat {
-        get {
-            return settings.qualityOfThumb
-        }
-        set {
-            settings.qualityOfThumb = newValue
         }
     }
 

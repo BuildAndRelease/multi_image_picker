@@ -30,14 +30,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.selectedMedias = selectedMedias
     }
 
-    override fun setMaxHeight(maxHeigth: Int): FishBunCreator = this.apply {
-        fishton.maxHeight = if (maxHeigth < 0) 300 else maxHeigth
-    }
-
-    override fun setMaxWidth(maxWidth: Int): FishBunCreator = this.apply {
-        fishton.maxWidth = if (maxWidth < 0) 300 else maxWidth
-    }
-
     override fun setMaxCount(count: Int): FishBunCreator = this.apply {
         fishton.maxCount = if (count <= 0) 1 else count
     }

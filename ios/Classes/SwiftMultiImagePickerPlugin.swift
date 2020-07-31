@@ -37,9 +37,6 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
         case "requestMediaData":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? []
-            let quality = (arguments["qualityOfImage"] as? Int) ?? 100
-            let maxHeight = (arguments["maxHeight"] as? Int) ?? 1024
-            let maxWidth = (arguments["maxWidth"] as? Int) ?? 768
             let thumb = (arguments["thumb"] as? Bool) ?? true
             let fetchOptions = PHFetchOptions()
             fetchOptions.sortDescriptors = [
@@ -59,9 +56,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 for index in 0 ..< assets.count {
                     let asset = assets.object(at: index)
                     var compressing = true
-                    asset.compressAsset(maxWidth, maxHeight: maxHeight, thumb: thumb, saveDir: thumbDir, process: { (process) in
+                    asset.compressAsset(thumb, saveDir: thumbDir, process: { (process) in
                         
                     }, failed: { (err) in
+                        results.append(err.userInfo as NSDictionary)
                         compressing = false
                     }) { (info) in
                         results.append(info)
@@ -192,12 +190,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let options = (arguments["iosOptions"] as? Dictionary<String, String>) ?? Dictionary<String, String>()
             let defaultAsset = (arguments["defaultAsset"] as? String) ?? ""
             let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
-            let maxHeight = (arguments["maxHeight"] as? Int) ?? 1024
-            let maxWidth = (arguments["maxWidth"] as? Int) ?? 768
             
             vc.maxNumberOfSelections = maxImages
-            vc.maxWidthOfImage = maxWidth
-            vc.maxHeightOfImage = maxHeight
             vc.selectMedias = selectedAssets
             vc.defaultSelectMedia = defaultAsset
 

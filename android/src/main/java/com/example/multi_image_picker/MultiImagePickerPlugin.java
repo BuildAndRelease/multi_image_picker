@@ -116,13 +116,11 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         currentPickerResult = result;
                         final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
                         int maxImages = call.argument(MAX_IMAGES);
-                        int maxHeight = call.argument(MAX_HEIGHT);
-                        int maxWidth = call.argument(MAX_WIDTH);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
                         selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
                         String defaultAsset = call.argument(DEFAULT_ASSETS);
                         defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
-                        presentPicker(maxImages, maxHeight, maxWidth, defaultAsset, selectMedias, options);
+                        presentPicker(maxImages, defaultAsset, selectMedias, options);
                     }else {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
@@ -216,10 +214,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 case REQUEST_MEDIA_DATA: {
                     if (checkPermission(false, false, true)) {
                         boolean thumb = call.argument("thumb");
-                        int maxHeight = call.argument("maxHeight");
-                        int maxWidth = call.argument("maxWidth");
                         List<String> selectMedias = call.argument("selectedAssets");
-                        MediaCompress mediaCompress = new MediaCompress(thumb, maxHeight, maxWidth, new ArrayList<Media>(), selectMedias, activity);
+                        MediaCompress mediaCompress = new MediaCompress(thumb, new ArrayList<Media>(), selectMedias, activity);
                         mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
                             @Override
                             public void mediaCompressDidFinish(ArrayList<HashMap> results) {
@@ -243,7 +239,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         }
     }
 
-    private void presentPicker(int maxImages, int maxHeight, int maxWidth, String defaultAsset, ArrayList<String> selectMedias, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, String defaultAsset, ArrayList<String> selectMedias, HashMap<String, String> options) {
         String actionBarTitle = options.get("actionBarTitle");
         String allViewTitle =  options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
@@ -257,8 +253,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
                 .setImageAdapter(new GlideAdapter())
                 .setMaxCount(maxImages)
-                .setMaxHeight(maxHeight)
-                .setMaxWidth(maxWidth)
                 .setThumb(true)
                 .setPreSelectMedia(defaultAsset)
                 .setPreSelectMedias(selectMedias)

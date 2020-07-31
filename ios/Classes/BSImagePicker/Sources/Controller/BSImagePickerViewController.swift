@@ -248,7 +248,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
         }else if assetStore?.count ?? 0 >= settings.maxNumberOfSelections {
             selectLimitReachedClosure?(assetStore?.count ?? 0)
             return NSError(domain: "选择数量超过最大限制", code: 5, userInfo: nil)
-        }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 8.0 {
+        }else if asset.mediaType == .image, let uti = asset.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 8.0 {
             return NSError(domain: "不能分享超过8M的图片", code: 6, userInfo: nil)
         }
         return nil
@@ -256,8 +256,6 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     
     @objc func doneButtonPressed(_ sender: UIButton) {
         weak var weakSelf = self
-        let maxWidth = settings.maxWidthOfImage
-        let maxHeight = settings.maxHeightOfImage
         let thumb = !originBarButton.isSelected
         let assets = self.assetStore!.assets
         doneBarButton.isEnabled = false
@@ -278,10 +276,11 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
             var error = NSError()
             for asset in assets {
                 var compressing = true
-                asset.compressAsset(maxWidth, maxHeight: maxHeight, thumb: thumb, saveDir: thumbDir, process: { (process) in
+                asset.compressAsset(thumb, saveDir: thumbDir, process: { (process) in
                     
                 }, failed: { (err) in
                     error = err
+                    results.append(err.userInfo as NSDictionary)
                     compressing = false
                 }) { (info) in
                     results.append(info)
@@ -350,29 +349,6 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
 
 // MARK: ImagePickerSettings proxy
 extension BSImagePickerViewController: BSImagePickerSettings {
-    /**
-     See BSImagePicketSettings for documentation
-     */
-    @objc public var maxHeightOfImage: Int {
-        get {
-            return settings.maxHeightOfImage
-        }
-        set {
-            settings.maxHeightOfImage = newValue
-        }
-    }
-    /**
-     See BSImagePicketSettings for documentation
-     */
-    @objc public var maxWidthOfImage: Int {
-        get {
-            return settings.maxWidthOfImage
-        }
-        set {
-            settings.maxWidthOfImage = newValue
-        }
-    }
-
     /**
      See BSImagePicketSettings for documentation
      */

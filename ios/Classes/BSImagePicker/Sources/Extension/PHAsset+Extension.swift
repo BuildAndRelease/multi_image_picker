@@ -10,6 +10,7 @@ import Photos
 
 extension PHAsset {
     
+    
     var fileSize: Double {
         get {
             if #available(iOS 9, *) {
@@ -38,7 +39,7 @@ extension PHAsset {
         return fname
     }
     
-    func compressAsset(_ maxWidth : Int, maxHeight : Int, thumb : Bool, saveDir : String, process: ((NSDictionary) -> Void)?, failed: ((NSError) -> Void)?, finish: ((NSDictionary) -> Void)?) {
+    func compressAsset(_ thumb : Bool, saveDir : String, process: ((NSDictionary) -> Void)?, failed: ((NSError) -> Void)?, finish: ((NSDictionary) -> Void)?) {
         let manager = PHImageManager.default()
         let thumbOptions = PHImageRequestOptions()
         thumbOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
@@ -84,7 +85,9 @@ extension PHAsset {
                         dictionary.setValue(thumbImg.size.height * thumbImg.scale, forKey: "thumbHeight")
                         dictionary.setValue(thumbImg.size.width * thumbImg.scale, forKey: "thumbWidth")
                     }else {
-                        failed?(NSError(domain: "缩略图图片拷贝失败", code: 1, userInfo: nil))
+                        failed?(NSError(domain: "缩略图图片拷贝失败", code: 1, userInfo: [
+                            "identifier": self.localIdentifier
+                        ]))
                         return
                     }
                     
@@ -110,50 +113,66 @@ extension PHAsset {
                             dictionary.setValue("video", forKey: "fileType")
                             finish?(dictionary)
                         }else {
-                            failed?(NSError(domain: "视频请求失败", code: 2, userInfo: nil))
+                            failed?(NSError(domain: "视频请求失败", code: 2, userInfo: [
+                                "identifier": self.localIdentifier
+                            ]))
                         }
                     })
                 }else {
-                    failed?(NSError(domain: "视频请求失败", code: 2, userInfo: nil))
+                    failed?(NSError(domain: "视频请求失败", code: 2, userInfo: [
+                        "identifier": self.localIdentifier
+                    ]))
                 }
             }
         }else {
-            var targetHeight : CGFloat = CGFloat(self.pixelHeight)
-            var targetWidth : CGFloat = CGFloat(self.pixelWidth)
-            if (thumb && (self.pixelWidth > maxWidth || self.pixelHeight > maxHeight)) {
-                let heightCompressRatio = CGFloat(maxHeight)/CGFloat(self.pixelHeight)
-                let widthCompressRatio = CGFloat(maxWidth)/CGFloat(self.pixelWidth)
-                if (heightCompressRatio <= widthCompressRatio) {
-                    targetHeight = CGFloat(maxHeight)
-                    targetWidth = heightCompressRatio * CGFloat(self.pixelWidth)
-                }else {
-                    targetWidth = CGFloat(maxWidth)
-                    targetHeight = widthCompressRatio * CGFloat(self.pixelHeight)
-                }
-            }
+            let targetHeight : CGFloat = CGFloat(self.pixelHeight)
+            let targetWidth : CGFloat = CGFloat(self.pixelWidth)
+//            if (thumb && (self.pixelWidth > maxWidth || self.pixelHeight > maxHeight)) {
+//                let heightCompressRatio = CGFloat(maxHeight)/CGFloat(self.pixelHeight)
+//                let widthCompressRatio = CGFloat(maxWidth)/CGFloat(self.pixelWidth)
+//                if (heightCompressRatio <= widthCompressRatio) {
+//                    targetHeight = CGFloat(maxHeight)
+//                    targetWidth = heightCompressRatio * CGFloat(self.pixelWidth)
+//                }else {
+//                    targetWidth = CGFloat(maxWidth)
+//                    targetHeight = widthCompressRatio * CGFloat(self.pixelHeight)
+//                }
+//            }
             if let uti = self.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF") {
                 manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                     do {
                         if let file = data {
-                            let uuid = UUID().uuidString
-                            let fileName = "\(uuid).gif"
-                            let filePath = saveDir + fileName
-                            if FileManager.default.fileExists(atPath: filePath) {
-                                try? FileManager.default.removeItem(atPath: filePath)
-                            }
-                            try file.write(to: URL(fileURLWithPath: filePath))
-                            if FileManager.default.fileExists(atPath: filePath) {
-                                finish?([
-                                    "identifier": self.localIdentifier,
-                                    "filePath":filePath,
-                                    "width": targetWidth,
-                                    "height": targetHeight,
-                                    "name": fileName,
-                                    "fileType":"image/gif"
-                                ])
+                            if file.count > 8 * 1024 * 1024 {
+                                failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [
+                                    "identifier": self.localIdentifier
+                                ]))
                             }else {
-                                failed?(NSError(domain: "图片请求失败", code: 2, userInfo: nil))
+                                let uuid = UUID().uuidString
+                                let fileName = "\(uuid).gif"
+                                let filePath = saveDir + fileName
+                                if FileManager.default.fileExists(atPath: filePath) {
+                                    try? FileManager.default.removeItem(atPath: filePath)
+                                }
+                                try file.write(to: URL(fileURLWithPath: filePath))
+                                if FileManager.default.fileExists(atPath: filePath) {
+                                    finish?([
+                                        "identifier": self.localIdentifier,
+                                        "filePath":filePath,
+                                        "width": targetWidth,
+                                        "height": targetHeight,
+                                        "name": fileName,
+                                        "fileType":"image/gif"
+                                    ])
+                                }else {
+                                    failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
+                                        "identifier": self.localIdentifier
+                                    ]))
+                                }
                             }
+                        }else {
+                            failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
+                                "identifier": self.localIdentifier
+                            ]))
                         }
                     }catch let err as NSError {
                         print(err)
@@ -167,19 +186,58 @@ extension PHAsset {
                     if FileManager.default.fileExists(atPath: filePath) {
                         try? FileManager.default.removeItem(atPath: filePath)
                     }
-                    let imageData = image?.jpegData(compressionQuality: thumb ? 0.8 : 1.0) as NSData?
-                    imageData?.write(toFile: filePath, atomically: true)
-                    if FileManager.default.fileExists(atPath: filePath) {
-                        finish?([
-                            "identifier": self.localIdentifier,
-                            "filePath":filePath,
-                            "width": targetWidth,
-                            "height": targetHeight,
-                            "name": fileName,
-                            "fileType":"image/jpg"
-                        ])
+                    
+                    if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {
+                        print(imageData.length)
+                        if thumb {
+                            if imageData.length > 8 * 1024 * 1024 {
+                                failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [
+                                    "identifier": self.localIdentifier
+                                ]))
+                            }else {
+                                imageData.write(toFile: filePath, atomically: true)
+                                if FileManager.default.fileExists(atPath: filePath) {
+                                    finish?([
+                                        "identifier": self.localIdentifier,
+                                        "filePath":filePath,
+                                        "width": targetWidth,
+                                        "height": targetHeight,
+                                        "name": fileName,
+                                        "fileType":"image/jpg"
+                                    ])
+                                }else {
+                                    failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
+                                        "identifier": self.localIdentifier
+                                    ]))
+                                }
+                            }
+                        } else {
+                            if imageData.length > 8 * 1024 * 1024 {
+                                failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [
+                                    "identifier": self.localIdentifier
+                                ]))
+                            }else {
+                                imageData.write(toFile: filePath, atomically: true)
+                                if FileManager.default.fileExists(atPath: filePath) {
+                                    finish?([
+                                        "identifier": self.localIdentifier,
+                                        "filePath":filePath,
+                                        "width": targetWidth,
+                                        "height": targetHeight,
+                                        "name": fileName,
+                                        "fileType":"image/jpg"
+                                    ])
+                                }else {
+                                    failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
+                                        "identifier": self.localIdentifier
+                                    ]))
+                                }
+                            }
+                        }
                     }else {
-                        failed?(NSError(domain: "图片请求失败", code: 2, userInfo: nil))
+                        failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
+                            "identifier": self.localIdentifier
+                        ]))
                     }
                 })
             }

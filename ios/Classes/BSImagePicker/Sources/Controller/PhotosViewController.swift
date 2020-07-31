@@ -181,8 +181,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     @objc func doneButtonPressed(_ sender: UIButton) {
         weak var weakSelf = self
-        let maxWidth = settings.maxWidthOfImage
-        let maxHeight = settings.maxHeightOfImage
         let thumb = !originBarButton.isSelected
         let assets = self.assetStore.assets
         doneBarButton.isEnabled = false
@@ -203,10 +201,11 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             var error = NSError()
             for asset in assets {
                 var compressing = true
-                asset.compressAsset(maxWidth, maxHeight: maxHeight, thumb: thumb, saveDir: thumbDir, process: { (process) in
+                asset.compressAsset(thumb, saveDir: thumbDir, process: { (process) in
                     
                 }, failed: { (err) in
                     error = err
+                    results.append(err.userInfo as NSDictionary)
                     compressing = false
                 }) { (info) in
                     results.append(info)
@@ -334,7 +333,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                 hud.label.text = NSLocalizedString("请选择5分钟以下的视频", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
-            }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 8.0 {
+            }else if asset.mediaType == .image, let uti = asset.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 8.0 {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray
@@ -386,7 +385,7 @@ extension PhotosViewController {
         }else if assetStore.count >= settings.maxNumberOfSelections {
             selectLimitReachedClosure?(assetStore.count)
             return NSError(domain: "选择数量超过最大限制", code: 5, userInfo: nil)
-        }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 8.0 {
+        }else if asset.mediaType == .image, let uti = asset.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 8.0 {
             return NSError(domain: "不能分享超过8M的文件", code: 6, userInfo: nil)
         }
         return nil

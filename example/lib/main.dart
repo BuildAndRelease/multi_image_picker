@@ -98,8 +98,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // final preSelectMedia = '1960634';
       resultList = await MultiImagePicker.pickImages(
         maxImages: 9,
-        maxHeight: 1024,
-        maxWidth: 768,
         defaultAsset: null,
         selectedAssets: null,
         cupertinoOptions: CupertinoOptions(
@@ -109,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
         materialOptions: MaterialOptions(
             allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
       );
+      print(resultList);
       // Asset asset =
       //     await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
       // resultList.add(asset);

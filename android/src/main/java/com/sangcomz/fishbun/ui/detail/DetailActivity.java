@@ -209,10 +209,8 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 compressingView.setVisibility(View.VISIBLE);
                 compressingTextView.setText(fishton.isThumb() ? "压缩中..." : "处理中...");
                 boolean thumb = fishton.isThumb();
-                int maxHeight = fishton.getMaxHeight();
-                int maxWidth = fishton.getMaxWidth();
                 List<Media> selectMedias = fishton.getSelectedMedias();
-                MediaCompress mediaCompress = new MediaCompress(thumb, maxHeight, maxWidth, selectMedias, new ArrayList<String>(), this);
+                MediaCompress mediaCompress = new MediaCompress(thumb, selectMedias, new ArrayList<String>(), this);
                 mediaCompress.setListener(this);
                 mediaCompress.execute();
             }

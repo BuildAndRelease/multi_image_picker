@@ -16,11 +16,7 @@ interface BaseProperty {
 
     fun setMinCount(count: Int): FishBunCreator
 
-    fun setMaxHeight(maxHeigth: Int): FishBunCreator
-
     fun setThumb(thumb: Boolean): FishBunCreator
-
-    fun setMaxWidth(maxWidth: Int): FishBunCreator
 
     fun setRequestCode(requestCode: Int): FishBunCreator
 

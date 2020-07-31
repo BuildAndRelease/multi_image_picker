@@ -25,8 +25,6 @@ class Fishton {
             }
         }
 
-    var maxHeight : Int = 300
-    var maxWidth : Int = 300
     var maxCount: Int = 0
     var minCount: Int = 0
     var exceptMimeTypeList = emptyList<MimeType>()
@@ -86,15 +84,6 @@ class Fishton {
     fun isContainVideo(): Boolean {
         for (media in selectedMedias) {
             if (media.fileType.contains("video")) {
-                return true
-            }
-        }
-        return false
-    }
-
-    fun isContainPic(): Boolean {
-        for (media in selectedMedias) {
-            if (media.fileType.contains("image")) {
                 return true
             }
         }

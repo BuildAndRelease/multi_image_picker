@@ -9,6 +9,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 import com.hw.videoprocessor.VideoProcessor;
 import com.sangcomz.fishbun.bean.Media;
@@ -23,6 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import top.zibin.luban.CompressionPredicate;
+import top.zibin.luban.Luban;
+import top.zibin.luban.OnCompressListener;
+import top.zibin.luban.OnRenameListener;
+
 public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
 
     public interface MediaCompressListener {
@@ -30,22 +36,16 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
     }
 
     private boolean thumb = false;
-    private double maxHeight = 1024;
-    private double maxWidth = 768;
     private List<Media> selectMedias = new ArrayList<>();
-    private List<String> selectMediaIdentifiers = new ArrayList<>();
     private Context context;
     private MediaCompressListener listener;
     public void setListener(MediaCompressListener listener) {
         this.listener = listener;
     }
 
-    public MediaCompress(boolean thumb, double maxHeight, double maxWidth, List<Media> selectMedias, List<String> selectMediaIdentifiers, Context context) {
+    public MediaCompress(boolean thumb, List<Media> selectMedias, List<String> selectMediaIdentifiers, Context context) {
         this.thumb = thumb;
-        this.maxHeight = maxHeight;
-        this.maxWidth = maxWidth;
         this.context = context;
-        this.selectMediaIdentifiers = selectMediaIdentifiers;
         if (selectMediaIdentifiers != null && selectMediaIdentifiers.size() > 0) {
             for (String identify : selectMediaIdentifiers) {
                 Uri uri = MediaStore.Files.getContentUri("external");
@@ -144,54 +144,66 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                     e.printStackTrace();
                 }
             }else {
-                result.add(fetchImageThumb(media, thumb, maxHeight, maxWidth));
+                result.add(fetchImageThumb(media, thumb));
             }
         }
         return result;
     }
 
-    private HashMap fetchImageThumb(Media media, boolean thumb, double maxHeight, double maxWidth) {
+    private HashMap fetchImageThumb(Media media, boolean thumb) {
         if (media.getFileType().contains("gif")) {
-            String fileName = UUID.randomUUID().toString() + ".gif";
-            String filePath = "";
+            int fileSize = 0;
             try {
-                InputStream is = new FileInputStream(media.getOriginPath());
-                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
-                if (!tmpPicParentDir.exists()) {
-                    tmpPicParentDir.mkdirs();
-                }
-                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName);
-                if (tmpPic.exists()) {
-                    tmpPic.delete();
-                }
-                filePath = tmpPic.getAbsolutePath();
-                FileOutputStream os = new FileOutputStream(tmpPic);
-                int bytesRead = 0;
-                byte[] buffer = new byte[8192];
-                while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
-                    os.write(buffer, 0, bytesRead);
-                }
-                os.close();
-                is.close();
+                fileSize = Integer.parseInt(media.getFileSize());
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            if (fileSize > 8 * 1024 * 1024) {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("identifier", media.getIdentifier());
+                return map;
+            } else {
+                String fileName = UUID.randomUUID().toString() + ".gif";
+                String filePath = "";
+                try {
+                    InputStream is = new FileInputStream(media.getOriginPath());
+                    File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
+                    if (!tmpPicParentDir.exists()) {
+                        tmpPicParentDir.mkdirs();
+                    }
+                    File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName);
+                    if (tmpPic.exists()) {
+                        tmpPic.delete();
+                    }
+                    filePath = tmpPic.getAbsolutePath();
+                    FileOutputStream os = new FileOutputStream(tmpPic);
+                    int bytesRead = 0;
+                    byte[] buffer = new byte[8192];
+                    while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+                        os.write(buffer, 0, bytesRead);
+                    }
+                    os.close();
+                    is.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("width", Float.parseFloat(media.getOriginWidth()));
-            map.put("height", Float.parseFloat(media.getOriginHeight()));
-            map.put("name", fileName);
-            map.put("filePath", filePath);
-            map.put("identifier", media.getIdentifier());
-            map.put("fileType", "image/gif");
-            return map;
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("width", Float.parseFloat(media.getOriginWidth()));
+                map.put("height", Float.parseFloat(media.getOriginHeight()));
+                map.put("name", fileName);
+                map.put("filePath", filePath);
+                map.put("identifier", media.getIdentifier());
+                map.put("fileType", "image/gif");
+                return map;
+            }
         }else {
             HashMap<String, Object> map = new HashMap<>();
             String fileName = UUID.randomUUID().toString() + ".jpg";
             String filePath = "";
             try {
-                InputStream is = new FileInputStream(media.getOriginPath());
-                File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
+                String picParentDir = context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
+                File tmpPicParentDir = new File(picParentDir);
                 if (!tmpPicParentDir.exists()) {
                     tmpPicParentDir.mkdirs();
                 }
@@ -201,10 +213,41 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                 }
                 filePath = tmpPic.getAbsolutePath();
 
-                HashMap hashMap = compressImage(is, tmpPic, thumb ? maxWidth : -1.0, thumb ? maxHeight : -1.0, thumb ? 80 : 100);
-                if (hashMap.containsKey("width") && hashMap.containsKey("height")) {
-                    map.put("width", hashMap.get("width"));
-                    map.put("height", hashMap.get("height"));
+                File compressPicFile = null;
+                if (thumb) {
+                    List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
+                    if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
+                        compressPicFile = compressPicFiles.get(0);
+                    }
+                }else {
+                    compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 100);
+                }
+
+                if (compressPicFile != null) {
+                    compressPicFile.renameTo(tmpPic);
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(compressPicFile.getAbsolutePath(), options);
+                    float imageHeight = options.outHeight;
+                    float imageWidth = options.outWidth;
+                    long fileSize = compressPicFile.length();
+                    if (thumb) {
+                        if (fileSize > 8 * 1024 * 1024) {
+                            map.put("identifier", media.getIdentifier());
+                            return map;
+                        }else {
+                            map.put("width", imageWidth);
+                            map.put("height", imageHeight);
+                        }
+                    }else {
+                        if (fileSize > 8 * 1024 * 1024) {
+                            map.put("identifier", media.getIdentifier());
+                            return map;
+                        }else {
+                            map.put("width", imageWidth);
+                            map.put("height", imageHeight);
+                        }
+                    }
                 }else {
                     return map;
                 }
@@ -221,25 +264,22 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
         }
     }
 
-    private HashMap compressImage(InputStream fromFile, File toFile, double width, double height, int quality) {
-        HashMap result = new HashMap();
+    private File compressImage(File fromFile, File toFile, double width, double height, int quality) {
         try {
-            Bitmap bitmap = BitmapFactory.decodeStream(fromFile);
+            InputStream is = new FileInputStream(fromFile);
+            Bitmap bitmap = BitmapFactory.decodeStream(is);
             int bitmapWidth = bitmap.getWidth();
             int bitmapHeight = bitmap.getHeight();
 
             float scaleWidth = -1 == width ? 1 : ((float) width / bitmapWidth);
-            float scaleHeight = -1 == width ? 1 : ((float) height / bitmapHeight);
+            float scaleHeight = -1 == height ? 1 : ((float) height / bitmapHeight);
             float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
             Matrix matrix = new Matrix();
             matrix.postScale(scale, scale);
-            result.put("width", (bitmapWidth * scale));
-            result.put("height", (bitmapHeight * scale));
 
             Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
-            File myCaptureFile = toFile;
-            if (myCaptureFile.exists()) myCaptureFile.delete();
-            FileOutputStream out = new FileOutputStream(myCaptureFile);
+            if (toFile.exists()) toFile.delete();
+            FileOutputStream out = new FileOutputStream(toFile);
             if(resizeBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)){
                 out.flush();
                 out.close();
@@ -250,14 +290,13 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
             if(!resizeBitmap.isRecycled()){
                 resizeBitmap.recycle();
             }
+            is.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            result.clear();
         } catch (Exception ex) {
             ex.printStackTrace();
-            result.clear();
         }
-        return result;
+        return toFile;
     }
 
     public HashMap localVideoThumb(Media media, String savePath) {

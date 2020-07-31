@@ -227,10 +227,10 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                     compressPicFile.renameTo(tmpPic);
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(compressPicFile.getAbsolutePath(), options);
+                    BitmapFactory.decodeFile(tmpPic.getAbsolutePath(), options);
                     float imageHeight = options.outHeight;
                     float imageWidth = options.outWidth;
-                    long fileSize = compressPicFile.length();
+                    long fileSize = tmpPic.length();
                     if (thumb) {
                         if (fileSize > 8 * 1024 * 1024) {
                             map.put("identifier", media.getIdentifier());

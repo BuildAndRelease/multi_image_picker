@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
-import 'package:multi_image_picker/src/exceptions.dart';
 
 class MultiImagePicker {
   static const MethodChannel _channel =
@@ -37,6 +36,7 @@ class MultiImagePicker {
   static Future<List<Asset>> pickImages({
     @required int maxImages,
     bool enableCamera = false,
+    bool thumb = true,
     String defaultAsset = "",
     List<String> selectedAssets = const [],
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
@@ -53,6 +53,7 @@ class MultiImagePicker {
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,
+          'thumb': thumb,
           'enableCamera': enableCamera,
           'iosOptions': cupertinoOptions.toJson(),
           'androidOptions': materialOptions.toJson(),
@@ -97,16 +98,11 @@ class MultiImagePicker {
   }
 
   static Future<List<Asset>> requestMediaData(
-      {int qualityOfImage = 80,
-      bool thumb = true,
-      List<String> selectedAssets = const []}) async {
+      {bool thumb = true, List<String> selectedAssets = const []}) async {
     try {
-      final List<dynamic> images =
-          await _channel.invokeMethod('requestMediaData', <String, dynamic>{
-        'qualityOfImage': qualityOfImage,
-        'thumb': thumb,
-        'selectedAssets': selectedAssets
-      });
+      final List<dynamic> images = await _channel.invokeMethod(
+          'requestMediaData',
+          <String, dynamic>{'thumb': thumb, 'selectedAssets': selectedAssets});
       var assets = List<Asset>();
       for (var item in images) {
         var asset;

@@ -188,7 +188,6 @@ extension PHAsset {
                     }
                     
                     if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {
-                        print(imageData.length)
                         if thumb {
                             if imageData.length > 8 * 1024 * 1024 {
                                 failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [

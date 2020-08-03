@@ -31,6 +31,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     private Context context;
     private int limit = -1;
     private int offset = -1;
+    private ArrayList<String> selectMedias = new ArrayList<>();
     private boolean requestHashMap = false;
     private boolean isInvertedPhotos = false;
 
@@ -78,7 +79,7 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
             sort = sort + " LIMIT " + limit + " OFFSET " + offset;
         }
 
-        Uri images = MediaStore.Files.getContentUri("external");
+        Uri mediaUri = MediaStore.Files.getContentUri("external");
         String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
                 + " OR "
@@ -86,11 +87,11 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
         Cursor c;
         if ("0".equals(bucketId)) {
-            c = resolver.query(images, null, selection, null, sort);
+            c = resolver.query(mediaUri, null, selection, null, sort);
         }else {
             selection = "(" + selection + ") AND " + MediaStore.MediaColumns.BUCKET_ID + " = ?";
             String[] selectionArgs = {bucketId};
-            c = resolver.query(images, null, selection, selectionArgs, sort);
+            c = resolver.query(mediaUri, null, selection, selectionArgs, sort);
         }
         ArrayList medias = new ArrayList<>();
         if (c != null) {

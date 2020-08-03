@@ -127,17 +127,6 @@ extension PHAsset {
         }else {
             let targetHeight : CGFloat = CGFloat(self.pixelHeight)
             let targetWidth : CGFloat = CGFloat(self.pixelWidth)
-//            if (thumb && (self.pixelWidth > maxWidth || self.pixelHeight > maxHeight)) {
-//                let heightCompressRatio = CGFloat(maxHeight)/CGFloat(self.pixelHeight)
-//                let widthCompressRatio = CGFloat(maxWidth)/CGFloat(self.pixelWidth)
-//                if (heightCompressRatio <= widthCompressRatio) {
-//                    targetHeight = CGFloat(maxHeight)
-//                    targetWidth = heightCompressRatio * CGFloat(self.pixelWidth)
-//                }else {
-//                    targetWidth = CGFloat(maxWidth)
-//                    targetHeight = widthCompressRatio * CGFloat(self.pixelHeight)
-//                }
-//            }
             if let uti = self.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF") {
                 manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                     do {

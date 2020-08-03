@@ -139,6 +139,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         mimeTypeList.add(MimeType.WEBP);
                         int limit = call.argument(LIMIT);
                         int offset = call.argument(OFFSET);
+                        ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
+                        selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
+
                         DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, activity);
                         displayImage.setRequestHashMap(true);
                         displayImage.setLimit(limit);

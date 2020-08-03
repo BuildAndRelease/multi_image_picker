@@ -85,6 +85,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             var limit = (arguments["limit"] as? Int) ?? 5
             var offset = (arguments["offset"] as? Int) ?? 0
+            let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? []
             weak var weakSelf = self
             DispatchQueue.global().async {
                 let medias = NSMutableArray()
@@ -93,7 +94,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     NSSortDescriptor(key: "creationDate", ascending: false)
                 ]
                 
-                let assets = PHAsset.fetchAssets(with: fetchOptions)
+                let assets = selectedAssets.count > 0 ? PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: fetchOptions) : PHAsset.fetchAssets(with: fetchOptions)
                 if limit == -1, offset == -1 {
                     limit = assets.count
                     offset = 0

@@ -202,12 +202,13 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
             String fileName = UUID.randomUUID().toString() + ".jpg";
             String filePath = "";
             try {
-                String picParentDir = context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
+                String cacheDir = context.getCacheDir().getAbsolutePath();
+                String picParentDir = cacheDir + "/multi_image_pick/thumb/";
                 File tmpPicParentDir = new File(picParentDir);
                 if (!tmpPicParentDir.exists()) {
                     tmpPicParentDir.mkdirs();
                 }
-                File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName);
+                File tmpPic = new File(cacheDir + "/multi_image_pick/thumb/" + fileName);
                 if (tmpPic.exists()) {
                     tmpPic.delete();
                 }
@@ -224,7 +225,11 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
                 }
 
                 if (compressPicFile != null) {
-                    compressPicFile.renameTo(tmpPic);
+                    if (compressPicFile.getAbsolutePath().startsWith(cacheDir)) {
+                        compressPicFile.renameTo(tmpPic);
+                    }else {
+                        copyFile(compressPicFile, tmpPic);
+                    }
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
                     BitmapFactory.decodeFile(tmpPic.getAbsolutePath(), options);
@@ -261,6 +266,40 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
             map.put("identifier", media.getIdentifier());
             map.put("fileType", "image/jpeg");
             return map;
+        }
+    }
+    /**
+     * 复制单个文件
+     *
+     * @param oldFile String 原文件路径+文件名 如：data/user/0/com.test/files/abc.txt
+     * @param newFile String 复制后路径+文件名 如：data/user/0/com.test/cache/abc.txt
+     * @return <code>true</code> if and only if the file was copied;
+     * <code>false</code> otherwise
+     */
+    public boolean copyFile(File oldFile, File newFile) {
+        try {
+            if (!oldFile.exists()) {
+                return false;
+            } else if (!oldFile.isFile()) {
+                return false;
+            } else if (!oldFile.canRead()) {
+                return false;
+            }
+
+            FileInputStream fileInputStream = new FileInputStream(oldFile);    //读入原文件
+            FileOutputStream fileOutputStream = new FileOutputStream(newFile);
+            byte[] buffer = new byte[1024];
+            int byteRead;
+            while ((byteRead = fileInputStream.read(buffer)) != -1) {
+                fileOutputStream.write(buffer, 0, byteRead);
+            }
+            fileInputStream.close();
+            fileOutputStream.flush();
+            fileOutputStream.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

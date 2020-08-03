@@ -32,7 +32,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     var defaultSelectMedia : String = ""
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
-    var cancelClosure: ((_ assets: [Dictionary<String, String>]) -> Void)?
+    var cancelClosure: ((_ assets: [Dictionary<String, String>], _ thumb : Bool) -> Void)?
     var finishClosure: ((_ assets: [NSDictionary], _ success : Bool, _ error : NSError) -> Void)?
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
@@ -169,7 +169,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
                 
                 originBarButton.frame = CGRect(x: 60, y: 0, width: 100, height: 50)
                 originBarButton.setTitle(originBarButtonTitle, for: .normal)
-                originBarButton.isSelected = false
+                originBarButton.isSelected = settings.thumb
                 originBarButton.circleRadius = 8.0
                 originBarButton.circleColor = settings.selectionStrokeColor
                 originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
@@ -228,7 +228,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
               if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
                 dictionary["fileType"] = "image/gif"
               }else {
-                dictionary["fileType"] = "image/jpg"
+                dictionary["fileType"] = "image/jpeg"
               }
             }
             mediaList.append(dictionary)
@@ -256,12 +256,12 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     
     @objc func doneButtonPressed(_ sender: UIButton) {
         weak var weakSelf = self
-        let thumb = !originBarButton.isSelected
+        let thumb = settings.thumb
         let assets = self.assetStore!.assets
         doneBarButton.isEnabled = false
         
         weak var hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-        hud?.label.text = originBarButton.isSelected ? NSLocalizedString("处理中", comment: "") : NSLocalizedString("压缩中", comment: "")
+        hud?.label.text = thumb ? NSLocalizedString("压缩中", comment: "") : NSLocalizedString("处理中", comment: "")
         hud?.bezelView.backgroundColor = UIColor.darkGray
         DispatchQueue.global().async {
             let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
@@ -303,6 +303,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     
     @objc func originButtonPressed(_ sender: UIButton) {
         originBarButton.isSelected = !originBarButton.isSelected
+        settings.thumb = !originBarButton.isSelected
     }
     
     func updateDoneButton() {
@@ -349,6 +350,18 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
 
 // MARK: ImagePickerSettings proxy
 extension BSImagePickerViewController: BSImagePickerSettings {
+    /**
+     See BSImagePicketSettings for documentation
+     */
+    @objc public var thumb: Bool {
+        get {
+            return settings.thumb
+        }
+        set {
+            settings.thumb = newValue
+        }
+    }
+    
     /**
      See BSImagePicketSettings for documentation
      */

@@ -259,7 +259,7 @@ public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
             map.put("name", fileName);
             map.put("filePath", filePath);
             map.put("identifier", media.getIdentifier());
-            map.put("fileType", "image/jpg");
+            map.put("fileType", "image/jpeg");
             return map;
         }
     }

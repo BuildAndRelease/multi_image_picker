@@ -8,8 +8,8 @@ public class Define {
     public final static int FINISH_DETAIL_RESULT_CODE = 131;
     public final static int ENTER_TAKE_RESULT_CODE = 132;
 
-
     public final static String INTENT_RESULT = "result";
+    public final static String INTENT_THUMB = "thumb";
     public final static String SAVE_INSTANCE_NEW_MEDIAS = "instance_new_medias";
 
     public enum BUNDLE_NAME {

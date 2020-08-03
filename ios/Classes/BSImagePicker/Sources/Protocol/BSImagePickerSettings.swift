@@ -27,6 +27,10 @@ BSImagePicker settings. Tweaks these to make BSImagePicker fit your needs
 */
 public protocol BSImagePickerSettings {
     /**
+    Is thumb Photo
+    */
+    var thumb: Bool { get set }
+    /**
     Max number of images user can select
     */
     var maxNumberOfSelections: Int { get set }

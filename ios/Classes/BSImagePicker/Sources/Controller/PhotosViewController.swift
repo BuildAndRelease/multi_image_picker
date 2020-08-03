@@ -26,7 +26,7 @@ import Photos
 final class PhotosViewController : UICollectionViewController , CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate , PreviewViewControllerDelegate {
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
-    var cancelClosure: ((_ assets: [Dictionary<String, String>]) -> Void)?
+    var cancelClosure: ((_ assets: [Dictionary<String, String>], _ thumb : Bool) -> Void)?
     var finishClosure: ((_ assets: [NSDictionary], _ success : Bool, _ error : NSError) -> Void)?
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
@@ -37,7 +37,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     var doneBarButton: UIButton = UIButton(type: .custom)
     var bottomContentView : UIView = UIView()
     
-    let settings: BSImagePickerSettings
+    var settings: BSImagePickerSettings
     private var assetStore: AssetStore
     private var needScrollToBottom : Bool = true
     
@@ -103,7 +103,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         
         originBarButton.frame = CGRect(x: 60, y: 0, width: 100, height: 50)
         originBarButton.setTitle(originBarButtonTitle, for: .normal)
-        originBarButton.isSelected = false
+        originBarButton.isSelected = settings.thumb
         originBarButton.circleRadius = 8.0
         originBarButton.circleColor = settings.selectionStrokeColor
         originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
@@ -170,12 +170,12 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
               if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
                 dictionary["fileType"] = "image/gif"
               }else {
-                dictionary["fileType"] = "image/jpg"
+                dictionary["fileType"] = "image/jpeg"
               }
             }
             mediaList.append(dictionary)
         }
-        cancelClosure?(mediaList)
+        cancelClosure?(mediaList, settings.thumb)
         dismiss(animated: true, completion: nil)
     }
     
@@ -228,6 +228,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     @objc func originButtonPressed(_ sender: UIButton) {
         originBarButton.isSelected = !originBarButton.isSelected
+        settings.thumb = !originBarButton.isSelected
     }
     
     func customTitleViewDidAction(_ view: CustomTitleView) {
@@ -427,7 +428,7 @@ extension PhotosViewController {
               if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
                 dictionary["fileType"] = "image/gif"
               }else {
-                dictionary["fileType"] = "image/jpg"
+                dictionary["fileType"] = "image/jpeg"
               }
             }
             mediaList.append(dictionary)

@@ -47,7 +47,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
     var selectBarButton: UIBarButtonItem = UIBarButtonItem()
     var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-    var cancelClosure: ((_ assets: [Dictionary<String, String>]) -> Void)?
+    var cancelClosure: ((_ assets: [Dictionary<String, String>], _ thumb : Bool) -> Void)?
     var settings: BSImagePickerSettings {
         get {
             return selectionView.settings
@@ -184,7 +184,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         }
         if self.navigationController?.viewControllers[0] == self {
             if let dictionary = self.delegate?.previewViewControllerNeedSelectedIdentify() {
-                cancelClosure?(dictionary)
+                cancelClosure?(dictionary, settings.thumb)
             }
             self.dismiss(animated: true, completion: nil)
         }else{

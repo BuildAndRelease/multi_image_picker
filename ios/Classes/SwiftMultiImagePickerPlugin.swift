@@ -120,7 +120,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                       if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
                           dictionary.setValue("image/gif", forKey: "fileType")
                       }else {
-                          dictionary.setValue("image/jpg", forKey: "fileType")
+                          dictionary.setValue("image/jpeg", forKey: "fileType")
                       }
                     }
                     medias.add(dictionary)
@@ -166,7 +166,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 if type == .video {
                     dictionary.setValue("video", forKey: "fileType")
                 }else if type == .image {
-                    dictionary.setValue("image/jpg", forKey: "fileType")
+                    dictionary.setValue("image/jpeg", forKey: "fileType")
                 }
                 dictionary.setValue(thumbPath, forKey: "thumbPath")
                 dictionary.setValue(thumbPath, forKey: "thumbName")
@@ -190,10 +190,12 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let options = (arguments["iosOptions"] as? Dictionary<String, String>) ?? Dictionary<String, String>()
             let defaultAsset = (arguments["defaultAsset"] as? String) ?? ""
             let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
+            let thumb = (arguments["thumb"] as? Bool) ?? true
             
             vc.maxNumberOfSelections = maxImages
             vc.selectMedias = selectedAssets
             vc.defaultSelectMedia = defaultAsset
+            vc.thumb = thumb
 
             if let selectionFillColor = options["selectionFillColor"] , !selectionFillColor.isEmpty{
                 vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
@@ -216,11 +218,12 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     
                 }, deselect: { (asset: PHAsset) -> Void in
 
-                }, cancel: { (assets: [Dictionary<String, String>]) -> Void in
-                    result(FlutterError(code: "CANCELLED", message: "The user has cancelled the selection", details: assets))
-            }, finish: { (assets: [NSDictionary], success : Bool, error : NSError) -> Void in
-                success ? result(assets) : result(FlutterError(code: "\(error.code)", message: error.domain, details: nil))
-                }, completion: nil)
+                }, cancel: { (assets: [Dictionary<String, String>], thumb : Bool) -> Void in
+                    let t = ["assets" : assets, "thumb" : thumb] as [String : Any]
+                    result(FlutterError(code: "CANCELLED", message: "The user has cancelled the selection", details: t))
+                }, finish: { (assets: [NSDictionary], success : Bool, error : NSError) -> Void in
+                    success ? result(assets) : result(FlutterError(code: "\(error.code)", message: error.domain, details: nil))
+            }, completion: nil)
             break;
         default:
             result(FlutterMethodNotImplemented)

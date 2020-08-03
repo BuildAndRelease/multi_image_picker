@@ -268,6 +268,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         }
         Intent i = new Intent();
         i.putExtra(Define.INTENT_RESULT, selectMediaInfos);
+        i.putExtra(Define.INTENT_THUMB, fishton.isThumb());
         setResult(RESULT_CANCELED, i);
         finish();
     }

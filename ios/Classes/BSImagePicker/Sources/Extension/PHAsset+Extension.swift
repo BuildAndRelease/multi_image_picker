@@ -202,7 +202,7 @@ extension PHAsset {
                                         "width": targetWidth,
                                         "height": targetHeight,
                                         "name": fileName,
-                                        "fileType":"image/jpg"
+                                        "fileType":"image/jpeg"
                                     ])
                                 }else {
                                     failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
@@ -224,7 +224,7 @@ extension PHAsset {
                                         "width": targetWidth,
                                         "height": targetHeight,
                                         "name": fileName,
-                                        "fileType":"image/jpg"
+                                        "fileType":"image/jpeg"
                                     ])
                                 }else {
                                     failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [

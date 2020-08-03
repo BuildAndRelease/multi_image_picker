@@ -35,26 +35,18 @@ class MultiImagePicker {
   /// you can refer to the docs for the Asset class.
   static Future<List<Asset>> pickImages({
     @required int maxImages,
-    bool enableCamera = false,
     bool thumb = true,
     String defaultAsset = "",
     List<String> selectedAssets = const [],
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
-    assert(maxImages != null);
-
-    if (maxImages != null && maxImages < 0) {
-      throw new ArgumentError.value(maxImages, 'maxImages cannot be negative');
-    }
-
     try {
       final List<dynamic> images = await _channel.invokeMethod(
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,
           'thumb': thumb,
-          'enableCamera': enableCamera,
           'iosOptions': cupertinoOptions.toJson(),
           'androidOptions': materialOptions.toJson(),
           'defaultAsset': defaultAsset,

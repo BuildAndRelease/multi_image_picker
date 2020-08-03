@@ -52,6 +52,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String MAX_IMAGES = "maxImages";
     private static final String MAX_HEIGHT = "maxHeight";
     private static final String MAX_WIDTH = "maxWidth";
+    private static final String THUMB = "thumb";
     private static final String IDENTIFY = "identifier";
     private static final String FILE_TYPE = "fileType";
     private static final String LIMIT = "limit";
@@ -116,11 +117,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         currentPickerResult = result;
                         final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
                         int maxImages = call.argument(MAX_IMAGES);
+                        boolean thumb = call.argument(THUMB);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
                         selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
                         String defaultAsset = call.argument(DEFAULT_ASSETS);
                         defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
-                        presentPicker(maxImages, defaultAsset, selectMedias, options);
+                        presentPicker(maxImages, thumb, defaultAsset, selectMedias, options);
                     }else {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
@@ -239,7 +241,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         }
     }
 
-    private void presentPicker(int maxImages, String defaultAsset, ArrayList<String> selectMedias, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, boolean thumb, String defaultAsset, ArrayList<String> selectMedias, HashMap<String, String> options) {
         String actionBarTitle = options.get("actionBarTitle");
         String allViewTitle =  options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
@@ -253,7 +255,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
                 .setImageAdapter(new GlideAdapter())
                 .setMaxCount(maxImages)
-                .setThumb(true)
+                .setThumb(thumb)
                 .setPreSelectMedia(defaultAsset)
                 .setPreSelectMedias(selectMedias)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
@@ -311,7 +313,11 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }else if (resultCode == Activity.RESULT_CANCELED) {
                     if (currentPickerResult != null) {
                         ArrayList result = data != null ? data.getParcelableArrayListExtra(Define.INTENT_RESULT) : new ArrayList();
-                        currentPickerResult.error("CANCELLED", "", result);
+                        Boolean thumb = data != null ? data.getBooleanExtra(Define.INTENT_THUMB, true) : true;
+                        HashMap <String, Object> t = new HashMap<>();
+                        t.put("assets", result);
+                        t.put("thumb", thumb);
+                        currentPickerResult.error("CANCELLED", "", t);
                         currentPickerResult = null;
                     }
                 }else {

@@ -169,7 +169,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
                 
                 originBarButton.frame = CGRect(x: 60, y: 0, width: 100, height: 50)
                 originBarButton.setTitle(originBarButtonTitle, for: .normal)
-                originBarButton.isSelected = settings.thumb
+                originBarButton.isSelected = !settings.thumb
                 originBarButton.circleRadius = 8.0
                 originBarButton.circleColor = settings.selectionStrokeColor
                 originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)

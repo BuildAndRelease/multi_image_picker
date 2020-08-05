@@ -30,6 +30,7 @@ import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopup;
+import com.sangcomz.fishbun.util.UiUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -269,18 +270,22 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
             drawable.setGradientType(GradientDrawable.RADIAL_GRADIENT);
             drawable.setCornerRadius(8);
             drawable.setColor(fishton.getColorSelectCircleStroke());
+            drawable.setAlpha(255);
             sendBtn.setEnabled(true);
             sendBtn.setBackground(drawable);
             sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedMedias().size() + ")");
+            sendBtn.setTextColor(Color.argb(255, 255, 255, 255));
         }else {
             GradientDrawable drawable=new GradientDrawable();
             drawable.setShape(GradientDrawable.RECTANGLE);
             drawable.setGradientType(GradientDrawable.RADIAL_GRADIENT);
             drawable.setCornerRadius(8);
-            drawable.setColor(Color.parseColor("#555555"));
+            drawable.setColor(fishton.getColorSelectCircleStroke());
+            drawable.setAlpha(125);
             sendBtn.setEnabled(false);
             sendBtn.setBackground(drawable);
             sendBtn.setText(getResources().getText(R.string.done));
+            sendBtn.setTextColor(Color.argb(125, 255, 255, 255));
         }
     }
 

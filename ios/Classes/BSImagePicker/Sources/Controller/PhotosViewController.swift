@@ -89,13 +89,14 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         bottomContentView.frame = self.navigationController?.toolbar.bounds ?? CGRect(x: 0, y: 0, width:  UIScreen.main.bounds.size.width, height: 49.0)
         bottomContentView.backgroundColor = UIColor.clear
         
+        let normalColor = settings.selectionStrokeColor
         doneBarButton.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
-        doneBarButton.backgroundColor = settings.selectionStrokeColor
+        doneBarButton.backgroundColor = normalColor
         doneBarButton.setTitleColor(UIColor.white, for: .normal)
-        doneBarButton.setTitleColor(UIColor.gray, for: .disabled)
+        doneBarButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .disabled)
         doneBarButton.setTitle(doneBarButtonTitle, for: .normal)
-        doneBarButton.setBackgroundColor(color: settings.selectionStrokeColor, for: .normal)
-        doneBarButton.setBackgroundColor(color: UIColor.darkGray, for: .disabled)
+        doneBarButton.setBackgroundColor(color: normalColor, for: .normal)
+        doneBarButton.setBackgroundColor(color: normalColor.withAlphaComponent(0.5), for: .disabled)
         doneBarButton.layer.masksToBounds = true
         doneBarButton.layer.cornerRadius = 5.0
         doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)

@@ -155,13 +155,14 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
                 bottomContentView.frame = self.toolbar.bounds
                 bottomContentView.backgroundColor = UIColor.clear
                 
+                let normalColor = settings.selectionStrokeColor
                 doneBarButton.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
                 doneBarButton.backgroundColor = settings.selectionStrokeColor
                 doneBarButton.setTitleColor(UIColor.white, for: .normal)
-                doneBarButton.setTitleColor(UIColor.gray, for: .disabled)
+                doneBarButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .disabled)
                 doneBarButton.setTitle(doneBarButtonTitle, for: .normal)
-                doneBarButton.setBackgroundColor(color: settings.selectionStrokeColor, for: .normal)
-                doneBarButton.setBackgroundColor(color: UIColor.darkGray, for: .disabled)
+                doneBarButton.setBackgroundColor(color: normalColor, for: .normal)
+                doneBarButton.setBackgroundColor(color: normalColor.withAlphaComponent(0.5), for: .disabled)
                 doneBarButton.layer.masksToBounds = true
                 doneBarButton.layer.cornerRadius = 5.0
                 doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)

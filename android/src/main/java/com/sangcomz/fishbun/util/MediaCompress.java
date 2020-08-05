@@ -24,10 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import top.zibin.luban.CompressionPredicate;
 import top.zibin.luban.Luban;
-import top.zibin.luban.OnCompressListener;
-import top.zibin.luban.OnRenameListener;
 
 public class MediaCompress extends AsyncTask<Void, Void, ArrayList<HashMap>> {
 

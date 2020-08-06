@@ -2,13 +2,16 @@ package com.sangcomz.fishbun.util;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 
-public class MediaInfoData extends AsyncTask<Void, Void, String> {
+import java.util.HashMap;
+
+public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
     public interface MediaInfoDataListener {
-        void mediaInfoDataDidFinish(String size);
+        void mediaInfoDataDidFinish(HashMap hashMap);
     }
 
     private String identify;
@@ -24,8 +27,12 @@ public class MediaInfoData extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Void... voids) {
+    protected HashMap doInBackground(Void... voids) {
         String size = "0";
+        String filePath = "";
+        String mimeType = "";
+        String width = "0";
+        String height = "0";
         try {
             Uri uri = MediaStore.Files.getContentUri("external");
             String selection = MediaStore.MediaColumns._ID + "=" + identify;
@@ -34,6 +41,10 @@ public class MediaInfoData extends AsyncTask<Void, Void, String> {
                 try {
                     if (c.moveToFirst()) {
                         size = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
+                        filePath = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
+                        mimeType = c.getString(c.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));
+                        width = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
+                        height = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
                         c.close();
                     }
                 } catch (Exception e) {
@@ -44,14 +55,25 @@ public class MediaInfoData extends AsyncTask<Void, Void, String> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return size;
+        HashMap hashMap = new HashMap();
+        hashMap.put("size", size);
+        if (mimeType.contains("video")) {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(filePath);
+            width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+            retriever.release();
+        }
+        hashMap.put("width", width);
+        hashMap.put("height", height);
+        return hashMap;
     }
 
     @Override
-    protected void onPostExecute(String size) {
-        super.onPostExecute(size);
+    protected void onPostExecute(HashMap hashMap) {
+        super.onPostExecute(hashMap);
         if (listener != null) {
-            listener.mediaInfoDataDidFinish(size);
+            listener.mediaInfoDataDidFinish(hashMap);
         }
     }
 }

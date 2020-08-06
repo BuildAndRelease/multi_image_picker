@@ -81,6 +81,16 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     result(FlutterError(code: "PARAM ERROR", message: "cannot find asset", details: nil))
                 }
             }
+        case "requestFileDimen":
+            let arguments = call.arguments as! Dictionary<String, AnyObject>
+            let localIdentifier = (arguments["identifier"] as? String) ?? ""
+            DispatchQueue.global().async {
+                if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject {
+                    result(["width": asset.pixelWidth, "height": asset.pixelHeight])
+                }else {
+                    result(FlutterError(code: "PARAM ERROR", message: "cannot find asset", details: nil))
+                }
+            }
         case "fetchMediaInfo":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             var limit = (arguments["limit"] as? Int) ?? 5

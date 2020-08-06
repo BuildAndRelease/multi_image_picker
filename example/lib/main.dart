@@ -116,16 +116,20 @@ class _MyHomePageState extends State<MyHomePage> {
       //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
       // );
       // print(resultList);
-      // final list = [
-      //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
-      //   "A4FE7B79-7CF7-4E22-B55E-936A22CE22F7/L0/001",
-      //   "573E487B-9ABA-4BE0-B219-C2FF8C1B1B9E/L0/001",
-      //   "EC0BC104-AD12-46EB-B84A-3DA224099BBE/L0/001",
-      //   "7630B37C-CEBA-485A-8347-17B517AEA999/L0/001",
-      //   "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
-      // ];
-      final result = await MultiImagePicker.fetchMediaInfo(0, 10);
-      print(result);
+      final list = [
+        "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
+        "A4FE7B79-7CF7-4E22-B55E-936A22CE22F7/L0/001",
+        "573E487B-9ABA-4BE0-B219-C2FF8C1B1B9E/L0/001",
+        "EC0BC104-AD12-46EB-B84A-3DA224099BBE/L0/001",
+        "7630B37C-CEBA-485A-8347-17B517AEA999/L0/001",
+        "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
+      ];
+      // final result = await MultiImagePicker.fetchMediaInfo(0, 10);
+      for (var item in list) {
+        print(await MultiImagePicker.requestFileDimen(item));
+      }
+      // final result = await MultiImagePicker.requestFileDimen('2004950');
+      // print(result);
       // Asset asset =
       //     await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
       // resultList.add(asset);

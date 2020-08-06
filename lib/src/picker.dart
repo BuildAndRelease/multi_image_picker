@@ -164,6 +164,15 @@ class MultiImagePicker {
     }
   }
 
+  static Future<dynamic> requestFileDimen(String identifier) async {
+    try {
+      return await _channel.invokeMethod(
+          'requestFileDimen', <String, dynamic>{'identifier': identifier});
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   static Future<String> requestThumbDirectory() async {
     try {
       return await _channel.invokeMethod('requestThumbDirectory');

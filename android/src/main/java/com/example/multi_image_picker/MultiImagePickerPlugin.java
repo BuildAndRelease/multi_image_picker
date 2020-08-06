@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 
 import androidx.core.content.ContextCompat;
@@ -47,6 +48,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String REQUEST_MEDIA_DATA = "requestMediaData";
     private static final String REQUEST_TAKE_PICTURE = "requestTakePicture";
     private static final String REQUEST_FILE_SIZE = "requestFileSize";
+    private static final String REQUEST_FILE_DIMEN = "requestFileDimen";
     private static final String REQUEST_THUMB_DIRECTORY = "requestThumbDirectory";
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
@@ -201,8 +203,24 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
                         mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
                             @Override
-                            public void mediaInfoDataDidFinish(String size) {
-                                result.success(size);
+                            public void mediaInfoDataDidFinish(HashMap hashMap) {
+                                result.success(hashMap.get("size"));
+                            }
+                        });
+                        mediaInfoData.execute();
+                    }else {
+                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                    }
+                    break;
+                }
+                case REQUEST_FILE_DIMEN: {
+                    if (checkPermission( false, false, true)) {
+                        String identify = call.argument(IDENTIFY);
+                        MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
+                        mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
+                            @Override
+                            public void mediaInfoDataDidFinish(HashMap hashMap) {
+                                result.success(hashMap);
                             }
                         });
                         mediaInfoData.execute();

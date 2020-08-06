@@ -82,7 +82,7 @@ public class CameraInterface implements Camera.PreviewCallback {
     private ErrorListener errorLisenter;
 
     private ImageView mSwitchView;
-    private ImageView mFlashLamp;
+//    private ImageView mFlashLamp;
 
     private int preview_width;
     private int preview_height;
@@ -113,7 +113,7 @@ public class CameraInterface implements Camera.PreviewCallback {
 
     public void setSwitchView(ImageView mSwitchView, ImageView mFlashLamp) {
         this.mSwitchView = mSwitchView;
-        this.mFlashLamp = mFlashLamp;
+//        this.mFlashLamp = mFlashLamp;
         if (mSwitchView != null) {
             cameraAngle = CameraParamUtil.getInstance().getCameraDisplayOrientation(mSwitchView.getContext(),
                     SELECTED_CAMERA);
@@ -189,9 +189,9 @@ public class CameraInterface implements Camera.PreviewCallback {
                     break;
             }
             ObjectAnimator animC = ObjectAnimator.ofFloat(mSwitchView, "rotation", start_rotaion, end_rotation);
-            ObjectAnimator animF = ObjectAnimator.ofFloat(mFlashLamp, "rotation", start_rotaion, end_rotation);
+//            ObjectAnimator animF = ObjectAnimator.ofFloat(mFlashLamp, "rotation", start_rotaion, end_rotation);
             AnimatorSet set = new AnimatorSet();
-            set.playTogether(animC, animF);
+            set.playTogether(animC);
             set.setDuration(500);
             set.start();
             rotation = angle;
@@ -331,14 +331,14 @@ public class CameraInterface implements Camera.PreviewCallback {
     public synchronized void switchCamera(SurfaceHolder holder, float screenProp) {
         if (SELECTED_CAMERA == CAMERA_POST_POSITION) {
             SELECTED_CAMERA = CAMERA_FRONT_POSITION;
-            if (mFlashLamp != null) {
-                mFlashLamp.setVisibility(View.INVISIBLE);
-            }
+//            if (mFlashLamp != null) {
+//                mFlashLamp.setVisibility(View.INVISIBLE);
+//            }
         } else {
             SELECTED_CAMERA = CAMERA_POST_POSITION;
-            if (mFlashLamp != null) {
-                mFlashLamp.setVisibility(View.VISIBLE);
-            }
+//            if (mFlashLamp != null) {
+//                mFlashLamp.setVisibility(View.VISIBLE);
+//            }
         }
         doDestroyCamera();
         KLog.i(TAG,"open start");

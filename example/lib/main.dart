@@ -87,6 +87,13 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Asset> resultList = List<Asset>();
     String error = 'No Error Dectected';
     try {
+      // "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001"
+      // "A4FE7B79-7CF7-4E22-B55E-936A22CE22F7/L0/001"
+      // "573E487B-9ABA-4BE0-B219-C2FF8C1B1B9E/L0/001"
+      // "EC0BC104-AD12-46EB-B84A-3DA224099BBE/L0/001"
+      // "7630B37C-CEBA-485A-8347-17B517AEA999/L0/001"
+      // "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
+
       // final preSelectMedias = [
       //   '4D1A6122-2B8D-4B19-807E-9FDDB28748C2/L0/001',
       //   '9EF3E2D4-398D-4EAA-B1AB-404C278A8AC7/L0/001',
@@ -94,11 +101,12 @@ class _MyHomePageState extends State<MyHomePage> {
       //   '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
       // ];
       // final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
-      // final preSelectMedias = ['1960636', '1960635', '1960634', '1960633'];
+      final preSelectMedias = ['1960636', '1960635', '1960634', '1960633'];
       // final preSelectMedia = '1960634';
+
       // resultList = await MultiImagePicker.pickImages(
       //   maxImages: 9,
-      //   defaultAsset: preSelectMedia,
+      //   defaultAsset: null,
       //   selectedAssets: null,
       //   cupertinoOptions: CupertinoOptions(
       //       takePhotoIcon: "chat",
@@ -108,8 +116,18 @@ class _MyHomePageState extends State<MyHomePage> {
       //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
       // );
       // print(resultList);
-      Asset asset =
-          await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
+      // final list = [
+      //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
+      //   "A4FE7B79-7CF7-4E22-B55E-936A22CE22F7/L0/001",
+      //   "573E487B-9ABA-4BE0-B219-C2FF8C1B1B9E/L0/001",
+      //   "EC0BC104-AD12-46EB-B84A-3DA224099BBE/L0/001",
+      //   "7630B37C-CEBA-485A-8347-17B517AEA999/L0/001",
+      //   "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
+      // ];
+      final result = await MultiImagePicker.fetchMediaInfo(0, 10);
+      print(result);
+      // Asset asset =
+      //     await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
       // resultList.add(asset);
       // print(asset);
       // print(await MultiImagePicker.requestThumbDirectory());

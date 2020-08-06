@@ -141,8 +141,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         int offset = call.argument(OFFSET);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
                         selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
-
-                        DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, activity);
+                        DisplayImage displayImage = new DisplayImage((long) 0, selectMedias, mimeTypeList, activity);
                         displayImage.setRequestHashMap(true);
                         displayImage.setLimit(limit);
                         displayImage.setOffset(offset);

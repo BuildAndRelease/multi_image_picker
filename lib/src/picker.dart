@@ -172,10 +172,15 @@ class MultiImagePicker {
     }
   }
 
-  static Future<List<Asset>> fetchMediaInfo(int offset, int limit) async {
+  static Future<List<Asset>> fetchMediaInfo(int offset, int limit,
+      {List<String> selectedAssets}) async {
     try {
-      final List<dynamic> images = await _channel.invokeMethod('fetchMediaInfo',
-          <String, dynamic>{'limit': limit, 'offset': offset});
+      final List<dynamic> images = await _channel.invokeMethod(
+          'fetchMediaInfo', <String, dynamic>{
+        'limit': limit,
+        'offset': offset,
+        'selectedAssets': selectedAssets
+      });
       var assets = List<Asset>();
       for (var item in images) {
         var asset = Asset(item['identifier'], item['filePath'], item['name'],

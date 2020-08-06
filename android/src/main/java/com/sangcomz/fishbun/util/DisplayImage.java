@@ -7,6 +7,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -51,8 +52,9 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
         isInvertedPhotos = invertedPhotos;
     }
 
-    public DisplayImage(Long bucketId, List<MimeType> exceptMimeType, Context context) {
+    public DisplayImage(Long bucketId, ArrayList<String> selectMedias, List<MimeType> exceptMimeType, Context context) {
         this.bucketId = bucketId;
+        this.selectMedias = selectMedias;
         this.exceptMimeType = exceptMimeType;
         this.resolver = context.getContentResolver();
         this.context = context;
@@ -87,9 +89,15 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
         Cursor c;
         if ("0".equals(bucketId)) {
+            if (selectMedias != null && !selectMedias.isEmpty()) {
+                selection = "(" + selection + ") AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
+            }
             c = resolver.query(mediaUri, null, selection, null, sort);
         }else {
             selection = "(" + selection + ") AND " + MediaStore.MediaColumns.BUCKET_ID + " = ?";
+            if (selectMedias != null && !selectMedias.isEmpty()) {
+                selection = selection + " AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
+            }
             String[] selectionArgs = {bucketId};
             c = resolver.query(mediaUri, null, selection, selectionArgs, sort);
         }

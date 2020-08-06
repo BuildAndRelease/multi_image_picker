@@ -64,7 +64,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         if (initPosition == -1) {
             ArrayList mimeTypeList = new ArrayList();
             mimeTypeList.add(MimeType.WEBP);
-            DisplayImage displayImage = new DisplayImage((long) 0, mimeTypeList, this);
+            DisplayImage displayImage = new DisplayImage((long) 0, null, mimeTypeList, this);
             displayImage.setListener(new DisplayImage.DisplayImageListener() {
                 @Override
                 public void OnDisplayImageDidSelectFinish(ArrayList medias) {

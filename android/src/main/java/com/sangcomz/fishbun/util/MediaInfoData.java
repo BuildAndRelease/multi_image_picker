@@ -2,6 +2,7 @@ package com.sangcomz.fishbun.util;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -60,8 +61,9 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
         if (mimeType.contains("video")) {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(filePath);
-            width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-            height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+            Bitmap bitmap = retriever.getFrameAtTime(0);
+            width = bitmap.getWidth() + "";
+            height = bitmap.getHeight() + "";
             retriever.release();
         }
         hashMap.put("width", width);

@@ -23,7 +23,6 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
     private String identify;
     private Context context;
     private MediaInfoDataListener listener;
-    private MediaMetadataRetriever retriever = new MediaMetadataRetriever();
     public void setListener(MediaInfoDataListener listener) {
         this.listener = listener;
     }
@@ -31,14 +30,11 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
     public MediaInfoData(String identify, Context context) {
         this.context = context;
         this.identify = identify;
-
     }
 
     @Override
     protected HashMap doInBackground(Void... voids) {
         String size = "0";
-        String filePath = "";
-        String mimeType = "";
         String width = "0";
         String height = "0";
         try {
@@ -49,8 +45,6 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
                 try {
                     if (c.moveToFirst()) {
                         size = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
-                        filePath = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
-                        mimeType = c.getString(c.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));
                         width = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
                         height = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
                         c.close();
@@ -65,57 +59,10 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
         }
         HashMap hashMap = new HashMap();
         hashMap.put("size", size);
-        if (mimeType.contains("video")) {
-            String uuid = UUID.randomUUID().toString();
-            String imgName = uuid + ".jpg";
-            String cacheDir = context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
-            File tmpPicParentDir = new File(cacheDir);
-            if (!tmpPicParentDir.exists()) {
-                tmpPicParentDir.mkdirs();
-            }
-            File tmpPic = new File(cacheDir + imgName);
-            if (tmpPic.exists()) {
-                tmpPic.delete();
-            }
-
-            retriever.setDataSource(filePath);
-            Bitmap bitmap = retriever.getFrameAtTime(0);
-            width = bitmap.getWidth() + "";
-            height = bitmap.getHeight() + "";
-            hashMap.put("fileType", "video");
-            hashMap.put("thumbPath", tmpPic.getAbsolutePath());
-            hashMap.put("thumbName", imgName);
-            hashMap.put("thumbHeight", height);
-            hashMap.put("thumbWidth", width);
-        }
         hashMap.put("width", width);
         hashMap.put("height", height);
         hashMap.put("identifier", identify);
         return hashMap;
-    }
-
-    public HashMap<String, String> localVideoThumb(String filePath, String savePath) {
-        HashMap result = new HashMap();
-        Bitmap bitmap = null;
-        try {
-            retriever.setDataSource(filePath);
-            bitmap = retriever.getFrameAtTime(0);
-            File f = new File(savePath);
-            FileOutputStream out = new FileOutputStream(f);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            result.put("width", (bitmap.getWidth() * 1.0) + "");
-            result.put("height", (bitmap.getHeight() * 1.0) + "");
-            out.flush();
-            out.close();
-            if(!bitmap.isRecycled()){
-                bitmap.recycle();//记得释放资源，否则会内存溢出
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            retriever.release();
-        }
-        return result;
     }
 
     @Override

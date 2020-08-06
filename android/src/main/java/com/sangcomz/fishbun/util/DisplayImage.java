@@ -3,6 +3,7 @@ package com.sangcomz.fishbun.util;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,18 +30,24 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
     private ContentResolver resolver;
     private List<MimeType> exceptMimeType;
     private DisplayImageListener listener;
+    private MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+
     private Context context;
     private int limit = -1;
     private int offset = -1;
     private ArrayList<String> selectMedias = new ArrayList<>();
     private boolean requestHashMap = false;
     private boolean isInvertedPhotos = false;
+    private boolean requestVideoDimen = false;
 
     public void setLimit(int limit) {
         this.limit = limit;
     }
     public void setOffset(int offset) {
         this.offset = offset;
+    }
+    public void setRequestVideoDimen(boolean requestVideoDimen) {
+        this.requestVideoDimen = requestVideoDimen;
     }
     public void setRequestHashMap(boolean requestHashMap) {
         this.requestHashMap = requestHashMap;
@@ -126,10 +133,18 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                                 HashMap media = new HashMap();
                                 String imgId = c.getString(_ID);
                                 media.put("identifier", imgId);
-                                media.put("filePath", c.getString(DATA));
+                                String filePath = c.getString(DATA);
+                                media.put("filePath", filePath);
                                 if (mimeType.contains("video")) {
-                                    media.put("width", 0.0);
-                                    media.put("height", 0.0);
+                                    if (requestVideoDimen) {
+                                        retriever.setDataSource(filePath);
+                                        Bitmap bitmap = retriever.getFrameAtTime(0);
+                                        media.put("width", bitmap.getWidth() * 1.0);
+                                        media.put("height", bitmap.getHeight() * 1.0);
+                                    }else {
+                                        media.put("width", 0.0);
+                                        media.put("height", 0.0);
+                                    }
                                     Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
                                     Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
                                     if (cursor.moveToFirst()) {

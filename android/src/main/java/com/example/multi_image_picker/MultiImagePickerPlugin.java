@@ -147,6 +147,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         displayImage.setRequestHashMap(true);
                         displayImage.setLimit(limit);
                         displayImage.setOffset(offset);
+                        displayImage.setRequestVideoDimen(!selectMedias.isEmpty());
                         displayImage.setListener(new DisplayImage.DisplayImageListener() {
                             @Override
                             public void OnDisplayImageDidSelectFinish(ArrayList medias) {

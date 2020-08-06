@@ -39,7 +39,6 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
         String mimeType = "";
         String width = "0";
         String height = "0";
-        String identify = "";
         try {
             Uri uri = MediaStore.Files.getContentUri("external");
             String selection = MediaStore.MediaColumns._ID + "=" + identify;
@@ -47,7 +46,6 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
             if (c != null) {
                 try {
                     if (c.moveToFirst()) {
-                        identify = c.getString(c.getColumnIndex(MediaStore.MediaColumns._ID));
                         size = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
                         filePath = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
                         mimeType = c.getString(c.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));

@@ -85,8 +85,8 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
             hashMap.put("fileType", "video");
             hashMap.put("thumbPath", tmpPic.getAbsolutePath());
             hashMap.put("thumbName", imgName);
-            hashMap.put("thumbHeight", width);
-            hashMap.put("thumbWidth", height);
+            hashMap.put("thumbHeight", height);
+            hashMap.put("thumbWidth", width);
         }
         hashMap.put("width", width);
         hashMap.put("height", height);

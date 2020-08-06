@@ -150,6 +150,7 @@ public class CameraActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        jCameraView.onPause();
         jCameraView.onResume();
     }
 

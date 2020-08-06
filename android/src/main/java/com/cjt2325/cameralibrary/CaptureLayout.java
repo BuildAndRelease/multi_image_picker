@@ -160,6 +160,7 @@ public class CaptureLayout extends FrameLayout {
                 }
                 startAlphaAnimation();
                 btn_return.setAlpha(1.0f);
+                btn_return.setClickable(true);
             }
 
             @Override
@@ -169,6 +170,7 @@ public class CaptureLayout extends FrameLayout {
                 }
                 startAlphaAnimation();
                 btn_return.setAlpha(0.0f);
+                btn_return.setClickable(false);
             }
 
             @Override
@@ -179,6 +181,7 @@ public class CaptureLayout extends FrameLayout {
                 startAlphaAnimation();
                 startTypeBtnAnimator();
                 btn_return.setAlpha(1.0f);
+                btn_return.setClickable(true);
             }
 
             @Override

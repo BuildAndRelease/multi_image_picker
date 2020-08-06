@@ -369,6 +369,7 @@ public class CaptureButton extends View {
 
     //设置状态
     public void resetState() {
+        handlerUnpressByState();
         state = STATE_IDLE;
     }
 }

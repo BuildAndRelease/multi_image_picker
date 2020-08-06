@@ -128,12 +128,14 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                                 media.put("identifier", imgId);
                                 media.put("filePath", c.getString(DATA));
                                 if (mimeType.contains("video")) {
+                                    media.put("width", 0.0);
+                                    media.put("height", 0.0);
                                     Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
                                     Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
                                     if (cursor.moveToFirst()) {
-                                        media.put("width", cursor.getFloat(cursor.getColumnIndex(MediaStore.Video.VideoColumns.WIDTH)));
-                                        media.put("height", cursor.getFloat(cursor.getColumnIndex(MediaStore.Video.VideoColumns.HEIGHT)));
                                         media.put("duration", cursor.getFloat(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION))/1000);
+                                    }else {
+                                        media.put("duration", 0.0);
                                     }
                                     cursor.close();
                                 }else {

@@ -23,6 +23,7 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
     private String identify;
     private Context context;
     private MediaInfoDataListener listener;
+    private MediaMetadataRetriever retriever = new MediaMetadataRetriever();
     public void setListener(MediaInfoDataListener listener) {
         this.listener = listener;
     }
@@ -30,6 +31,7 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
     public MediaInfoData(String identify, Context context) {
         this.context = context;
         this.identify = identify;
+
     }
 
     @Override
@@ -75,9 +77,11 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
             if (tmpPic.exists()) {
                 tmpPic.delete();
             }
-            HashMap t = localVideoThumb(filePath, tmpPic.getAbsolutePath());
-            width = (String) t.get("width");
-            height = (String) t.get("height");
+
+            retriever.setDataSource(filePath);
+            Bitmap bitmap = retriever.getFrameAtTime(0);
+            width = bitmap.getWidth() + "";
+            height = bitmap.getHeight() + "";
             hashMap.put("fileType", "video");
             hashMap.put("thumbPath", tmpPic.getAbsolutePath());
             hashMap.put("thumbName", imgName);
@@ -93,7 +97,6 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
     public HashMap<String, String> localVideoThumb(String filePath, String savePath) {
         HashMap result = new HashMap();
         Bitmap bitmap = null;
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
             retriever.setDataSource(filePath);
             bitmap = retriever.getFrameAtTime(0);

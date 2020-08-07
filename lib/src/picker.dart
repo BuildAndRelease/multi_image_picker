@@ -33,7 +33,7 @@ class MultiImagePicker {
   /// pick thousands of images at a time, with no performance
   /// penalty. How to request the original image or a thumb
   /// you can refer to the docs for the Asset class.
-  static Future<Map<String, dynamic>> pickImages({
+  static Future<Map<dynamic, dynamic>> pickImages({
     @required int maxImages,
     bool thumb = true,
     String defaultAsset = "",
@@ -42,7 +42,7 @@ class MultiImagePicker {
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
     try {
-      final Map<String, dynamic> medias = await _channel.invokeMethod(
+      final Map<dynamic, dynamic> medias = await _channel.invokeMethod(
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,

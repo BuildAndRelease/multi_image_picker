@@ -138,29 +138,24 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }
                 case FETCH_MEDIA_INFO: {
                     if (checkPermission(false, false, true)) {
-                        new Thread(new Runnable() {
+                        ArrayList mimeTypeList = new ArrayList();
+                        mimeTypeList.add(MimeType.WEBP);
+                        int limit = call.argument(LIMIT);
+                        int offset = call.argument(OFFSET);
+                        ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
+                        selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
+                        DisplayImage displayImage = new DisplayImage((long) 0, selectMedias, mimeTypeList, activity);
+                        displayImage.setRequestHashMap(true);
+                        displayImage.setLimit(limit);
+                        displayImage.setOffset(offset);
+                        displayImage.setRequestVideoDimen(!selectMedias.isEmpty());
+                        displayImage.setListener(new DisplayImage.DisplayImageListener() {
                             @Override
-                            public void run() {
-                                ArrayList mimeTypeList = new ArrayList();
-                                mimeTypeList.add(MimeType.WEBP);
-                                int limit = call.argument(LIMIT);
-                                int offset = call.argument(OFFSET);
-                                ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
-                                selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
-                                DisplayImage displayImage = new DisplayImage((long) 0, selectMedias, mimeTypeList, activity);
-                                displayImage.setRequestHashMap(true);
-                                displayImage.setLimit(limit);
-                                displayImage.setOffset(offset);
-                                displayImage.setRequestVideoDimen(!selectMedias.isEmpty());
-                                displayImage.setListener(new DisplayImage.DisplayImageListener() {
-                                    @Override
-                                    public void OnDisplayImageDidSelectFinish(ArrayList medias) {
-                                        result.success(medias);
-                                    }
-                                });
-                                displayImage.execute();
+                            public void OnDisplayImageDidSelectFinish(ArrayList medias) {
+                                result.success(medias);
                             }
-                        }).start();
+                        });
+                        displayImage.execute();
                     }else {
                         result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }

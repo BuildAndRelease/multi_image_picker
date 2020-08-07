@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
+public class DisplayImage {
 
     public interface DisplayImageListener {
         void OnDisplayImageDidSelectFinish(ArrayList medias);
@@ -67,17 +69,29 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
         this.context = context;
     }
 
-    @Override
-    protected ArrayList doInBackground(Void... params) {
-        return getAllMediaThumbnailsPath(bucketId, exceptMimeType);
-    }
-
-    @Override
-    protected void onPostExecute(ArrayList result) {
-        super.onPostExecute(result);
-        if (listener != null) {
-            listener.OnDisplayImageDidSelectFinish(result);
-        }
+    public void execute() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final ArrayList result = getAllMediaThumbnailsPath(bucketId, exceptMimeType);
+                if (Looper.myLooper() != Looper.getMainLooper()) {
+                    Handler mainThread = new Handler(Looper.getMainLooper());
+                    mainThread.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (listener != null) {
+                                listener.OnDisplayImageDidSelectFinish(result);
+                            }
+                        }
+                    });
+                    return;
+                }else {
+                    if (listener != null) {
+                        listener.OnDisplayImageDidSelectFinish(result);
+                    }
+                }
+            }
+        }).start();
     }
 
     @NonNull

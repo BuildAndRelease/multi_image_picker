@@ -110,18 +110,18 @@ class _MyHomePageState extends State<MyHomePage> {
       ];
       // final preSelectMedia = '1960634';
 
-      // resultList = await MultiImagePicker.pickImages(
-      //   maxImages: 9,
-      //   defaultAsset: null,
-      //   selectedAssets: null,
-      //   cupertinoOptions: CupertinoOptions(
-      //       takePhotoIcon: "chat",
-      //       selectionStrokeColor: "#ff6179f2",
-      //       selectionFillColor: "#ff6179f2"),
-      //   materialOptions: MaterialOptions(
-      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      // );
-      // print(resultList);
+      final result = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        defaultAsset: null,
+        selectedAssets: null,
+        cupertinoOptions: CupertinoOptions(
+            takePhotoIcon: "chat",
+            selectionStrokeColor: "#ff6179f2",
+            selectionFillColor: "#ff6179f2"),
+        materialOptions: MaterialOptions(
+            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      );
+      print(result);
       // final list = [
       //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
       //   "A4FE7B79-7CF7-4E22-B55E-936A22CE22F7/L0/001",
@@ -130,6 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //   "7630B37C-CEBA-485A-8347-17B517AEA999/L0/001",
       //   "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
       // ];
+
       MultiImagePicker.requestMediaData(selectedAssets: preSelectMedias)
           .then((value) {
         print(value);

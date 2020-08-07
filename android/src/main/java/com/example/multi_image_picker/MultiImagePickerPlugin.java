@@ -23,6 +23,7 @@ import com.sangcomz.fishbun.util.DisplayImage;
 import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.MediaThumbData;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -346,13 +347,13 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
             if (requestCode == REQUEST_CODE_CHOOSE) {
                 if (resultCode == Activity.RESULT_OK) {
                     if (currentPickerResult != null) {
-                        ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
-                        currentPickerResult.success(result != null ? result : Collections.EMPTY_LIST);
+                        Serializable result = data.getSerializableExtra(Define.INTENT_RESULT);
+                        currentPickerResult.success(result != null ? result : new HashMap());
                         currentPickerResult = null;
                     }
                 }else if (resultCode == Define.FINISH_DETAIL_RESULT_CODE) {
                     if (currentPickerResult != null) {
-                        ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                        Serializable result = data.getSerializableExtra(Define.INTENT_RESULT);
                         currentPickerResult.success(result);
                         currentPickerResult = null;
                     }

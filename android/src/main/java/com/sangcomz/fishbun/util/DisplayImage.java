@@ -209,8 +209,9 @@ public class DisplayImage extends AsyncTask<Void, Void, ArrayList> {
                         } while (c.moveToNext());
                     }
                 }
-                c.close();
             } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
                 if (!c.isClosed()) c.close();
             }
         }

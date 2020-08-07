@@ -47,10 +47,10 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
                         size = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
                         width = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
                         height = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
-                        c.close();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                }finally {
                     c.close();
                 }
             }

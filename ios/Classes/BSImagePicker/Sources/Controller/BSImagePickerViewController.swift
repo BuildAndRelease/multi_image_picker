@@ -33,7 +33,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
     var cancelClosure: ((_ assets: [Dictionary<String, String>], _ thumb : Bool) -> Void)?
-    var finishClosure: ((_ assets: [NSDictionary], _ success : Bool, _ error : NSError) -> Void)?
+    var finishClosure: ((_ assets: NSDictionary, _ success : Bool, _ error : NSError) -> Void)?
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
     /**
@@ -261,9 +261,6 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
         let assets = self.assetStore!.assets
         doneBarButton.isEnabled = false
         
-        weak var hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-        hud?.label.text = thumb ? NSLocalizedString("压缩中", comment: "") : NSLocalizedString("处理中", comment: "")
-        hud?.bezelView.backgroundColor = UIColor.darkGray
         DispatchQueue.global().async {
             let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
             if !FileManager.default.fileExists(atPath: thumbDir) {
@@ -273,29 +270,31 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
                     print(error)
                 }
             }
-            var results = [NSDictionary]();
-            var error = NSError()
+            let results = NSMutableDictionary();
+            var identifiers = [String]();
             for asset in assets {
-                var compressing = true
-                asset.compressAsset(thumb, saveDir: thumbDir, process: { (process) in
-                    
-                }, failed: { (err) in
-                    error = err
-                    results.append(err.userInfo as NSDictionary)
-                    compressing = false
-                }) { (info) in
-                    results.append(info)
-                    compressing = false
-                }
-                while compressing {
-                    usleep(50000)
-                }
+                identifiers.append(asset.localIdentifier)
+//                var compressing = true
+//                asset.compressAsset(thumb, saveDir: thumbDir, process: { (process) in
+//
+//                }, failed: { (err) in
+//                    error = err
+//                    results.append(err.userInfo as NSDictionary)
+//                    compressing = false
+//                }) { (info) in
+//                    results.append(info)
+//                    compressing = false
+//                }
+//                while compressing {
+//                    usleep(50000)
+//                }
             }
+            results.setValue(identifiers, forKey: "identifiers")
+            results.setValue(thumb, forKey: "thumb")
             
             DispatchQueue.main.async {
                 weakSelf?.doneBarButton.isEnabled = true
-                hud?.hide(animated: true)
-                weakSelf?.finishClosure?(results, assets.count == results.count, error)
+                weakSelf?.finishClosure?(results, assets.count == results.count, NSError())
                 weakSelf?.dismiss(animated: true, completion: nil)
             }
         }

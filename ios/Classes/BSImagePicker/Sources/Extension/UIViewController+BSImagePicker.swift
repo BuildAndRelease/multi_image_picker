@@ -39,7 +39,7 @@ public extension UIViewController {
         - parameter completion: presentation completed closure or nil
         - parameter selectLimitReached: Closure to call when user reaches selection limit or nil
     */
-    @objc func bs_presentImagePickerController(_ imagePicker: BSImagePickerViewController, animated: Bool, select: ((_ asset: PHAsset) -> Void)?, deselect: ((_ asset: PHAsset) -> Void)?, cancel: (([Dictionary<String, String>], Bool) -> Void)?, finish: (([NSDictionary], Bool, NSError) -> Void)?, completion: (() -> Void)?, selectLimitReached: ((Int) -> Void)? = nil) {
+    @objc func bs_presentImagePickerController(_ imagePicker: BSImagePickerViewController, animated: Bool, select: ((_ asset: PHAsset) -> Void)?, deselect: ((_ asset: PHAsset) -> Void)?, cancel: (([Dictionary<String, String>], Bool) -> Void)?, finish: ((NSDictionary, Bool, NSError) -> Void)?, completion: (() -> Void)?, selectLimitReached: ((Int) -> Void)? = nil) {
         weak var weakSelf = self
         BSImagePickerViewController.authorize(fromViewController: self) { (authorized) -> Void in
             // Make sure we are authorized before proceding

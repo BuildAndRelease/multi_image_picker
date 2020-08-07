@@ -211,13 +211,24 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             if (fishton.getSelectedMedias().size() < fishton.getMinCount()) {
                 Toast.makeText(this, fishton.getMessageNothingSelected(), Toast.LENGTH_SHORT).show();
             } else {
-                compressingView.setVisibility(View.VISIBLE);
-                compressingTextView.setText(fishton.isThumb() ? "压缩中..." : "处理中...");
+//                compressingView.setVisibility(View.VISIBLE);
+//                compressingTextView.setText(fishton.isThumb() ? "压缩中..." : "处理中...");
                 boolean thumb = fishton.isThumb();
                 List<Media> selectMedias = fishton.getSelectedMedias();
-                MediaCompress mediaCompress = new MediaCompress(thumb, selectMedias, new ArrayList<String>(), this);
-                mediaCompress.setListener(this);
-                mediaCompress.execute();
+//                MediaCompress mediaCompress = new MediaCompress(thumb, selectMedias, new ArrayList<String>(), this);
+//                mediaCompress.setListener(this);
+//                mediaCompress.execute();
+                List<String> identifiers = new ArrayList<>();
+                for (int i = 0; i < selectMedias.size(); i++) {
+                    identifiers.add(selectMedias.get(i).getIdentifier());
+                }
+                HashMap result = new HashMap();
+                result.put("identifiers", identifiers);
+                result.put("thumb", thumb);
+                Intent i = new Intent();
+                i.putExtra(Define.INTENT_RESULT, result);
+                setResult(Define.FINISH_DETAIL_RESULT_CODE, i);
+                finish();
             }
         } else if (id == R.id.photo_preview_origin_btn) {
             originBtn.setSelected(!originBtn.isSelected());

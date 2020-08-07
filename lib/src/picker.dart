@@ -33,7 +33,7 @@ class MultiImagePicker {
   /// pick thousands of images at a time, with no performance
   /// penalty. How to request the original image or a thumb
   /// you can refer to the docs for the Asset class.
-  static Future<List<Asset>> pickImages({
+  static Future<dynamic> pickImages({
     @required int maxImages,
     bool thumb = true,
     String defaultAsset = "",
@@ -42,7 +42,7 @@ class MultiImagePicker {
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
     try {
-      final List<dynamic> images = await _channel.invokeMethod(
+      final medias = await _channel.invokeMethod(
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,
@@ -53,37 +53,7 @@ class MultiImagePicker {
           'selectedAssets': selectedAssets,
         },
       );
-      var assets = List<Asset>();
-      for (var item in images) {
-        var asset;
-        final String fileType = item['fileType'];
-        if (fileType.contains('image')) {
-          asset = Asset(
-            item['identifier'],
-            item['filePath'],
-            item['name'],
-            item['width'],
-            item['height'],
-            item['fileType'],
-          );
-        } else if (fileType.contains('video')) {
-          asset = Asset(
-            item['identifier'],
-            item['filePath'],
-            item['name'],
-            item['width'],
-            item['height'],
-            item['fileType'],
-            duration: item['duration'],
-            thumbFilePath: item['thumbPath'],
-            thumbName: item['thumbName'],
-            thumbHeight: item['thumbHeight'],
-            thumbWidth: item['thumbWidth'],
-          );
-        }
-        assets.add(asset);
-      }
-      return assets;
+      return medias;
     } on PlatformException catch (e) {
       throw e;
     }

@@ -298,7 +298,7 @@ open class BSImagePickerViewController : UINavigationController , PreviewViewCon
             
             DispatchQueue.main.async {
                 weakSelf?.doneBarButton.isEnabled = true
-                weakSelf?.finishClosure?(results, assets.count == results.count, NSError())
+                weakSelf?.finishClosure?(results, assets.count == identifiers.count, NSError())
                 weakSelf?.dismiss(animated: true, completion: nil)
             }
         }

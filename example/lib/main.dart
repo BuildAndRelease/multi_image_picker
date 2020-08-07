@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //   'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001',
       //   '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
       // ];
-      final preSelectMedia = ['B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001'];
+      final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
       // final preSelectMedias = [
       //   '2004983',
       //   '2004982',
@@ -110,26 +110,26 @@ class _MyHomePageState extends State<MyHomePage> {
       // ];
       // final preSelectMedia = '1960634';
 
-      // final result = await MultiImagePicker.pickImages(
-      //   maxImages: 9,
-      //   defaultAsset: null,
-      //   selectedAssets: null,
-      //   cupertinoOptions: CupertinoOptions(
-      //       takePhotoIcon: "chat",
-      //       selectionStrokeColor: "#ff6179f2",
-      //       selectionFillColor: "#ff6179f2"),
-      //   materialOptions: MaterialOptions(
-      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      // );
-      // print(result);
-      final list = [
-        "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
-        "A4FE7B79-7CF7-4E22-B55E-936A22CE22F7/L0/001",
-        "573E487B-9ABA-4BE0-B219-C2FF8C1B1B9E/L0/001",
-        "EC0BC104-AD12-46EB-B84A-3DA224099BBE/L0/001",
-        "7630B37C-CEBA-485A-8347-17B517AEA999/L0/001",
-        "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
-      ];
+      final result = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        defaultAsset: preSelectMedia,
+        selectedAssets: null,
+        cupertinoOptions: CupertinoOptions(
+            takePhotoIcon: "chat",
+            selectionStrokeColor: "#ff6179f2",
+            selectionFillColor: "#ff6179f2"),
+        materialOptions: MaterialOptions(
+            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      );
+      print(result);
+      // final list = [
+      //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
+      //   "A4FE7B79-7CF7-4E22-B55E-936A22CE22F7/L0/001",
+      //   "573E487B-9ABA-4BE0-B219-C2FF8C1B1B9E/L0/001",
+      //   "EC0BC104-AD12-46EB-B84A-3DA224099BBE/L0/001",
+      //   "7630B37C-CEBA-485A-8347-17B517AEA999/L0/001",
+      //   "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
+      // ];
 
       // MultiImagePicker.requestMediaData(selectedAssets: preSelectMedia)
       //     .then((value) {
@@ -137,11 +137,11 @@ class _MyHomePageState extends State<MyHomePage> {
       //   print('456');
       // });
 
-      MultiImagePicker.fetchMediaInfo(0, 10, selectedAssets: list)
-          .then((value) {
-        print(value);
-        print('123');
-      });
+      // MultiImagePicker.fetchMediaInfo(0, 10, selectedAssets: list)
+      //     .then((value) {
+      //   print(value);
+      //   print('123');
+      // });
 
       // for (var item in list) {
       //   print(await MultiImagePicker.requestFileDimen(item));

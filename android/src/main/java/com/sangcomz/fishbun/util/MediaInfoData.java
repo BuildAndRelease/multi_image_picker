@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 
 import com.sangcomz.fishbun.bean.Media;
@@ -15,7 +17,7 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
+public class MediaInfoData {
     public interface MediaInfoDataListener {
         void mediaInfoDataDidFinish(HashMap hashMap);
     }
@@ -32,44 +34,56 @@ public class MediaInfoData extends AsyncTask<Void, Void, HashMap> {
         this.identify = identify;
     }
 
-    @Override
-    protected HashMap doInBackground(Void... voids) {
-        String size = "0";
-        String width = "0";
-        String height = "0";
-        try {
-            Uri uri = MediaStore.Files.getContentUri("external");
-            String selection = MediaStore.MediaColumns._ID + "=" + identify;
-            Cursor c = context.getContentResolver().query(uri, null, selection, null, null);
-            if (c != null) {
+    public void execute() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String size = "0";
+                String width = "0";
+                String height = "0";
                 try {
-                    if (c.moveToFirst()) {
-                        size = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
-                        width = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
-                        height = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
+                    Uri uri = MediaStore.Files.getContentUri("external");
+                    String selection = MediaStore.MediaColumns._ID + "=" + identify;
+                    Cursor c = context.getContentResolver().query(uri, null, selection, null, null);
+                    if (c != null) {
+                        try {
+                            if (c.moveToFirst()) {
+                                size = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
+                                width = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
+                                height = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }finally {
+                            c.close();
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                }finally {
-                    c.close();
+                }
+                final HashMap hashMap = new HashMap();
+                hashMap.put("size", size);
+                hashMap.put("width", width);
+                hashMap.put("height", height);
+                hashMap.put("identifier", identify);
+
+                if (Looper.myLooper() != Looper.getMainLooper()) {
+                    Handler mainThread = new Handler(Looper.getMainLooper());
+                    mainThread.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (listener != null) {
+                                listener.mediaInfoDataDidFinish(hashMap);
+                            }
+                        }
+                    });
+                }else {
+                    if (listener != null) {
+                        listener.mediaInfoDataDidFinish(hashMap);
+                    }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        HashMap hashMap = new HashMap();
-        hashMap.put("size", size);
-        hashMap.put("width", width);
-        hashMap.put("height", height);
-        hashMap.put("identifier", identify);
-        return hashMap;
+        }).start();
     }
 
-    @Override
-    protected void onPostExecute(HashMap hashMap) {
-        super.onPostExecute(hashMap);
-        if (listener != null) {
-            listener.mediaInfoDataDidFinish(hashMap);
-        }
-    }
 }

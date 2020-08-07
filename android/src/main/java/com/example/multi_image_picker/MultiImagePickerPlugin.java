@@ -184,21 +184,16 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }
                 case FETCH_MEDIA_THUMB_DATA: {
                     if (checkPermission(false, false, true)) {
-                        new Thread(new Runnable() {
+                        String identify = call.argument(IDENTIFY);
+                        String fileType = call.argument(FILE_TYPE);
+                        MediaThumbData mediaThumbData = new MediaThumbData(identify, fileType, activity);
+                        mediaThumbData.setListener(new MediaThumbData.MediaThumbDataListener() {
                             @Override
-                            public void run() {
-                                String identify = call.argument(IDENTIFY);
-                                String fileType = call.argument(FILE_TYPE);
-                                MediaThumbData mediaThumbData = new MediaThumbData(identify, fileType, activity);
-                                mediaThumbData.setListener(new MediaThumbData.MediaThumbDataListener() {
-                                    @Override
-                                    public void mediaThumbDataDidFinish(byte[] bytes) {
-                                        result.success(bytes);
-                                    }
-                                });
-                                mediaThumbData.execute();
+                            public void mediaThumbDataDidFinish(byte[] bytes) {
+                                result.success(bytes);
                             }
-                        }).start();
+                        });
+                        mediaThumbData.execute();
                     }else {
                         result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
@@ -206,20 +201,15 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }
                 case REQUEST_FILE_SIZE: {
                     if (checkPermission( false, false, true)) {
-                        new Thread(new Runnable() {
+                        String identify = call.argument(IDENTIFY);
+                        MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
+                        mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
                             @Override
-                            public void run() {
-                                String identify = call.argument(IDENTIFY);
-                                MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
-                                mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
-                                    @Override
-                                    public void mediaInfoDataDidFinish(HashMap hashMap) {
-                                        result.success(hashMap.get("size"));
-                                    }
-                                });
-                                mediaInfoData.execute();
+                            public void mediaInfoDataDidFinish(HashMap hashMap) {
+                                result.success(hashMap.get("size"));
                             }
                         });
+                        mediaInfoData.execute();
                     }else {
                         result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
@@ -227,20 +217,15 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }
                 case REQUEST_FILE_DIMEN: {
                     if (checkPermission( false, false, true)) {
-                        new Thread(new Runnable() {
+                        String identify = call.argument(IDENTIFY);
+                        MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
+                        mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
                             @Override
-                            public void run() {
-                                String identify = call.argument(IDENTIFY);
-                                MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
-                                mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
-                                    @Override
-                                    public void mediaInfoDataDidFinish(HashMap hashMap) {
-                                        result.success(hashMap);
-                                    }
-                                });
-                                mediaInfoData.execute();
+                            public void mediaInfoDataDidFinish(HashMap hashMap) {
+                                result.success(hashMap);
                             }
-                        }).start();
+                        });
+                        mediaInfoData.execute();
                     }else {
                         result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }
@@ -252,21 +237,16 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }
                 case REQUEST_MEDIA_DATA: {
                     if (checkPermission(false, false, true)) {
-                        new Thread(new Runnable() {
+                        boolean thumb = call.argument("thumb");
+                        List<String> selectMedias = call.argument("selectedAssets");
+                        MediaCompress mediaCompress = new MediaCompress(thumb, new ArrayList<Media>(), selectMedias, activity);
+                        mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
                             @Override
-                            public void run() {
-                                boolean thumb = call.argument("thumb");
-                                List<String> selectMedias = call.argument("selectedAssets");
-                                MediaCompress mediaCompress = new MediaCompress(thumb, new ArrayList<Media>(), selectMedias, activity);
-                                mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
-                                    @Override
-                                    public void mediaCompressDidFinish(ArrayList<HashMap> results) {
-                                        result.success(results);
-                                    }
-                                });
-                                mediaCompress.execute();
+                            public void mediaCompressDidFinish(ArrayList<HashMap> results) {
+                                result.success(results);
                             }
-                        }).start();
+                        });
+                        mediaCompress.execute();
                     }else {
                         result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
                     }

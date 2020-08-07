@@ -84,7 +84,6 @@ public class DisplayImage {
                             }
                         }
                     });
-                    return;
                 }else {
                     if (listener != null) {
                         listener.OnDisplayImageDidSelectFinish(result);

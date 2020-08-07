@@ -3,11 +3,13 @@ package com.sangcomz.fishbun.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 
 import java.io.ByteArrayOutputStream;
 
-public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
+public class MediaThumbData {
     public interface MediaThumbDataListener {
         void mediaThumbDataDidFinish(byte[] byteBuffer);
     }
@@ -26,37 +28,48 @@ public class MediaThumbData extends AsyncTask<Void, Void, byte[]> {
         this.identify = identify;
     }
 
-    @Override
-    protected byte[] doInBackground(Void... voids) {
-        try {
-            if (fileType.contains("video")) {
-                Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] bytes = stream.toByteArray();
-                bitmap.recycle();
-                stream.close();
-                return bytes;
-            }else if (fileType.contains("image")) {
-                Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] bytes = stream.toByteArray();
-                bitmap.recycle();
-                stream.close();
-                return bytes;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    public void execute() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    byte[] bytes = null;
+                    if (fileType.contains("video")) {
+                        Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                        bytes = stream.toByteArray();
+                        bitmap.recycle();
+                        stream.close();
+                    }else if (fileType.contains("image")) {
+                        Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                        bytes = stream.toByteArray();
+                        bitmap.recycle();
+                        stream.close();
+                    }
 
-    @Override
-    protected void onPostExecute(byte[] bytes) {
-        super.onPostExecute(bytes);
-        if (listener != null) {
-            listener.mediaThumbDataDidFinish(bytes);
-        }
+                    if (Looper.myLooper() != Looper.getMainLooper()) {
+                        Handler mainThread = new Handler(Looper.getMainLooper());
+                        final byte[] finalBytes = bytes;
+                        mainThread.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (listener != null) {
+                                    listener.mediaThumbDataDidFinish(finalBytes);
+                                }
+                            }
+                        });
+                    }else {
+                        if (listener != null) {
+                            listener.mediaThumbDataDidFinish(bytes);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 }

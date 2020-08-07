@@ -131,17 +131,17 @@ class _MyHomePageState extends State<MyHomePage> {
       //   "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
       // ];
 
-      MultiImagePicker.requestMediaData(selectedAssets: preSelectMedias)
-          .then((value) {
-        print(value);
-        print('456');
-      });
+      // MultiImagePicker.requestMediaData(selectedAssets: preSelectMedias)
+      //     .then((value) {
+      //   print(value);
+      //   print('456');
+      // });
 
-      MultiImagePicker.fetchMediaInfo(0, 10, selectedAssets: preSelectMedias)
-          .then((value) {
-        print(value);
-        print('123');
-      });
+      // MultiImagePicker.fetchMediaInfo(0, 10, selectedAssets: preSelectMedias)
+      //     .then((value) {
+      //   print(value);
+      //   print('123');
+      // });
 
       // for (var item in list) {
       //   print(await MultiImagePicker.requestFileDimen(item));

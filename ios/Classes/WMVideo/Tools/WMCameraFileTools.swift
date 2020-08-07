@@ -32,6 +32,10 @@ class WMCameraFileTools: NSObject {
         if !fileManager.fileExists(atPath: resourceDir){
             do {
                 try fileManager.createDirectory(atPath: resourceDir, withIntermediateDirectories: true, attributes: [:])
+                var url = URL(string: resourceDir)
+                var resourceValues = URLResourceValues()
+                resourceValues.isExcludedFromBackup = true
+                try url?.setResourceValues(resourceValues)
             } catch let error as NSError {
                 print("Ooops! Something went wrong: \(error)")
             }

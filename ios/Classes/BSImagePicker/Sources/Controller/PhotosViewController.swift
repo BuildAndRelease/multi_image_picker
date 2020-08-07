@@ -191,6 +191,10 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             if !FileManager.default.fileExists(atPath: thumbDir) {
                 do {
                     try FileManager.default.createDirectory(atPath: thumbDir, withIntermediateDirectories: true, attributes: nil)
+                    var url = URL(string: thumbDir)
+                    var resourceValues = URLResourceValues()
+                    resourceValues.isExcludedFromBackup = true
+                    try url?.setResourceValues(resourceValues)
                 }catch{
                     print(error)
                 }

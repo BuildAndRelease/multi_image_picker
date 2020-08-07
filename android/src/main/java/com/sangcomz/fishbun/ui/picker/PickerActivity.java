@@ -28,15 +28,14 @@ import com.sangcomz.fishbun.adapter.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
-import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.ui.album.AlbumPickerPopup;
-import com.sangcomz.fishbun.util.UiUtil;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PickerActivity extends AppCompatActivity implements View.OnClickListener, MediaCompress.MediaCompressListener {
+public class PickerActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "PickerActivity";
     private Fishton fishton;
     private Album album;
@@ -116,7 +115,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
                 originBtn.setCompoundDrawables(drawable,null,null,null);
             }else if (resultCode == Define.FINISH_DETAIL_RESULT_CODE){
-                ArrayList result = data.getParcelableArrayListExtra(Define.INTENT_RESULT);
+                Serializable result = data.getSerializableExtra(Define.INTENT_RESULT);
                 Intent i = new Intent();
                 i.putExtra(Define.INTENT_RESULT, result);
                 setResult(RESULT_OK, i);
@@ -161,13 +160,8 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                 if (fishton.getSelectedMedias().size() < fishton.getMinCount()) {
                     Snackbar.make(recyclerView, fishton.getMessageNothingSelected(), Snackbar.LENGTH_SHORT).show();
                 } else {
-//                    compressingView.setVisibility(View.VISIBLE);
-//                    compressingTextView.setText(fishton.isThumb() ? "压缩中..." : "处理中...");
                     boolean thumb = fishton.isThumb();
                     List<Media> selectMedias = fishton.getSelectedMedias();
-//                    MediaCompress mediaCompress = new MediaCompress(thumb, selectMedias, new ArrayList<String>(), this);
-//                    mediaCompress.setListener(this);
-//                    mediaCompress.execute();
                     List<String> identifiers = new ArrayList<>();
                     for (int i = 0; i < selectMedias.size(); i++) {
                         identifiers.add(selectMedias.get(i).getIdentifier());
@@ -214,15 +208,6 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                 });
             }
         }
-    }
-
-    @Override
-    public void mediaCompressDidFinish(ArrayList<HashMap> result) {
-        compressingView.setVisibility(View.INVISIBLE);
-        Intent i = new Intent();
-        i.putExtra(Define.INTENT_RESULT, result);
-        setResult(RESULT_OK, i);
-        finish();
     }
 
     private void initValue() {

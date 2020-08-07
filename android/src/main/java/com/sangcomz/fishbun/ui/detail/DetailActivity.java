@@ -28,9 +28,7 @@ import com.sangcomz.fishbun.adapter.DetailViewPagerAdapter;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.util.DisplayImage;
-import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
-import com.sangcomz.fishbun.util.UiUtil;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DetailActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, DetailViewPagerAdapter.OnVideoPlayActionListener, MediaCompress.MediaCompressListener {
+public class DetailActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, DetailViewPagerAdapter.OnVideoPlayActionListener {
     private static final String TAG = "DetailActivity";
 
     private int initPosition;
@@ -211,13 +209,8 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             if (fishton.getSelectedMedias().size() < fishton.getMinCount()) {
                 Toast.makeText(this, fishton.getMessageNothingSelected(), Toast.LENGTH_SHORT).show();
             } else {
-//                compressingView.setVisibility(View.VISIBLE);
-//                compressingTextView.setText(fishton.isThumb() ? "压缩中..." : "处理中...");
                 boolean thumb = fishton.isThumb();
                 List<Media> selectMedias = fishton.getSelectedMedias();
-//                MediaCompress mediaCompress = new MediaCompress(thumb, selectMedias, new ArrayList<String>(), this);
-//                mediaCompress.setListener(this);
-//                mediaCompress.execute();
                 List<String> identifiers = new ArrayList<>();
                 for (int i = 0; i < selectMedias.size(); i++) {
                     identifiers.add(selectMedias.get(i).getIdentifier());
@@ -294,12 +287,4 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         currentPlayVideoView = videoView;
     }
 
-    @Override
-    public void mediaCompressDidFinish(ArrayList<HashMap> result) {
-        compressingView.setVisibility(View.INVISIBLE);
-        Intent i = new Intent();
-        i.putExtra(Define.INTENT_RESULT, result);
-        setResult(Define.FINISH_DETAIL_RESULT_CODE, i);
-        finish();
-    }
 }

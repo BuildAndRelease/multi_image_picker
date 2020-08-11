@@ -110,18 +110,19 @@ class _MyHomePageState extends State<MyHomePage> {
       // ];
       // final preSelectMedia = '1960634';
 
-      final result = await MultiImagePicker.pickImages(
-        maxImages: 9,
-        defaultAsset: preSelectMedia,
-        selectedAssets: null,
-        cupertinoOptions: CupertinoOptions(
-            takePhotoIcon: "chat",
-            selectionStrokeColor: "#ff6179f2",
-            selectionFillColor: "#ff6179f2"),
-        materialOptions: MaterialOptions(
-            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      );
-      print(result);
+      // final result = await MultiImagePicker.pickImages(
+      //   maxImages: 9,
+      //   defaultAsset: preSelectMedia,
+      //   selectedAssets: null,
+      //   cupertinoOptions: CupertinoOptions(
+      //       takePhotoIcon: "chat",
+      //       selectionStrokeColor: "#ff6179f2",
+      //       selectionFillColor: "#ff6179f2"),
+      //   materialOptions: MaterialOptions(
+      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      // );
+      // print(result);
+
       // final list = [
       //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
       //   "A4FE7B79-7CF7-4E22-B55E-936A22CE22F7/L0/001",
@@ -166,8 +167,9 @@ class _MyHomePageState extends State<MyHomePage> {
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
 
-      // Uint8List data = await MultiImagePicker.fetchMediaThumbData("187053", "video");
-      // print(data);
+      final data = await MultiImagePicker.fetchMediaThumbData(
+          "02918F54-8DAE-461B-97F9-DA8E0FE124F5/L0/001", "video");
+      print(data);
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");
       // print(data);
     } on Exception catch (e) {

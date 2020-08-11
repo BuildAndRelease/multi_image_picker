@@ -148,7 +148,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             weak var weakSelf = self
             DispatchQueue.global().async {
                 let imageRequestOptions = PHImageRequestOptions()
-                imageRequestOptions.isNetworkAccessAllowed = false
+                imageRequestOptions.isNetworkAccessAllowed = true
                 imageRequestOptions.deliveryMode = .highQualityFormat
                 imageRequestOptions.resizeMode = .fast
                 imageRequestOptions.isSynchronous = false

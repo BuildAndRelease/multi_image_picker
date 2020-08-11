@@ -47,7 +47,7 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
                 self.playerLayer = nil
                 weak var weakSelf = self
                 let options = PHImageRequestOptions()
-                options.isNetworkAccessAllowed = false
+                options.isNetworkAccessAllowed = true
                 if self.tag != 0 {
                     PHCachingImageManager.default().cancelImageRequest(PHImageRequestID(Int32(self.tag)))
                 }
@@ -112,7 +112,7 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
                 weak var weakSelf = self
                 let options = PHVideoRequestOptions()
                 options.deliveryMode = .highQualityFormat
-                options.isNetworkAccessAllowed = false
+                options.isNetworkAccessAllowed = true
                 PHCachingImageManager.default().requestAVAsset(forVideo: asset!, options: options) { (avasset, audiomix, dictionary) in
                     if avasset != nil {
                         weakSelf?.videoAsset = avasset

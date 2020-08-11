@@ -50,7 +50,7 @@ extension PHAsset {
         if self.mediaType == .video {
             let options = PHVideoRequestOptions()
             options.deliveryMode = .highQualityFormat
-            options.isNetworkAccessAllowed = false
+            options.isNetworkAccessAllowed = true
             manager.requestAVAsset(forVideo: self, options: options) { (avAsset, audioMix, info) in
                 if avAsset != nil {
                     let dictionary : NSMutableDictionary = NSMutableDictionary()

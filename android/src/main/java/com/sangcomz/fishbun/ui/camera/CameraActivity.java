@@ -30,6 +30,7 @@ import java.util.HashMap;
 
 public class CameraActivity extends Activity {
     private JCameraView jCameraView;
+    public static boolean isTakingPicture = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +153,12 @@ public class CameraActivity extends Activity {
         super.onResume();
         jCameraView.onPause();
         jCameraView.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        isTakingPicture = false;
     }
 
     @Override

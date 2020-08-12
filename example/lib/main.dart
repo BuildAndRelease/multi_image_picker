@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //   'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001',
       //   '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
       // ];
-      final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
+      // final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
       // final preSelectMedias = [
       //   '2004983',
       //   '2004982',
@@ -112,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // final result = await MultiImagePicker.pickImages(
       //   maxImages: 9,
-      //   defaultAsset: preSelectMedia,
+      //   defaultAsset: null,
       //   selectedAssets: null,
       //   cupertinoOptions: CupertinoOptions(
       //       takePhotoIcon: "chat",
@@ -151,10 +151,10 @@ class _MyHomePageState extends State<MyHomePage> {
       // final result = await MultiImagePicker.requestFileDimen('2004950');
       // print(result);
 
-      // Asset asset =
-      //     await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
-      // resultList.add(asset);
-      // print(asset);
+      Asset asset =
+          await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
+      resultList.add(asset);
+      print(asset);
 
       // print(await MultiImagePicker.requestThumbDirectory());
       // for (var asset in assets) {
@@ -167,9 +167,10 @@ class _MyHomePageState extends State<MyHomePage> {
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
 
-      final data = await MultiImagePicker.fetchMediaThumbData(
-          "02918F54-8DAE-461B-97F9-DA8E0FE124F5/L0/001", "video");
-      print(data);
+      // final data = await MultiImagePicker.fetchMediaThumbData(
+      //     "02918F54-8DAE-461B-97F9-DA8E0FE124F5/L0/001", "video");
+      // print(data);
+
       // Uint8List data1 = await MultiImagePicker.fetchMediaThumbData("53F55494-C4C0-4FB7-8365-8326BBC0693D/L0/001");
       // print(data);
     } on Exception catch (e) {

@@ -163,15 +163,23 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }
                 case REQUEST_TAKE_PICTURE: {
                     if (checkPermission(true, true, true)) {
-                        if (currentPickerResult != null) {
-                            currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
+                        if (CameraActivity.isTakingPicture) {
+                            if (currentPickerResult != null) {
+                                currentPickerResult.error("TAKING PICTURE", "", null);
+                                currentPickerResult = null;
+                            }
+                        }else {
+                            if (currentPickerResult != null) {
+                                currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
+                            }
+                            String color = call.argument(THEME_COLOR);
+                            int themeColor = color == null || color.isEmpty() ? 0xFF00CC00 : Color.parseColor(color);
+                            currentPickerResult = result;
+                            CameraActivity.isTakingPicture = true;
+                            Intent i = new Intent(activity, CameraActivity.class);
+                            i.putExtra(THEME_COLOR, themeColor);
+                            activity.startActivityForResult(i, REQUEST_CODE_TAKE);
                         }
-                        String color = call.argument(THEME_COLOR);
-                        int themeColor = color == null || color.isEmpty() ? 0xFF00CC00 : Color.parseColor(color);
-                        currentPickerResult = result;
-                        Intent i = new Intent(activity, CameraActivity.class);
-                        i.putExtra(THEME_COLOR, themeColor);
-                        activity.startActivityForResult(i, REQUEST_CODE_TAKE);
                     }else  {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);

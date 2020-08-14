@@ -81,6 +81,7 @@ open class BSImagePickerViewController : UINavigationController{
         vc.selectionClosure = selectionClosure
         vc.deselectionClosure = deselectionClosure
         vc.selectLimitReachedClosure = selectLimitReachedClosure
+        vc.assetStore = self.assetStore
         if let album = fetchResults.first?.firstObject {
             let fetchOptions = PHFetchOptions()
             fetchOptions.sortDescriptors = [

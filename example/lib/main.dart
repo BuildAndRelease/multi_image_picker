@@ -94,13 +94,13 @@ class _MyHomePageState extends State<MyHomePage> {
       // "7630B37C-CEBA-485A-8347-17B517AEA999/L0/001"
       // "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
 
-      // final preSelectMedias = [
-      //   '4D1A6122-2B8D-4B19-807E-9FDDB28748C2/L0/001',
-      //   '9EF3E2D4-398D-4EAA-B1AB-404C278A8AC7/L0/001',
-      //   'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001',
-      //   '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
-      // ];
-      // final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
+      final preSelectMedias = [
+        '4D1A6122-2B8D-4B19-807E-9FDDB28748C2/L0/001',
+        '9EF3E2D4-398D-4EAA-B1AB-404C278A8AC7/L0/001',
+        'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001',
+        '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
+      ];
+      final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
       // final preSelectMedias = [
       //   '2004983',
       //   '2004982',
@@ -110,18 +110,18 @@ class _MyHomePageState extends State<MyHomePage> {
       // ];
       // final preSelectMedia = '1960634';
 
-      // final result = await MultiImagePicker.pickImages(
-      //   maxImages: 9,
-      //   defaultAsset: null,
-      //   selectedAssets: null,
-      //   cupertinoOptions: CupertinoOptions(
-      //       takePhotoIcon: "chat",
-      //       selectionStrokeColor: "#ff6179f2",
-      //       selectionFillColor: "#ff6179f2"),
-      //   materialOptions: MaterialOptions(
-      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      // );
-      // print(result);
+      final result = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        defaultAsset: preSelectMedia,
+        selectedAssets: preSelectMedias,
+        cupertinoOptions: CupertinoOptions(
+            takePhotoIcon: "chat",
+            selectionStrokeColor: "#ff6179f2",
+            selectionFillColor: "#ff6179f2"),
+        materialOptions: MaterialOptions(
+            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      );
+      print(result);
 
       // final list = [
       //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
@@ -151,10 +151,10 @@ class _MyHomePageState extends State<MyHomePage> {
       // final result = await MultiImagePicker.requestFileDimen('2004950');
       // print(result);
 
-      Asset asset =
-          await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
-      resultList.add(asset);
-      print(asset);
+      // Asset asset =
+      //     await MultiImagePicker.requestTakePicture(themeColor: "#ff6179f2");
+      // resultList.add(asset);
+      // print(asset);
 
       // print(await MultiImagePicker.requestThumbDirectory());
       // for (var asset in assets) {

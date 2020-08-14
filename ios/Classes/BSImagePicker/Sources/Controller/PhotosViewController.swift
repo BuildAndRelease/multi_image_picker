@@ -23,7 +23,7 @@
 import UIKit
 import Photos
 
-final class PhotosViewController : UICollectionViewController , CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate , PreviewViewControllerDelegate {
+final class PhotosViewController : UIViewController, CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate, UICollectionViewDelegate {
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
     var cancelClosure: ((_ assets: [Dictionary<String, String>], _ thumb : Bool) -> Void)?
@@ -35,7 +35,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     var originBarButton: SSRadioButton = SSRadioButton(type: .custom)
     var doneBarButton: UIButton = UIButton(type: .custom)
-    var bottomContentView : UIView = UIView()
+    var bottomContentView : UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
     
     var settings: BSImagePickerSettings
     private var assetStore: AssetStore
@@ -47,6 +47,8 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     private let doneBarButtonTitle: String = NSLocalizedString("Done", comment: "")
     private let originBarButtonTitle: String = NSLocalizedString("Origin", comment: "")
     
+    private var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: GridCollectionViewLayout())
+    
     lazy var albumsViewController: AlbumsViewController = {
         let vc = AlbumsViewController()
         vc.tableView.dataSource = self.albumsDataSource
@@ -55,13 +57,15 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         return vc
     }()
     
-    private let previewViewContoller = PreviewViewController(nibName: nil, bundle: nil)
+    lazy var previewViewContoller :PreviewViewController = {
+        return PreviewViewController(settings: self.settings)
+    }()
     
     required init(fetchResults: [PHFetchResult<PHAssetCollection>], assetStore: AssetStore, settings aSettings: BSImagePickerSettings) {
         self.albumsDataSource = AlbumTableViewDataSource(fetchResults: fetchResults)
         self.settings = aSettings
         self.assetStore = assetStore
-        super.init(collectionViewLayout: GridCollectionViewLayout())
+        super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -70,9 +74,11 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     
     override func loadView() {
         super.loadView()
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.contentInset  = UIEdgeInsets(top: 0, left: 0, bottom: 49, right: 0)
         
-        collectionView?.backgroundColor = UIColor.darkGray
-        collectionView?.allowsMultipleSelection = true
+        collectionView.backgroundColor = UIColor.darkGray
+        collectionView.allowsMultipleSelection = true
         
         cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.white], for: .normal)
         cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.gray], for: .highlighted)
@@ -86,9 +92,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         titleContentView.layer.cornerRadius = 17.5
         titleContentView.delegate = self
         
-        bottomContentView.frame = self.navigationController?.toolbar.bounds ?? CGRect(x: 0, y: 0, width:  UIScreen.main.bounds.size.width, height: 49.0)
-        bottomContentView.backgroundColor = UIColor.clear
-        
         let normalColor = settings.selectionStrokeColor
         doneBarButton.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
         doneBarButton.backgroundColor = normalColor
@@ -101,6 +104,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         doneBarButton.layer.cornerRadius = 5.0
         doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)
         doneBarButton.addTarget(self, action: #selector(PhotosViewController.doneButtonPressed(_:)), for: .touchUpInside)
+        doneBarButton.translatesAutoresizingMaskIntoConstraints = false
         
         originBarButton.frame = CGRect(x: 60, y: 0, width: 100, height: 50)
         originBarButton.setTitle(originBarButtonTitle, for: .normal)
@@ -109,23 +113,49 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         originBarButton.circleColor = settings.selectionStrokeColor
         originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
         originBarButton.addTarget(self, action: #selector(PhotosViewController.originButtonPressed(_:)), for: .touchUpInside)
+        originBarButton.translatesAutoresizingMaskIntoConstraints = false
         
         navigationItem.leftBarButtonItem = cancelBarButton
         navigationItem.titleView = titleContentView
         
-        bottomContentView.addSubview(doneBarButton)
-        bottomContentView.addSubview(originBarButton)
+        bottomContentView.contentView.addSubview(doneBarButton)
+        bottomContentView.contentView.addSubview(originBarButton)
+        bottomContentView.translatesAutoresizingMaskIntoConstraints = false
         
         if let album = albumsDataSource.fetchResults.first?.firstObject {
             initializePhotosDataSource(album)
             updateAlbumTitle(album)
-            collectionView?.reloadData()
+            collectionView.reloadData()
         }
         
         photosDataSource?.registerCellIdentifiersForCollectionView(collectionView)
         photosDataSource?.delegate = self
         
-        previewViewContoller.settings = settings;
+        self.view.addSubview(collectionView)
+        self.view.addSubview(bottomContentView)
+        
+        // Add constraints
+        NSLayoutConstraint.activate([
+            NSLayoutConstraint(item: bottomContentView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 49),
+            NSLayoutConstraint(item: bottomContentView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: bottomContentView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: bottomContentView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0),
+            
+            NSLayoutConstraint(item: doneBarButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 30),
+            NSLayoutConstraint(item: doneBarButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 80),
+            NSLayoutConstraint(item: doneBarButton, attribute: .centerY, relatedBy: .equal, toItem: bottomContentView, attribute: .centerY, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: doneBarButton, attribute: .trailing, relatedBy: .equal, toItem: bottomContentView, attribute: .trailing, multiplier: 1, constant: -16),
+
+            NSLayoutConstraint(item: originBarButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 50),
+            NSLayoutConstraint(item: originBarButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 100),
+            NSLayoutConstraint(item: originBarButton, attribute: .centerY, relatedBy: .equal, toItem: bottomContentView, attribute: .centerY, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: originBarButton, attribute: .centerX, relatedBy: .equal, toItem: bottomContentView, attribute: .centerX, multiplier: 1, constant: 0),
+
+            NSLayoutConstraint(item: collectionView, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: collectionView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: collectionView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: collectionView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0),
+        ])
     }
     
     override func viewDidLayoutSubviews() {
@@ -140,23 +170,8 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     // MARK: Appear/Disappear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        updateDoneButton()
+        updateButtonState()
         collectionView.reloadData()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        if bottomContentView.superview == nil {
-            self.navigationController?.setToolbarHidden(false, animated: true)
-            self.navigationController?.toolbar.layoutIfNeeded()
-            bottomContentView.frame = self.navigationController?.toolbar.bounds ?? CGRect(x: 0, y: 0, width:  UIScreen.main.bounds.size.width, height: 49.0)
-            doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)
-            originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
-            self.navigationController?.toolbar.addSubview(bottomContentView)
-            let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: true)
-            needScrollToBottom = false
-        }
     }
     
     // MARK: Button actions
@@ -203,20 +218,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             var identifiers = [String]();
             for asset in assets {
                 identifiers.append(asset.localIdentifier)
-//                var compressing = true
-//                asset.compressAsset(thumb, saveDir: thumbDir, process: { (process) in
-//
-//                }, failed: { (err) in
-//                    error = err
-//                    results.append(err.userInfo as NSDictionary)
-//                    compressing = false
-//                }) { (info) in
-//                    results.append(info)
-//                    compressing = false
-//                }
-//                while compressing {
-//                    usleep(50000)
-//                }
             }
             results.setValue(identifiers, forKey: "identifiers")
             results.setValue(thumb, forKey: "thumb")
@@ -227,7 +228,6 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                 weakSelf?.dismiss(animated: true, completion: nil)
             }
         }
-        
     }
     
     @objc func originButtonPressed(_ sender: UIButton) {
@@ -250,7 +250,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
     }
     
     // MARK: Private helper methods
-    func updateDoneButton() {
+    func updateButtonState() {
         if assetStore.assets.count > 0 {
             doneBarButton.setTitle("\(doneBarButtonTitle)(\(assetStore.count))", for: .normal)
             var width : CGFloat = 90.0
@@ -277,6 +277,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         }
 
         doneBarButton.isEnabled = assetStore.assets.count > 0
+        originBarButton.isSelected = !settings.thumb
     }
 
     func updateAlbumTitle(_ album: PHAssetCollection) {
@@ -293,8 +294,8 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
         needScrollToBottom = true
         photosDataSource = PhotoCollectionViewDataSource(fetchResult: fetchResult, assetStore: assetStore, settings: settings)
         photosDataSource?.delegate = self
-        collectionView?.dataSource = photosDataSource
-        collectionView?.delegate = self
+        collectionView.dataSource = photosDataSource
+        collectionView.delegate = self
         titleContentView.deSelectView()
         previewViewContoller.fetchResult = fetchResult
     }
@@ -307,7 +308,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             let canSelectBefore = assetStore.canAppend()
             assetStore.remove(asset)
             let canSelectAfter = assetStore.canAppend()
-            updateDoneButton()
+            updateButtonState()
             let selectedIndexPaths = assetStore.assets.compactMap({ (asset) -> IndexPath? in
                 let index = photosDataSource.fetchResult.index(of: asset)
                 guard index != NSNotFound else { return nil }
@@ -355,7 +356,7 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
                     cell.selectionString = String(assetStore.count)
                 }
                 cell.photoSelected = true
-                updateDoneButton()
+                updateButtonState()
                 selectionClosure?(asset)
                 if (canSelectBefore != canSelectAfter) {
                     collectionView.reloadData()
@@ -363,81 +364,22 @@ final class PhotosViewController : UICollectionViewController , CustomTitleViewD
             }
         }
     }
-}
-
-// MARK: UICollectionViewDelegate
-extension PhotosViewController {
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset, !cell.photoDisable {
-            previewViewContoller.delegate = self
             let index = photosDataSource?.fetchResult.index(of: asset) ?? 0
             previewViewContoller.currentAssetIndex = index
             previewViewContoller.fetchResult = photosDataSource?.fetchResult
+            previewViewContoller.assetStore = assetStore
+            previewViewContoller.settings = settings
+            previewViewContoller.cancelClosure = cancelClosure
+            previewViewContoller.finishClosure = finishClosure
+            previewViewContoller.selectionClosure = selectionClosure
+            previewViewContoller.deselectionClosure = deselectionClosure
+            previewViewContoller.selectLimitReachedClosure = selectLimitReachedClosure
             navigationController?.pushViewController(previewViewContoller, animated: true)
         }
         return true
-    }
-    
-    func previewViewControllerIsSelectImageItem(_ asset: PHAsset) -> Int {
-        return (assetStore.assets.firstIndex(of: asset) ?? -1) + 1
-    }
-    
-    func previewViewControllerCanSelectImageItem(_ asset: PHAsset) -> NSError? {
-        if assetStore.contains(asset) {
-            return nil
-        }else if asset.mediaType == .video , asset.duration > 301 {
-            return NSError(domain: "请选择5分钟以下的视频", code: 3, userInfo: nil)
-        }else if assetStore.count >= settings.maxNumberOfSelections {
-            selectLimitReachedClosure?(assetStore.count)
-            return NSError(domain: "选择数量超过最大限制", code: 5, userInfo: nil)
-        }else if asset.mediaType == .image, let uti = asset.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 8.0 {
-            return NSError(domain: "不能分享超过8M的文件", code: 6, userInfo: nil)
-        }
-        return nil
-    }
-    
-    func previewViewControllerDidSelectImageItem(_ asset: PHAsset) -> Int {
-        guard let photosDataSource = photosDataSource, collectionView.isUserInteractionEnabled else { return -1 }
-
-        let cell = collectionView.cellForItem(at: IndexPath(row: photosDataSource.fetchResult.index(of: asset), section: 0)) as? PhotoCell
-        if assetStore.contains(asset) {
-            assetStore.remove(asset)
-            updateDoneButton()
-            cell?.photoSelected = false
-            deselectionClosure?(asset)
-            return -1
-        } else if assetStore.count < settings.maxNumberOfSelections {
-            assetStore.append(asset)
-            if let selectionCharacter = settings.selectionCharacter {
-                cell?.selectionString = String(selectionCharacter)
-            } else {
-                cell?.selectionString = String(assetStore.count)
-            }
-            cell?.photoSelected = true
-            updateDoneButton()
-            selectionClosure?(asset)
-            return assetStore.count
-        }
-        return -1
-    }
-    
-    func previewViewControllerNeedSelectedIdentify() -> [Dictionary<String, String>] {
-        var mediaList = [Dictionary<String, String>]()
-        for asset in assetStore.assets {
-            var dictionary = Dictionary<String, String>()
-            dictionary["identify"] = asset.localIdentifier
-            if asset.mediaType == .video {
-                dictionary["fileType"] = "video"
-            }else if asset.mediaType == .image {
-              if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
-                dictionary["fileType"] = "image/gif"
-              }else {
-                dictionary["fileType"] = "image/jpeg"
-              }
-            }
-            mediaList.append(dictionary)
-        }
-        return mediaList
     }
 }
 
@@ -460,24 +402,7 @@ extension PhotosViewController: UITableViewDelegate {
         let album = albumsDataSource.fetchResults[indexPath.section][indexPath.row]
         initializePhotosDataSource(album)
         updateAlbumTitle(album)
-        collectionView?.reloadData()
+        collectionView.reloadData()
         albumsViewController.dismiss(animated: true, completion: nil)
-    }
-}
-
-// MARK: Traits
-extension PhotosViewController {
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        
-        if let collectionViewFlowLayout = collectionViewLayout as? GridCollectionViewLayout {
-            let itemSpacing: CGFloat = 2.0
-            let cellsPerRow = settings.cellsPerRow(traitCollection.verticalSizeClass, traitCollection.horizontalSizeClass)
-            
-            collectionViewFlowLayout.itemSpacing = itemSpacing
-            collectionViewFlowLayout.itemsPerRow = cellsPerRow
-                        
-            updateDoneButton()
-        }
     }
 }

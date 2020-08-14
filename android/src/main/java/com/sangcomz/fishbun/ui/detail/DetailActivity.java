@@ -11,8 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -47,8 +45,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private VideoView currentPlayVideoView;
     private Button originBtn;
     private Button sendBtn;
-    private RelativeLayout compressingView;
-    private TextView compressingTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +85,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         btnDetailBack = findViewById(R.id.btn_detail_back);
         originBtn = findViewById(R.id.photo_preview_origin_btn);
         sendBtn = findViewById(R.id.photo_preview_send_btn);
-        compressingView = findViewById(R.id.compressing_content_view);
-        compressingTextView = findViewById(R.id.compressing_text_view);
         btnDetailCount.unselect();
         btnDetailCount.setTextColor(Color.WHITE);
         btnDetailCount.setCircleColor(fishton.getColorSelectCircleStroke());
@@ -99,7 +93,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         btnDetailBack.setOnClickListener(this);
         originBtn.setOnClickListener(this);
         sendBtn.setOnClickListener(this);
-        compressingView.setOnClickListener(this);
         originBtn.setSelected(!fishton.isThumb());
         Drawable drawable;
         if (fishton.isThumb()) {
@@ -189,7 +182,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             } else if (media.getFileType().contains("image") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
                 Snackbar.make(btnDetailCount, "不能分享超过8M的文件", Snackbar.LENGTH_SHORT).show();
             } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
-                Snackbar.make(btnDetailCount, "选择数量超过最大限制", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(btnDetailCount, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
             } else {
                 if (fishton.getSelectedMedias().contains(media)) {
                     fishton.getSelectedMedias().remove(media);

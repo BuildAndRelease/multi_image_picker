@@ -56,6 +56,12 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         if ((fishton.getSelectedMedias().size() >= fishton.getMaxCount()) && !fishton.getSelectedMedias().contains(media)) {
             vh.banCoverView.setVisibility(View.VISIBLE);
+            vh.banCoverView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Snackbar.make(vh.item, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
+                }
+            });
             vh.imgThumbImage.setEnabled(false);
             vh.btnThumbCount.setEnabled(false);
         }else {
@@ -110,7 +116,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 } else if (media.getFileType().contains("image") &&  Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
                     Snackbar.make(vh.item, "不能分享超过8M的文件", Snackbar.LENGTH_SHORT).show();
                 } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size()) {
-                    Snackbar.make(vh.item, "选择数量超过最大限制", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(vh.item, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
                 } else {
                     ArrayList<Media> pickedImages = fishton.getSelectedMedias();
                     RadioWithTextButton btnThumbCount = vh.item.findViewById(R.id.btn_thumb_count);

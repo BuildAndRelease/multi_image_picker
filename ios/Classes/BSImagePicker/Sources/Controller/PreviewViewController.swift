@@ -339,7 +339,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
             return NSError(domain: "请选择5分钟以下的视频", code: 3, userInfo: nil)
         }else if assetStore?.count ?? 0 >= (settings?.maxNumberOfSelections ?? 9) {
             selectLimitReachedClosure?(assetStore?.count ?? 0)
-            return NSError(domain: "选择数量超过最大限制", code: 5, userInfo: nil)
+            return NSError(domain: "最多只能选择9个文件", code: 5, userInfo: nil)
         }else if asset.mediaType == .image, let uti = asset.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 8.0 {
             return NSError(domain: "不能分享超过8M的图片", code: 6, userInfo: nil)
         }

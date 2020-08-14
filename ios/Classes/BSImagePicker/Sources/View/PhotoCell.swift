@@ -121,6 +121,8 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         disableOverlayView.backgroundColor = UIColor.white
         disableOverlayView.translatesAutoresizingMaskIntoConstraints = false;
         disableOverlayView.alpha = 0.0
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapGestureDidAction))
+        disableOverlayView.addGestureRecognizer(tapGesture)
         
         selectionOverlayView.backgroundColor = UIColor.darkGray
         selectionOverlayView.translatesAutoresizingMaskIntoConstraints = false
@@ -244,6 +246,10 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         } else {
             self.selectionOverlayView.alpha = 0.0
         }
+    }
+    
+    @objc func tapGestureDidAction() {
+        self.delegate?.photoCellDidReceiveSelectAction(self)
     }
     
     func selectViewDidSelectDidAction(_ view: SelectionView) {

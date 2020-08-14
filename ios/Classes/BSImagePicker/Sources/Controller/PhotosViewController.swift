@@ -329,7 +329,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("选择的图片数量超过限制", comment: "")
+                hud.label.text = NSLocalizedString("最多只能选择9个文件", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
             }else if asset.mediaType == .video , asset.duration > 301 {

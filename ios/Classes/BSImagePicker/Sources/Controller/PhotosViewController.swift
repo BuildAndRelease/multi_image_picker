@@ -36,6 +36,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     var originBarButton: SSRadioButton = SSRadioButton(type: .custom)
     var doneBarButton: UIButton = UIButton(type: .custom)
     var bottomContentView : UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+    var bottomHeightConstraint : NSLayoutConstraint?
     
     var settings: BSImagePickerSettings
     private var assetStore: AssetStore
@@ -74,6 +75,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     
     override func loadView() {
         super.loadView()
+        self.view.backgroundColor = UIColor.darkGray
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.contentInset  = UIEdgeInsets(top: 0, left: 0, bottom: 49, right: 0)
         
@@ -134,27 +136,28 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         self.view.addSubview(collectionView)
         self.view.addSubview(bottomContentView)
         
-        // Add constraints
+        let safeGuide = self.view
+        bottomHeightConstraint = NSLayoutConstraint(item: bottomContentView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 49)
         NSLayoutConstraint.activate([
-            NSLayoutConstraint(item: bottomContentView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 49),
-            NSLayoutConstraint(item: bottomContentView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: bottomContentView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: bottomContentView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0),
+            bottomHeightConstraint!,
+            NSLayoutConstraint(item: bottomContentView, attribute: .bottom, relatedBy: .equal, toItem: safeGuide, attribute: .bottom, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: bottomContentView, attribute: .leading, relatedBy: .equal, toItem: safeGuide, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: bottomContentView, attribute: .trailing, relatedBy: .equal, toItem: safeGuide, attribute: .trailing, multiplier: 1, constant: 0),
             
             NSLayoutConstraint(item: doneBarButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 30),
             NSLayoutConstraint(item: doneBarButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 80),
-            NSLayoutConstraint(item: doneBarButton, attribute: .centerY, relatedBy: .equal, toItem: bottomContentView, attribute: .centerY, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: doneBarButton, attribute: .top, relatedBy: .equal, toItem: bottomContentView, attribute: .top, multiplier: 1, constant: 9.5),
             NSLayoutConstraint(item: doneBarButton, attribute: .trailing, relatedBy: .equal, toItem: bottomContentView, attribute: .trailing, multiplier: 1, constant: -16),
-
-            NSLayoutConstraint(item: originBarButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 50),
+            
+            NSLayoutConstraint(item: originBarButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 49),
             NSLayoutConstraint(item: originBarButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 100),
-            NSLayoutConstraint(item: originBarButton, attribute: .centerY, relatedBy: .equal, toItem: bottomContentView, attribute: .centerY, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: originBarButton, attribute: .top, relatedBy: .equal, toItem: bottomContentView, attribute: .top, multiplier: 1, constant: 0),
             NSLayoutConstraint(item: originBarButton, attribute: .centerX, relatedBy: .equal, toItem: bottomContentView, attribute: .centerX, multiplier: 1, constant: 0),
-
-            NSLayoutConstraint(item: collectionView, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: collectionView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: collectionView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: collectionView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0),
+            
+            NSLayoutConstraint(item: collectionView, attribute: .top, relatedBy: .equal, toItem: safeGuide, attribute: .top, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: collectionView, attribute: .bottom, relatedBy: .equal, toItem: safeGuide, attribute: .bottom, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: collectionView, attribute: .leading, relatedBy: .equal, toItem: safeGuide, attribute: .leading, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: collectionView, attribute: .trailing, relatedBy: .equal, toItem: safeGuide, attribute: .trailing, multiplier: 1, constant: 0),
         ])
     }
     
@@ -164,6 +167,13 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
             collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: false)
             needScrollToBottom = false
         }
+        var height : CGFloat?
+        if #available(iOS 11.0, *) {
+            height = self.view.safeAreaInsets.bottom
+        } else {
+            height = 0.0
+        }
+        bottomHeightConstraint?.constant = height! + 49
         super.viewDidLayoutSubviews()
     }
     

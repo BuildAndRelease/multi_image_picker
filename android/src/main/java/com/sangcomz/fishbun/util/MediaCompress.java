@@ -114,7 +114,7 @@ public class MediaCompress {
                         if (targetPic.exists()) {
                             BitmapFactory.Options options = new BitmapFactory.Options();
                             options.inJustDecodeBounds = true;
-                            BitmapFactory.decodeFile(targetPic.getAbsolutePath());
+                            BitmapFactory.decodeFile(targetPic.getAbsolutePath(), options);
                             media.setThumbnailHeight(options.outHeight + "");
                             media.setThumbnailWidth(options.outWidth + "");
                             media.setThumbnailName(imgName);

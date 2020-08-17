@@ -100,28 +100,28 @@ class _MyHomePageState extends State<MyHomePage> {
       //   'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001',
       //   '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
       // ];
-      final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
-      // final preSelectMedias = [
-      //   '2004983',
-      //   '2004982',
-      //   '2004981',
-      //   '2004980',
-      //   '2004954'
-      // ];
+      // final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
+      final preSelectMedias = [
+        '2004983',
+        '2004982',
+        '2004981',
+        '2004980',
+        '2004954'
+      ];
       // final preSelectMedia = '1960634';
 
-      final result = await MultiImagePicker.pickImages(
-        maxImages: 9,
-        defaultAsset: null,
-        selectedAssets: null,
-        cupertinoOptions: CupertinoOptions(
-            takePhotoIcon: "chat",
-            selectionStrokeColor: "#ff6179f2",
-            selectionFillColor: "#ff6179f2"),
-        materialOptions: MaterialOptions(
-            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      );
-      print(result);
+      // final result = await MultiImagePicker.pickImages(
+      //   maxImages: 9,
+      //   defaultAsset: null,
+      //   selectedAssets: null,
+      //   cupertinoOptions: CupertinoOptions(
+      //       takePhotoIcon: "chat",
+      //       selectionStrokeColor: "#ff6179f2",
+      //       selectionFillColor: "#ff6179f2"),
+      //   materialOptions: MaterialOptions(
+      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      // );
+      // print(result);
 
       // final list = [
       //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
@@ -132,11 +132,14 @@ class _MyHomePageState extends State<MyHomePage> {
       //   "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
       // ];
 
-      // MultiImagePicker.requestMediaData(selectedAssets: preSelectMedia)
-      //     .then((value) {
-      //   print(value);
-      //   print('456');
-      // });
+      // print('123');
+      resultList = await MultiImagePicker.requestMediaData(
+          selectedAssets: preSelectMedias);
+      print(resultList[0].toJsonMap());
+      print(resultList[1].toJsonMap());
+      print(resultList[2].toJsonMap());
+      print(resultList[3].toJsonMap());
+      print(resultList[4].toJsonMap());
 
       // MultiImagePicker.fetchMediaInfo(0, 10, selectedAssets: list)
       //     .then((value) {

@@ -102,47 +102,58 @@ public class MediaCompress {
                 for (int i = 0; i < selectMedias.size(); i++) {
                     Media media = selectMedias.get(i);
                     if (media.getFileType().contains("video")) {
-                        String uuid = UUID.randomUUID().toString();
+                        String uuid = media.getIdentifier();
                         String videoName = uuid + ".mp4";
                         String imgName = uuid + ".jpg";
                         String cacheDir = context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
-                        File tmpPicParentDir = new File(cacheDir);
-                        if (!tmpPicParentDir.exists()) {
-                            tmpPicParentDir.mkdirs();
+                        File targetParentDir = new File(cacheDir);
+                        if (!targetParentDir.exists()) {
+                            targetParentDir.mkdirs();
                         }
-                        File tmpPic = new File(cacheDir + imgName);
-                        if (tmpPic.exists()) {
-                            tmpPic.delete();
+                        File targetPic = new File(cacheDir + imgName);
+                        if (targetPic.exists()) {
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inJustDecodeBounds = true;
+                            BitmapFactory.decodeFile(targetPic.getAbsolutePath());
+                            media.setThumbnailHeight(options.outHeight + "");
+                            media.setThumbnailWidth(options.outWidth + "");
+                            media.setThumbnailName(imgName);
+                            media.setThumbnailPath(targetPic.getAbsolutePath());
+                        }else {
+                            File tmpPic = new File(cacheDir + imgName + "." + UUID.randomUUID().toString());
+                            HashMap picInfo = localVideoThumb(media, tmpPic.getAbsolutePath());
+                            tmpPic.renameTo(targetPic);
+                            media.setThumbnailHeight((String) picInfo.get("height"));
+                            media.setThumbnailWidth((String) picInfo.get("width"));
+                            media.setThumbnailName(imgName);
+                            media.setThumbnailPath(targetPic.getAbsolutePath());
                         }
-                        File tmpVideo = new File(cacheDir + videoName);
-                        if (tmpVideo.exists()) {
-                            tmpVideo.delete();
+                        File targetVideo = new File(cacheDir + videoName);
+                        float width = Float.parseFloat(media.getThumbnailWidth());
+                        float height = Float.parseFloat(media.getThumbnailHeight());
+                        if (!targetVideo.exists()) {
+                            File tmpVideo = new File(cacheDir + videoName + "." + UUID.randomUUID().toString());
+                            try {
+                                VideoProcessor.processor(context).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(2048000).process();
+                                tmpVideo.renameTo(targetVideo);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                break;
+                            }
                         }
-                        HashMap picInfo = localVideoThumb(media, tmpPic.getAbsolutePath());
-                        media.setThumbnailHeight((String) picInfo.get("height"));
-                        media.setThumbnailWidth((String) picInfo.get("width"));
-                        media.setThumbnailName(imgName);
-                        media.setThumbnailPath(tmpPic.getAbsolutePath());
-                        try {
-                            float width = Float.parseFloat(media.getThumbnailWidth());
-                            float height = Float.parseFloat(media.getThumbnailHeight());
-                            VideoProcessor.processor(context).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(2048000).process();
-                            HashMap info = new HashMap();
-                            info.put("identifier", media.getIdentifier());
-                            info.put("filePath", tmpVideo.getAbsolutePath());
-                            info.put("width", width);
-                            info.put("height",height);
-                            info.put("name", videoName);
-                            info.put("fileType", "video");
-                            info.put("duration", Float.parseFloat(media.getDuration()));
-                            info.put("thumbPath", media.getThumbnailPath());
-                            info.put("thumbName", media.getThumbnailName());
-                            info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
-                            info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
-                            result.add(info);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        HashMap info = new HashMap();
+                        info.put("identifier", media.getIdentifier());
+                        info.put("filePath", targetVideo.getAbsolutePath());
+                        info.put("width", width);
+                        info.put("height",height);
+                        info.put("name", videoName);
+                        info.put("fileType", "video/mp4");
+                        info.put("duration", Float.parseFloat(media.getDuration()));
+                        info.put("thumbPath", media.getThumbnailPath());
+                        info.put("thumbName", media.getThumbnailName());
+                        info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
+                        info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
+                        result.add(info);
                     }else {
                         result.add(fetchImageThumb(media, thumb));
                     }
@@ -180,27 +191,28 @@ public class MediaCompress {
                 map.put("identifier", media.getIdentifier());
                 return map;
             } else {
-                String fileName = UUID.randomUUID().toString() + ".gif";
+                String fileName = media.getIdentifier() + ".gif";
                 String filePath = "";
                 try {
                     InputStream is = new FileInputStream(media.getOriginPath());
-                    File tmpPicParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
-                    if (!tmpPicParentDir.exists()) {
-                        tmpPicParentDir.mkdirs();
+                    File targetParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
+                    if (!targetParentDir.exists()) {
+                        targetParentDir.mkdirs();
                     }
-                    File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName);
-                    if (tmpPic.exists()) {
-                        tmpPic.delete();
+                    File targetPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName);
+                    File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName + "." + UUID.randomUUID().toString());
+                    filePath = targetPic.getAbsolutePath();
+                    if (!tmpPic.exists()) {
+                        FileOutputStream os = new FileOutputStream(tmpPic);
+                        int bytesRead = 0;
+                        byte[] buffer = new byte[8192];
+                        while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+                            os.write(buffer, 0, bytesRead);
+                        }
+                        os.close();
+                        is.close();
+                        tmpPic.renameTo(targetPic);
                     }
-                    filePath = tmpPic.getAbsolutePath();
-                    FileOutputStream os = new FileOutputStream(tmpPic);
-                    int bytesRead = 0;
-                    byte[] buffer = new byte[8192];
-                    while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
-                        os.write(buffer, 0, bytesRead);
-                    }
-                    os.close();
-                    is.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -216,43 +228,43 @@ public class MediaCompress {
             }
         }else {
             HashMap<String, Object> map = new HashMap<>();
-            String fileName = UUID.randomUUID().toString() + ".jpg";
+            String fileName = media.getIdentifier() + "-" + (thumb ? "thumb" : "origin") + ".jpg";
             String filePath = "";
             try {
                 String cacheDir = context.getCacheDir().getAbsolutePath();
-                String picParentDir = cacheDir + "/multi_image_pick/thumb/";
-                File tmpPicParentDir = new File(picParentDir);
-                if (!tmpPicParentDir.exists()) {
-                    tmpPicParentDir.mkdirs();
+                File targetParentDir = new File(cacheDir + "/multi_image_pick/thumb/");
+                if (!targetParentDir.exists()) {
+                    targetParentDir.mkdirs();
                 }
-                File tmpPic = new File(cacheDir + "/multi_image_pick/thumb/" + fileName);
-                if (tmpPic.exists()) {
-                    tmpPic.delete();
-                }
-                filePath = tmpPic.getAbsolutePath();
-
+                File targetPic = new File(cacheDir + "/multi_image_pick/thumb/" + fileName);
+                filePath = targetPic.getAbsolutePath();
                 File compressPicFile = null;
-                if (thumb) {
-                    List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
-                    if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
-                        compressPicFile = compressPicFiles.get(0);
-                    }
+                if (targetPic.exists()) {
+                    compressPicFile = targetPic;
                 }else {
-                    compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 100);
+                    if (thumb) {
+                        List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
+                        if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
+                            compressPicFile = compressPicFiles.get(0);
+                        }
+                    }else {
+                        File tmpPic = new File(cacheDir + "/multi_image_pick/thumb/" + fileName + "." + UUID.randomUUID().toString());
+                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 100);
+                    }
                 }
 
                 if (compressPicFile != null) {
                     if (compressPicFile.getAbsolutePath().startsWith(cacheDir)) {
-                        compressPicFile.renameTo(tmpPic);
+                        compressPicFile.renameTo(targetPic);
                     }else {
-                        copyFile(compressPicFile, tmpPic);
+                        copyFile(compressPicFile, targetPic);
                     }
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(tmpPic.getAbsolutePath(), options);
+                    BitmapFactory.decodeFile(targetPic.getAbsolutePath(), options);
                     float imageHeight = options.outHeight;
                     float imageWidth = options.outWidth;
-                    long fileSize = tmpPic.length();
+                    long fileSize = targetPic.length();
                     if (thumb) {
                         if (fileSize > 8 * 1024 * 1024) {
                             map.put("identifier", media.getIdentifier());

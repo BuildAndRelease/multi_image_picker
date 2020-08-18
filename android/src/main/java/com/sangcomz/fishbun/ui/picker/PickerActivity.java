@@ -157,7 +157,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                 originBtn.setCompoundDrawables(drawable,null,null,null);
                 fishton.setThumb(!originBtn.isSelected());
             } else if (v.equals(sendBtn)){
-                if (fishton.getSelectedMedias().size() < fishton.getMinCount()) {
+                if (fishton.getSelectedMedias().size() < 1) {
                     Snackbar.make(recyclerView, fishton.getMessageNothingSelected(), Snackbar.LENGTH_SHORT).show();
                 } else {
                     boolean thumb = fishton.isThumb();

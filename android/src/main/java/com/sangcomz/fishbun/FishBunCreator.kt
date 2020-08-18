@@ -34,10 +34,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.maxCount = if (count <= 0) 1 else count
     }
 
-    override fun setMinCount(count: Int): FishBunCreator = this.apply {
-        fishton.minCount = if (count <= 0) 1 else count
-    }
-
     override fun setRequestCode(requestCode: Int): FishBunCreator = this.apply {
         this.requestCode = requestCode
     }

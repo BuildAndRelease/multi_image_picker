@@ -216,7 +216,6 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
             }
         }
 
-        doneBarButton.isEnabled = assetStore?.assets.count ?? 0 > 0
         originBarButton.isSelected = !(settings?.thumb ?? false)
     }
     
@@ -362,9 +361,34 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     
     @objc func doneButtonPressed(_ sender: UIButton) {
+        if (self.assetStore?.assets ?? []).count < 1 {
+            if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset {
+                if let error = canSelectImageItem(asset) {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString(error.domain, comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return
+                }else {
+                    let selectIndex = selectMediaItem(asset)
+                    if selectIndex > 0 {
+                        selectionView.selectionString = "\(selectIndex)"
+                        selectionView.selected = true
+                    }else if selectIndex == -1 {
+                        selectionView.selectionString = ""
+                        selectionView.selected = false
+                    }
+                }
+            }
+        }
         weak var weakSelf = self
         let thumb = !originBarButton.isSelected
         let assets = self.assetStore?.assets ?? []
+        if assets.count < 1 {
+            return
+        }
         doneBarButton.isEnabled = false
         
         DispatchQueue.global().async {

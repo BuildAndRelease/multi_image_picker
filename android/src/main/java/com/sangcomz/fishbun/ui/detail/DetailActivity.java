@@ -104,6 +104,15 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         btnDetailBack.setOnClickListener(this);
         originBtn.setOnClickListener(this);
         sendBtn.setOnClickListener(this);
+        GradientDrawable sendDrawable = new GradientDrawable();
+        sendDrawable.setShape(GradientDrawable.RECTANGLE);
+        sendDrawable.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+        sendDrawable.setCornerRadius(5);
+        sendDrawable.setColor(fishton.getColorSelectCircleStroke());
+        sendDrawable.setAlpha(255);
+        sendBtn.setEnabled(true);
+        sendBtn.setBackground(sendDrawable);
+
         originBtn.setSelected(!fishton.isThumb());
         Drawable drawable;
         if (fishton.isThumb()) {
@@ -153,27 +162,9 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     public void updateSendBtnTitle() {
         if (fishton.getSelectedMedias().size() > 0) {
-            GradientDrawable drawable=new GradientDrawable();
-            drawable.setShape(GradientDrawable.RECTANGLE);
-            drawable.setGradientType(GradientDrawable.RADIAL_GRADIENT);
-            drawable.setCornerRadius(5);
-            drawable.setColor(fishton.getColorSelectCircleStroke());
-            drawable.setAlpha(255);
-            sendBtn.setEnabled(true);
-            sendBtn.setBackground(drawable);
             sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedMedias().size() + ")");
-            sendBtn.setTextColor(Color.argb(255, 255, 255, 255));
         }else {
-            GradientDrawable drawable=new GradientDrawable();
-            drawable.setShape(GradientDrawable.RECTANGLE);
-            drawable.setGradientType(GradientDrawable.RADIAL_GRADIENT);
-            drawable.setCornerRadius(5);
-            drawable.setColor(fishton.getColorSelectCircleStroke());
-            drawable.setAlpha(125);
-            sendBtn.setEnabled(false);
-            sendBtn.setBackground(drawable);
             sendBtn.setText(getResources().getText(R.string.done));
-            sendBtn.setTextColor(Color.argb(125, 255, 255, 255));
         }
     }
 
@@ -210,23 +201,44 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         } else if (id == R.id.btn_detail_back) {
             finishActivity();
         } else if (id == R.id.photo_preview_send_btn) {
-            if (fishton.getSelectedMedias().size() < fishton.getMinCount()) {
-                Toast.makeText(this, fishton.getMessageNothingSelected(), Toast.LENGTH_SHORT).show();
-            } else {
-                boolean thumb = fishton.isThumb();
-                List<Media> selectMedias = fishton.getSelectedMedias();
-                List<String> identifiers = new ArrayList<>();
-                for (int i = 0; i < selectMedias.size(); i++) {
-                    identifiers.add(selectMedias.get(i).getIdentifier());
+            if (fishton.getSelectedMedias().size() < 1) {
+                Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
+                if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 301) {
+                    Snackbar.make(btnDetailCount, "视屏长度不能超过5分钟", Snackbar.LENGTH_SHORT).show();
+                } else if (media.getFileType().contains("image") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
+                    Snackbar.make(btnDetailCount, "不能分享超过8M的文件", Snackbar.LENGTH_SHORT).show();
+                } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
+                    Snackbar.make(btnDetailCount, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    if (fishton.getSelectedMedias().contains(media)) {
+                        fishton.getSelectedMedias().remove(media);
+                        onCheckStateChange(media);
+                    } else {
+                        if (fishton.getSelectedMedias().size() == fishton.getMaxCount()) {
+                            Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
+                        } else {
+                            fishton.getSelectedMedias().add(media);
+                            onCheckStateChange(media);
+                        }
+                    }
                 }
-                HashMap result = new HashMap();
-                result.put("identifiers", identifiers);
-                result.put("thumb", thumb);
-                Intent i = new Intent();
-                i.putExtra(Define.INTENT_RESULT, result);
-                setResult(Define.FINISH_DETAIL_RESULT_CODE, i);
-                finish();
             }
+            if (fishton.getSelectedMedias().size() < 1) {
+                return;
+            }
+            boolean thumb = fishton.isThumb();
+            List<Media> selectMedias = fishton.getSelectedMedias();
+            List<String> identifiers = new ArrayList<>();
+            for (int i = 0; i < selectMedias.size(); i++) {
+                identifiers.add(selectMedias.get(i).getIdentifier());
+            }
+            HashMap result = new HashMap();
+            result.put("identifiers", identifiers);
+            result.put("thumb", thumb);
+            Intent i = new Intent();
+            i.putExtra(Define.INTENT_RESULT, result);
+            setResult(Define.FINISH_DETAIL_RESULT_CODE, i);
+            finish();
         } else if (id == R.id.photo_preview_origin_btn) {
             originBtn.setSelected(!originBtn.isSelected());
             Drawable drawable;

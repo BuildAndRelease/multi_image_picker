@@ -26,7 +26,6 @@ class Fishton {
         }
 
     var maxCount: Int = 0
-    var minCount: Int = 0
     var exceptMimeTypeList = emptyList<MimeType>()
     var selectedMedias = ArrayList<Media>()
     var preSelectedMedias = ArrayList<String>()
@@ -58,7 +57,6 @@ class Fishton {
 
         //BaseParams
         maxCount = 10
-        minCount = 1
         exceptMimeTypeList = emptyList()
         selectedMedias = ArrayList()
         preSelectedMedia = ""

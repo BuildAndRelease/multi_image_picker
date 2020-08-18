@@ -204,8 +204,11 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let maxImages = (arguments["maxImages"] as? Int) ?? 9
             let options = (arguments["iosOptions"] as? Dictionary<String, String>) ?? Dictionary<String, String>()
             let defaultAsset = (arguments["defaultAsset"] as? String) ?? ""
-            let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
+            var selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
             let thumb = (arguments["thumb"] as? Bool) ?? true
+            if (selectedAssets.isEmpty && !defaultAsset.isEmpty) {
+                selectedAssets.append(defaultAsset)
+            }
             
             vc.maxNumberOfSelections = maxImages
             vc.selectMedias = selectedAssets

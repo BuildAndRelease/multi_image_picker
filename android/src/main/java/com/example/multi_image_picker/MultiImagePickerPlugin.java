@@ -125,6 +125,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
                         String defaultAsset = call.argument(DEFAULT_ASSETS);
                         defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
+                        if (selectMedias.isEmpty() && !defaultAsset.isEmpty()) {
+                            selectMedias.add(defaultAsset);
+                        }
                         presentPicker(maxImages, thumb, defaultAsset, selectMedias, options);
                     }else {
                         if (currentPickerResult != null) {

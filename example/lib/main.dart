@@ -112,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       final result = await MultiImagePicker.pickImages(
         maxImages: 9,
-        defaultAsset: preSelectMedia,
+        defaultAsset: null,
         selectedAssets: null,
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",

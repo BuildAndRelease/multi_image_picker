@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -45,6 +47,8 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private VideoView currentPlayVideoView;
     private Button originBtn;
     private Button sendBtn;
+    private RelativeLayout compressingView;
+    private TextView compressingTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +60,15 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         initValue();
         initView();
         if (initPosition == -1) {
+            compressingView.setVisibility(View.VISIBLE);
+            compressingTextView.setText("图片加载中...");
             ArrayList mimeTypeList = new ArrayList();
             mimeTypeList.add(MimeType.WEBP);
             DisplayImage displayImage = new DisplayImage((long) 0, null, mimeTypeList, this);
             displayImage.setListener(new DisplayImage.DisplayImageListener() {
                 @Override
                 public void OnDisplayImageDidSelectFinish(ArrayList medias) {
+                    compressingView.setVisibility(View.INVISIBLE);
                     fishton.setPickerMedias(medias);
                     initPosition = fishton.mediaIndexOfFirstPreSelectMedia();
                     initAdapter();
@@ -85,11 +92,15 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         btnDetailBack = findViewById(R.id.btn_detail_back);
         originBtn = findViewById(R.id.photo_preview_origin_btn);
         sendBtn = findViewById(R.id.photo_preview_send_btn);
+        compressingView = findViewById(R.id.compressing_content_view);
+        compressingTextView = findViewById(R.id.compressing_text_view);
+
         btnDetailCount.unselect();
         btnDetailCount.setTextColor(Color.WHITE);
         btnDetailCount.setCircleColor(fishton.getColorSelectCircleStroke());
         btnDetailCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
         btnDetailCount.setOnClickListener(this);
+        compressingView.setOnClickListener(this);
         btnDetailBack.setOnClickListener(this);
         originBtn.setOnClickListener(this);
         sendBtn.setOnClickListener(this);

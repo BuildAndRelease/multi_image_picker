@@ -179,7 +179,7 @@ public class MediaCompress {
     }
 
     private HashMap fetchImageThumb(Media media, boolean thumb) {
-        if (media.getFileType().contains("gif")) {
+        if (media.getFileType().contains("gif") || media.getOriginPath().endsWith("gif")) {
             int fileSize = 0;
             try {
                 fileSize = Integer.parseInt(media.getFileSize());

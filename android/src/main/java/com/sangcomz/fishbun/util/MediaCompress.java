@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -41,7 +40,7 @@ public class MediaCompress {
         this.listener = listener;
     }
 
-    public MediaCompress(boolean thumb, List<Media> selectMedias, List<String> selectMediaIdentifiers, Context context) {
+    public MediaCompress(boolean thumb, List<String> selectMediaIdentifiers, Context context) {
         this.thumb = thumb;
         this.context = context;
         if (selectMediaIdentifiers != null && selectMediaIdentifiers.size() > 0) {
@@ -58,6 +57,7 @@ public class MediaCompress {
                             String originPath = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
                             String originName = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
                             String fileSize = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
+                            String modifyTimeStamp = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED));
                             double originWidth = c.getFloat(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
                             double originHeight = c.getFloat(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
                             String duration = "0";
@@ -73,6 +73,7 @@ public class MediaCompress {
                             media.setOriginPath(originPath);
                             media.setIdentifier(identify);
                             media.setFileSize(fileSize);
+                            media.setModifyTimeStamp(modifyTimeStamp);
                             try {
                                 media.setDuration(Long.parseLong(duration)/1000 + "");
                             } catch (Exception e) {
@@ -91,7 +92,6 @@ public class MediaCompress {
                 }
             }
         }
-        this.selectMedias = selectMedias;
     }
 
     public void execute() {
@@ -102,7 +102,7 @@ public class MediaCompress {
                 for (int i = 0; i < selectMedias.size(); i++) {
                     Media media = selectMedias.get(i);
                     if (media.getFileType().contains("video")) {
-                        String uuid = media.getIdentifier();
+                        String uuid = media.getIdentifier() + "-" + media.getModifyTimeStamp();
                         String videoName = uuid + ".mp4";
                         String imgName = uuid + ".jpg";
                         String cacheDir = context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
@@ -191,7 +191,7 @@ public class MediaCompress {
                 map.put("identifier", media.getIdentifier());
                 return map;
             } else {
-                String fileName = media.getIdentifier() + ".gif";
+                String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + ".gif";
                 String filePath = "";
                 try {
                     InputStream is = new FileInputStream(media.getOriginPath());
@@ -228,7 +228,7 @@ public class MediaCompress {
             }
         }else {
             HashMap<String, Object> map = new HashMap<>();
-            String fileName = media.getIdentifier() + "-" + (thumb ? "thumb" : "origin") + ".jpg";
+            String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + "-" + (thumb ? "thumb" : "origin") + ".jpg";
             String filePath = "";
             try {
                 String cacheDir = context.getCacheDir().getAbsolutePath();

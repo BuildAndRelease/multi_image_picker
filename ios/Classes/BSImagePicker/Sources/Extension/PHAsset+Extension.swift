@@ -48,7 +48,7 @@ extension PHAsset {
         thumbOptions.isNetworkAccessAllowed = true
         thumbOptions.version = .current
         
-        var uuid = self.localIdentifier
+        var uuid = "\(self.localIdentifier)-\(self.modificationDate?.timeIntervalSince1970 ?? 0)"
         uuid = uuid.replacingOccurrences(of: "/", with: "")
         let tmpSuffix = UUID().uuidString;
         

@@ -2,20 +2,12 @@ package com.sangcomz.fishbun.util;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 
-import com.sangcomz.fishbun.bean.Media;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class MediaInfoData {
     public interface MediaInfoDataListener {

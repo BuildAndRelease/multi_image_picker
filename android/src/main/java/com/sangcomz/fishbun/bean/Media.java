@@ -25,6 +25,7 @@ public class Media implements Parcelable, Comparable<Media> {
     private String fileSize = "0";
     private String mimeType = "";
     private String identifier = "";
+    private String modifyTimeStamp = "";
 
     public Media() {
 
@@ -259,5 +260,13 @@ public class Media implements Parcelable, Comparable<Media> {
 
     public void setFileSize(String fileSize) {
         this.fileSize = fileSize;
+    }
+
+    public String getModifyTimeStamp() {
+        return modifyTimeStamp;
+    }
+
+    public void setModifyTimeStamp(String modifyTimeStamp) {
+        this.modifyTimeStamp = modifyTimeStamp;
     }
 }

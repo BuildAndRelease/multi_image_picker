@@ -250,7 +250,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     if (checkPermission(false, false, true)) {
                         boolean thumb = call.argument("thumb");
                         List<String> selectMedias = call.argument("selectedAssets");
-                        MediaCompress mediaCompress = new MediaCompress(thumb, new ArrayList<Media>(), selectMedias, activity);
+                        MediaCompress mediaCompress = new MediaCompress(thumb, selectMedias, activity);
                         mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
                             @Override
                             public void mediaCompressDidFinish(ArrayList<HashMap> results) {

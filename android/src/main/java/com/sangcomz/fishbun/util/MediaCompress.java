@@ -259,7 +259,7 @@ public class MediaCompress {
                 if (compressPicFile != null) {
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(targetPic.getAbsolutePath(), options);
+                    BitmapFactory.decodeFile(compressPicFile.getAbsolutePath(), options);
                     float imageHeight = options.outHeight;
                     float imageWidth = options.outWidth;
 

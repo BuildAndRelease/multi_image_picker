@@ -256,21 +256,24 @@ public class MediaCompress {
                     }
                 }
 
-                if (compressPicFile.exists() && !checkPic.exists()) {
-                    compressImage(compressPicFile, checkPic, 224, 224, 100);
-                }
-
                 if (compressPicFile != null) {
-                    if (compressPicFile.getAbsolutePath().startsWith(cacheDir)) {
-                        compressPicFile.renameTo(targetPic);
-                    }else {
-                        copyFile(compressPicFile, targetPic);
-                    }
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
                     BitmapFactory.decodeFile(targetPic.getAbsolutePath(), options);
                     float imageHeight = options.outHeight;
                     float imageWidth = options.outWidth;
+
+                    if (compressPicFile.exists() && imageHeight * imageWidth > 312*312 && !checkPic.exists()) {
+                        compressImage(compressPicFile, checkPic, 312, 312, 100);
+                    }else {
+                        checkPic = compressPicFile;
+                    }
+
+                    if (compressPicFile.getAbsolutePath().startsWith(cacheDir)) {
+                        compressPicFile.renameTo(targetPic);
+                    }else {
+                        copyFile(compressPicFile, targetPic);
+                    }
                     long fileSize = targetPic.length();
                     if (thumb) {
                         if (fileSize > 8 * 1024 * 1024) {

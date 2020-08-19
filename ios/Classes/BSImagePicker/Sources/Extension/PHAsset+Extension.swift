@@ -238,6 +238,7 @@ extension PHAsset {
                         finish?([
                             "identifier": self.localIdentifier,
                             "filePath":filePath,
+                            "checkPath": FileManager.default.fileExists(atPath: checkPath) ? checkPath : filePath,
                             "width": targetWidth,
                             "height": targetHeight,
                             "name": fileName,
@@ -254,7 +255,7 @@ extension PHAsset {
                                     ]))
                                 }else {
                                     imageData.write(toFile: fileTmpPath, atomically: true)
-                                    if let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 224, toTargetWidth: 224), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
+                                    if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
                                         checkImageData.write(toFile: checkPath, atomically: true)
                                     }
                                     
@@ -287,7 +288,7 @@ extension PHAsset {
                                 }else {
                                     imageData.write(toFile: filePath, atomically: true)
                                     
-                                    if let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 224, toTargetWidth: 224), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
+                                    if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 224, toTargetWidth: 224), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
                                         checkImageData.write(toFile: checkPath, atomically: true)
                                     }
                                     

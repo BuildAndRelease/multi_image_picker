@@ -263,10 +263,12 @@ public class MediaCompress {
                     float imageHeight = options.outHeight;
                     float imageWidth = options.outWidth;
 
-                    if (compressPicFile.exists() && imageHeight * imageWidth > 312*312 && !checkPic.exists()) {
-                        compressImage(compressPicFile, checkPic, 312, 312, 100);
-                    }else {
-                        checkPic = compressPicFile;
+                    if (!checkPic.exists()) {
+                        if (compressPicFile.exists() && imageHeight * imageWidth > 312*312) {
+                            compressImage(compressPicFile, checkPic, 312, 312, 100);
+                        }else {
+                            checkPic = compressPicFile;
+                        }
                     }
 
                     if (compressPicFile.getAbsolutePath().startsWith(cacheDir)) {

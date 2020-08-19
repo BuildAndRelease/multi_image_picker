@@ -79,6 +79,7 @@ class MultiImagePicker {
             item['width'],
             item['height'],
             item['fileType'],
+            checkPath: item['checkPath'],
           );
         } else if (fileType.contains('video')) {
           asset = Asset(
@@ -115,6 +116,7 @@ class MultiImagePicker {
         item['width'],
         item['height'],
         item['fileType'],
+        checkPath: item['checkPath'],
         duration: item['duration'],
         thumbFilePath: item['thumbPath'],
         thumbName: item['thumbName'],

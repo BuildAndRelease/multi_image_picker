@@ -179,6 +179,8 @@ public class MediaCompress {
     }
 
     private HashMap fetchImageThumb(Media media, boolean thumb) {
+        String cacheDir = context.getCacheDir().getAbsolutePath();
+        String thumbPath = cacheDir + "/multi_image_pick/thumb/";
         if (media.getFileType().contains("gif") || media.getOriginPath().endsWith("gif")) {
             int fileSize = 0;
             try {
@@ -195,12 +197,12 @@ public class MediaCompress {
                 String filePath = "";
                 try {
                     InputStream is = new FileInputStream(media.getOriginPath());
-                    File targetParentDir = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
+                    File targetParentDir = new File(thumbPath);
                     if (!targetParentDir.exists()) {
                         targetParentDir.mkdirs();
                     }
-                    File targetPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName);
-                    File tmpPic = new File(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/" + fileName + "." + UUID.randomUUID().toString());
+                    File targetPic = new File(thumbPath + fileName);
+                    File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
                     filePath = targetPic.getAbsolutePath();
                     if (!tmpPic.exists()) {
                         FileOutputStream os = new FileOutputStream(tmpPic);
@@ -222,6 +224,7 @@ public class MediaCompress {
                 map.put("height", Float.parseFloat(media.getOriginHeight()));
                 map.put("name", fileName);
                 map.put("filePath", filePath);
+                map.put("checkPath", filePath);
                 map.put("identifier", media.getIdentifier());
                 map.put("fileType", "image/gif");
                 return map;
@@ -231,12 +234,12 @@ public class MediaCompress {
             String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + "-" + (thumb ? "thumb" : "origin") + ".jpg";
             String filePath = "";
             try {
-                String cacheDir = context.getCacheDir().getAbsolutePath();
-                File targetParentDir = new File(cacheDir + "/multi_image_pick/thumb/");
+                File targetParentDir = new File(thumbPath);
                 if (!targetParentDir.exists()) {
                     targetParentDir.mkdirs();
                 }
-                File targetPic = new File(cacheDir + "/multi_image_pick/thumb/" + fileName);
+                File targetPic = new File(thumbPath + fileName);
+                File checkPic = new File(thumbPath + fileName + ".check");
                 filePath = targetPic.getAbsolutePath();
                 File compressPicFile = null;
                 if (targetPic.exists()) {
@@ -248,9 +251,13 @@ public class MediaCompress {
                             compressPicFile = compressPicFiles.get(0);
                         }
                     }else {
-                        File tmpPic = new File(cacheDir + "/multi_image_pick/thumb/" + fileName + "." + UUID.randomUUID().toString());
+                        File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
                         compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 100);
                     }
+                }
+
+                if (compressPicFile.exists() && !checkPic.exists()) {
+                    compressImage(compressPicFile, checkPic, 224, 224, 100);
                 }
 
                 if (compressPicFile != null) {
@@ -282,6 +289,7 @@ public class MediaCompress {
                             map.put("height", imageHeight);
                         }
                     }
+                    map.put("checkPath", checkPic.getAbsolutePath());
                 }else {
                     return map;
                 }

@@ -80,11 +80,15 @@ extension PHAsset {
                             let thumbImg = UIImage(cgImage: image)
                             do {
                                 try thumbImg.jpegData(compressionQuality: 0.6)?.write(to: URL(fileURLWithPath: thumbTmpPath))
-                                try FileManager.default.moveItem(atPath: thumbTmpPath, toPath: thumbPath)
                             } catch let error as NSError {
                                 print(error)
                                 failed?(error)
                                 return
+                            }
+                            do {
+                                try FileManager.default.moveItem(atPath: thumbTmpPath, toPath: thumbPath)
+                            } catch let err as NSError {
+                                print(err)
                             }
                             dictionary.setValue(thumbPath, forKey: "thumbPath")
                             dictionary.setValue(thumbName, forKey: "thumbName")
@@ -172,6 +176,7 @@ extension PHAsset {
                         finish?([
                             "identifier": self.localIdentifier,
                             "filePath":filePath,
+                            "checkPath":filePath,
                             "width": targetWidth,
                             "height": targetHeight,
                             "name": fileName,
@@ -188,11 +193,16 @@ extension PHAsset {
                                     ]))
                                 }else {
                                     try file.write(to: URL(fileURLWithPath: fileTmpPath))
-                                    try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
+                                    do {
+                                        try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
+                                    }catch let err as NSError {
+                                        print(err)
+                                    }
                                     if FileManager.default.fileExists(atPath: filePath) {
                                         finish?([
                                             "identifier": self.localIdentifier,
                                             "filePath":filePath,
+                                            "checkPath":filePath,
                                             "width": targetWidth,
                                             "height": targetHeight,
                                             "name": fileName,
@@ -217,6 +227,7 @@ extension PHAsset {
             }else {
                 let fileName = "\(uuid)-\(thumb ? "thumb" : "origin").jpg"
                 let filePath = saveDir + fileName
+                let checkPath = saveDir + fileName + ".check"
                 let fileTmpPath = saveDir + fileName + "." + tmpSuffix
                 if FileManager.default.fileExists(atPath: filePath), let data = NSData(contentsOfFile: filePath) {
                     if data.count > 8 * 1024 * 1024 {
@@ -243,6 +254,10 @@ extension PHAsset {
                                     ]))
                                 }else {
                                     imageData.write(toFile: fileTmpPath, atomically: true)
+                                    if let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 224, toTargetWidth: 224), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
+                                        checkImageData.write(toFile: checkPath, atomically: true)
+                                    }
+                                    
                                     do {
                                         try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
                                     } catch let err as NSError {
@@ -254,6 +269,7 @@ extension PHAsset {
                                             "filePath":filePath,
                                             "width": targetWidth,
                                             "height": targetHeight,
+                                            "checkPath": FileManager.default.fileExists(atPath: checkPath) ? checkPath : filePath,
                                             "name": fileName,
                                             "fileType":"image/jpeg"
                                         ])
@@ -270,12 +286,18 @@ extension PHAsset {
                                     ]))
                                 }else {
                                     imageData.write(toFile: filePath, atomically: true)
+                                    
+                                    if let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 224, toTargetWidth: 224), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
+                                        checkImageData.write(toFile: checkPath, atomically: true)
+                                    }
+                                    
                                     if FileManager.default.fileExists(atPath: filePath) {
                                         finish?([
                                             "identifier": self.localIdentifier,
                                             "filePath":filePath,
                                             "width": targetWidth,
                                             "height": targetHeight,
+                                            "checkPath": FileManager.default.fileExists(atPath: checkPath) ? checkPath : filePath,
                                             "name": fileName,
                                             "fileType":"image/jpeg"
                                         ])

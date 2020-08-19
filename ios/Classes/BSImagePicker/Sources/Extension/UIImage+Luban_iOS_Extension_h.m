@@ -297,5 +297,28 @@ static char customImageName;
     // Restore the context
     CGContextRestoreGState(context);
 }
++ (UIImage *)compressImage:(UIImage *)sourceImage toTargetWidth:(CGFloat)targetWidth toTargetWidth:(CGFloat)targetHeight {
+    //获取原图片的大小尺寸
+    CGSize imageSize = sourceImage.size;
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat compressRatio = 1.0;
+    if (targetHeight < height || targetWidth < width) {
+        compressRatio = MIN(targetWidth/width, targetHeight/height);
+    }
+    //根据目标图片的宽度计算目标图片的高度
+    targetHeight = compressRatio * height;
+    targetWidth = compressRatio * width;
+    //开启图片上下文
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
+    //绘制图片
+    [sourceImage drawInRect:CGRectMake(0,0, targetWidth, targetHeight)];
+    //从上下文中获取绘制好的图片
+    UIImage*newImage = UIGraphicsGetImageFromCurrentImageContext();
+    //关闭图片上下文
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
 
 @end

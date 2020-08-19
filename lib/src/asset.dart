@@ -16,6 +16,8 @@ class Asset {
 
   String _fileType;
 
+  String checkPath;
+
   double duration = 0.0;
 
   String thumbFilePath = "";
@@ -30,15 +32,16 @@ class Asset {
 
   String hash = "";
 
-  Asset(
-    this._identifier,
-    this._filePath,
-    this._name,
-    this._originalWidth,
-    this._originalHeight,
-    this._fileType,
-    {this.thumbFilePath, this.thumbName, this.thumbWidth, this.thumbHeight, this.duration, this.hash, this.url}
-  );
+  Asset(this._identifier, this._filePath, this._name, this._originalWidth,
+      this._originalHeight, this._fileType,
+      {this.thumbFilePath,
+      this.thumbName,
+      this.thumbWidth,
+      this.thumbHeight,
+      this.duration,
+      this.hash,
+      this.checkPath,
+      this.url});
 
   /// Returns the original image width
   double get originalWidth {
@@ -76,13 +79,14 @@ class Asset {
   }
 
   String get fileType {
-     return _fileType;
+    return _fileType;
   }
 
   Map<String, dynamic> toJsonMap() {
     Map<String, dynamic> assetInfo = {};
     assetInfo['identifier'] = identifier ?? '';
     assetInfo['filePath'] = filePath ?? '';
+    assetInfo['checkPath'] = checkPath ?? '';
     assetInfo['name'] = name ?? '';
     assetInfo['originalWidth'] = originalWidth ?? 0.0;
     assetInfo['originalHeight'] = originalHeight ?? 0.0;
@@ -98,9 +102,20 @@ class Asset {
   }
 
   factory Asset.fromJson(Map<String, dynamic> srcJson) {
-    return Asset(srcJson['identifier'] ?? '', srcJson['filePath'] ?? '', srcJson['name'] ?? '', srcJson['originalWidth'] ?? 0.0,
-    srcJson['originalHeight'] ?? 0.0, srcJson['fileType'] ?? '',duration: srcJson['duration'] ?? 0.0, thumbFilePath: srcJson['thumbFilePath'] ?? '',
-    thumbHeight: srcJson['thumbHeight'] ?? 0.0, thumbWidth: srcJson['thumbWidth'] ?? 0.0, thumbName: srcJson['thumbName'] ?? '', 
-    url: srcJson['url'] ?? '', hash: srcJson['hash'] ?? '');
+    return Asset(
+        srcJson['identifier'] ?? '',
+        srcJson['filePath'] ?? '',
+        srcJson['name'] ?? '',
+        srcJson['originalWidth'] ?? 0.0,
+        srcJson['originalHeight'] ?? 0.0,
+        srcJson['fileType'] ?? '',
+        checkPath: srcJson['checkPath'] ?? '',
+        duration: srcJson['duration'] ?? 0.0,
+        thumbFilePath: srcJson['thumbFilePath'] ?? '',
+        thumbHeight: srcJson['thumbHeight'] ?? 0.0,
+        thumbWidth: srcJson['thumbWidth'] ?? 0.0,
+        thumbName: srcJson['thumbName'] ?? '',
+        url: srcJson['url'] ?? '',
+        hash: srcJson['hash'] ?? '');
   }
 }

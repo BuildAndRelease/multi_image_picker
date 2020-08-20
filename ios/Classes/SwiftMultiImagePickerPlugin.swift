@@ -105,8 +105,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 let fetchResult = selectedAssets.count > 0 ? PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil) :
                     (cameraRollResult.firstObject != nil ? PHAsset.fetchAssets(in: cameraRollResult.firstObject!, options: nil) : PHAsset.fetchAssets(with: nil))
                 var assets : Array<PHAsset> = []
-                fetchResult.enumerateObjects(options: [.concurrent]) { (asset, index, pt) in
-                    assets.insert(asset, at: 0)
+                fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
+                    assets.append(asset)
                 }
                 if limit == -1, offset == -1 {
                     limit = assets.count

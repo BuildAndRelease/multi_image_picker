@@ -286,7 +286,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     func initializePhotosDataSource(_ album: PHAssetCollection) {
         let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
         var assets : Array<PHAsset> = []
-        fetchResult.enumerateObjects(options: [.concurrent]) { (asset, index, pt) in
+        fetchResult.enumerateObjects { (asset, index, pt) in
             assets.append(asset)
         }
         needScrollToBottom = true

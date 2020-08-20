@@ -36,7 +36,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var loadingView = true
     
     var currentAssetIndex : Int = 0
-    var fetchResult: PHFetchResult<PHAsset>? {
+    var fetchResult: Array<PHAsset>? {
         didSet {
             self.collectionView.reloadData()
         }

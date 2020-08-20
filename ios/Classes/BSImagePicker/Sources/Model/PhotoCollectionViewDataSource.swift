@@ -31,7 +31,7 @@ protocol PhotoCollectionViewDataSourceDelegate : class {
  Gives UICollectionViewDataSource functionality with a given data source and cell factory
  */
 final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource, PhotoCellDelegate {
-    var fetchResult: PHFetchResult<PHAsset>
+    var fetchResult: Array<PHAsset>
     weak var delegate : PhotoCollectionViewDataSourceDelegate?
     private let photosManager = PHCachingImageManager.default()
     private let imageRequestOptions: PHImageRequestOptions
@@ -40,7 +40,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
     
     let settings: BSImagePickerSettings?
     
-    init(fetchResult: PHFetchResult<PHAsset>, assetStore: AssetStore, settings: BSImagePickerSettings?) {
+    init(fetchResult: Array<PHAsset>, assetStore: AssetStore, settings: BSImagePickerSettings?) {
         self.fetchResult = fetchResult
         self.settings = settings
         self.assetStore = assetStore

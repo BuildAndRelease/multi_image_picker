@@ -83,21 +83,21 @@ open class BSImagePickerViewController : UINavigationController{
         vc.selectLimitReachedClosure = selectLimitReachedClosure
         vc.assetStore = self.assetStore
         if let album = fetchResults.first?.firstObject {
-            let fetchOptions = PHFetchOptions()
-            fetchOptions.sortDescriptors = [
-                NSSortDescriptor(key: "creationDate", ascending:false)
-            ]
-            let fetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
+            let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
+            var assets : Array<PHAsset> = []
+            fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
+                assets.append(asset)
+            }
             var index = 0
             if (!self.defaultSelectMedia.isEmpty) {
-                if let defaultAsset = PHAsset.fetchAssets(withLocalIdentifiers: [self.defaultSelectMedia], options: fetchOptions).firstObject {
-                    index = fetchResult.index(of: defaultAsset)
+                if let defaultAsset = PHAsset.fetchAssets(withLocalIdentifiers: [self.defaultSelectMedia], options: nil).firstObject {
+                    index = assets.firstIndex(of: defaultAsset) ?? 0
                 }
             }else{
-                index = fetchResult.index(of: self.assetStore!.assets.first!)
+                index = assets.firstIndex(of: self.assetStore!.assets.first!) ?? 0
             }
             vc.currentAssetIndex = index
-            vc.fetchResult = fetchResult
+            vc.fetchResult = assets
         }
         return vc
     }()

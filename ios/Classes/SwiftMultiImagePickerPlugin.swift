@@ -38,11 +38,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? []
             let thumb = (arguments["thumb"] as? Bool) ?? true
-            let fetchOptions = PHFetchOptions()
-            fetchOptions.sortDescriptors = [
-                NSSortDescriptor(key: "creationDate", ascending: false)
-            ]
-            let assets = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: fetchOptions)
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
             DispatchQueue.global().async {
                 let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
                 if !FileManager.default.fileExists(atPath: thumbDir) {
@@ -103,12 +99,12 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             weak var weakSelf = self
             DispatchQueue.global().async {
                 let medias = NSMutableArray()
-                let fetchOptions = PHFetchOptions()
-                fetchOptions.sortDescriptors = [
-                    NSSortDescriptor(key: "creationDate", ascending: false)
-                ]
                 
-                let assets = selectedAssets.count > 0 ? PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: fetchOptions) : PHAsset.fetchAssets(with: fetchOptions)
+                let fetchResult = selectedAssets.count > 0 ? PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil) : PHAsset.fetchAssets(with: nil)
+                var assets : Array<PHAsset> = []
+                fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
+                    assets.append(asset)
+                }
                 if limit == -1, offset == -1 {
                     limit = assets.count
                     offset = 0
@@ -120,7 +116,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     return
                 }
                 for i in offset ..< min((limit + offset), assets.count) {
-                    let asset = assets.object(at: i)
+                    let asset = assets[i]
                     let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
                     let dictionary = NSMutableDictionary()
                     dictionary.setValue(asset.localIdentifier, forKey: "identifier")

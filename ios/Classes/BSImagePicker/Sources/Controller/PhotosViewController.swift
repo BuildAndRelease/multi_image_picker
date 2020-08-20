@@ -284,18 +284,18 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     }
     
     func initializePhotosDataSource(_ album: PHAssetCollection) {
-        let fetchOptions = PHFetchOptions()
-        fetchOptions.sortDescriptors = [
-            NSSortDescriptor(key: "creationDate", ascending: true)
-        ]
-        let fetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
+        let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
+        var assets : Array<PHAsset> = []
+        fetchResult.enumerateObjects(options: [.concurrent]) { (asset, index, pt) in
+            assets.append(asset)
+        }
         needScrollToBottom = true
-        photosDataSource = PhotoCollectionViewDataSource(fetchResult: fetchResult, assetStore: assetStore, settings: settings)
+        photosDataSource = PhotoCollectionViewDataSource(fetchResult: assets, assetStore: assetStore, settings: settings)
         photosDataSource?.delegate = self
         collectionView.dataSource = photosDataSource
         collectionView.delegate = self
         titleContentView.deSelectView()
-        previewViewContoller.fetchResult = fetchResult
+        previewViewContoller.fetchResult = assets
     }
     
     func photoCollectionViewDataSourceDidReceiveCellSelectAction(_ cell: PhotoCell) {
@@ -308,8 +308,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
             let canSelectAfter = assetStore.canAppend()
             updateButtonState()
             let selectedIndexPaths = assetStore.assets.compactMap({ (asset) -> IndexPath? in
-                let index = photosDataSource.fetchResult.index(of: asset)
-                guard index != NSNotFound else { return nil }
+                guard let index = photosDataSource.fetchResult.firstIndex(of: asset) else { return nil }
                 return IndexPath(item: index, section: 0)
             })
             if (canSelectBefore != canSelectAfter) {

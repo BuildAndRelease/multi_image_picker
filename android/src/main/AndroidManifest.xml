@@ -14,14 +14,17 @@
     <application>
         <activity
             android:name="com.sangcomz.fishbun.ui.picker.PickerActivity"
-            android:theme="@style/FishBunTheme" />
+            android:theme="@style/FishBunTheme"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name="com.sangcomz.fishbun.ui.detail.DetailActivity"
-            android:theme="@style/DetailViewTheme" />
+            android:theme="@style/DetailViewTheme"
+            android:screenOrientation="portrait"/>
 
         <activity
-            android:name="com.sangcomz.fishbun.ui.camera.CameraActivity" />
+            android:name="com.sangcomz.fishbun.ui.camera.CameraActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 

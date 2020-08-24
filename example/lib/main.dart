@@ -110,18 +110,18 @@ class _MyHomePageState extends State<MyHomePage> {
       // ];
       // final preSelectMedia = '1960634';
 
-      // final result = await MultiImagePicker.pickImages(
-      //   maxImages: 9,
-      //   defaultAsset: null,
-      //   selectedAssets: null,
-      //   cupertinoOptions: CupertinoOptions(
-      //       takePhotoIcon: "chat",
-      //       selectionStrokeColor: "#ff6179f2",
-      //       selectionFillColor: "#ff6179f2"),
-      //   materialOptions: MaterialOptions(
-      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      // );
-      // print(result);
+      final result = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        defaultAsset: null,
+        selectedAssets: null,
+        cupertinoOptions: CupertinoOptions(
+            takePhotoIcon: "chat",
+            selectionStrokeColor: "#ff6179f2",
+            selectionFillColor: "#ff6179f2"),
+        materialOptions: MaterialOptions(
+            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      );
+      print(result);
 
       // final list = [
       //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
@@ -132,18 +132,20 @@ class _MyHomePageState extends State<MyHomePage> {
       //   "4FC8A835-B8DD-4648-9E90-5C7F894DE9A1/L0/001"
       // ];
 
-      final preSelectMedias = [
-        '2B9C5D27-2767-45FE-9C51-EE598DFA2730/L0/001',
-        '270DD1E8-8DE5-4FEC-A3DA-E8B569D2FA8D/L0/001',
-        'CDFD2F31-3AAF-4A95-85D9-AD14F746AD46/L0/001',
-        '4EEE33AB-2C0A-4639-844A-C76FEE518D1A/L0/001',
-        'BC0FC2EA-73B9-4800-A271-77A111DEC1EB/L0/001',
-        '955B5A81-55F1-4F20-9A8F-DA4609727896/L0/001'
-      ];
+      // final preSelectMedias = [
+      //   '2B9C5D27-2767-45FE-9C51-EE598DFA2730/L0/001',
+      //   '270DD1E8-8DE5-4FEC-A3DA-E8B569D2FA8D/L0/001',
+      //   'CDFD2F31-3AAF-4A95-85D9-AD14F746AD46/L0/001',
+      //   '4EEE33AB-2C0A-4639-844A-C76FEE518D1A/L0/001',
+      //   'BC0FC2EA-73B9-4800-A271-77A111DEC1EB/L0/001',
+      //   '955B5A81-55F1-4F20-9A8F-DA4609727896/L0/001'
+      // ];
 
       // print('123');
-      resultList = await MultiImagePicker.requestMediaData(
-          selectedAssets: preSelectMedias, thumb: true);
+      // resultList = await MultiImagePicker.requestMediaData(
+      //     selectedAssets: ['F9D725E8-BF01-4FF2-A61C-3EC033C181C1/L0/001'],
+      //     thumb: true);
+      // print('finish');
       // print(resultList[0].toJsonMap());
       // print(resultList[1].toJsonMap());
       // print(resultList[2].toJsonMap());

@@ -325,7 +325,7 @@ extension PHAsset {
                                 }else {
                                     imageData.write(toFile: filePath, atomically: true)
                                     
-                                    if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 224, toTargetWidth: 224), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
+                                    if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
                                         checkImageData.write(toFile: checkPath, atomically: true)
                                     }
                                     

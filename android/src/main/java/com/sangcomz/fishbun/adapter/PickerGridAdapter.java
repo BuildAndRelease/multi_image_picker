@@ -111,10 +111,8 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     ViewCompat.animate(coverView).setDuration(100).alpha(0.0f);
                     pickerController.onSelectCountDidChange();
                     notifyDataSetChanged();
-                } else if (media.getFileType().contains("video") && Integer.parseInt(media.getDuration()) > 301) {
-                    Snackbar.make(vh.item, "视屏长度不能超过5分钟", Snackbar.LENGTH_SHORT).show();
-                } else if (media.getFileType().contains("image") &&  Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 8) {
-                    Snackbar.make(vh.item, "不能分享超过8M的文件", Snackbar.LENGTH_SHORT).show();
+                } else if (media.getFileType().contains("image") &&  Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
+                    Snackbar.make(vh.item, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
                 } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size()) {
                     Snackbar.make(vh.item, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
                 } else {

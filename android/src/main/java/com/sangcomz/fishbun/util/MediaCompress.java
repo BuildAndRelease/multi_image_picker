@@ -138,8 +138,19 @@ public class MediaCompress {
                                 tmpVideo.renameTo(targetVideo);
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                HashMap info = new HashMap();
+                                info.put("identifier", media.getIdentifier());
+                                info.put("errorCode", "1");
+                                result.add(info);
                                 break;
                             }
+                        }
+                        if (targetVideo.length() > 100 * 1024 * 1024) {
+                            HashMap info = new HashMap();
+                            info.put("identifier", media.getIdentifier());
+                            info.put("errorCode", "4");
+                            result.add(info);
+                            break;
                         }
                         HashMap info = new HashMap();
                         info.put("identifier", media.getIdentifier());
@@ -188,9 +199,10 @@ public class MediaCompress {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (fileSize > 8 * 1024 * 1024) {
+            if (fileSize > 100 * 1024 * 1024) {
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("identifier", media.getIdentifier());
+                map.put("errorCode", "4");
                 return map;
             } else {
                 String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + ".gif";
@@ -217,6 +229,10 @@ public class MediaCompress {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("identifier", media.getIdentifier());
+                    map.put("errorCode", "1");
+                    return map;
                 }
 
                 HashMap<String, Object> map = new HashMap<>();
@@ -277,29 +293,24 @@ public class MediaCompress {
                         copyFile(compressPicFile, targetPic);
                     }
                     long fileSize = targetPic.length();
-                    if (thumb) {
-                        if (fileSize > 8 * 1024 * 1024) {
-                            map.put("identifier", media.getIdentifier());
-                            return map;
-                        }else {
-                            map.put("width", imageWidth);
-                            map.put("height", imageHeight);
-                        }
+                    if (fileSize > 100 * 1024 * 1024) {
+                        map.put("identifier", media.getIdentifier());
+                        map.put("errorCode", "4");
+                        return map;
                     }else {
-                        if (fileSize > 8 * 1024 * 1024) {
-                            map.put("identifier", media.getIdentifier());
-                            return map;
-                        }else {
-                            map.put("width", imageWidth);
-                            map.put("height", imageHeight);
-                        }
+                        map.put("width", imageWidth);
+                        map.put("height", imageHeight);
                     }
                     map.put("checkPath", checkPic.getAbsolutePath());
                 }else {
+                    map.put("identifier", media.getIdentifier());
+                    map.put("errorCode", "1");
                     return map;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                map.put("identifier", media.getIdentifier());
+                map.put("errorCode", "1");
                 return map;
             }
 

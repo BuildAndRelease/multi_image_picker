@@ -329,18 +329,11 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                 hud.label.text = NSLocalizedString("最多只能选择9个文件", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
-            }else if asset.mediaType == .video , asset.duration > 301 {
+            }else if asset.mediaType == .image, let uti = asset.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 100.0 {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("请选择5分钟以下的视频", comment: "")
-                hud.offset = CGPoint(x: 0, y: 0)
-                hud.hide(animated: true, afterDelay: 2.0)
-            }else if asset.mediaType == .image, let uti = asset.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF"), asset.fileSize > 1024 * 1024 * 8.0 {
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.mode = MBProgressHUDMode.text
-                hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("不能分享超过8M的文件", comment: "")
+                hud.label.text = NSLocalizedString("不能分享超过100M的文件", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
             }else {
@@ -364,7 +357,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset, !cell.photoDisable {
-            let index = photosDataSource?.fetchResult.index(of: asset) ?? 0
+            let index = photosDataSource?.fetchResult.firstIndex(of: asset) ?? 0
             previewViewContoller.currentAssetIndex = index
             previewViewContoller.fetchResult = photosDataSource?.fetchResult
             previewViewContoller.assetStore = assetStore

@@ -69,8 +69,10 @@ class MultiImagePicker {
       for (var item in images) {
         var asset;
         final String fileType = item['fileType'];
+        final String errorCode = item['errorCode'];
         if (fileType == null || fileType.isEmpty) {
-          continue;
+          asset = Asset(item['identifier'], '', '', 0.0, 0.0, '',
+              errorCode: errorCode);
         } else if (fileType.contains('image')) {
           asset = Asset(
             item['identifier'],

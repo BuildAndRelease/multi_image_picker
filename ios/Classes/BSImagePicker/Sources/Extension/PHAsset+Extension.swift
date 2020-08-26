@@ -81,8 +81,10 @@ extension PHAsset {
                             do {
                                 try thumbImg.jpegData(compressionQuality: 0.6)?.write(to: URL(fileURLWithPath: thumbTmpPath))
                             } catch let error as NSError {
-                                print(error)
-                                failed?(error)
+                                failed?(NSError(domain: error.domain, code: error.code, userInfo: [
+                                    "identifier": self.localIdentifier,
+                                    "errorCode": "1",
+                                ]))
                                 return
                             }
                             do {
@@ -96,7 +98,8 @@ extension PHAsset {
                             dictionary.setValue(thumbImg.size.width * thumbImg.scale, forKey: "thumbWidth")
                         }else {
                             failed?(NSError(domain: "缩略图图片拷贝失败", code: 1, userInfo: [
-                                "identifier": self.localIdentifier
+                                "identifier": self.localIdentifier,
+                                "errorCode": "1",
                             ]))
                             return
                         }
@@ -104,6 +107,18 @@ extension PHAsset {
 
                     var thumbVideoSize = CGSize.zero
                     if FileManager.default.fileExists(atPath: videoPath) {
+                        do {
+                            let attributes = try FileManager.default.attributesOfItem(atPath: videoPath)
+                            if let fileSize = attributes[FileAttributeKey.size], fileSize is NSNumber, (fileSize as! NSNumber).intValue > 100 * 1024 * 1024 {
+                                failed?(NSError(domain: "视频大小超过100M", code: 4, userInfo: [
+                                    "identifier": self.localIdentifier,
+                                    "errorCode": "4",
+                                ]))
+                                return
+                            }
+                        } catch let err as NSError {
+                            print(err)
+                        }
                         let thumbVideo = AVURLAsset(url: URL(fileURLWithPath: videoPath))
                         for track in thumbVideo.tracks {
                             if track.mediaType == AVMediaType.video {
@@ -121,12 +136,24 @@ extension PHAsset {
                         dictionary.setValue("video", forKey: "fileType")
                         finish?(dictionary)
                     }else {
-                        let exportSession = AVAssetExportSession(asset: avAsset!, presetName: AVAssetExportPreset960x540)
+                        let exportSession = AVAssetExportSession(asset: avAsset!, presetName: self.fileSize > 100 * 1024 * 1024 ? AVAssetExportPreset640x480 : AVAssetExportPreset960x540)
                         exportSession?.outputURL = URL(fileURLWithPath: videoTmpPath)
                         exportSession?.shouldOptimizeForNetworkUse = true
                         exportSession?.outputFileType = .mp4
                         exportSession?.exportAsynchronously(completionHandler: {
                             if FileManager.default.fileExists(atPath: videoTmpPath) {
+                                do {
+                                    let attributes = try FileManager.default.attributesOfItem(atPath: videoTmpPath)
+                                    if let fileSize = attributes[FileAttributeKey.size], fileSize is NSNumber, (fileSize as! NSNumber).intValue > 100 * 1024 * 1024 {
+                                        failed?(NSError(domain: "视频大小超过100M", code: 4, userInfo: [
+                                            "identifier": self.localIdentifier,
+                                            "errorCode": "4"
+                                        ]))
+                                        return
+                                    }
+                                } catch let err as NSError {
+                                    print(err)
+                                }
                                 let thumbVideo = AVURLAsset(url: URL(fileURLWithPath: videoTmpPath))
                                 var thumbVideoSize = CGSize.zero
                                 for track in thumbVideo.tracks {
@@ -149,14 +176,16 @@ extension PHAsset {
                                 finish?(dictionary)
                             }else {
                                 failed?(NSError(domain: "视频请求失败", code: 2, userInfo: [
-                                    "identifier": self.localIdentifier
+                                    "identifier": self.localIdentifier,
+                                    "errorCode": "2"
                                 ]))
                             }
                         })
                     }
                 }else {
                     failed?(NSError(domain: "视频请求失败", code: 2, userInfo: [
-                        "identifier": self.localIdentifier
+                        "identifier": self.localIdentifier,
+                        "errorCode": "2"
                     ]))
                 }
             }
@@ -168,9 +197,10 @@ extension PHAsset {
                 let filePath = saveDir + fileName
                 let fileTmpPath = saveDir + fileName + "." + tmpSuffix
                 if FileManager.default.fileExists(atPath: filePath), let data = NSData(contentsOfFile: filePath) {
-                    if data.count > 8 * 1024 * 1024 {
-                        failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [
-                            "identifier": self.localIdentifier
+                    if data.count > 100 * 1024 * 1024 {
+                        failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+                            "identifier": self.localIdentifier,
+                            "errorCode": "4"
                         ]))
                     }else {
                         finish?([
@@ -187,9 +217,10 @@ extension PHAsset {
                     manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                         do {
                             if let file = data {
-                                if file.count > 8 * 1024 * 1024 {
-                                    failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [
-                                        "identifier": self.localIdentifier
+                                if file.count > 100 * 1024 * 1024 {
+                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+                                        "identifier": self.localIdentifier,
+                                        "errorCode": "4"
                                     ]))
                                 }else {
                                     try file.write(to: URL(fileURLWithPath: fileTmpPath))
@@ -210,13 +241,15 @@ extension PHAsset {
                                         ])
                                     }else {
                                         failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
-                                            "identifier": self.localIdentifier
+                                            "identifier": self.localIdentifier,
+                                            "errorCode": "3"
                                         ]))
                                     }
                                 }
                             }else {
                                 failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
-                                    "identifier": self.localIdentifier
+                                    "identifier": self.localIdentifier,
+                                    "errorCode": "2"
                                 ]))
                             }
                         }catch let err as NSError {
@@ -230,9 +263,10 @@ extension PHAsset {
                 let checkPath = saveDir + fileName + ".check"
                 let fileTmpPath = saveDir + fileName + "." + tmpSuffix
                 if FileManager.default.fileExists(atPath: filePath), let data = NSData(contentsOfFile: filePath) {
-                    if data.count > 8 * 1024 * 1024 {
-                        failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [
-                            "identifier": self.localIdentifier
+                    if data.count > 100 * 1024 * 1024 {
+                        failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+                            "identifier": self.localIdentifier,
+                            "errorCode": "4"
                         ]))
                     }else {
                         finish?([
@@ -249,9 +283,10 @@ extension PHAsset {
                     manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
                         if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {
                             if thumb {
-                                if imageData.length > 8 * 1024 * 1024 {
-                                    failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [
-                                        "identifier": self.localIdentifier
+                                if imageData.length > 100 * 1024 * 1024 {
+                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+                                        "identifier": self.localIdentifier,
+                                        "errorCode": "4"
                                     ]))
                                 }else {
                                     imageData.write(toFile: fileTmpPath, atomically: true)
@@ -276,14 +311,16 @@ extension PHAsset {
                                         ])
                                     }else {
                                         failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
-                                            "identifier": self.localIdentifier
+                                            "identifier": self.localIdentifier,
+                                            "errorCode": "3"
                                         ]))
                                     }
                                 }
                             } else {
-                                if imageData.length > 8 * 1024 * 1024 {
-                                    failed?(NSError(domain: "图片大小超过8M", code: 4, userInfo: [
-                                        "identifier": self.localIdentifier
+                                if imageData.length > 100 * 1024 * 1024 {
+                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+                                        "identifier": self.localIdentifier,
+                                        "errorCode": "4"
                                     ]))
                                 }else {
                                     imageData.write(toFile: filePath, atomically: true)
@@ -304,14 +341,16 @@ extension PHAsset {
                                         ])
                                     }else {
                                         failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
-                                            "identifier": self.localIdentifier
+                                            "identifier": self.localIdentifier,
+                                            "errorCode": "3"
                                         ]))
                                     }
                                 }
                             }
                         }else {
                             failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
-                                "identifier": self.localIdentifier
+                                "identifier": self.localIdentifier,
+                                "errorCode": "2"
                             ]))
                         }
                     })

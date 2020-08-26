@@ -139,7 +139,7 @@ public class DisplayImage {
                                 String mimeType = c.getString(MIME_TYPE);
                                 int fileSize = c.getInt(FILESIZE);
                                 if (mimeType.contains("gif")) {
-                                    if (fileSize > 1024*1024*20) {
+                                    if (fileSize > 1024*1024*100) {
                                         continue;
                                     }
                                 }
@@ -188,7 +188,7 @@ public class DisplayImage {
                             String mimeType = c.getString(MIME_TYPE);
                             int fileSize = c.getInt(FILESIZE);
                             if (mimeType.contains("gif")) {
-                                if (fileSize > 1024*1024*20) {
+                                if (fileSize > 1024*1024*100) {
                                     continue;
                                 }
                             }

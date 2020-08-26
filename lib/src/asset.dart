@@ -32,6 +32,8 @@ class Asset {
 
   String hash = "";
 
+  String errorCode = "0";
+
   Asset(this._identifier, this._filePath, this._name, this._originalWidth,
       this._originalHeight, this._fileType,
       {this.thumbFilePath,
@@ -41,7 +43,8 @@ class Asset {
       this.duration,
       this.hash,
       this.checkPath,
-      this.url});
+      this.url,
+      this.errorCode});
 
   /// Returns the original image width
   double get originalWidth {
@@ -98,6 +101,7 @@ class Asset {
     assetInfo['thumbName'] = thumbName ?? '';
     assetInfo['url'] = url ?? '';
     assetInfo['hash'] = hash ?? '';
+    assetInfo['errorCode'] = errorCode ?? '';
     return assetInfo;
   }
 
@@ -116,6 +120,7 @@ class Asset {
         thumbWidth: srcJson['thumbWidth'] ?? 0.0,
         thumbName: srcJson['thumbName'] ?? '',
         url: srcJson['url'] ?? '',
-        hash: srcJson['hash'] ?? '');
+        hash: srcJson['hash'] ?? '',
+        errorCode: srcJson['errorCode'] ?? '');
   }
 }

@@ -101,13 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //   '20E2BC98-4677-4D80-A699-0F34AFF5D134/L0/001'
       // ];
       // final preSelectMedia = 'B983761E-101D-4CA6-AEE6-ED7149664B06/L0/001';
-      // final preSelectMedias = [
-      //   '2004983',
-      //   '2004982',
-      //   '2004981',
-      //   '2004980',
-      //   '2004954'
-      // ];
+      final preSelectMedias = ["120818", "120817", "120816"];
       // final preSelectMedia = '1960634';
 
       // final result = await MultiImagePicker.pickImages(
@@ -148,8 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
       resultList = await MultiImagePicker.requestMediaData(
-          selectedAssets: ['F9D725E8-BF01-4FF2-A61C-3EC033C181C1/L0/001'],
-          thumb: true);
+          selectedAssets: preSelectMedias, thumb: true);
       print('finish');
       // print(resultList[0].toJsonMap());
       // print(resultList[1].toJsonMap());

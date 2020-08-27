@@ -190,61 +190,60 @@ public class MediaCompress {
     }
 
     private HashMap fetchImageThumb(Media media, boolean thumb) {
+        int fileSize = 0;
+        try {
+            fileSize = Integer.parseInt(media.getFileSize());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (fileSize > 100 * 1024 * 1024) {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("identifier", media.getIdentifier());
+            map.put("errorCode", "4");
+            return map;
+        }
         String cacheDir = context.getCacheDir().getAbsolutePath();
         String thumbPath = cacheDir + "/multi_image_pick/thumb/";
         if (media.getFileType().contains("gif") || media.getOriginPath().endsWith("gif")) {
-            int fileSize = 0;
+            String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + ".gif";
+            String filePath = "";
             try {
-                fileSize = Integer.parseInt(media.getFileSize());
+                InputStream is = new FileInputStream(media.getOriginPath());
+                File targetParentDir = new File(thumbPath);
+                if (!targetParentDir.exists()) {
+                    targetParentDir.mkdirs();
+                }
+                File targetPic = new File(thumbPath + fileName);
+                File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
+                filePath = targetPic.getAbsolutePath();
+                if (!tmpPic.exists()) {
+                    FileOutputStream os = new FileOutputStream(tmpPic);
+                    int bytesRead = 0;
+                    byte[] buffer = new byte[8192];
+                    while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+                        os.write(buffer, 0, bytesRead);
+                    }
+                    os.close();
+                    is.close();
+                    tmpPic.renameTo(targetPic);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-            if (fileSize > 100 * 1024 * 1024) {
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("identifier", media.getIdentifier());
-                map.put("errorCode", "4");
+                map.put("errorCode", "1");
                 return map;
-            } else {
-                String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + ".gif";
-                String filePath = "";
-                try {
-                    InputStream is = new FileInputStream(media.getOriginPath());
-                    File targetParentDir = new File(thumbPath);
-                    if (!targetParentDir.exists()) {
-                        targetParentDir.mkdirs();
-                    }
-                    File targetPic = new File(thumbPath + fileName);
-                    File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
-                    filePath = targetPic.getAbsolutePath();
-                    if (!tmpPic.exists()) {
-                        FileOutputStream os = new FileOutputStream(tmpPic);
-                        int bytesRead = 0;
-                        byte[] buffer = new byte[8192];
-                        while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
-                            os.write(buffer, 0, bytesRead);
-                        }
-                        os.close();
-                        is.close();
-                        tmpPic.renameTo(targetPic);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    HashMap<String, Object> map = new HashMap<>();
-                    map.put("identifier", media.getIdentifier());
-                    map.put("errorCode", "1");
-                    return map;
-                }
+            }
 
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("width", Float.parseFloat(media.getOriginWidth()));
-                map.put("height", Float.parseFloat(media.getOriginHeight()));
-                map.put("name", fileName);
-                map.put("filePath", filePath);
-                map.put("checkPath", filePath);
-                map.put("identifier", media.getIdentifier());
-                map.put("fileType", "image/gif");
-                return map;
-            }
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("width", Float.parseFloat(media.getOriginWidth()));
+            map.put("height", Float.parseFloat(media.getOriginHeight()));
+            map.put("name", fileName);
+            map.put("filePath", filePath);
+            map.put("checkPath", filePath);
+            map.put("identifier", media.getIdentifier());
+            map.put("fileType", "image/gif");
+            return map;
         }else {
             HashMap<String, Object> map = new HashMap<>();
             String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + "-" + (thumb ? "thumb" : "origin") + ".jpg";
@@ -261,13 +260,17 @@ public class MediaCompress {
                 if (targetPic.exists()) {
                     compressPicFile = targetPic;
                 }else {
+                    File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
                     if (thumb) {
-                        List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
-                        if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
-                            compressPicFile = compressPicFiles.get(0);
+                        if (fileSize > 30 * 1024 * 1024) {
+                            compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, 2048, 2048, 80);
+                        }else {
+                            List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
+                            if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
+                                compressPicFile = compressPicFiles.get(0);
+                            }
                         }
                     }else {
-                        File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
                         compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 100);
                     }
                 }
@@ -292,15 +295,8 @@ public class MediaCompress {
                     }else {
                         copyFile(compressPicFile, targetPic);
                     }
-                    long fileSize = targetPic.length();
-                    if (fileSize > 100 * 1024 * 1024) {
-                        map.put("identifier", media.getIdentifier());
-                        map.put("errorCode", "4");
-                        return map;
-                    }else {
-                        map.put("width", imageWidth);
-                        map.put("height", imageHeight);
-                    }
+                    map.put("width", imageWidth);
+                    map.put("height", imageHeight);
                     map.put("checkPath", checkPic.getAbsolutePath());
                 }else {
                     map.put("identifier", media.getIdentifier());

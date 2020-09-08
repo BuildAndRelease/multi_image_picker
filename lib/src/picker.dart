@@ -98,6 +98,7 @@ class MultiImagePicker {
             thumbWidth: item['thumbWidth'],
           );
         }
+        _cacheThumbData.remove(item['identifier']);
         assets.add(asset);
       }
       return assets;

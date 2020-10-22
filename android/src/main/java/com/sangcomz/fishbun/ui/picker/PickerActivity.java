@@ -269,7 +269,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
             drawable.setAlpha(255);
             sendBtn.setEnabled(true);
             sendBtn.setBackground(drawable);
-            sendBtn.setText(getResources().getText(R.string.done) + "(" + fishton.getSelectedMedias().size() + ")");
+            sendBtn.setText(fishton.getDoneButtonText().isEmpty() ? getResources().getText(R.string.done) : fishton.getDoneButtonText() + "(" + fishton.getSelectedMedias().size() + ")");
             sendBtn.setTextColor(Color.argb(255, 255, 255, 255));
         }else {
             GradientDrawable drawable=new GradientDrawable();
@@ -280,7 +280,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
             drawable.setAlpha(125);
             sendBtn.setEnabled(false);
             sendBtn.setBackground(drawable);
-            sendBtn.setText(getResources().getText(R.string.done));
+            sendBtn.setText(fishton.getDoneButtonText().isEmpty() ? getResources().getText(R.string.done) : fishton.getDoneButtonText());
             sendBtn.setTextColor(Color.argb(125, 255, 255, 255));
         }
     }

@@ -54,7 +54,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     var assetStore: AssetStore?
     
-    private let doneBarButtonTitle: String = NSLocalizedString("Done", comment: "")
+    private var doneBarButtonTitle: String = NSLocalizedString("Done", comment: "")
     private let originBarButtonTitle: String = NSLocalizedString("Origin", comment: "")
     var originBarButton: SSRadioButton = SSRadioButton(type: .custom)
     var doneBarButton: UIButton = UIButton(type: .custom)
@@ -66,6 +66,9 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         
         self.settings = settings
         self.selectionView.settings = settings
+        if !settings.doneButtonText.isEmpty {
+            doneBarButtonTitle = settings.doneButtonText
+        }
         view.backgroundColor = UIColor.black
         
         let flowLayout = UICollectionViewFlowLayout()
@@ -282,6 +285,31 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     
     func selectMediaItem(_ asset : PHAsset) -> Int {
+        if let selectType = settings?.selectType, !selectType.isEmpty {
+            if selectType == "video"{
+                if asset.mediaType != .video  {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString("仅支持视频选择", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return -1;
+                }
+            }
+            
+            if selectType == "image" {
+                if asset.mediaType != .image  {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString("仅支持图片选择", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return -1;
+                }
+            }
+        }
         if self.assetStore?.contains(asset) ?? false {
             self.assetStore?.remove(asset)
             deselectionClosure?(asset)

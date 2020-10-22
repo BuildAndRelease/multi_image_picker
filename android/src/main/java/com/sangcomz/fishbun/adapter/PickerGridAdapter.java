@@ -102,6 +102,18 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (fishton.getSelectType().equals("video")) {
+                    if (!media.getFileType().contains("video")) {
+                        Snackbar.make(vh.item, "仅支持视频选择", Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                if (fishton.getSelectType().equals("image")) {
+                    if (!media.getFileType().contains("image")) {
+                        Snackbar.make(vh.item, "仅支持图片选择", Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
                 if (fishton.getSelectedMedias().contains(media)) {
                     ArrayList<Media> pickedImages = fishton.getSelectedMedias();
                     RadioWithTextButton btnThumbCount = vh.item.findViewById(R.id.btn_thumb_count);

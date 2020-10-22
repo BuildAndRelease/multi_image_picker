@@ -176,7 +176,27 @@ extension BSImagePickerViewController: BSImagePickerSettings {
             settings.thumb = newValue
         }
     }
-    
+    /**
+     See BSImagePicketSettings for documentation
+     */
+    @objc public var doneButtonText: String {
+        get {
+            return settings.doneButtonText
+        }
+        set {
+            settings.doneButtonText = newValue
+        }
+    }/**
+     See BSImagePicketSettings for documentation
+     */
+    @objc public var selectType: String{
+        get {
+            return settings.selectType
+        }
+        set {
+            settings.selectType = newValue
+        }
+    }
     /**
      See BSImagePicketSettings for documentation
      */

@@ -62,6 +62,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String OFFSET = "offset";
     private static final String SELECTED_ASSETS = "selectedAssets";
     private static final String DEFAULT_ASSETS = "defaultAsset";
+    private static final String SELECT_TYPE = "selectType";
+    private static final String DONE_BUTTON_TEXT = "doneButtonText";
     private static final String ANDROID_OPTIONS = "androidOptions";
     private static final String THEME_COLOR = "themeColor";
     private static final int REQUEST_CODE_CHOOSE = 1001;
@@ -125,7 +127,13 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
                         String defaultAsset = call.argument(DEFAULT_ASSETS);
                         defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
-                        presentPicker(maxImages, thumb, defaultAsset, selectMedias, options);
+
+                        String selectType = call.argument(SELECT_TYPE);
+                        selectType = TextUtils.isEmpty(selectType) ? "" : selectType;
+                        String doneButtonText = call.argument(DONE_BUTTON_TEXT);
+                        doneButtonText = TextUtils.isEmpty(doneButtonText) ? "" : doneButtonText;
+
+                        presentPicker(maxImages, thumb, defaultAsset, doneButtonText, selectType, selectMedias, options);
                     }else {
                         if (currentPickerResult != null) {
                             currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
@@ -271,7 +279,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         }
     }
 
-    private void presentPicker(int maxImages, boolean thumb, String defaultAsset, ArrayList<String> selectMedias, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, boolean thumb, String defaultAsset, String doneButtonText, String selectType, ArrayList<String> selectMedias, HashMap<String, String> options) {
         String actionBarTitle = options.get("actionBarTitle");
         String allViewTitle =  options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
@@ -289,6 +297,8 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 .setPreSelectMedia(defaultAsset)
                 .setPreSelectMedias(selectMedias)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
+                .setSelectType(selectType)
+                .setDoneButtonText(doneButtonText)
                 .exceptMimeType(mimeTypeList);
 
         if (!textOnNothingSelected.isEmpty()) {

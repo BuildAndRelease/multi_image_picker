@@ -33,6 +33,14 @@ public protocol BSImagePickerSettings {
     /**
     Max number of images user can select
     */
+    var selectType: String { get set }
+    /**
+    Max number of images user can select
+    */
+    var doneButtonText: String { get set }
+    /**
+    Max number of images user can select
+    */
     var maxNumberOfSelections: Int { get set }
     
     /**

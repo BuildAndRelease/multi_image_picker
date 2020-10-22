@@ -205,11 +205,15 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let defaultAsset = (arguments["defaultAsset"] as? String) ?? ""
             let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
             let thumb = (arguments["thumb"] as? Bool) ?? true
+            let selectType = (arguments["selectType"] as? String) ?? ""
+            let doneButtonText = (arguments["doneButtonText"] as? String) ?? ""
             
             vc.maxNumberOfSelections = maxImages
             vc.selectMedias = selectedAssets
             vc.defaultSelectMedia = defaultAsset
             vc.thumb = thumb
+            vc.selectType = selectType
+            vc.doneButtonText = doneButtonText
 
             if let selectionFillColor = options["selectionFillColor"] , !selectionFillColor.isEmpty{
                 vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)

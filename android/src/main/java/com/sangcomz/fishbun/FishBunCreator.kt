@@ -70,6 +70,14 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.exceptMimeTypeList = exceptMimeTypeList
     }
 
+    override fun setSelectType(selectType: String) = this.apply {
+        fishton.selectType = selectType
+    }
+
+    override fun setDoneButtonText(doneButtonText: String) = this.apply {
+        fishton.doneButtonText = doneButtonText
+    }
+
     override fun setSelectCircleStrokeColor(strokeColor: Int): FishBunCreator = this.apply {
         fishton.colorSelectCircleStroke = strokeColor
     }

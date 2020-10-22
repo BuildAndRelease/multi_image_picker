@@ -45,7 +45,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     private var photosDataSource: PhotoCollectionViewDataSource?
     private var albumsDataSource: AlbumTableViewDataSource
     
-    private let doneBarButtonTitle: String = NSLocalizedString("Done", comment: "")
+    private var doneBarButtonTitle: String = NSLocalizedString("Done", comment: "")
     private let originBarButtonTitle: String = NSLocalizedString("Origin", comment: "")
     
     private var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: GridCollectionViewLayout())
@@ -66,6 +66,9 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         self.albumsDataSource = AlbumTableViewDataSource(fetchResults: fetchResults)
         self.settings = aSettings
         self.assetStore = assetStore
+        if !settings.doneButtonText.isEmpty {
+            doneBarButtonTitle = settings.doneButtonText
+        }
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -301,7 +304,32 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     func photoCollectionViewDataSourceDidReceiveCellSelectAction(_ cell: PhotoCell) {
         guard let photosDataSource = photosDataSource, collectionView.isUserInteractionEnabled else { return }
         guard let asset = cell.asset else { return }
-
+        
+        if !settings.selectType.isEmpty {
+            if settings.selectType == "video"{
+                if asset.mediaType != .video  {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString("仅支持视频选择", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return;
+                }
+            }
+            
+            if settings.selectType == "image" {
+                if asset.mediaType != .image  {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString("仅支持图片选择", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return;
+                }
+            }
+        }
         if assetStore.contains(asset) {
             let canSelectBefore = assetStore.canAppend()
             assetStore.remove(asset)

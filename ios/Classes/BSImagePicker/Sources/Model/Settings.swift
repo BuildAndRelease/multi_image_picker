@@ -26,6 +26,8 @@ import UIKit
 The settings object that gets passed around between classes for keeping...settings
 */
 final class Settings : BSImagePickerSettings {
+    var selectType: String = ""
+    var doneButtonText: String = ""
     var thumb: Bool = true
     var maxHeightOfImage: Int = 1024
     var maxWidthOfImage: Int = 768

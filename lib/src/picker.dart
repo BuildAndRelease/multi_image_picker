@@ -10,33 +10,13 @@ class MultiImagePicker {
       const MethodChannel('multi_image_picker');
   static final Map<String, Uint8List> _cacheThumbData = Map();
 
-  /// Invokes the multi image picker selector.
-  ///
-  /// You must provide [maxImages] option, which will limit
-  /// the number of images that the user can choose. On iOS
-  /// you can pass also [cupertinoOptions] parameter which should be
-  /// an instance of [CupertinoOptions] class. It allows you
-  /// to customize the look of the image picker. On Android
-  /// you can pass the [materialOptions] parameter, which should
-  /// be an instance of [MaterialOptions] class.
-  /// As from version  2.1.40 a new parameter [enableCamera]
-  /// was added, which allows the user to take a picture
-  /// directly from the gallery.
-  ///
-  /// If you would like to present the picker with pre selected
-  /// photos, you can pass [selectedAssets] with List of Asset
-  /// objects picked previously from the picker.
-  ///
-  /// This method returns list of [Asset] objects. Because
-  /// they are just placeholders containing the actual
-  /// identifier to the image, not the image itself you can
-  /// pick thousands of images at a time, with no performance
-  /// penalty. How to request the original image or a thumb
-  /// you can refer to the docs for the Asset class.
+  // selectType: video  image
   static Future<Map<dynamic, dynamic>> pickImages({
     @required int maxImages,
     bool thumb = true,
     String defaultAsset = "",
+    String selectType = "",
+    String doneButtonText = '',
     List<String> selectedAssets = const [],
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
     MaterialOptions materialOptions = const MaterialOptions(),
@@ -47,6 +27,8 @@ class MultiImagePicker {
         <String, dynamic>{
           'maxImages': maxImages,
           'thumb': thumb,
+          'selectType': selectType,
+          'doneButtonText': doneButtonText,
           'iosOptions': cupertinoOptions.toJson(),
           'androidOptions': materialOptions.toJson(),
           'defaultAsset': defaultAsset,

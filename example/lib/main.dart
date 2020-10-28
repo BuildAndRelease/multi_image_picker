@@ -108,7 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
         maxImages: 9,
         defaultAsset: null,
         selectedAssets: null,
-        doneButtonText: "图片选择框架",
+        selectType: "",
+        doneButtonText: "上传",
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
             selectionStrokeColor: "#ff6179f2",

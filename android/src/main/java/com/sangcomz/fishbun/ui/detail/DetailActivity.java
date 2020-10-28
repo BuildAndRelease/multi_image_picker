@@ -179,32 +179,46 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
-            if (fishton.getSelectType().equals("video")) {
+            if (fishton.getSelectType().equals("selectVideo")) {
                 if (!media.getFileType().contains("video")) {
                     Snackbar.make(btnDetailCount, "仅支持视频选择", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
             }
-            if (fishton.getSelectType().equals("image")) {
+            if (fishton.getSelectType().equals("selectImage")) {
                 if (!media.getFileType().contains("image")) {
                     Snackbar.make(btnDetailCount, "仅支持图片选择", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            if (fishton.getSelectType().equals("selectSingleType")) {
+                if (fishton.isContainImage() && !media.getFileType().contains("image")) {
+                    Snackbar.make(btnDetailCount, "图片和视频不能同时选择", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+                if (fishton.isContainVideo() && !(fishton.getSelectedMedias().contains(media))) {
+                    Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片和视频不能同时选择" : "只能选择一个视频", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
             }
             if (media.getFileType().contains("image") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
                 Snackbar.make(btnDetailCount, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
             } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
-                Snackbar.make(btnDetailCount, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(btnDetailCount, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();
             } else {
                 if (fishton.getSelectedMedias().contains(media)) {
                     fishton.getSelectedMedias().remove(media);
                     onCheckStateChange(media);
                 } else {
-                    if (fishton.getSelectedMedias().size() == fishton.getMaxCount()) {
-                        Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
-                    } else {
+                    if (fishton.canAppendMedia()) {
                         fishton.getSelectedMedias().add(media);
                         onCheckStateChange(media);
+                    } else {
+                        if (fishton.getSelectType() == "selectSingleType" && fishton.isContainVideo()) {
+                            Snackbar.make(v, "最多只能选择1个视频", Snackbar.LENGTH_SHORT).show();
+                        }else {
+                            Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
@@ -216,7 +230,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 if (media.getFileType().contains("image") && Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
                     Snackbar.make(btnDetailCount, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
                 } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
-                    Snackbar.make(btnDetailCount, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(btnDetailCount, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();
                 } else {
                     if (fishton.getSelectedMedias().contains(media)) {
                         fishton.getSelectedMedias().remove(media);

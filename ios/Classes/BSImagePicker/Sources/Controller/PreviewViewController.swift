@@ -286,7 +286,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     func selectMediaItem(_ asset : PHAsset) -> Int {
         if let selectType = settings?.selectType, !selectType.isEmpty {
-            if selectType == "video"{
+            if selectType == "selectVideo"{
                 if asset.mediaType != .video  {
                     let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                     hud.mode = MBProgressHUDMode.text
@@ -298,12 +298,33 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
                 }
             }
             
-            if selectType == "image" {
+            if selectType == "selectImage" {
                 if asset.mediaType != .image  {
                     let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                     hud.mode = MBProgressHUDMode.text
                     hud.bezelView.backgroundColor = UIColor.darkGray
                     hud.label.text = NSLocalizedString("仅支持图片选择", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return -1;
+                }
+            }
+            
+            if selectType == "selectSingleType" {
+                if self.assetStore?.isContainPic() ?? false, asset.mediaType != .image {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString("不能同时选择图片和视频", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return -1;
+                }
+                if self.assetStore?.isContainVideo() ?? false, !(self.assetStore?.contains(asset) ?? true) {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString(asset.mediaType != .video ? "不能同时选择图片和视频" : "只能选择一个视频", comment: "")
                     hud.offset = CGPoint(x: 0, y: 0)
                     hud.hide(animated: true, afterDelay: 2.0)
                     return -1;
@@ -374,7 +395,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
             return nil
         }else if assetStore?.count ?? 0 >= (settings?.maxNumberOfSelections ?? 9) {
             selectLimitReachedClosure?(assetStore?.count ?? 0)
-            return NSError(domain: "最多只能选择9个文件", code: 5, userInfo: nil)
+            return NSError(domain: "最多只能选择\((settings?.maxNumberOfSelections ?? 9)!)个文件", code: 5, userInfo: nil)
         }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 100.0 {
             return NSError(domain: "不能分享超过100M的图片", code: 6, userInfo: nil)
         }

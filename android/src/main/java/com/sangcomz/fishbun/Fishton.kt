@@ -90,6 +90,23 @@ class Fishton {
         return false
     }
 
+    fun isContainImage(): Boolean {
+        for (media in selectedMedias) {
+            if (media.fileType.contains("image")) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun canAppendMedia(): Boolean {
+        if ("selectSingleType" == selectType && isContainVideo()) {
+            return false
+        }else {
+            return selectedMedias.count() < maxCount
+        }
+    }
+
     fun mediaIndexOfFirstPreSelectMedia(): Int {
         try {
             if (preSelectedMedia.isNotEmpty()) {

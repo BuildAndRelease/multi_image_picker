@@ -306,7 +306,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         guard let asset = cell.asset else { return }
         
         if !settings.selectType.isEmpty {
-            if settings.selectType == "video"{
+            if settings.selectType == "selectVideo"{
                 if asset.mediaType != .video  {
                     let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                     hud.mode = MBProgressHUDMode.text
@@ -318,7 +318,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                 }
             }
             
-            if settings.selectType == "image" {
+            if settings.selectType == "selectImage" {
                 if asset.mediaType != .image  {
                     let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                     hud.mode = MBProgressHUDMode.text
@@ -329,11 +329,32 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                     return;
                 }
             }
+            
+            if settings.selectType == "selectSingleType" {
+                if assetStore.isContainPic(), asset.mediaType != .image {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString("不能同时选择图片和视频", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return;
+                }
+                if assetStore.isContainVideo(), !assetStore.contains(asset) {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString(asset.mediaType != .video ? "不能同时选择图片和视频" : "只能选择一个视频", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return;
+                }
+            }
         }
         if assetStore.contains(asset) {
-            let canSelectBefore = assetStore.canAppend()
+            let canSelectBefore = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
             assetStore.remove(asset)
-            let canSelectAfter = assetStore.canAppend()
+            let canSelectAfter = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
             updateButtonState()
             let selectedIndexPaths = assetStore.assets.compactMap({ (asset) -> IndexPath? in
                 guard let index = photosDataSource.fetchResult.firstIndex(of: asset) else { return nil }
@@ -354,7 +375,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("最多只能选择9个文件", comment: "")
+                hud.label.text = NSLocalizedString("最多只能选择\(settings.maxNumberOfSelections)个文件", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
             }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 100.0 {
@@ -365,9 +386,9 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
             }else {
-                let canSelectBefore = assetStore.canAppend()
+                let canSelectBefore = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
                 assetStore.append(asset)
-                let canSelectAfter = assetStore.canAppend()
+                let canSelectAfter = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
                 if let selectionCharacter = settings.selectionCharacter {
                     cell.selectionString = String(selectionCharacter)
                 } else {

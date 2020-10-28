@@ -66,11 +66,15 @@ class AssetStore {
         assets.remove(at: index)
     }
     
-    func canAppend() -> Bool {
-        if assets.count >= 9 {
-            return false
-        }else {
-            return true
+    func canAppend(_ selectType : String, maxNum : Int) -> Bool {
+        if "selectSingleType" == selectType , isContainVideo(){
+            return false;
+        }else{
+            if assets.count >=  maxNum {
+                return false
+            }else {
+                return true
+            }
         }
     }
 }

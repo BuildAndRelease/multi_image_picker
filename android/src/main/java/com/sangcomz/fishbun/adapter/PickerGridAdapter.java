@@ -54,20 +54,26 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setTextColor(Color.WHITE);
         vh.btnThumbCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
 
-        if ((fishton.getSelectedMedias().size() >= fishton.getMaxCount()) && !fishton.getSelectedMedias().contains(media)) {
-            vh.banCoverView.setVisibility(View.VISIBLE);
-            vh.banCoverView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Snackbar.make(vh.item, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
-                }
-            });
-            vh.imgThumbImage.setEnabled(false);
-            vh.btnThumbCount.setEnabled(false);
-        }else {
+        if (fishton.canAppendMedia()) {
             vh.banCoverView.setVisibility(View.INVISIBLE);
             vh.imgThumbImage.setEnabled(true);
             vh.btnThumbCount.setEnabled(true);
+        }else {
+            if (!fishton.getSelectedMedias().contains(media)) {
+                vh.banCoverView.setVisibility(View.VISIBLE);
+                vh.banCoverView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (fishton.getSelectType() == "selectSingleType" && fishton.isContainVideo()) {
+                            Snackbar.make(vh.item, "最多只能选择1个视频", Snackbar.LENGTH_SHORT).show();
+                        }else {
+                            Snackbar.make(vh.item, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                vh.imgThumbImage.setEnabled(false);
+                vh.btnThumbCount.setEnabled(false);
+            }
         }
 
         if (media.getFileType().contains("video")) {
@@ -102,15 +108,25 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         vh.btnThumbCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (fishton.getSelectType().equals("video")) {
+                if (fishton.getSelectType().equals("selectVideo")) {
                     if (!media.getFileType().contains("video")) {
                         Snackbar.make(vh.item, "仅支持视频选择", Snackbar.LENGTH_SHORT).show();
                         return;
                     }
                 }
-                if (fishton.getSelectType().equals("image")) {
+                if (fishton.getSelectType().equals("selectImage")) {
                     if (!media.getFileType().contains("image")) {
                         Snackbar.make(vh.item, "仅支持图片选择", Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                if (fishton.getSelectType().equals("selectSingleType")) {
+                    if (fishton.isContainImage() && !media.getFileType().contains("image")) {
+                        Snackbar.make(vh.item, "图片和视频不能同时选择", Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (fishton.isContainVideo() && !(fishton.getSelectedMedias().contains(media))) {
+                        Snackbar.make(vh.item, media.getFileType().contains("image") ? "图片和视频不能同时选择" : "只能选择一个视频", Snackbar.LENGTH_SHORT).show();
                         return;
                     }
                 }
@@ -126,7 +142,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 } else if (media.getFileType().contains("image") &&  Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
                     Snackbar.make(vh.item, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
                 } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size()) {
-                    Snackbar.make(vh.item, "最多只能选择9个文件", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(vh.item, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();
                 } else {
                     ArrayList<Media> pickedImages = fishton.getSelectedMedias();
                     RadioWithTextButton btnThumbCount = vh.item.findViewById(R.id.btn_thumb_count);
@@ -135,7 +151,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     btnThumbCount.setText(String.valueOf(pickedImages.size()));
                     ViewCompat.animate(coverView).setDuration(100).alpha(0.3f);
                     pickerController.onSelectCountDidChange();
-                    if (pickedImages.size() >= fishton.getMaxCount() || fishton.isContainVideo()) {
+                    if (!fishton.canAppendMedia()) {
                         notifyDataSetChanged();
                     }
                 }

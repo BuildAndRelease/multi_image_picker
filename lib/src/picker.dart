@@ -10,7 +10,7 @@ class MultiImagePicker {
       const MethodChannel('multi_image_picker');
   static final Map<String, Uint8List> _cacheThumbData = Map();
 
-  // selectType: video  image
+  // selectType: selectAll selectVideo  selectImage selectSingleType
   static Future<Map<dynamic, dynamic>> pickImages({
     @required int maxImages,
     bool thumb = true,

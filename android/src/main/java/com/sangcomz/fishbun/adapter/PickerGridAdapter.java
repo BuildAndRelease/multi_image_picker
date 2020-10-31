@@ -64,7 +64,7 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 vh.banCoverView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (fishton.getSelectType() == "selectSingleType" && fishton.isContainVideo()) {
+                        if ("selectSingleType".equals(fishton.getSelectType()) && fishton.isContainVideo()) {
                             Snackbar.make(vh.item, "最多只能选择1个视频", Snackbar.LENGTH_SHORT).show();
                         }else {
                             Snackbar.make(vh.item, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();

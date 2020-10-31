@@ -70,11 +70,7 @@ class AssetStore {
         if "selectSingleType" == selectType , isContainVideo(){
             return false;
         }else{
-            if assets.count >=  maxNum {
-                return false
-            }else {
-                return true
-            }
+            return assets.count <  maxNum
         }
     }
 }

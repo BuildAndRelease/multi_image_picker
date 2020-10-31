@@ -214,7 +214,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                         fishton.getSelectedMedias().add(media);
                         onCheckStateChange(media);
                     } else {
-                        if (fishton.getSelectType() == "selectSingleType" && fishton.isContainVideo()) {
+                        if ("selectSingleType".equals(fishton.getSelectType()) && fishton.isContainVideo()) {
                             Snackbar.make(v, "最多只能选择1个视频", Snackbar.LENGTH_SHORT).show();
                         }else {
                             Snackbar.make(v, fishton.getMessageLimitReached(), Snackbar.LENGTH_SHORT).show();

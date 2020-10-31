@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
         maxImages: 9,
         defaultAsset: null,
         selectedAssets: null,
-        selectType: "",
+        selectType: "selectSingleType",
         doneButtonText: "上传",
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",

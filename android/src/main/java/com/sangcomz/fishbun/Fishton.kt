@@ -100,7 +100,7 @@ class Fishton {
     }
 
     fun canAppendMedia(): Boolean {
-        if ("selectSingleType" == selectType && isContainVideo()) {
+        if ("selectSingleType".equals(selectType) && isContainVideo()) {
             return false
         }else {
             return selectedMedias.count() < maxCount

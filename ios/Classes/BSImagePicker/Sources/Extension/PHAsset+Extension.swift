@@ -136,7 +136,7 @@ extension PHAsset {
                         dictionary.setValue("video", forKey: "fileType")
                         finish?(dictionary)
                     }else {
-                        let exportSession = AVAssetExportSession(asset: avAsset!, presetName: self.fileSize > 100 * 1024 * 1024 ? AVAssetExportPreset640x480 : AVAssetExportPreset960x540)
+                        let exportSession = AVAssetExportSession(asset: avAsset!, presetName: AVAssetExportPreset640x480)
                         exportSession?.outputURL = URL(fileURLWithPath: videoTmpPath)
                         exportSession?.shouldOptimizeForNetworkUse = true
                         exportSession?.outputFileType = .mp4

@@ -107,18 +107,18 @@ extension PHAsset {
 
                     var thumbVideoSize = CGSize.zero
                     if FileManager.default.fileExists(atPath: videoPath) {
-                        do {
-                            let attributes = try FileManager.default.attributesOfItem(atPath: videoPath)
-                            if let fileSize = attributes[FileAttributeKey.size], fileSize is NSNumber, (fileSize as! NSNumber).intValue > 100 * 1024 * 1024 {
-                                failed?(NSError(domain: "视频大小超过100M", code: 4, userInfo: [
-                                    "identifier": self.localIdentifier,
-                                    "errorCode": "4",
-                                ]))
-                                return
-                            }
-                        } catch let err as NSError {
-                            print(err)
-                        }
+//                        do {
+//                            let attributes = try FileManager.default.attributesOfItem(atPath: videoPath)
+//                            if let fileSize = attributes[FileAttributeKey.size], fileSize is NSNumber, (fileSize as! NSNumber).intValue > 100 * 1024 * 1024 {
+//                                failed?(NSError(domain: "视频大小超过100M", code: 4, userInfo: [
+//                                    "identifier": self.localIdentifier,
+//                                    "errorCode": "4",
+//                                ]))
+//                                return
+//                            }
+//                        } catch let err as NSError {
+//                            print(err)
+//                        }
                         let thumbVideo = AVURLAsset(url: URL(fileURLWithPath: videoPath))
                         for track in thumbVideo.tracks {
                             if track.mediaType == AVMediaType.video {
@@ -142,18 +142,18 @@ extension PHAsset {
                         exportSession?.outputFileType = .mp4
                         exportSession?.exportAsynchronously(completionHandler: {
                             if FileManager.default.fileExists(atPath: videoTmpPath) {
-                                do {
-                                    let attributes = try FileManager.default.attributesOfItem(atPath: videoTmpPath)
-                                    if let fileSize = attributes[FileAttributeKey.size], fileSize is NSNumber, (fileSize as! NSNumber).intValue > 100 * 1024 * 1024 {
-                                        failed?(NSError(domain: "视频大小超过100M", code: 4, userInfo: [
-                                            "identifier": self.localIdentifier,
-                                            "errorCode": "4"
-                                        ]))
-                                        return
-                                    }
-                                } catch let err as NSError {
-                                    print(err)
-                                }
+//                                do {
+//                                    let attributes = try FileManager.default.attributesOfItem(atPath: videoTmpPath)
+//                                    if let fileSize = attributes[FileAttributeKey.size], fileSize is NSNumber, (fileSize as! NSNumber).intValue > 100 * 1024 * 1024 {
+//                                        failed?(NSError(domain: "视频大小超过100M", code: 4, userInfo: [
+//                                            "identifier": self.localIdentifier,
+//                                            "errorCode": "4"
+//                                        ]))
+//                                        return
+//                                    }
+//                                } catch let err as NSError {
+//                                    print(err)
+//                                }
                                 let thumbVideo = AVURLAsset(url: URL(fileURLWithPath: videoTmpPath))
                                 var thumbVideoSize = CGSize.zero
                                 for track in thumbVideo.tracks {
@@ -196,33 +196,33 @@ extension PHAsset {
                 let fileName = "\(uuid).gif"
                 let filePath = saveDir + fileName
                 let fileTmpPath = saveDir + fileName + "." + tmpSuffix
-                if FileManager.default.fileExists(atPath: filePath), let data = NSData(contentsOfFile: filePath) {
-                    if data.count > 100 * 1024 * 1024 {
-                        failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
-                            "identifier": self.localIdentifier,
-                            "errorCode": "4"
-                        ]))
-                    }else {
-                        finish?([
-                            "identifier": self.localIdentifier,
-                            "filePath":filePath,
-                            "checkPath":filePath,
-                            "width": targetWidth,
-                            "height": targetHeight,
-                            "name": fileName,
-                            "fileType":"image/gif"
-                        ])
-                    }
-                }else {
+//                if FileManager.default.fileExists(atPath: filePath), let data = NSData(contentsOfFile: filePath) {
+//                    if data.count > 100 * 1024 * 1024 {
+//                        failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+//                            "identifier": self.localIdentifier,
+//                            "errorCode": "4"
+//                        ]))
+//                    }else {
+//                        finish?([
+//                            "identifier": self.localIdentifier,
+//                            "filePath":filePath,
+//                            "checkPath":filePath,
+//                            "width": targetWidth,
+//                            "height": targetHeight,
+//                            "name": fileName,
+//                            "fileType":"image/gif"
+//                        ])
+//                    }
+//                }else {
                     manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                         do {
                             if let file = data {
-                                if file.count > 100 * 1024 * 1024 {
-                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
-                                        "identifier": self.localIdentifier,
-                                        "errorCode": "4"
-                                    ]))
-                                }else {
+//                                if file.count > 100 * 1024 * 1024 {
+//                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+//                                        "identifier": self.localIdentifier,
+//                                        "errorCode": "4"
+//                                    ]))
+//                                }else {
                                     try file.write(to: URL(fileURLWithPath: fileTmpPath))
                                     do {
                                         try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
@@ -245,7 +245,7 @@ extension PHAsset {
                                             "errorCode": "3"
                                         ]))
                                     }
-                                }
+//                                }
                             }else {
                                 failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
                                     "identifier": self.localIdentifier,
@@ -256,19 +256,19 @@ extension PHAsset {
                             print(err)
                         }
                     }
-                }
+//                }
             }else {
                 let fileName = "\(uuid)-\(thumb ? "thumb" : "origin").jpg"
                 let filePath = saveDir + fileName
                 let checkPath = saveDir + fileName + ".check"
                 let fileTmpPath = saveDir + fileName + "." + tmpSuffix
-                if FileManager.default.fileExists(atPath: filePath), let data = NSData(contentsOfFile: filePath) {
-                    if data.count > 100 * 1024 * 1024 {
-                        failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
-                            "identifier": self.localIdentifier,
-                            "errorCode": "4"
-                        ]))
-                    }else {
+                if FileManager.default.fileExists(atPath: filePath) {
+//                    if data.count > 100 * 1024 * 1024 {
+//                        failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+//                            "identifier": self.localIdentifier,
+//                            "errorCode": "4"
+//                        ]))
+//                    }else {
                         finish?([
                             "identifier": self.localIdentifier,
                             "filePath":filePath,
@@ -278,17 +278,17 @@ extension PHAsset {
                             "name": fileName,
                             "fileType":"image/jpeg"
                         ])
-                    }
+//                    }
                 }else {
                     manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
                         if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {
                             if thumb {
-                                if imageData.length > 100 * 1024 * 1024 {
-                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
-                                        "identifier": self.localIdentifier,
-                                        "errorCode": "4"
-                                    ]))
-                                }else {
+//                                if imageData.length > 100 * 1024 * 1024 {
+//                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+//                                        "identifier": self.localIdentifier,
+//                                        "errorCode": "4"
+//                                    ]))
+//                                }else {
                                     imageData.write(toFile: fileTmpPath, atomically: true)
                                     if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
                                         checkImageData.write(toFile: checkPath, atomically: true)
@@ -315,14 +315,14 @@ extension PHAsset {
                                             "errorCode": "3"
                                         ]))
                                     }
-                                }
+//                                }
                             } else {
-                                if imageData.length > 100 * 1024 * 1024 {
-                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
-                                        "identifier": self.localIdentifier,
-                                        "errorCode": "4"
-                                    ]))
-                                }else {
+//                                if imageData.length > 100 * 1024 * 1024 {
+//                                    failed?(NSError(domain: "图片大小超过100M", code: 4, userInfo: [
+//                                        "identifier": self.localIdentifier,
+//                                        "errorCode": "4"
+//                                    ]))
+//                                }else {
                                     imageData.write(toFile: filePath, atomically: true)
                                     
                                     if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
@@ -345,7 +345,7 @@ extension PHAsset {
                                             "errorCode": "3"
                                         ]))
                                     }
-                                }
+//                                }
                             }
                         }else {
                             failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [

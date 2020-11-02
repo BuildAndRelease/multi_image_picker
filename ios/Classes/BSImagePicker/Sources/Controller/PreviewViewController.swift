@@ -396,8 +396,8 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         }else if assetStore?.count ?? 0 >= (settings?.maxNumberOfSelections ?? 9) {
             selectLimitReachedClosure?(assetStore?.count ?? 0)
             return NSError(domain: "最多只能选择\((settings?.maxNumberOfSelections ?? 9)!)个文件", code: 5, userInfo: nil)
-        }else if asset.mediaType == .image, asset.fileSize > 1024 * 1024 * 100.0 {
-            return NSError(domain: "不能分享超过100M的图片", code: 6, userInfo: nil)
+        }else if asset.fileSize > 1024 * 1024 * 100.0 {
+            return NSError(domain: "不能分享超过100M的文件", code: 6, userInfo: nil)
         }
         return nil
     }

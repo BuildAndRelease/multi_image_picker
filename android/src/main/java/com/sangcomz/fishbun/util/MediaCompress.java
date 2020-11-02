@@ -145,13 +145,13 @@ public class MediaCompress {
                                 break;
                             }
                         }
-                        if (targetVideo.length() > 100 * 1024 * 1024) {
-                            HashMap info = new HashMap();
-                            info.put("identifier", media.getIdentifier());
-                            info.put("errorCode", "4");
-                            result.add(info);
-                            break;
-                        }
+//                        if (targetVideo.length() > 100 * 1024 * 1024) {
+//                            HashMap info = new HashMap();
+//                            info.put("identifier", media.getIdentifier());
+//                            info.put("errorCode", "4");
+//                            result.add(info);
+//                            break;
+//                        }
                         HashMap info = new HashMap();
                         info.put("identifier", media.getIdentifier());
                         info.put("filePath", targetVideo.getAbsolutePath());
@@ -196,12 +196,12 @@ public class MediaCompress {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (fileSize > 100 * 1024 * 1024) {
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("identifier", media.getIdentifier());
-            map.put("errorCode", "4");
-            return map;
-        }
+//        if (fileSize > 100 * 1024 * 1024) {
+//            HashMap<String, Object> map = new HashMap<>();
+//            map.put("identifier", media.getIdentifier());
+//            map.put("errorCode", "4");
+//            return map;
+//        }
         String cacheDir = context.getCacheDir().getAbsolutePath();
         String thumbPath = cacheDir + "/multi_image_pick/thumb/";
         if (media.getFileType().contains("gif") || media.getOriginPath().endsWith("gif")) {

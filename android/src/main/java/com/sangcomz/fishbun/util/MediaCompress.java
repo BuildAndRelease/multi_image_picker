@@ -134,7 +134,7 @@ public class MediaCompress {
                         if (!targetVideo.exists()) {
                             File tmpVideo = new File(cacheDir + videoName + "." + UUID.randomUUID().toString());
                             try {
-                                VideoProcessor.processor(context).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).bitrate(2048000).process();
+                                VideoProcessor.processor(context).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(60).bitrate(2048000).process();
                                 tmpVideo.renameTo(targetVideo);
                             } catch (Exception e) {
                                 e.printStackTrace();

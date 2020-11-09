@@ -145,7 +145,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // print(fileSize);
 
       resultList = await MultiImagePicker.requestMediaData(
-          selectedAssets: ['2263379'], thumb: true);
+          selectedAssets: ['97AB2E5D-7C57-41EB-B3B4-DB1A063D843F/L0/001'],
+          thumb: true);
 
       // print(resultList);
       // print(resultList[0].toJsonMap());

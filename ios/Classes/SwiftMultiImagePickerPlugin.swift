@@ -69,6 +69,13 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                         usleep(50000)
                     }
                 }
+                results.sort { (obj1, obj2) -> Bool in
+                    let identify1 = String(describing: obj1.value(forKey: "identifier") ?? "")
+                    let identify2 = String(describing: obj2.value(forKey: "identifier") ?? "")
+                    let index1 = selectedAssets.firstIndex(of: identify1) ?? -1
+                    let index2 = selectedAssets.firstIndex(of: identify2) ?? -1
+                    return index1 > index2;
+                }
                 result(results)
             }
         case "requestFileSize":

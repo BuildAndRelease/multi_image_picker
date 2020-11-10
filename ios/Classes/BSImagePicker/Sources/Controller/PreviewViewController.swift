@@ -157,17 +157,13 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        collectionView.scrollToItem(at: IndexPath(row: currentAssetIndex, section: 0), at: .centeredHorizontally, animated: false)
+        collectionView.contentOffset = CGPoint(x: collectionView.bounds.width * CGFloat(self.currentAssetIndex), y: collectionView.contentOffset.y)
         updateButtonState()
         refreshSelectIndex()
+        loadingView = false
     }
     
     override func viewDidLayoutSubviews() {
-        if loadingView {
-            collectionView.scrollToItem(at: IndexPath(row: currentAssetIndex, section: 0), at: .centeredHorizontally, animated: false)
-            refreshSelectIndex()
-            loadingView = false
-        }
         var height : CGFloat?
         if #available(iOS 11.0, *) {
             height = self.view.safeAreaInsets.bottom
@@ -176,15 +172,6 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         }
         bottomHeightConstraint?.constant = height! + 49
         super.viewDidLayoutSubviews()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        if loadingView {
-            collectionView.scrollToItem(at: IndexPath(row: currentAssetIndex, section: 0), at: .centeredHorizontally, animated: false)
-            refreshSelectIndex()
-            loadingView = false
-        }
-        super.viewDidAppear(animated)
     }
     
     override func viewWillDisappear(_ animated: Bool) {

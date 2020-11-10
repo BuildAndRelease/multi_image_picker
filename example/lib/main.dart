@@ -104,20 +104,20 @@ class _MyHomePageState extends State<MyHomePage> {
       // final preSelectMedias = ["120818", "120817", "120816"];
       // final preSelectMedia = '1960634';
 
-      // final result = await MultiImagePicker.pickImages(
-      //   maxImages: 9,
-      //   defaultAsset: null,
-      //   selectedAssets: null,
-      //   selectType: "selectSingleType",
-      //   doneButtonText: "上传",
-      //   cupertinoOptions: CupertinoOptions(
-      //       takePhotoIcon: "chat",
-      //       selectionStrokeColor: "#ff6179f2",
-      //       selectionFillColor: "#ff6179f2"),
-      //   materialOptions: MaterialOptions(
-      //       allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
-      // );
-      // print(result);
+      final result = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        defaultAsset: null,
+        selectedAssets: null,
+        selectType: "selectSingleType",
+        doneButtonText: "上传",
+        cupertinoOptions: CupertinoOptions(
+            takePhotoIcon: "chat",
+            selectionStrokeColor: "#ff6179f2",
+            selectionFillColor: "#ff6179f2"),
+        materialOptions: MaterialOptions(
+            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+      );
+      print(result);
 
       // final list = [
       //   "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001",
@@ -144,9 +144,9 @@ class _MyHomePageState extends State<MyHomePage> {
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
 
-      resultList = await MultiImagePicker.requestMediaData(
-          selectedAssets: ['97AB2E5D-7C57-41EB-B3B4-DB1A063D843F/L0/001'],
-          thumb: true);
+      // resultList = await MultiImagePicker.requestMediaData(
+      //     selectedAssets: ['97AB2E5D-7C57-41EB-B3B4-DB1A063D843F/L0/001'],
+      //     thumb: true);
 
       // print(resultList);
       // print(resultList[0].toJsonMap());

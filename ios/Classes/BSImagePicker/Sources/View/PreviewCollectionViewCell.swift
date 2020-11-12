@@ -14,6 +14,7 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     var photoImageView : UIImageView = UIImageView(frame: CGRect.zero)
     var playImageView : UIImageView = UIImageView(frame: CGRect.zero)
     var scrollView : UIScrollView = UIScrollView(frame: CGRect.zero)
+    var activityIndicator = UIActivityIndicatorView(style: .white)
     
     var mediaPlayer : AVPlayer?
     var playerLayer : AVPlayerLayer?
@@ -31,6 +32,8 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
                 scrollView.maximumZoomScale = scale * 10
                 scrollView.zoomScale = scale
                 scrollViewDidZoom(scrollView)
+                
+                activityIndicator.stopAnimating()
             }
         }
     }
@@ -38,6 +41,8 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     var asset: PHAsset? {
         didSet {
             if asset != nil {
+                self.activityIndicator.startAnimating()
+                self.photoImageView.image = nil
                 self.playImageView.isHidden = self.asset?.mediaType != .video
                 self.scrollView.isUserInteractionEnabled = self.asset?.mediaType != .video
                 self.mediaPlayer?.currentItem?.cancelPendingSeeks()
@@ -67,6 +72,10 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+        scrollView.addSubview(activityIndicator)
+        
         photoImageView.frame = CGRect(x: 0, y: 0, width: contentView.frame.size.width, height: contentView.frame.size.height)
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(photoImageView)
@@ -83,9 +92,12 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
         contentView.addSubview(scrollView)
         
         playImageView.image = UIImage.wm_imageWithName_WMCameraResource(named: "play_btn_unselect")
-        playImageView.highlightedImage = UIImage.wm_imageWithName_WMCameraResource(named: "play_btn_select")
         playImageView.contentMode = .scaleAspectFit
         playImageView.translatesAutoresizingMaskIntoConstraints = false
+        playImageView.layer.shadowColor = UIColor.darkGray.cgColor
+        playImageView.layer.shadowOffset = CGSize(width: -1, height: 1)
+        playImageView.layer.shadowOpacity = 1.0
+        playImageView.clipsToBounds = false
         contentView.addSubview(playImageView)
         
         NSLayoutConstraint.activate([
@@ -97,7 +109,10 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
             NSLayoutConstraint(item: playImageView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .width, multiplier: 1, constant: 50),
             NSLayoutConstraint(item: playImageView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: 50),
             NSLayoutConstraint(item: playImageView, attribute: .centerX, relatedBy: .equal, toItem: contentView, attribute: .centerX, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: playImageView, attribute: .centerY, relatedBy: .equal, toItem: contentView, attribute: .centerY, multiplier: 1, constant: 0)
+            NSLayoutConstraint(item: playImageView, attribute: .centerY, relatedBy: .equal, toItem: contentView, attribute: .centerY, multiplier: 1, constant: 0),
+            
+            NSLayoutConstraint(item: activityIndicator, attribute: .centerX, relatedBy: .equal, toItem: contentView, attribute: .centerX, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: activityIndicator, attribute: .centerY, relatedBy: .equal, toItem: contentView, attribute: .centerY, multiplier: 1, constant: 0)
         ])
         
     }
@@ -148,12 +163,10 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
                 self.mediaPlayer?.seek(to: timeToStart)
                 self.mediaPlayer?.play()
             }else if self.mediaPlayer?.rate != 0.0 {//正在播放
-//                self.contentView.bringSubviewToFront(self.playImageView)
                 self.playImageView.isHidden = false
                 self.mediaPlayer?.rate = 0.0
             }else if self.mediaPlayer?.rate == 0.0 {//暂停
                 self.mediaPlayer?.rate = 1.0
-//                self.contentView.sendSubviewToBack(self.playImageView)
                 self.playImageView.isHidden = true
             }
         }
@@ -162,7 +175,6 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     func stopPlayVideo() {
         if asset?.mediaType == .video {
             if self.mediaPlayer?.rate != 0.0 {//正在播放
-//                self.contentView.bringSubviewToFront(self.playImageView)
                 self.playImageView.isHidden = false
                 self.mediaPlayer?.rate = 0.0
             }

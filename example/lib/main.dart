@@ -143,10 +143,8 @@ class _MyHomePageState extends State<MyHomePage> {
       //     'F9D725E8-BF01-4FF2-A61C-3EC033C181C1/L0/001');
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
-
-      // resultList = await MultiImagePicker.requestMediaData(
-      //     selectedAssets: ['97AB2E5D-7C57-41EB-B3B4-DB1A063D843F/L0/001'],
-      //     thumb: true);
+      resultList = await MultiImagePicker.requestMediaData(
+          selectedAssets: result['identifiers'].first, thumb: true);
 
       // print(resultList);
       // print(resultList[0].toJsonMap());

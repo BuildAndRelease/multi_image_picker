@@ -201,9 +201,10 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                     return;
                 }
             }
-            if (Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
-                Snackbar.make(btnDetailCount, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
-            } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
+//            if (Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
+//                Snackbar.make(btnDetailCount, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
+//            } else
+            if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
                 Snackbar.make(btnDetailCount, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();
             } else {
                 if (fishton.getSelectedMedias().contains(media)) {
@@ -227,9 +228,10 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         } else if (id == R.id.photo_preview_send_btn) {
             if (fishton.getSelectedMedias().size() < 1) {
                 Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
-                if (Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
-                    Snackbar.make(btnDetailCount, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
-                } else if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
+//                if (Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
+//                    Snackbar.make(btnDetailCount, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
+//                } else
+                if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
                     Snackbar.make(btnDetailCount, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();
                 } else {
                     if (fishton.getSelectedMedias().contains(media)) {

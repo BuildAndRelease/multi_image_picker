@@ -378,14 +378,16 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                 hud.label.text = NSLocalizedString("最多只能选择\(settings.maxNumberOfSelections)个文件", comment: "")
                 hud.offset = CGPoint(x: 0, y: 0)
                 hud.hide(animated: true, afterDelay: 2.0)
-            }else if asset.fileSize > 1024 * 1024 * 100.0 {
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.mode = MBProgressHUDMode.text
-                hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("不能分享超过100M的文件", comment: "")
-                hud.offset = CGPoint(x: 0, y: 0)
-                hud.hide(animated: true, afterDelay: 2.0)
-            }else {
+            }
+//            else if asset.fileSize > 1024 * 1024 * 100.0 {
+//                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+//                hud.mode = MBProgressHUDMode.text
+//                hud.bezelView.backgroundColor = UIColor.darkGray
+//                hud.label.text = NSLocalizedString("不能分享超过100M的文件", comment: "")
+//                hud.offset = CGPoint(x: 0, y: 0)
+//                hud.hide(animated: true, afterDelay: 2.0)
+//            }
+            else {
                 let canSelectBefore = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
                 assetStore.append(asset)
                 let canSelectAfter = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)

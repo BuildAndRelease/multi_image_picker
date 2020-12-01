@@ -445,5 +445,9 @@ extension PhotosViewController: UITableViewDelegate {
         updateAlbumTitle(album)
         collectionView.reloadData()
         albumsViewController.dismiss(animated: true, completion: nil)
+        
+        let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
+        collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: false)
+        needScrollToBottom = false
     }
 }

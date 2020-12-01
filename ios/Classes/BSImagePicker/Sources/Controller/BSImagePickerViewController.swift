@@ -54,14 +54,25 @@ open class BSImagePickerViewController : UINavigationController{
         }
     }
     
-    @objc open lazy var fetchResults: [PHFetchResult] = { () -> [PHFetchResult<PHAssetCollection>] in
-        let fetchOptions = PHFetchOptions()
-        // Camera roll fetch result
-        let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: fetchOptions)
-        fetchOptions.predicate = NSPredicate(format: "estimatedAssetCount > 0")
-        // Albums fetch result
-        let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-        return [cameraRollResult, albumResult]
+    @objc open lazy var fetchResults: [PHAssetCollection] = { () -> [PHAssetCollection] in
+        var results =  Array<PHAssetCollection>()
+        let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: nil)
+        for i in 0 ..< cameraRollResult.count {
+            let collection = cameraRollResult.object(at: i)
+            let assets = PHAsset.fetchAssets(in: collection, options: nil)
+            if assets.count > 0 {
+                results.append(collection)
+            }
+        }
+        let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
+        for i in 0 ..< albumResult.count {
+            let collection = albumResult.object(at: i)
+            let assets = PHAsset.fetchAssets(in: collection, options: nil)
+            if assets.count > 0 {
+                results.append(collection)
+            }
+        }
+        return results
     }()
     
     @objc lazy var photosViewController: PhotosViewController = {
@@ -82,23 +93,23 @@ open class BSImagePickerViewController : UINavigationController{
         vc.deselectionClosure = deselectionClosure
         vc.selectLimitReachedClosure = selectLimitReachedClosure
         vc.assetStore = self.assetStore
-        if let album = fetchResults.first?.firstObject {
-            let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
-            var assets : Array<PHAsset> = []
-            fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
-                assets.append(asset)
-            }
-            var index = 0
-            if (!self.defaultSelectMedia.isEmpty) {
-                if let defaultAsset = PHAsset.fetchAssets(withLocalIdentifiers: [self.defaultSelectMedia], options: nil).firstObject {
-                    index = assets.firstIndex(of: defaultAsset) ?? 0
-                }
-            }else{
-                index = assets.firstIndex(of: self.assetStore!.assets.first!) ?? 0
-            }
-            vc.currentAssetIndex = index
-            vc.fetchResult = assets
+        let album = fetchResults[0]
+        let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
+        var assets : Array<PHAsset> = []
+        fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
+            assets.append(asset)
         }
+        var index = 0
+        if (!self.defaultSelectMedia.isEmpty) {
+            if let defaultAsset = PHAsset.fetchAssets(withLocalIdentifiers: [self.defaultSelectMedia], options: nil).firstObject {
+                index = assets.firstIndex(of: defaultAsset) ?? 0
+            }
+        }else{
+            index = assets.firstIndex(of: self.assetStore!.assets.first!) ?? 0
+        }
+        vc.currentAssetIndex = index
+        vc.fetchResult = assets
+        
         return vc
     }()
     

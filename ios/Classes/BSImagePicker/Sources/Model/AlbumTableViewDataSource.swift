@@ -27,86 +27,63 @@ import Photos
 Implements the UITableViewDataSource protocol with a data source and cell factory
 */
 final class AlbumTableViewDataSource : NSObject, UITableViewDataSource {
-    let fetchResults: [PHFetchResult<PHAssetCollection>]
+    let fetchResults: [PHAssetCollection]
     private let imageRequestOptions: PHImageRequestOptions
     private let imageManager = PHCachingImageManager.default()
     
-    init(fetchResults: [PHFetchResult<PHAssetCollection>]) {
+    init(fetchResults: [PHAssetCollection]) {
         self.fetchResults = fetchResults
         imageRequestOptions = PHImageRequestOptions()
         imageRequestOptions.isNetworkAccessAllowed = true
+        imageRequestOptions.deliveryMode = .opportunistic
+        imageRequestOptions.resizeMode = .fast
+        imageRequestOptions.isSynchronous = false
         super.init()
     }
     
     func countItems() -> Int {
-        var count = 0
-        for items in fetchResults {
-            count = count + items.count
-        }
-        return count
-    }
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
         return fetchResults.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fetchResults[section].count
+        return fetchResults.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AlbumCell.cellIdentifier, for: indexPath) as! AlbumCell
-        let cachingManager = PHCachingImageManager.default() as? PHCachingImageManager
-        cachingManager?.allowsCachingHighQualityImages = false
         
-        // Fetch album
-        let album = fetchResults[indexPath.section][indexPath.row]
-        // Title
+        let album = fetchResults[indexPath.row]
         if album.estimatedAssetCount > 1000 || album.estimatedAssetCount <= 0 {
             cell.albumTitleLabel.text = album.localizedTitle
         }else {
             cell.albumTitleLabel.text = "\(String(describing: (album.localizedTitle ?? "未知相册名称")!))(约\(album.estimatedAssetCount)张)"
         }
-        
-        let fetchOptions = PHFetchOptions()
-        fetchOptions.sortDescriptors = [
-            NSSortDescriptor(key: "creationDate", ascending: false)
-        ]
-        fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
 
         let scale = UIScreen.main.scale
         let imageSize = CGSize(width: 79 * scale, height: 79 * scale)
         let imageContentMode: PHImageContentMode = .aspectFill
-        let result = PHAsset.fetchAssets(in: album, options: fetchOptions)
+        let result = PHAsset.fetchAssets(in: album, options: nil)
         result.enumerateObjects({ [weak self] (asset, idx, stop) in
             switch idx {
             case 0:
                 self?.imageManager.requestImage(for: asset, targetSize: imageSize, contentMode: imageContentMode, options: self?.imageRequestOptions) { (result, _) in
-                    // Closure is called even on cancellation. So make sure we actually have an image
                     guard let result = result else { return }
-
                     cell.firstImageView.image = result
                     cell.secondImageView.image = result
                     cell.thirdImageView.image = result
                 }
             case 1:
                 self?.imageManager.requestImage(for: asset, targetSize: imageSize, contentMode: imageContentMode, options: self?.imageRequestOptions) { (result, _) in
-                    // Closure is called even on cancellation. So make sure we actually have an image
                     guard let result = result else { return }
-
                     cell.secondImageView.image = result
                     cell.thirdImageView.image = result
                 }
             case 2:
                 self?.imageManager.requestImage(for: asset, targetSize: imageSize, contentMode: imageContentMode, options: self?.imageRequestOptions) { (result, _) in
-                    // Closure is called even on cancellation. So make sure we actually have an image
                     guard let result = result else { return }
-                    
                     cell.thirdImageView.image = result
                 }
-                
             default:
-                // Stop enumeration
                 stop.initialize(to: true)
             }
         })

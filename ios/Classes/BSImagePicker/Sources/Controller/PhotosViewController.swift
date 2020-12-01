@@ -62,7 +62,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         return PreviewViewController(settings: self.settings)
     }()
     
-    required init(fetchResults: [PHFetchResult<PHAssetCollection>], assetStore: AssetStore, settings aSettings: BSImagePickerSettings) {
+    required init(fetchResults: [PHAssetCollection], assetStore: AssetStore, settings aSettings: BSImagePickerSettings) {
         self.albumsDataSource = AlbumTableViewDataSource(fetchResults: fetchResults)
         self.settings = aSettings
         self.assetStore = assetStore
@@ -127,11 +127,11 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         bottomContentView.contentView.addSubview(originBarButton)
         bottomContentView.translatesAutoresizingMaskIntoConstraints = false
         
-        if let album = albumsDataSource.fetchResults.first?.firstObject {
-            initializePhotosDataSource(album)
-            updateAlbumTitle(album)
-            collectionView.reloadData()
-        }
+        let album = albumsDataSource.fetchResults[0]
+        initializePhotosDataSource(album)
+        updateAlbumTitle(album)
+        collectionView.reloadData()
+        
         
         photosDataSource?.registerCellIdentifiersForCollectionView(collectionView)
         photosDataSource?.delegate = self
@@ -440,7 +440,7 @@ extension PhotosViewController: UIPopoverPresentationControllerDelegate {
 extension PhotosViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // Update photos data source
-        let album = albumsDataSource.fetchResults[indexPath.section][indexPath.row]
+        let album = albumsDataSource.fetchResults[indexPath.row]
         initializePhotosDataSource(album)
         updateAlbumTitle(album)
         collectionView.reloadData()

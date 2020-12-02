@@ -67,10 +67,7 @@ open class BSImagePickerViewController : UINavigationController{
         let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
         for i in 0 ..< albumResult.count {
             let collection = albumResult.object(at: i)
-            let assets = PHAsset.fetchAssets(in: collection, options: nil)
-            if assets.count > 0 {
-                results.append(collection)
-            }
+            results.append(collection)
         }
         return results
     }()
@@ -93,23 +90,24 @@ open class BSImagePickerViewController : UINavigationController{
         vc.deselectionClosure = deselectionClosure
         vc.selectLimitReachedClosure = selectLimitReachedClosure
         vc.assetStore = self.assetStore
-        let album = fetchResults[0]
-        let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
-        var assets : Array<PHAsset> = []
-        fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
-            assets.append(asset)
-        }
-        var index = 0
-        if (!self.defaultSelectMedia.isEmpty) {
-            if let defaultAsset = PHAsset.fetchAssets(withLocalIdentifiers: [self.defaultSelectMedia], options: nil).firstObject {
-                index = assets.firstIndex(of: defaultAsset) ?? 0
+        if fetchResults.count > 0 {
+            let album = fetchResults[0]
+            let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
+            var assets : Array<PHAsset> = []
+            fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
+                assets.append(asset)
             }
-        }else{
-            index = assets.firstIndex(of: self.assetStore!.assets.first!) ?? 0
+            var index = 0
+            if (!self.defaultSelectMedia.isEmpty) {
+                if let defaultAsset = PHAsset.fetchAssets(withLocalIdentifiers: [self.defaultSelectMedia], options: nil).firstObject {
+                    index = assets.firstIndex(of: defaultAsset) ?? 0
+                }
+            }else{
+                index = assets.firstIndex(of: self.assetStore!.assets.first!) ?? 0
+            }
+            vc.currentAssetIndex = index
+            vc.fetchResult = assets
         }
-        vc.currentAssetIndex = index
-        vc.fetchResult = assets
-        
         return vc
     }()
     

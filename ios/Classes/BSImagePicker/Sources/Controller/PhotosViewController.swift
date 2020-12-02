@@ -127,11 +127,12 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         bottomContentView.contentView.addSubview(originBarButton)
         bottomContentView.translatesAutoresizingMaskIntoConstraints = false
         
-        let album = albumsDataSource.fetchResults[0]
-        initializePhotosDataSource(album)
-        updateAlbumTitle(album)
-        collectionView.reloadData()
-        
+        if albumsDataSource.fetchResults.count > 0 {
+            let album = albumsDataSource.fetchResults[0]
+            initializePhotosDataSource(album)
+            updateAlbumTitle(album)
+            collectionView.reloadData()
+        }
         
         photosDataSource?.registerCellIdentifiersForCollectionView(collectionView)
         photosDataSource?.delegate = self

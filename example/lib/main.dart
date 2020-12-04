@@ -108,7 +108,6 @@ class _MyHomePageState extends State<MyHomePage> {
         maxImages: 9,
         defaultAsset: null,
         selectedAssets: null,
-        selectType: "selectSingleType",
         doneButtonText: "上传",
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
@@ -143,10 +142,11 @@ class _MyHomePageState extends State<MyHomePage> {
       //     'F9D725E8-BF01-4FF2-A61C-3EC033C181C1/L0/001');
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
-
-      resultList = await MultiImagePicker.requestMediaData(
-          selectedAssets: [result['identifiers'].first.toString()],
-          thumb: true);
+      final identifers = List<String>();
+      result['identifiers']
+          .forEach((element) => identifers.add(element.toString()));
+      await MultiImagePicker.requestMediaData(
+          selectedAssets: identifers, thumb: true);
 
       // print(resultList);
       // print(resultList[0].toJsonMap());

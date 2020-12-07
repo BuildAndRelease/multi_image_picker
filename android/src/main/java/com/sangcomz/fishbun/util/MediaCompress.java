@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import kotlin.Triple;
 import top.zibin.luban.Luban;
 
 public class MediaCompress {

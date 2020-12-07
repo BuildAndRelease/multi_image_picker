@@ -1,4 +1,3 @@
-include ':camera'
 rootProject.name = 'multi_image_picker'
 //
 //gradle.ext.versionCode = 28

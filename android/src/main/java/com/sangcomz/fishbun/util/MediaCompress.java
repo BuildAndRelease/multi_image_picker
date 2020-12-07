@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Pair;
+import android.util.Size;
 
 import com.hw.videoprocessor.VideoProcessor;
 import com.sangcomz.fishbun.bean.Media;
@@ -24,9 +26,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import kotlin.Triple;
 import top.zibin.luban.Luban;
 
 public class MediaCompress {
+
+    public enum Quality {
+        VERY_HIGH, HIGH, MEDIUM, LOW, VERY_LOW
+    }
 
     public interface MediaCompressListener {
         void mediaCompressDidFinish(ArrayList<HashMap> result);
@@ -134,24 +141,31 @@ public class MediaCompress {
                         if (!targetVideo.exists()) {
                             File tmpVideo = new File(cacheDir + videoName + "." + UUID.randomUUID().toString());
                             try {
-                                VideoProcessor.processor(context).input(media.getOriginPath()).output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(60).bitrate(2048000).process();
-                                tmpVideo.renameTo(targetVideo);
+                                Pair<Integer, Size> pair = getBitrateAndSize(media.getOriginPath());
+                                Size size = generateWidthAndHeight(pair.second.getWidth(), pair.second.getHeight());
+                                VideoProcessor.processor(context).input(media.getOriginPath()).
+                                        output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).
+                                        outHeight(size.getHeight()).outWidth(size.getWidth()).
+                                        changeAudioSpeed(false).iFrameInterval(1).
+                                        bitrate(getBitrate(pair.first, Quality.LOW)).process();
+                                if (tmpVideo.exists()) {
+                                    tmpVideo.renameTo(targetVideo);
+                                }else {
+                                    HashMap info = new HashMap();
+                                    info.put("identifier", media.getIdentifier());
+                                    info.put("errorCode", "1");
+                                    result.add(info);
+                                    continue;
+                                }
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 HashMap info = new HashMap();
                                 info.put("identifier", media.getIdentifier());
                                 info.put("errorCode", "1");
                                 result.add(info);
-                                break;
+                                continue;
                             }
                         }
-//                        if (targetVideo.length() > 100 * 1024 * 1024) {
-//                            HashMap info = new HashMap();
-//                            info.put("identifier", media.getIdentifier());
-//                            info.put("errorCode", "4");
-//                            result.add(info);
-//                            break;
-//                        }
                         HashMap info = new HashMap();
                         info.put("identifier", media.getIdentifier());
                         info.put("filePath", targetVideo.getAbsolutePath());
@@ -189,6 +203,59 @@ public class MediaCompress {
         }).start();
     }
 
+    private Size generateWidthAndHeight(int width, int height){
+        int newWidth = 300;
+        int newHeight = 600;
+
+        if (width >= 1920 || height >= 1920) {
+            newWidth = (int)((width * 0.5) / 16) * 16;
+            newHeight = (int)((height * 0.5) / 16f) * 16;
+        }else if (width >= 1280 || height >= 1280) {
+            newWidth = (int)((width * 0.75) / 16) * 16;
+            newHeight = (int)((height * 0.75) / 16) * 16;
+        }else if (width >= 960 || height >= 960) {
+            newWidth = (int)((width * 0.85) / 16) * 16;
+            newHeight = (int)((height * 0.85) / 16) * 16;
+        }else {
+            newWidth = (int)((width * 0.9) / 16) * 16;
+            newHeight = (int)((height * 0.9) / 16) * 16;
+        }
+        return new Size(newWidth, newHeight);
+    }
+
+    private Pair<Integer, Size> getBitrateAndSize(String path){
+        int bitrate = 2000000;
+        int width = 300;
+        int height = 600;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(path);
+            height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            bitrate = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
+        }catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            retriever.release();
+        }
+
+        return new Pair<>(bitrate, new Size(width, height));
+    }
+
+    private int getBitrate(int bitrate, Quality quality){
+        if (bitrate <= 2000000)
+            return bitrate;
+         switch (quality) {
+             case VERY_LOW: return (int) (bitrate * 0.08);
+             case LOW : return (int) (bitrate * 0.10);
+             case MEDIUM : return (int) (bitrate * 0.2);
+             case HIGH : return (int) (bitrate * 0.3);
+             case VERY_HIGH : return (int) (bitrate * 0.5);
+             default:
+                 return 2000000;
+        }
+    }
+
     private HashMap fetchImageThumb(Media media, boolean thumb) {
         int fileSize = 0;
         try {
@@ -196,12 +263,6 @@ public class MediaCompress {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        if (fileSize > 100 * 1024 * 1024) {
-//            HashMap<String, Object> map = new HashMap<>();
-//            map.put("identifier", media.getIdentifier());
-//            map.put("errorCode", "4");
-//            return map;
-//        }
         String cacheDir = context.getCacheDir().getAbsolutePath();
         String thumbPath = cacheDir + "/multi_image_pick/thumb/";
         if (media.getFileType().contains("gif") || media.getOriginPath().endsWith("gif")) {

@@ -261,7 +261,7 @@ public class MediaCompress {
              default:
                  return MinVideoBitRate;
         }
-        return  result < MinVideoBitRate ? MinVideoBitRate : result;
+        return Math.max(MinVideoBitRate, result);
     }
 
     private HashMap fetchImageThumb(Media media, boolean thumb) {

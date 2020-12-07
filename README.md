@@ -14,8 +14,13 @@
 API 文件是picker.dart
 
 此API弹出相册选择框，返回用户选择的媒体ID。
+selectType是选择模式
+selectAll：图片视频均可选择
+selectVideo：仅能选择视频
+selectImage：仅能选择图片
+selectSingleType：如果用户第一此次选择的是视频则仅能选择视频、如果用户第一此选择的是图片则仅能选择图片
 ```dart
-  // selectType: selectAll selectVideo  selectImage selectSingleType
+  // selectType: selectAll selectVideo selectImage selectSingleType
   static Future<Map<dynamic, dynamic>> pickImages({
     @required int maxImages,
     bool thumb = true,

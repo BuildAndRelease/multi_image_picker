@@ -37,7 +37,9 @@ public class MediaCompress {
     public interface MediaCompressListener {
         void mediaCompressDidFinish(ArrayList<HashMap> result);
     }
-
+    private static int MinVideoBitRate = 2 * 1024 * 1024;
+    private static int MinVideoHeight = 640;
+    private static int MinVideoWidth = 360;
     private boolean thumb = false;
     private List<Media> selectMedias = new ArrayList<>();
     private Context context;
@@ -141,12 +143,17 @@ public class MediaCompress {
                             File tmpVideo = new File(cacheDir + videoName + "." + UUID.randomUUID().toString());
                             try {
                                 Pair<Integer, Size> pair = getBitrateAndSize(media.getOriginPath());
-                                Size size = generateWidthAndHeight(pair.second.getWidth(), pair.second.getHeight());
-                                VideoProcessor.processor(context).input(media.getOriginPath()).
-                                        output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).
-                                        outHeight(size.getHeight()).outWidth(size.getWidth()).
-                                        changeAudioSpeed(false).iFrameInterval(1).
-                                        bitrate(getBitrate(pair.first, Quality.LOW)).process();
+                                Integer compressBitrate = getBitrate(pair.first, Quality.LOW);
+                                Size compressSize = generateWidthAndHeight(pair.second.getWidth(), pair.second.getHeight());
+                                if (compressBitrate.intValue() == pair.first.intValue()) {
+                                    copyFile(new File(media.getOriginPath()), tmpVideo);
+                                }else {
+                                    VideoProcessor.processor(context).input(media.getOriginPath()).
+                                            output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).
+                                            outHeight(compressSize.getHeight()).outWidth(compressSize.getWidth()).
+                                            changeAudioSpeed(false).iFrameInterval(1).
+                                            bitrate(compressBitrate).process();
+                                }
                                 if (tmpVideo.exists()) {
                                     tmpVideo.renameTo(targetVideo);
                                 }else {
@@ -203,8 +210,8 @@ public class MediaCompress {
     }
 
     private Size generateWidthAndHeight(int width, int height){
-        int newWidth = 300;
-        int newHeight = 600;
+        int newWidth = MinVideoWidth;
+        int newHeight = MinVideoHeight;
 
         if (width >= 1920 || height >= 1920) {
             newWidth = (int)((width * 0.5) / 16) * 16;
@@ -216,16 +223,16 @@ public class MediaCompress {
             newWidth = (int)((width * 0.85) / 16) * 16;
             newHeight = (int)((height * 0.85) / 16) * 16;
         }else {
-            newWidth = (int)((width * 0.9) / 16) * 16;
-            newHeight = (int)((height * 0.9) / 16) * 16;
+            newWidth = (int)((width * 0.90) / 16) * 16;
+            newHeight = (int)((height * 0.90) / 16) * 16;
         }
         return new Size(newWidth, newHeight);
     }
 
     private Pair<Integer, Size> getBitrateAndSize(String path){
-        int bitrate = 2000000;
-        int width = 300;
-        int height = 600;
+        int bitrate = MinVideoBitRate;
+        int width = MinVideoWidth;
+        int height = MinVideoHeight;
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
             retriever.setDataSource(path);
@@ -242,17 +249,19 @@ public class MediaCompress {
     }
 
     private int getBitrate(int bitrate, Quality quality){
-        if (bitrate <= 2000000)
+        if (bitrate <= MinVideoBitRate)
             return bitrate;
+        int result = MinVideoBitRate;
          switch (quality) {
-             case VERY_LOW: return (int) (bitrate * 0.08);
-             case LOW : return (int) (bitrate * 0.10);
-             case MEDIUM : return (int) (bitrate * 0.2);
-             case HIGH : return (int) (bitrate * 0.3);
-             case VERY_HIGH : return (int) (bitrate * 0.5);
+             case VERY_LOW: result = (int) (bitrate * 0.08); break;
+             case LOW : result = (int) (bitrate * 0.10); break;
+             case MEDIUM : result = (int) (bitrate * 0.20); break;
+             case HIGH : result = (int) (bitrate * 0.30); break;
+             case VERY_HIGH : result = (int) (bitrate * 0.50); break;
              default:
-                 return 2000000;
+                 return MinVideoBitRate;
         }
+        return  result < MinVideoBitRate ? MinVideoBitRate : result;
     }
 
     private HashMap fetchImageThumb(Media media, boolean thumb) {

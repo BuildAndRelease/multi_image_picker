@@ -38,7 +38,7 @@ public struct LightCompressor {
     
     public init() {}
     
-    private let MIN_BITRATE = Float(2000000)
+    private let MIN_BITRATE = Int(2 * 1024 * 1024)
     private let MIN_HEIGHT = 640.0
     private let MIN_WIDTH = 360.0
     
@@ -179,22 +179,24 @@ public struct LightCompressor {
     }
     
     private func getBitrate(bitrate: Float, quality: VideoQuality) -> Int {
-        if bitrate < MIN_BITRATE {
+        if Int(bitrate) < MIN_BITRATE {
             return Int(bitrate);
         }
+        var result = MIN_BITRATE;
         if quality == .very_low {
-            return Int(bitrate * 0.08)
+            result = Int(bitrate * 0.08)
         } else if quality == .low {
-            return Int(bitrate * 0.1)
+            result = Int(bitrate * 0.1)
         } else if quality == .medium {
-            return Int(bitrate * 0.2)
+            result = Int(bitrate * 0.2)
         } else if quality == .high {
-            return Int(bitrate * 0.3)
+            result = Int(bitrate * 0.3)
         } else if quality == .very_high {
-            return Int(bitrate * 0.5)
+            result = Int(bitrate * 0.5)
         } else {
-            return Int(bitrate * 0.2)
+            result = Int(bitrate * 0.2)
         }
+        return result < MIN_BITRATE ? MIN_BITRATE : result
     }
     
     private func generateWidthAndHeight(

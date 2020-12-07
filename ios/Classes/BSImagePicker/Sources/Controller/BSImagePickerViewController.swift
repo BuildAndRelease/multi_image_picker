@@ -57,13 +57,26 @@ open class BSImagePickerViewController : UINavigationController{
     @objc open lazy var fetchResults: [PHAssetCollection] = { () -> [PHAssetCollection] in
         var results =  Array<PHAssetCollection>()
         let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: nil)
+        
+//        最多的那个文件夹排第一
+        var maxCount = 0
+        var maxCountCollection : PHAssetCollection?
         for i in 0 ..< cameraRollResult.count {
             let collection = cameraRollResult.object(at: i)
             let assets = PHAsset.fetchAssets(in: collection, options: nil)
+            if maxCount < assets.count {
+                maxCount = assets.count
+                maxCountCollection = collection
+            }
             if assets.count > 0 {
                 results.append(collection)
             }
         }
+        if maxCountCollection != nil, let index = results.firstIndex(of: maxCountCollection!) {
+            let moveCollection = results.remove(at: index)
+            results.insert(moveCollection, at: 0)
+        }
+        
         let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
         for i in 0 ..< albumResult.count {
             let collection = albumResult.object(at: i)

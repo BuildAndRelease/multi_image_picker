@@ -278,7 +278,6 @@ public class MediaCompress {
             String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + ".gif";
             String filePath = "";
             try {
-                InputStream is = new FileInputStream(media.getOriginPath());
                 File targetParentDir = new File(thumbPath);
                 if (!targetParentDir.exists()) {
                     targetParentDir.mkdirs();
@@ -287,14 +286,7 @@ public class MediaCompress {
                 File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
                 filePath = targetPic.getAbsolutePath();
                 if (!tmpPic.exists()) {
-                    FileOutputStream os = new FileOutputStream(tmpPic);
-                    int bytesRead = 0;
-                    byte[] buffer = new byte[8192];
-                    while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
-                        os.write(buffer, 0, bytesRead);
-                    }
-                    os.close();
-                    is.close();
+                    copyFile(new File(media.getOriginPath()), tmpPic);
                     tmpPic.renameTo(targetPic);
                 }
             } catch (Exception e) {
@@ -305,9 +297,14 @@ public class MediaCompress {
                 return map;
             }
 
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(filePath, options);
+            float imageHeight = options.outHeight;
+            float imageWidth = options.outWidth;
             HashMap<String, Object> map = new HashMap<>();
-            map.put("width", Float.parseFloat(media.getOriginWidth()));
-            map.put("height", Float.parseFloat(media.getOriginHeight()));
+            map.put("width", imageHeight);
+            map.put("height", imageWidth);
             map.put("name", fileName);
             map.put("filePath", filePath);
             map.put("checkPath", filePath);
@@ -341,7 +338,7 @@ public class MediaCompress {
                             }
                         }
                     }else {
-                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 100);
+                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 80);
                     }
                 }
 

@@ -147,6 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
           .forEach((element) => identifers.add(element.toString()));
       await MultiImagePicker.requestMediaData(
           selectedAssets: identifers, thumb: result['thumb']);
+      print(await MultiImagePicker.requestFileDimen(identifers.first));
 
       // print(resultList);
       // print(resultList[0].toJsonMap());

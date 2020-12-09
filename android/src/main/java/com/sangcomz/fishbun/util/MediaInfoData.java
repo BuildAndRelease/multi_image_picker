@@ -2,11 +2,13 @@ package com.sangcomz.fishbun.util;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
 public class MediaInfoData {
@@ -40,9 +42,24 @@ public class MediaInfoData {
                     if (c != null) {
                         try {
                             if (c.moveToFirst()) {
-                                size = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
-                                width = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
-                                height = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
+                               String fileType = c.getString(c.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));
+                                if (fileType.contains("video")) {
+                                    Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
+                                    width = bitmap.getWidth() + "";
+                                    height = bitmap.getHeight() + "";
+                                    size = bitmap.getAllocationByteCount() + "";
+                                    bitmap.recycle();
+                                }else if (fileType.contains("image")) {
+                                    Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
+                                    width = bitmap.getWidth() + "";
+                                    height = bitmap.getHeight() + "";
+                                    size = bitmap.getAllocationByteCount() + "";
+                                    bitmap.recycle();
+                                }else {
+                                    size = c.getString(c.getColumnIndex(MediaStore.MediaColumns.SIZE));
+                                    width = c.getString(c.getColumnIndex(MediaStore.MediaColumns.WIDTH));
+                                    height = c.getString(c.getColumnIndex(MediaStore.MediaColumns.HEIGHT));
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

@@ -167,7 +167,7 @@ public class DisplayImage {
                                     }
                                     cursor.close();
                                 }else {
-                                    if (fetchSpecialPhotos) {
+                                    if (fetchSpecialPhotos && !mimeType.contains("gif")) {
                                         ExifInterface ei = new ExifInterface(filePath);
                                         int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                                                 ExifInterface.ORIENTATION_UNDEFINED);

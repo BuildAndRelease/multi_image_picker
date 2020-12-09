@@ -340,7 +340,8 @@ public class MediaCompress {
                             }
                         }
                     }else {
-                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 100);
+                        copyFile(new File(media.getOriginPath()), tmpPic);
+                        compressPicFile = tmpPic;
                     }
                 }
 
@@ -454,6 +455,12 @@ public class MediaCompress {
             ex.printStackTrace();
         }
         return toFile;
+    }
+
+    private Bitmap rotatingImage(Bitmap bitmap, int angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
     public HashMap localVideoThumb(Media media, String savePath) {

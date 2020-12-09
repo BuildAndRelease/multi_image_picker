@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
@@ -37,6 +38,7 @@ public class DisplayImage {
     private boolean requestHashMap = false;
     private boolean isInvertedPhotos = false;
     private boolean requestVideoDimen = false;
+    private boolean fetchSpecialPhotos = false;
 
     public void setLimit(int limit) {
         this.limit = limit;
@@ -63,6 +65,7 @@ public class DisplayImage {
         this.exceptMimeType = exceptMimeType;
         this.resolver = context.getContentResolver();
         this.context = context;
+        this.fetchSpecialPhotos = selectMedias != null && !selectMedias.isEmpty();
     }
 
     public void execute() {
@@ -105,13 +108,13 @@ public class DisplayImage {
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
         Cursor c;
         if ("0".equals(bucketId)) {
-            if (selectMedias != null && !selectMedias.isEmpty()) {
+            if (fetchSpecialPhotos) {
                 selection = "(" + selection + ") AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
             }
             c = resolver.query(mediaUri, null, selection, null, sort);
         }else {
             selection = "(" + selection + ") AND " + MediaStore.MediaColumns.BUCKET_ID + " = ?";
-            if (selectMedias != null && !selectMedias.isEmpty()) {
+            if (fetchSpecialPhotos) {
                 selection = selection + " AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
             }
             String[] selectionArgs = {bucketId};
@@ -163,8 +166,18 @@ public class DisplayImage {
                                     }
                                     cursor.close();
                                 }else {
-                                    media.put("width", c.getFloat(WIDTH));
-                                    media.put("height",c.getFloat(HEIGHT));
+                                    if (fetchSpecialPhotos) {
+                                        BitmapFactory.Options options = new BitmapFactory.Options();
+                                        options.inJustDecodeBounds = true;
+                                        BitmapFactory.decodeFile(filePath, options);
+                                        float imageHeight = options.outHeight;
+                                        float imageWidth = options.outWidth;
+                                        media.put("width", imageWidth);
+                                        media.put("height",imageHeight);
+                                    }else {
+                                        media.put("width", c.getFloat(WIDTH));
+                                        media.put("height",c.getFloat(HEIGHT));
+                                    }
                                     media.put("duration", 0.0);
                                 }
                                 media.put("name", c.getString(DISPLAY_NAME));

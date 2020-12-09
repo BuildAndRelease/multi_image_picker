@@ -283,9 +283,9 @@ public class MediaCompress {
                     targetParentDir.mkdirs();
                 }
                 File targetPic = new File(thumbPath + fileName);
+                filePath = targetPic.getAbsolutePath();
                 if (!targetPic.exists()) {
                     File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
-                    filePath = targetPic.getAbsolutePath();
                     if (!tmpPic.exists()) {
                         copyFile(new File(media.getOriginPath()), tmpPic);
                         tmpPic.renameTo(targetPic);

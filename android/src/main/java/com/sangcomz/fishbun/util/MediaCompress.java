@@ -283,11 +283,13 @@ public class MediaCompress {
                     targetParentDir.mkdirs();
                 }
                 File targetPic = new File(thumbPath + fileName);
-                File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
-                filePath = targetPic.getAbsolutePath();
-                if (!tmpPic.exists()) {
-                    copyFile(new File(media.getOriginPath()), tmpPic);
-                    tmpPic.renameTo(targetPic);
+                if (!targetPic.exists()) {
+                    File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
+                    filePath = targetPic.getAbsolutePath();
+                    if (!tmpPic.exists()) {
+                        copyFile(new File(media.getOriginPath()), tmpPic);
+                        tmpPic.renameTo(targetPic);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -303,8 +305,8 @@ public class MediaCompress {
             float imageHeight = options.outHeight;
             float imageWidth = options.outWidth;
             HashMap<String, Object> map = new HashMap<>();
-            map.put("width", imageHeight);
-            map.put("height", imageWidth);
+            map.put("width", imageWidth);
+            map.put("height", imageHeight);
             map.put("name", fileName);
             map.put("filePath", filePath);
             map.put("checkPath", filePath);

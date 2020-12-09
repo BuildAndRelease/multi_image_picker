@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
@@ -167,13 +168,16 @@ public class DisplayImage {
                                     cursor.close();
                                 }else {
                                     if (fetchSpecialPhotos) {
-                                        BitmapFactory.Options options = new BitmapFactory.Options();
-                                        options.inJustDecodeBounds = true;
-                                        BitmapFactory.decodeFile(filePath, options);
-                                        float imageHeight = options.outHeight;
-                                        float imageWidth = options.outWidth;
-                                        media.put("width", imageWidth);
-                                        media.put("height",imageHeight);
+                                        ExifInterface ei = new ExifInterface(filePath);
+                                        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                                                ExifInterface.ORIENTATION_UNDEFINED);
+                                        if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                                            media.put("width", c.getFloat(HEIGHT));
+                                            media.put("height",c.getFloat(WIDTH));
+                                        }else {
+                                            media.put("width", c.getFloat(WIDTH));
+                                            media.put("height",c.getFloat(HEIGHT));
+                                        }
                                     }else {
                                         media.put("width", c.getFloat(WIDTH));
                                         media.put("height",c.getFloat(HEIGHT));

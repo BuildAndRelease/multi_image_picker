@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
@@ -340,8 +341,7 @@ public class MediaCompress {
                             }
                         }
                     }else {
-                        copyFile(new File(media.getOriginPath()), tmpPic);
-                        compressPicFile = tmpPic;
+                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 100);
                     }
                 }
 
@@ -387,6 +387,7 @@ public class MediaCompress {
             return map;
         }
     }
+
     /**
      * 复制单个文件
      *
@@ -426,6 +427,24 @@ public class MediaCompress {
         try {
             InputStream is = new FileInputStream(fromFile);
             Bitmap bitmap = BitmapFactory.decodeStream(is);
+            ExifInterface ei = new ExifInterface(fromFile.getAbsolutePath());
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED);
+            switch(orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    bitmap = rotateImage(bitmap, 90);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    bitmap = rotateImage(bitmap, 180);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    bitmap = rotateImage(bitmap, 270);
+                    break;
+                case ExifInterface.ORIENTATION_NORMAL:
+                default:
+                    break;
+            }
+
             int bitmapWidth = bitmap.getWidth();
             int bitmapHeight = bitmap.getHeight();
 
@@ -457,10 +476,11 @@ public class MediaCompress {
         return toFile;
     }
 
-    private Bitmap rotatingImage(Bitmap bitmap, int angle) {
+    public Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 
     public HashMap localVideoThumb(Media media, String savePath) {

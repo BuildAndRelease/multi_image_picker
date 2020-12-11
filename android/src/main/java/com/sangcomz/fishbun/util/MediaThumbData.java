@@ -50,26 +50,30 @@ public class MediaThumbData {
                         stream.close();
                     }
 
-                    if (Looper.myLooper() != Looper.getMainLooper()) {
-                        Handler mainThread = new Handler(Looper.getMainLooper());
-                        final byte[] finalBytes = bytes;
-                        mainThread.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (listener != null) {
-                                    listener.mediaThumbDataDidFinish(finalBytes);
-                                }
-                            }
-                        });
-                    }else {
-                        if (listener != null) {
-                            listener.mediaThumbDataDidFinish(bytes);
-                        }
-                    }
+                    fetchThumbnailFinish(bytes);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    fetchThumbnailFinish(null);
                 }
             }
         }).start();
+    }
+
+    private void fetchThumbnailFinish(final byte[] bytes) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Handler mainThread = new Handler(Looper.getMainLooper());
+            mainThread.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (listener != null) {
+                        listener.mediaThumbDataDidFinish(bytes);
+                    }
+                }
+            });
+        }else {
+            if (listener != null) {
+                listener.mediaThumbDataDidFinish(bytes);
+            }
+        }
     }
 }

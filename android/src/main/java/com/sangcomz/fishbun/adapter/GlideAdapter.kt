@@ -1,10 +1,16 @@
 package com.sangcomz.fishbun.adapter
 
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
+import com.example.multi_image_picker.R
 import com.sangcomz.fishbun.bean.Media
 
 /**
@@ -12,49 +18,76 @@ import com.sangcomz.fishbun.bean.Media
  */
 
 class GlideAdapter {
-    fun loadImage(target: ImageView, media: Media) {
+    fun loadImage(imageView: ImageView, media: Media) {
         val options = RequestOptions().apply {
             centerCrop()
             format(DecodeFormat.PREFER_RGB_565)
+            error(R.drawable.ic_photo_error_16dp)
         }
-        Glide
-            .with(target.context)
-            .load(media.originPath)
-            .apply(options)
-            .override(target.width, target.height)
-            .thumbnail(0.25f)
-            .into(target)
-    }
 
-    fun loadImage(target: ImageView, uri: Uri) {
-        val options = RequestOptions().apply {
-            centerCrop()
-            format(DecodeFormat.PREFER_RGB_565)
-        }
         Glide
-                .with(target.context)
-                .load(uri)
+                .with(imageView.context)
+                .load(if (media.originPath.contains("1"))"" else media.originPath)
+                .listener(object: RequestListener<Drawable> {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE;
+                        imageView.setImageResource(R.drawable.ic_photo_error_16dp)
+                        return true
+                    }
+
+                    override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        return false
+                    }
+                })
                 .apply(options)
-                .override(target.width, target.height)
+                .override(imageView.width, imageView.height)
                 .thumbnail(0.25f)
-                .into(target)
+                .into(imageView)
     }
 
-    fun loadDetailImage(target: ImageView, media: Media) {
-        val options = RequestOptions().centerInside()
+    fun loadImage(imageView: ImageView, uri: Uri) {
+        val options = RequestOptions().apply {
+            centerCrop()
+            format(DecodeFormat.PREFER_RGB_565)
+        }
         Glide
-            .with(target.context)
-            .load(media.originPath)
-            .apply(options)
-            .into(target)
-    }
-
-    fun loadDetailImage(target: ImageView, uri: Uri) {
-        val options = RequestOptions().centerInside()
-        Glide
-                .with(target.context)
+                .with(imageView.context)
                 .load(uri)
+                .listener(object: RequestListener<Drawable> {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE;
+                        imageView.setImageResource(R.drawable.ic_photo_error_16dp)
+                        return true
+                    }
+
+                    override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        return false
+                    }
+                })
                 .apply(options)
-                .into(target)
+                .override(imageView.width, imageView.height)
+                .thumbnail(0.25f)
+                .into(imageView)
     }
+
+    fun loadDetailImage(imageView: ImageView, media: Media) {
+        val options = RequestOptions().centerInside()
+        Glide
+                .with(imageView.context)
+                .load(if (media.originPath.contains("1"))"" else media.originPath)
+                .listener(object: RequestListener<Drawable> {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE;
+                        imageView.setImageResource(R.drawable.ic_photo_error_64dp)
+                        return true
+                    }
+
+                    override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        return false
+                    }
+                })
+                .apply(options)
+                .into(imageView)
+    }
+
 }

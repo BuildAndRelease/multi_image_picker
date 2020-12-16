@@ -1,5 +1,6 @@
 package com.sangcomz.fishbun.adapter
 
+import android.media.MediaPlayer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,6 +61,7 @@ class DetailViewPagerAdapter(private val inflater: LayoutInflater, private val m
             } catch (e: java.lang.Exception) {
                 e.printStackTrace()
             }
+            fishton.imageAdapter?.loadDetailImage(imageView, medias[position])
         }else {
             imageView!!.scale = 1.0f
             imageView!!.maximumScale = 10.0f

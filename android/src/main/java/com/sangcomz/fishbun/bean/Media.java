@@ -26,6 +26,7 @@ public class Media implements Parcelable, Comparable<Media> {
     private String mimeType = "";
     private String identifier = "";
     private String modifyTimeStamp = "";
+    private Object mTag = -1;
 
     public Media() {
 
@@ -268,5 +269,13 @@ public class Media implements Parcelable, Comparable<Media> {
 
     public void setModifyTimeStamp(String modifyTimeStamp) {
         this.modifyTimeStamp = modifyTimeStamp;
+    }
+
+    public Object getmTag() {
+        return mTag;
+    }
+
+    public void setmTag(Object mTag) {
+        this.mTag = mTag;
     }
 }

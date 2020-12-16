@@ -179,6 +179,14 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         int id = v.getId();
         if (id == R.id.btn_detail_count) {
             Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
+            if (media.getmTag().toString().equals("-1")) {
+                Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片正在加载" : "视频正在加载", Snackbar.LENGTH_SHORT).show();
+                return;
+            }
+            if (media.getmTag().toString().equals("0")) {
+                Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片格式异常" : "视频格式异常", Snackbar.LENGTH_SHORT).show();
+                return;
+            }
             if (fishton.getSelectType().equals("selectVideo")) {
                 if (!media.getFileType().contains("video")) {
                     Snackbar.make(btnDetailCount, "仅支持视频选择", Snackbar.LENGTH_SHORT).show();
@@ -228,6 +236,14 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         } else if (id == R.id.photo_preview_send_btn) {
             if (fishton.getSelectedMedias().size() < 1) {
                 Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
+                if (media.getmTag().toString().equals("-1")) {
+                    Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片正在加载" : "视频正在加载", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+                if (media.getmTag().toString().equals("0")) {
+                    Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片格式异常" : "视频格式异常", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
 //                if (Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
 //                    Snackbar.make(btnDetailCount, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
 //                } else

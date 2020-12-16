@@ -23,18 +23,20 @@ class GlideAdapter {
             centerCrop()
             format(DecodeFormat.PREFER_RGB_565)
         }
-
+        media.setmTag(-1)
         Glide
                 .with(imageView.context)
-                .load(media.originPath)
+                .load("")
                 .listener(object: RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE;
+                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
                         imageView.setImageResource(R.drawable.ic_photo_error_16dp)
+                        media.setmTag(0)
                         return true
                     }
 
                     override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        media.setmTag(1);
                         return false
                     }
                 })
@@ -54,7 +56,7 @@ class GlideAdapter {
                 .load(uri)
                 .listener(object: RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE;
+                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
                         imageView.setImageResource(R.drawable.ic_photo_error_16dp)
                         return true
                     }
@@ -71,17 +73,20 @@ class GlideAdapter {
 
     fun loadDetailImage(imageView: ImageView, media: Media) {
         val options = RequestOptions().centerInside()
+        media.setmTag(-1)
         Glide
                 .with(imageView.context)
                 .load(media.originPath)
                 .listener(object: RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE;
+                        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
                         imageView.setImageResource(R.drawable.ic_photo_error_64dp)
+                        media.setmTag(0)
                         return true
                     }
 
                     override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        media.setmTag(1)
                         return false
                     }
                 })

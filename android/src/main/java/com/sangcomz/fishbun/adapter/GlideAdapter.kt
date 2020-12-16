@@ -22,7 +22,6 @@ class GlideAdapter {
         val options = RequestOptions().apply {
             centerCrop()
             format(DecodeFormat.PREFER_RGB_565)
-            error(R.drawable.ic_photo_error_16dp)
         }
 
         Glide

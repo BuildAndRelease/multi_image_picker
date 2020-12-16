@@ -27,7 +27,7 @@ class GlideAdapter {
 
         Glide
                 .with(imageView.context)
-                .load(if (media.originPath.contains("1"))"" else media.originPath)
+                .load(media.originPath)
                 .listener(object: RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
                         imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE;
@@ -74,7 +74,7 @@ class GlideAdapter {
         val options = RequestOptions().centerInside()
         Glide
                 .with(imageView.context)
-                .load(if (media.originPath.contains("1"))"" else media.originPath)
+                .load(media.originPath)
                 .listener(object: RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
                         imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE;

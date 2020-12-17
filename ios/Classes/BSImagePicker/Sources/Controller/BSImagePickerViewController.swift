@@ -80,7 +80,10 @@ open class BSImagePickerViewController : UINavigationController{
         let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
         for i in 0 ..< albumResult.count {
             let collection = albumResult.object(at: i)
-            results.append(collection)
+            let assets = PHAsset.fetchAssets(in: collection, options: nil)
+            if assets.count > 0 {
+                results.append(collection)
+            }
         }
         return results
     }()

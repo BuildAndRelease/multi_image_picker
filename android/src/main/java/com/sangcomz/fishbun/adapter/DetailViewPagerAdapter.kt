@@ -1,13 +1,16 @@
 package com.sangcomz.fishbun.adapter
 
 import android.media.MediaPlayer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.VideoView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.bumptech.glide.Glide
 import com.example.multi_image_picker.R
 import com.sangcomz.fishbun.Fishton
 import com.sangcomz.fishbun.bean.Media
@@ -38,6 +41,7 @@ class DetailViewPagerAdapter(private val inflater: LayoutInflater, private val m
         val imageView = itemView.img_detail_image
         val media = medias[position]
         if (media.fileType.contains("video")) {
+            media.setmTag(-1)
             imageView.visibility = View.INVISIBLE
             playBtn.visibility = View.VISIBLE
             mVideoView.visibility = View.VISIBLE
@@ -55,13 +59,23 @@ class DetailViewPagerAdapter(private val inflater: LayoutInflater, private val m
                 }
                 playBtn.visibility = View.VISIBLE
             }
+            mVideoView.setOnErrorListener { mp, what, extra ->
+                imageView!!.visibility = View.VISIBLE
+                playBtn!!.visibility = View.INVISIBLE
+                mVideoView!!.visibility = View.INVISIBLE
+                imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+                Glide.with(imageView.context).load(R.drawable.ic_photo_error_64dp).into(imageView)
+                media.setmTag(0)
+                return@setOnErrorListener true
+            }
             try {
                 mVideoView.setVideoPath(media.originPath)
                 mVideoView.seekTo(100)
+                media.setmTag(1)
             } catch (e: java.lang.Exception) {
                 e.printStackTrace()
+                media.setmTag(0)
             }
-            fishton.imageAdapter?.loadDetailImage(imageView, medias[position])
         }else {
             imageView!!.scale = 1.0f
             imageView!!.maximumScale = 10.0f

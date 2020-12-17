@@ -26,7 +26,7 @@ class GlideAdapter {
         media.setmTag(-1)
         Glide
                 .with(imageView.context)
-                .load("")
+                .load(media.originPath)
                 .listener(object: RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, isFirstResource: Boolean): Boolean {
                         imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE

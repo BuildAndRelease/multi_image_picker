@@ -73,28 +73,26 @@ extension UIImage {
         var delay = 0.1
         
         let cfProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
-        let gifProperties: CFDictionary = unsafeBitCast(
-            CFDictionaryGetValue(cfProperties,
-                Unmanaged.passUnretained(kCGImagePropertyGIFDictionary).toOpaque()),
-            to: CFDictionary.self)
-        
-        if gifProperties == nil {
-            return delay
-        }
-        
-        var delayObject: AnyObject = unsafeBitCast(
-            CFDictionaryGetValue(gifProperties,
-                Unmanaged.passUnretained(kCGImagePropertyGIFUnclampedDelayTime).toOpaque()),
-            to: AnyObject.self)
-        if delayObject.doubleValue == 0 {
-            delayObject = unsafeBitCast(CFDictionaryGetValue(gifProperties,
-                Unmanaged.passUnretained(kCGImagePropertyGIFDelayTime).toOpaque()), to: AnyObject.self)
-        }
-        
-        delay = delayObject as! Double
-        
-        if delay < 0.1 {
-            delay = 0.1
+        if CFDictionaryContainsKey(cfProperties, Unmanaged.passUnretained(kCGImagePropertyGIFDictionary).toOpaque()) {
+            let gifProperties : CFDictionary = unsafeBitCast(
+                CFDictionaryGetValue(cfProperties,
+                    Unmanaged.passUnretained(kCGImagePropertyGIFDictionary).toOpaque()),
+                to: CFDictionary.self)
+            
+            var delayObject: AnyObject = unsafeBitCast(
+                CFDictionaryGetValue(gifProperties,
+                    Unmanaged.passUnretained(kCGImagePropertyGIFUnclampedDelayTime).toOpaque()),
+                to: AnyObject.self)
+            if delayObject.doubleValue == 0 {
+                delayObject = unsafeBitCast(CFDictionaryGetValue(gifProperties,
+                    Unmanaged.passUnretained(kCGImagePropertyGIFDelayTime).toOpaque()), to: AnyObject.self)
+            }
+            
+            delay = delayObject as! Double
+            
+            if delay < 0.1 {
+                delay = 0.1
+            }
         }
         
         return delay

@@ -334,7 +334,14 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     func selectViewDidSelectDidAction(_ view: SelectionView) {
         if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset {
-            if let error = canSelectImageItem(asset) {
+            if !(cell as! PreviewCollectionViewCell).thumbCanLoad {
+                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                hud.mode = MBProgressHUDMode.text
+                hud.bezelView.backgroundColor = UIColor.darkGray
+                hud.label.text = NSLocalizedString("媒体信息异常", comment: "")
+                hud.offset = CGPoint(x: 0, y: 0)
+                hud.hide(animated: true, afterDelay: 2.0)
+            }else if let error = canSelectImageItem(asset) {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.mode = MBProgressHUDMode.text
                 hud.bezelView.backgroundColor = UIColor.darkGray
@@ -398,7 +405,15 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     @objc func doneButtonPressed(_ sender: UIButton) {
         if (self.assetStore?.assets ?? []).count < 1 {
             if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset {
-                if let error = canSelectImageItem(asset) {
+                if !(cell as! PreviewCollectionViewCell).thumbCanLoad {
+                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+                    hud.mode = MBProgressHUDMode.text
+                    hud.bezelView.backgroundColor = UIColor.darkGray
+                    hud.label.text = NSLocalizedString("媒体信息异常", comment: "")
+                    hud.offset = CGPoint(x: 0, y: 0)
+                    hud.hide(animated: true, afterDelay: 2.0)
+                    return
+                }else if let error = canSelectImageItem(asset) {
                     let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                     hud.mode = MBProgressHUDMode.text
                     hud.bezelView.backgroundColor = UIColor.darkGray

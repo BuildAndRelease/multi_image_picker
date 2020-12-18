@@ -42,6 +42,8 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
     private let videoDurationLabel : UILabel = UILabel(frame: .zero)
     private let gifLabel : UILabel = UILabel(frame: .zero)
     
+    var thumbCanLoad = false
+    
     weak var asset: PHAsset? {
         didSet {
             if (asset != nil && .video == asset?.mediaType) {

@@ -19,6 +19,7 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     var mediaPlayer : AVPlayer?
     var playerLayer : AVPlayerLayer?
     var videoAsset : AVAsset?
+    var thumbCanLoad = false
     var image : UIImage? {
         didSet{
             if image != nil {
@@ -56,9 +57,16 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
                 if self.tag != 0 {
                     PHCachingImageManager.default().cancelImageRequest(PHImageRequestID(Int32(self.tag)))
                 }
-
+                
+                self.thumbCanLoad = false
                 self.tag = Int(PHCachingImageManager.default().requestImageData(for: asset!, options: options) { (data, uti, orientation, info) in
-                    guard let tUti = uti, let result = data else { return }
+                    guard let tUti = uti, let result = data else {
+                        weakSelf?.thumbCanLoad = false
+                        weakSelf?.playImageView.isHidden = true
+                        weakSelf?.image = UIImage.wm_imageWithName_WMCameraResource(named: "ic_photo_error")?.maskImageWithColor(color: UIColor.gray)
+                        return
+                    }
+                    weakSelf?.thumbCanLoad = true
                     if (tUti.contains("gif")) {
                         weakSelf?.image = UIImage.gifImageWithData(result)
                     }else {
@@ -122,7 +130,7 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     }
 
     func cellDidReceiveTapAction()  {
-        if asset?.mediaType == .video {
+        if asset?.mediaType == .video , thumbCanLoad {
             if self.mediaPlayer == nil {//未开始播
                 weak var weakSelf = self
                 let options = PHVideoRequestOptions()
@@ -173,7 +181,7 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
     }
     
     func stopPlayVideo() {
-        if asset?.mediaType == .video {
+        if asset?.mediaType == .video, thumbCanLoad {
             if self.mediaPlayer?.rate != 0.0 {//正在播放
                 self.playImageView.isHidden = false
                 self.mediaPlayer?.rate = 0.0

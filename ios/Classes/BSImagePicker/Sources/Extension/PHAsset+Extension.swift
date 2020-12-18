@@ -220,6 +220,10 @@ extension PHAsset {
                         }
                     }catch let err as NSError {
                         print(err)
+                        failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
+                            "identifier": self.localIdentifier,
+                            "errorCode": "2"
+                        ]))
                     }
                 }
             }else {

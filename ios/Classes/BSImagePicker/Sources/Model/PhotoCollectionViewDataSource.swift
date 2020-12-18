@@ -78,10 +78,17 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         
         let asset = fetchResult[indexPath.row]
         cell.asset = asset
+        cell.thumbCanLoad = false
         let imageSize = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
         // Request image
+        
         cell.tag = Int(photosManager.requestImage(for: asset, targetSize: imageSize, contentMode: imageContentMode, options: imageRequestOptions) { (result, _) in
-            guard let result = result else { return }
+            guard let result = result else {
+            cell.imageView.contentMode = .center
+            cell.imageView.image = UIImage.wm_imageWithName_WMCameraResource(named: "ic_photo_error")?.maskImageWithColor(color: UIColor.gray)
+                return
+            }
+            cell.thumbCanLoad = true
             cell.imageView.image = result
         })
         

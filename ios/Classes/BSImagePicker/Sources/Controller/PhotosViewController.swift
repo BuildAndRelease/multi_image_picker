@@ -305,7 +305,14 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     func photoCollectionViewDataSourceDidReceiveCellSelectAction(_ cell: PhotoCell) {
         guard let photosDataSource = photosDataSource, collectionView.isUserInteractionEnabled else { return }
         guard let asset = cell.asset else { return }
-        
+        if !cell.thumbCanLoad {
+            let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+            hud.mode = MBProgressHUDMode.text
+            hud.bezelView.backgroundColor = UIColor.darkGray
+            hud.label.text = NSLocalizedString("媒体信息异常", comment: "")
+            hud.offset = CGPoint(x: 0, y: 0)
+            hud.hide(animated: true, afterDelay: 2.0)
+        }
         if !settings.selectType.isEmpty {
             if settings.selectType == "selectVideo"{
                 if asset.mediaType != .video  {

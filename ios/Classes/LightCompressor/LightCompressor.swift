@@ -196,7 +196,7 @@ public struct LightCompressor {
         } else {
             result = Int(bitrate * 0.2)
         }
-        return result
+        return max(result, Int(1.5 * 1024 * 1024))
     }
     
     private func generateWidthAndHeight(

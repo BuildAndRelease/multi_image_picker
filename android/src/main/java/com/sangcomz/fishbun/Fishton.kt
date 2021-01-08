@@ -72,6 +72,9 @@ class Fishton {
 
         colorSelectCircleStroke = Color.parseColor("#00BA5A")
         colorDeSelectCircleStroke = Color.parseColor("#FFFFFF")
+
+        pickerMedias = ArrayList()
+        selectedMedias = ArrayList()
     }
 
     fun setDefaultMessage(context: Context) {

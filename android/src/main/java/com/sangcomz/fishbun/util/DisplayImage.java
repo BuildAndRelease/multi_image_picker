@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -19,6 +18,7 @@ import com.sangcomz.fishbun.bean.Media;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class DisplayImage {
@@ -70,10 +70,11 @@ public class DisplayImage {
     }
 
     public void execute() {
+        output.clear();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final ArrayList result = getAllMediaThumbnailsPath(bucketId, exceptMimeType);
+                final ArrayList result = getAllMediaThumbnailsPath(bucketId);
                 if (Looper.myLooper() != Looper.getMainLooper()) {
                     Handler mainThread = new Handler(Looper.getMainLooper());
                     mainThread.post(new Runnable() {
@@ -94,7 +95,7 @@ public class DisplayImage {
     }
 
     @NonNull
-    private ArrayList getAllMediaThumbnailsPath(long id, List<MimeType> exceptMimeTypeList) {
+    private ArrayList getAllMediaThumbnailsPath(long id) {
         String bucketId = String.valueOf(id);
         String sort = isInvertedPhotos ? MediaStore.Files.FileColumns._ID + " ASC " : MediaStore.Files.FileColumns._ID + " DESC ";
         if (limit >= 0 && offset >= 0) {
@@ -133,107 +134,49 @@ public class DisplayImage {
                     int HEIGHT = c.getColumnIndex(MediaStore.Files.FileColumns.HEIGHT);
                     int FILESIZE = c.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
                     int _ID = c.getColumnIndex(MediaStore.Files.FileColumns._ID);
-                    if (requestHashMap) {
-                        do {
+
+                    String bucketName = c.getString(BUCKET_DISPLAY_NAME);
+                    int index = 0;
+                    do {
+                        try {
+                            String mimeType = c.getString(MIME_TYPE);
+                            int fileSize = c.getInt(FILESIZE);
+                            if (mimeType.contains("image") && fileSize > 1024*1024*100) {
+                                continue;
+                            }
+                            String imgId = c.getString(_ID);
+                            String filePath = c.getString(DATA);
+                            String displayName = c.getString(DISPLAY_NAME);
+                            float width = 0;
+                            float height = 0;
                             try {
-                                String mimeType = c.getString(MIME_TYPE);
-                                int fileSize = c.getInt(FILESIZE);
-                                if (mimeType.contains("gif")) {
-                                    if (fileSize > 1024*1024*100) {
-                                        continue;
-                                    }
-                                }
-                                HashMap media = new HashMap();
-                                String imgId = c.getString(_ID);
-                                media.put("identifier", imgId);
-                                String filePath = c.getString(DATA);
-                                media.put("filePath", filePath);
-                                if (mimeType.contains("video")) {
-                                    if (requestVideoDimen) {
-                                        retriever.setDataSource(filePath);
-                                        Bitmap bitmap = retriever.getFrameAtTime(0);
-                                        media.put("width", bitmap.getWidth() * 1.0);
-                                        media.put("height", bitmap.getHeight() * 1.0);
-                                    }else {
-                                        media.put("width", 0.0);
-                                        media.put("height", 0.0);
-                                    }
-                                    Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
-                                    Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                                    if (cursor.moveToFirst()) {
-                                        media.put("duration", cursor.getFloat(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION))/1000);
-                                    }else {
-                                        media.put("duration", 0.0);
-                                    }
-                                    cursor.close();
-                                }else {
-                                    if (fetchSpecialPhotos && !mimeType.contains("gif")) {
-                                        ExifInterface ei = new ExifInterface(filePath);
-                                        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                                                ExifInterface.ORIENTATION_UNDEFINED);
-                                        if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
-                                            media.put("width", c.getFloat(HEIGHT));
-                                            media.put("height",c.getFloat(WIDTH));
-                                        }else {
-                                            media.put("width", c.getFloat(WIDTH));
-                                            media.put("height",c.getFloat(HEIGHT));
-                                        }
-                                    }else {
-                                        media.put("width", c.getFloat(WIDTH));
-                                        media.put("height",c.getFloat(HEIGHT));
-                                    }
-                                    media.put("duration", 0.0);
-                                }
-                                media.put("name", c.getString(DISPLAY_NAME));
-                                media.put("fileType", mimeType);
-                                media.put("fileSize", fileSize + "");
-                                media.put("thumbPath", "");
-                                media.put("thumbName", "");
-                                media.put("thumbHeight", 0.0);
-                                media.put("thumbWidth", 0.0);
-                                medias.add(media);
+                                width = c.getFloat(HEIGHT);
+                                 height = c.getFloat(WIDTH);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        } while (c.moveToNext());
-                    }else {
-                        do {
-                            String mimeType = c.getString(MIME_TYPE);
-                            int fileSize = c.getInt(FILESIZE);
-                            if (mimeType.contains("gif")) {
-                                if (fileSize > 1024*1024*100) {
-                                    continue;
-                                }
+                            paramTransferQuene(index, imgId, bucketId, bucketName, filePath, mimeType, height, width, displayName, fileSize);
+                            index++;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } while (c.moveToNext());
+
+                    do {
+                        Iterator<Thread> iterable = workThreads.iterator();
+                        while (iterable.hasNext()) {
+                            if (iterable.next().getState() == Thread.State.TERMINATED) {
+                                iterable.remove();
                             }
-                            Media media = new Media();
-                            String imgId = c.getString(_ID);
-                            if (isExceptMemeType(exceptMimeTypeList, mimeType)) continue;
-                            media.setFileType(mimeType);
-                            media.setBucketId(bucketId);
-                            media.setBucketName(c.getString(BUCKET_DISPLAY_NAME));
-                            media.setOriginName(c.getString(DISPLAY_NAME));
-                            media.setOriginPath(c.getString(DATA));
-                            if (media.getFileType().contains("video")) {
-                                Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
-                                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                                if (cursor.moveToFirst()) {
-                                    media.setDuration(cursor.getInt(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION))/1000 + "");
-                                }else {
-                                    media.setDuration("0");
-                                }
-                                cursor.close();
-                            }else{
-                                media.setOriginHeight(c.getFloat(HEIGHT) + "");
-                                media.setOriginWidth(c.getFloat(WIDTH) + "");
-                                media.setDuration("0");
-                            }
-                            media.setIdentifier(imgId);
-                            media.setMimeType(mimeType);
-                            media.setFileSize(fileSize + "");
-                            media.setMediaId(imgId);
-                            medias.add(media);
-                        } while (c.moveToNext());
-                    }
+                        }
+                        if (workThreads.size() == 0) {
+                            break;
+                        }else {
+                            Thread.sleep(10);
+                        }
+                    }while (true);
+
+                    medias = sortOutput();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -242,6 +185,132 @@ public class DisplayImage {
             }
         }
         return medias;
+    }
+
+    private ArrayList<Thread> workThreads = new ArrayList<>();
+    private HashMap<Integer, Object> output = new HashMap();
+    private synchronized void addOutputResult(int index, Object object) {
+        output.put(index, object);
+    }
+    private void paramTransferQuene(final int index, final String imgId, final String bucketId,final  String bucketName, final String filePath, final String mimeType, final float height, final float width, final String displayName, final int fileSize) {
+        if (workThreads.size() >= 10) {
+            do {
+                Iterator<Thread> iterable = workThreads.iterator();
+                while (iterable.hasNext()) {
+                    if (iterable.next().getState() == Thread.State.TERMINATED) {
+                        iterable.remove();
+                    }
+                }
+                if (workThreads.size() < 10) {
+                    break;
+                }
+            }while (true);
+        }
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (requestHashMap) {
+                    HashMap hashMap = addMedia(imgId, filePath, mimeType, height, width, displayName, fileSize);
+                    addOutputResult(index, hashMap);
+                }else {
+                    Media media = addMedia(imgId, bucketId, bucketName, filePath, mimeType, height, width, displayName, fileSize);
+                    addOutputResult(index, media);
+                }
+            }
+        });
+        workThreads.add(thread);
+        thread.start();
+    }
+
+    private ArrayList sortOutput() {
+        ArrayList result = new ArrayList();
+        for (int i = 0; i < output.size(); i++) {
+            result.add(output.get(i));
+        }
+        return result;
+    }
+
+    private Media addMedia(String imgId, String bucketId, String bucketName, String filePath, String mimeType, float height, float width, String displayName, int fileSize) {
+        Media media = new Media();
+        if (isExceptMemeType(exceptMimeType, mimeType)) return null;
+        media.setFileType(mimeType);
+        media.setBucketId(bucketId);
+        media.setBucketName(bucketName);
+        media.setOriginName(displayName);
+        media.setOriginPath(filePath);
+        if (media.getFileType().contains("video")) {
+            Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                media.setDuration(cursor.getInt(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION))/1000 + "");
+            }else {
+                media.setDuration("0");
+            }
+            cursor.close();
+        }else{
+            media.setOriginHeight(height + "");
+            media.setOriginWidth(width + "");
+            media.setDuration("0");
+        }
+        media.setIdentifier(imgId);
+        media.setMimeType(mimeType);
+        media.setFileSize(fileSize + "");
+        media.setMediaId(imgId);
+        return media;
+    }
+
+    private HashMap addMedia(String imgId, String filePath, String mimeType, float height, float width, String displayName, int fileSize) {
+        HashMap media = new HashMap();
+        try {
+            media.put("identifier", imgId);
+            media.put("filePath", filePath);
+            if (mimeType.contains("video")) {
+                if (requestVideoDimen) {
+                    retriever.setDataSource(filePath);
+                    Bitmap bitmap = retriever.getFrameAtTime(0);
+                    media.put("width", bitmap.getWidth() * 1.0);
+                    media.put("height", bitmap.getHeight() * 1.0);
+                }else {
+                    media.put("width", 0.0);
+                    media.put("height", 0.0);
+                }
+                Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, imgId);
+                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    media.put("duration", cursor.getFloat(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION))/1000);
+                }else {
+                    media.put("duration", 0.0);
+                }
+                cursor.close();
+            }else {
+                if (fetchSpecialPhotos && !mimeType.contains("gif")) {
+                    ExifInterface ei = new ExifInterface(filePath);
+                    int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_UNDEFINED);
+                    if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                        media.put("width", height);
+                        media.put("height",width);
+                    }else {
+                        media.put("width", width);
+                        media.put("height",height);
+                    }
+                }else {
+                    media.put("width", width);
+                    media.put("height",height);
+                }
+                media.put("duration", 0.0);
+            }
+            media.put("name", displayName);
+            media.put("fileType", mimeType);
+            media.put("fileSize", fileSize + "");
+            media.put("thumbPath", "");
+            media.put("thumbName", "");
+            media.put("thumbHeight", 0.0);
+            media.put("thumbWidth", 0.0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return media;
     }
 
     private boolean isExceptMemeType(List<MimeType> mimeTypes, String mimeType){

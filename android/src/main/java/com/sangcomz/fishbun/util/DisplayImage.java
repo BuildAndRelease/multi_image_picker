@@ -211,10 +211,10 @@ public class DisplayImage {
             public void run() {
                 if (requestHashMap) {
                     HashMap hashMap = addMedia(imgId, filePath, mimeType, height, width, displayName, fileSize);
-                    addOutputResult(index, hashMap);
+                    if (hashMap != null) addOutputResult(index, hashMap);
                 }else {
                     Media media = addMedia(imgId, bucketId, bucketName, filePath, mimeType, height, width, displayName, fileSize);
-                    addOutputResult(index, media);
+                    if (media != null) addOutputResult(index, media);
                 }
             }
         });
@@ -225,7 +225,8 @@ public class DisplayImage {
     private ArrayList sortOutput() {
         ArrayList result = new ArrayList();
         for (int i = 0; i < output.size(); i++) {
-            result.add(output.get(i));
+            Object object = output.get(i);
+            if (object != null) result.add(object);
         }
         return result;
     }
@@ -262,6 +263,7 @@ public class DisplayImage {
     private HashMap addMedia(String imgId, String filePath, String mimeType, float height, float width, String displayName, int fileSize) {
         HashMap media = new HashMap();
         try {
+            if (isExceptMemeType(exceptMimeType, mimeType)) return null;
             media.put("identifier", imgId);
             media.put("filePath", filePath);
             if (mimeType.contains("video")) {

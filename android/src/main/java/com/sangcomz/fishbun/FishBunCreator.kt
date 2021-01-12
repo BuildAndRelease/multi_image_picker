@@ -66,10 +66,6 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.drawableAllDoneButton = icon
     }
 
-    override fun exceptMimeType(exceptMimeTypeList: List<MimeType>) = this.apply {
-        fishton.exceptMimeTypeList = exceptMimeTypeList
-    }
-
     override fun setSelectType(selectType: String) = this.apply {
         fishton.selectType = selectType
     }

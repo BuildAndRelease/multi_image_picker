@@ -97,7 +97,7 @@ public class DisplayImage {
     @NonNull
     private ArrayList getAllMediaThumbnailsPath(long id) {
         String bucketId = String.valueOf(id);
-        String sort = isInvertedPhotos ? MediaStore.Files.FileColumns._ID + " ASC " : MediaStore.Files.FileColumns._ID + " DESC ";
+        String sort = MediaStore.Files.FileColumns._ID + " DESC ";
         if (limit >= 0 && offset >= 0) {
             sort = sort + " LIMIT " + limit + " OFFSET " + offset;
         }
@@ -224,9 +224,16 @@ public class DisplayImage {
 
     private ArrayList sortOutput() {
         ArrayList result = new ArrayList();
-        for (int i = 0; i < output.size(); i++) {
-            Object object = output.get(i);
-            if (object != null) result.add(object);
+        if (isInvertedPhotos) {
+            for (int i = output.size() - 1; i >= 0; i--) {
+                Object object = output.get(i);
+                if (object != null) result.add(object);
+            }
+        }else {
+            for (int i = 0; i < output.size(); i++) {
+                Object object = output.get(i);
+                if (object != null) result.add(object);
+            }
         }
         return result;
     }

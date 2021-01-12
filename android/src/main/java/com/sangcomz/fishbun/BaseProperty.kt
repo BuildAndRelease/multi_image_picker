@@ -18,8 +18,6 @@ interface BaseProperty {
 
     fun setRequestCode(requestCode: Int): FishBunCreator
 
-    fun exceptMimeType(exceptMimeTypeList: List<MimeType>): FishBunCreator
-
     fun setDoneButtonText(doneButtonText: String): FishBunCreator
 
     fun setSelectType(selectType: String): FishBunCreator

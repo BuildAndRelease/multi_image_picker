@@ -288,8 +288,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         String backButtonDrawable = options.get("backButtonDrawable");
         String okButtonDrawable = options.get("okButtonDrawable");
 
-        ArrayList mimeTypeList = new ArrayList();
-        mimeTypeList.add(MimeType.WEBP);
         FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
                 .setImageAdapter(new GlideAdapter())
                 .setMaxCount(maxImages)
@@ -298,8 +296,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 .setPreSelectMedias(selectMedias)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
                 .setSelectType(selectType)
-                .setDoneButtonText(doneButtonText)
-                .exceptMimeType(mimeTypeList);
+                .setDoneButtonText(doneButtonText);
 
         if (!textOnNothingSelected.isEmpty()) {
             fishBun.textOnNothingSelected(textOnNothingSelected);

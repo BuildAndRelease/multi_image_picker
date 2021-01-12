@@ -240,7 +240,7 @@ public class DisplayImage {
 
     private Media addMedia(String imgId, String bucketId, String bucketName, String filePath, String mimeType, float height, float width, String displayName, int fileSize) {
         Media media = new Media();
-        if (isExceptMemeType(exceptMimeType, mimeType)) return null;
+        if (isExceptType(exceptMimeType, mimeType)) return null;
         media.setFileType(mimeType);
         media.setBucketId(bucketId);
         media.setBucketName(bucketName);
@@ -270,7 +270,7 @@ public class DisplayImage {
     private HashMap addMedia(String imgId, String filePath, String mimeType, float height, float width, String displayName, int fileSize) {
         HashMap media = new HashMap();
         try {
-            if (isExceptMemeType(exceptMimeType, mimeType)) return null;
+            if (isExceptType(exceptMimeType, mimeType)) return null;
             media.put("identifier", imgId);
             media.put("filePath", filePath);
             if (mimeType.contains("video")) {
@@ -322,7 +322,7 @@ public class DisplayImage {
         return media;
     }
 
-    private boolean isExceptMemeType(List<MimeType> mimeTypes, String mimeType){
+    private boolean isExceptType(List<MimeType> mimeTypes, String mimeType){
         for (MimeType type : mimeTypes) {
             if (MimeTypeExt.equalsMimeType(type, mimeType))
                 return true;

@@ -265,7 +265,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
     }
     
     private func cachedFilePath(url : URL?) -> String {
-        let fileName = url?.absoluteString.md5.appending(url?.pathExtension ?? "") ?? ""
+        let fileName = url?.absoluteString.md5.appending(".\(url?.pathExtension ?? "")") ?? ""
         let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true).first?.appending("/video")
         return cacheDir?.appending("/\(fileName)") ?? "";
     }

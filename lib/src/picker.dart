@@ -132,6 +132,15 @@ class MultiImagePicker {
     }
   }
 
+  static Future<dynamic> cachedVideoPath(String url) async {
+    try {
+      return await _channel
+          .invokeMethod('cachedVideoPath', <String, dynamic>{'url': url});
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   static Future<String> requestThumbDirectory() async {
     try {
       return await _channel.invokeMethod('requestThumbDirectory');

@@ -250,9 +250,24 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     success ? result(assets) : result(FlutterError(code: "\(error.code)", message: error.domain, details: nil))
             }, completion: nil)
             break;
+        case "cachedVideoPath":
+            let arguments = call.arguments as! Dictionary<String, AnyObject>
+            let url = (arguments["url"] as? String) ?? ""
+            result(cachedFilePath(url: URL(string: url)))
+            break
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+    
+    private func cachedFileName(url : URL?) -> String {
+        return url?.absoluteString.md5.appending(url?.pathExtension ?? "") ?? ""
+    }
+    
+    private func cachedFilePath(url : URL?) -> String {
+        let fileName = url?.absoluteString.md5.appending(url?.pathExtension ?? "") ?? ""
+        let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true).first?.appending("/video")
+        return cacheDir?.appending("/\(fileName)") ?? "";
     }
     
     private func getThumbnailSize(originSize: CGSize) -> CGSize {

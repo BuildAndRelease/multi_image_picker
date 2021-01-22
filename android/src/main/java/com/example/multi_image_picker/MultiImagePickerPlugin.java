@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.text.TextUtils;
+
 
 import androidx.core.content.ContextCompat;
 
@@ -14,7 +14,6 @@ import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.GlideAdapter;
-import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.ui.camera.CameraActivity;
 import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.util.MediaInfoData;
@@ -22,11 +21,11 @@ import com.sangcomz.fishbun.util.PermissionCheck;
 import com.sangcomz.fishbun.util.DisplayImage;
 import com.sangcomz.fishbun.util.MediaCompress;
 import com.sangcomz.fishbun.util.MediaThumbData;
+import com.sangcomz.fishbun.util.ProxyCacheUtils;
 
+import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,6 +50,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String REQUEST_FILE_SIZE = "requestFileSize";
     private static final String REQUEST_FILE_DIMEN = "requestFileDimen";
     private static final String REQUEST_THUMB_DIRECTORY = "requestThumbDirectory";
+    private static final String FETCH_CACHED_VIDEO_PATH = "cachedVideoPath";
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
     private static final String MAX_HEIGHT = "maxHeight";
@@ -268,6 +268,11 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     }
                     break;
                 }
+                case FETCH_CACHED_VIDEO_PATH: {
+                    String url = call.argument("url");
+                    result.success(getVideoCacheDir(context, url).getAbsolutePath());
+                    break;
+                }
             }
         } catch (Exception e) {
             if (currentPickerResult != null) {
@@ -277,6 +282,23 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 result.error(e.getMessage(), e.toString(), null);
             }
         }
+    }
+
+    public File getVideoCacheDir(Context context, String url) {
+        return new File(new File(context.getExternalCacheDir(), "video-cache"), generate(url));
+    }
+
+    public String generate(String url) {
+        String extension = getExtension(url);
+        String name = ProxyCacheUtils.computeMD5(url);
+        return TextUtils.isEmpty(extension) ? name : name + "." + extension;
+    }
+
+    private String getExtension(String url) {
+        int dotIndex = url.lastIndexOf('.');
+        int slashIndex = url.lastIndexOf('/');
+        return dotIndex != -1 && dotIndex > slashIndex && dotIndex + 2 + 4 > url.length() ?
+                url.substring(dotIndex + 1, url.length()) : "";
     }
 
     private void presentPicker(int maxImages, boolean thumb, String defaultAsset, String doneButtonText, String selectType, ArrayList<String> selectMedias, HashMap<String, String> options) {

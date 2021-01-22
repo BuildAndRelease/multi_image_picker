@@ -3,8 +3,6 @@ package com.sangcomz.fishbun.util;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -15,9 +13,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-import static com.danikula.videocache.Preconditions.checkArgument;
-import static com.danikula.videocache.Preconditions.checkNotNull;
-
 /**
  * Just simple utils.
  *
@@ -25,7 +20,6 @@ import static com.danikula.videocache.Preconditions.checkNotNull;
  */
 public class ProxyCacheUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger("ProxyCacheUtils");
     static final int DEFAULT_BUFFER_SIZE = 8 * 1024;
     static final int MAX_ARRAY_PREVIEW = 16;
 
@@ -36,9 +30,7 @@ public class ProxyCacheUtils {
     }
 
     static void assertBuffer(byte[] buffer, long offset, int length) {
-        checkNotNull(buffer, "Buffer must be not null!");
-        checkArgument(offset >= 0, "Data offset must be positive!");
-        checkArgument(length >= 0 && length <= buffer.length, "Length must be in range [0..buffer.length]");
+
     }
 
     static String preview(byte[] data, int length) {
@@ -72,7 +64,7 @@ public class ProxyCacheUtils {
             try {
                 closeable.close();
             } catch (IOException e) {
-                LOG.error("Error closing resource", e);
+                e.printStackTrace();
             }
         }
     }

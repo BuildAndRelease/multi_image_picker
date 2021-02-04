@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -292,20 +293,31 @@ public class DisplayImage {
                 }
                 cursor.close();
             }else {
+                double imageWidth = width;
+                double imageHeight = height;
+                try {
+                    BitmapFactory.Options opts = new BitmapFactory.Options();
+                    opts.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(filePath, opts);
+                    imageWidth = opts.outWidth > 0 ? (opts.outWidth * 1.0) : imageWidth;
+                    imageHeight = opts.outHeight > 0 ? (opts.outHeight * 1.0) : imageHeight;
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
                 if (fetchSpecialPhotos && !mimeType.contains("gif")) {
                     ExifInterface ei = new ExifInterface(filePath);
                     int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                             ExifInterface.ORIENTATION_UNDEFINED);
                     if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
-                        media.put("width", height);
-                        media.put("height",width);
+                        media.put("width", imageHeight);
+                        media.put("height",imageWidth);
                     }else {
-                        media.put("width", width);
-                        media.put("height",height);
+                        media.put("width", imageWidth);
+                        media.put("height",imageHeight);
                     }
                 }else {
-                    media.put("width", width);
-                    media.put("height",height);
+                    media.put("width", imageWidth);
+                    media.put("height",imageHeight);
                 }
                 media.put("duration", 0.0);
             }

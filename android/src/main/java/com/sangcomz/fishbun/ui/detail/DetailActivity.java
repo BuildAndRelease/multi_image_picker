@@ -28,6 +28,7 @@ import com.sangcomz.fishbun.adapter.DetailViewPagerAdapter;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.util.DisplayImage;
+import com.sangcomz.fishbun.util.ImageOriginPager;
 import com.sangcomz.fishbun.util.RadioWithTextButton;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +43,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private int initPosition;
     private Fishton fishton;
     private RadioWithTextButton btnDetailCount;
-    private ViewPager vpDetailPager;
+    private ImageOriginPager vpDetailPager;
     private Button btnDetailBack;
     private VideoView currentPlayVideoView;
     private Button originBtn;

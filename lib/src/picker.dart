@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
 class MultiImagePicker {
@@ -12,7 +11,7 @@ class MultiImagePicker {
 
   // selectType: selectAll selectVideo  selectImage selectSingleType
   static Future<Map<dynamic, dynamic>> pickImages({
-    @required int maxImages,
+    int maxImages = 9,
     bool thumb = true,
     String defaultAsset = "",
     String selectType = "",
@@ -47,12 +46,12 @@ class MultiImagePicker {
       final List<dynamic> images = await _channel.invokeMethod(
           'requestMediaData',
           <String, dynamic>{'thumb': thumb, 'selectedAssets': selectedAssets});
-      var assets = List<Asset>();
+      List<Asset> assets = [];
       for (var item in images) {
         var asset;
-        final String fileType = item['fileType'];
+        final String fileType = item['fileType'] ?? "";
         final String errorCode = item['errorCode'];
-        if (fileType == null || fileType.isEmpty) {
+        if (fileType.isEmpty) {
           asset = Asset(item['identifier'], '', '', 0.0, 0.0, '',
               errorCode: errorCode);
         } else if (fileType.contains('image')) {
@@ -114,14 +113,14 @@ class MultiImagePicker {
     }
   }
 
-  static Future<String> requestFileSize(String identifier) async {
-    try {
-      return await _channel.invokeMethod(
-          'requestFileSize', <String, dynamic>{'identifier': identifier});
-    } on PlatformException catch (e) {
-      throw e;
-    }
-  }
+  // static Future<String> requestFileSize(String identifier) async {
+  //   try {
+  //     return await _channel.invokeMethod(
+  //         'requestFileSize', <String, dynamic>{'identifier': identifier});
+  //   } on PlatformException catch (e) {
+  //     throw e;
+  //   }
+  // }
 
   static Future<dynamic> requestFileDimen(String identifier) async {
     try {
@@ -150,7 +149,7 @@ class MultiImagePicker {
   }
 
   static Future<List<Asset>> fetchMediaInfo(int offset, int limit,
-      {List<String> selectedAssets}) async {
+      {List<String> selectedAssets = const []}) async {
     try {
       final List<dynamic> images = await _channel.invokeMethod(
           'fetchMediaInfo', <String, dynamic>{
@@ -158,7 +157,7 @@ class MultiImagePicker {
         'offset': offset,
         'selectedAssets': selectedAssets
       });
-      var assets = List<Asset>();
+      List<Asset> assets = [];
       for (var item in images) {
         var asset = Asset(item['identifier'], item['filePath'], item['name'],
             item['width'], item['height'], item['fileType'],
@@ -175,16 +174,18 @@ class MultiImagePicker {
       String identifier, String fileType) async {
     try {
       if (_cacheThumbData.containsKey(identifier)) {
-        return _cacheThumbData[identifier];
+        return _cacheThumbData[identifier] ?? Uint8List(0);
       } else {
-        Uint8List data = await _channel.invokeMethod('fetchMediaThumbData',
-            <String, dynamic>{'identifier': identifier, 'fileType': fileType});
+        Uint8List data = await _channel.invokeMethod(
+                'fetchMediaThumbData', <String, dynamic>{
+              'identifier': identifier,
+              'fileType': fileType
+            }) ??
+            Uint8List(0);
         if (_cacheThumbData.length > 500) {
           _cacheThumbData.remove(_cacheThumbData.keys.first);
         }
-        if (data != null) {
-          _cacheThumbData[identifier] = data;
-        }
+        _cacheThumbData[identifier] = data;
         return data;
       }
     } on PlatformException catch (e) {
@@ -198,7 +199,7 @@ class MultiImagePicker {
 
   static Uint8List fetchCacheThumbData(String identifier) {
     try {
-      return _cacheThumbData[identifier];
+      return _cacheThumbData[identifier] ?? Uint8List(0);
     } on Exception catch (e) {
       print(e);
       return Uint8List(0);

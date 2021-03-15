@@ -6,20 +6,20 @@ class CupertinoOptions {
   final String takePhotoIcon;
 
   const CupertinoOptions({
-    this.selectionFillColor,
-    this.selectionStrokeColor,
-    this.selectionTextColor,
-    this.selectionCharacter,
-    this.takePhotoIcon,
+    this.selectionFillColor = "",
+    this.selectionStrokeColor = "",
+    this.selectionTextColor = "",
+    this.selectionCharacter = "",
+    this.takePhotoIcon = "",
   });
 
   Map<String, String> toJson() {
     return {
-      "selectionFillColor": selectionFillColor ?? "",
-      "selectionStrokeColor": selectionStrokeColor ?? "",
-      "selectionTextColor": selectionTextColor ?? "",
-      "selectionCharacter": selectionCharacter ?? "",
-      "takePhotoIcon": takePhotoIcon ?? ""
+      "selectionFillColor": selectionFillColor,
+      "selectionStrokeColor": selectionStrokeColor,
+      "selectionTextColor": selectionTextColor,
+      "selectionCharacter": selectionCharacter,
+      "takePhotoIcon": takePhotoIcon
     };
   }
 }

@@ -36,15 +36,15 @@ class Asset {
 
   Asset(this._identifier, this._filePath, this._name, this._originalWidth,
       this._originalHeight, this._fileType,
-      {this.thumbFilePath,
-      this.thumbName,
-      this.thumbWidth,
-      this.thumbHeight,
-      this.duration,
-      this.hash,
-      this.checkPath,
-      this.url,
-      this.errorCode});
+      {this.thumbFilePath = "",
+      this.thumbName = "",
+      this.thumbWidth = 0.0,
+      this.thumbHeight = 0.0,
+      this.duration = 0.0,
+      this.hash = "",
+      this.checkPath = "",
+      this.url = "",
+      this.errorCode = "0"});
 
   /// Returns the original image width
   double get originalWidth {
@@ -87,21 +87,21 @@ class Asset {
 
   Map<String, dynamic> toJsonMap() {
     Map<String, dynamic> assetInfo = {};
-    assetInfo['identifier'] = identifier ?? '';
-    assetInfo['filePath'] = filePath ?? '';
-    assetInfo['checkPath'] = checkPath ?? '';
-    assetInfo['name'] = name ?? '';
-    assetInfo['originalWidth'] = originalWidth ?? 0.0;
-    assetInfo['originalHeight'] = originalHeight ?? 0.0;
-    assetInfo['fileType'] = fileType ?? '';
-    assetInfo['duration'] = duration ?? 0.0;
-    assetInfo['thumbFilePath'] = thumbFilePath ?? '';
-    assetInfo['thumbHeight'] = thumbHeight ?? 0.0;
-    assetInfo['thumbWidth'] = thumbWidth ?? 0.0;
-    assetInfo['thumbName'] = thumbName ?? '';
-    assetInfo['url'] = url ?? '';
-    assetInfo['hash'] = hash ?? '';
-    assetInfo['errorCode'] = errorCode ?? '';
+    assetInfo['identifier'] = identifier;
+    assetInfo['filePath'] = filePath;
+    assetInfo['checkPath'] = checkPath;
+    assetInfo['name'] = name;
+    assetInfo['originalWidth'] = originalWidth;
+    assetInfo['originalHeight'] = originalHeight;
+    assetInfo['fileType'] = fileType;
+    assetInfo['duration'] = duration;
+    assetInfo['thumbFilePath'] = thumbFilePath;
+    assetInfo['thumbHeight'] = thumbHeight;
+    assetInfo['thumbWidth'] = thumbWidth;
+    assetInfo['thumbName'] = thumbName;
+    assetInfo['url'] = url;
+    assetInfo['hash'] = hash;
+    assetInfo['errorCode'] = errorCode;
     return assetInfo;
   }
 

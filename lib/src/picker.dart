@@ -88,6 +88,55 @@ class MultiImagePicker {
     }
   }
 
+// example: fileType: video/mp4 image/jpg image/png image/gif
+  static Future<List<Asset>> requestCompressMedia(bool thumb,
+      {String fileType = "", List<String> fileList = const []}) async {
+    try {
+      final List<dynamic> images = await _channel.invokeMethod(
+          'requestCompressMedia', <String, dynamic>{
+        'thumb': thumb,
+        'fileType': fileType,
+        'fileList': fileList
+      });
+      List<Asset> assets = [];
+      for (var item in images) {
+        var asset;
+        final String errorCode = item['errorCode'];
+        if ((errorCode?.isNotEmpty ?? false) && errorCode != "0") {
+          asset = Asset('', '', '', 0.0, 0.0, '', errorCode: errorCode);
+        } else if (fileType.contains('image')) {
+          asset = Asset(
+            item['identifier'],
+            item['filePath'],
+            item['name'],
+            item['width'],
+            item['height'],
+            item['fileType'],
+            checkPath: item['checkPath'],
+          );
+        } else if (fileType.contains('video')) {
+          asset = Asset(
+            item['identifier'],
+            item['filePath'],
+            item['name'],
+            item['width'],
+            item['height'],
+            item['fileType'],
+            duration: item['duration'],
+            thumbFilePath: item['thumbPath'],
+            thumbName: item['thumbName'],
+            thumbHeight: item['thumbHeight'],
+            thumbWidth: item['thumbWidth'],
+          );
+        }
+        assets.add(asset);
+      }
+      return assets;
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   static Future<Asset> requestTakePicture(
       {String themeColor = "0xFF00CC00"}) async {
     try {
@@ -110,6 +159,8 @@ class MultiImagePicker {
       return asset;
     } on PlatformException catch (e) {
       throw e;
+    } on Exception catch (e) {
+      print(e);
     }
   }
 

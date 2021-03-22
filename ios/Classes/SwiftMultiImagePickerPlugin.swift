@@ -78,6 +78,44 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 }
                 result(results)
             }
+        case "requestCompressMedia":
+            let arguments = call.arguments as! Dictionary<String, AnyObject>
+            let selectedAssets = (arguments["fileList"] as? Array<String>) ?? []
+            let thumb = (arguments["thumb"] as? Bool) ?? true
+            let fileType = (arguments["fileType"] as? String) ?? ""
+            DispatchQueue.global().async {
+                let thumbDir = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/"
+                if !FileManager.default.fileExists(atPath: thumbDir) {
+                    do {
+                        try FileManager.default.createDirectory(atPath: thumbDir, withIntermediateDirectories: true, attributes: nil)
+                        var url = URL(fileURLWithPath: thumbDir, isDirectory: true)
+                        var resourceValues = URLResourceValues()
+                        resourceValues.isExcludedFromBackup = true
+                        try url.setResourceValues(resourceValues)
+                    }catch{
+                        print(error)
+                    }
+                }
+                var results = [NSDictionary]();
+                
+                for index in 0 ..< selectedAssets.count {
+                    let asset = selectedAssets[index]
+                    var compressing = true
+                    MediaCompress().compressAsset(thumb, fileType: fileType, originPath: asset, saveDir: thumbDir) { (process) in
+                        
+                    } failed: { (err) in
+                        results.append(err.userInfo as NSDictionary)
+                        compressing = false
+                    } finish: { (info) in
+                        results.append(info)
+                        compressing = false
+                    }
+                    while compressing {
+                        usleep(50000)
+                    }
+                }
+                result(results)
+            }
         case "requestFileSize":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let localIdentifier = (arguments["identifier"] as? String) ?? ""

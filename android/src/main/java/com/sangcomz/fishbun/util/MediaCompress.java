@@ -49,6 +49,19 @@ public class MediaCompress {
         this.listener = listener;
     }
 
+    public MediaCompress(boolean thumb, List<String> mediaPaths, String fileType, Context context) {
+        this.thumb = thumb;
+        this.context = context;
+        for (String mediaPath : mediaPaths) {
+            Media media = new Media();
+            media.setOriginPath(mediaPath);
+            media.setFileType(fileType);
+            media.setIdentifier("");
+            media.setModifyTimeStamp(System.currentTimeMillis() + "");
+            selectMedias.add(media);
+        }
+    }
+
     public MediaCompress(boolean thumb, List<String> selectMediaIdentifiers, Context context) {
         this.thumb = thumb;
         this.context = context;
@@ -266,11 +279,15 @@ public class MediaCompress {
     }
 
     private HashMap fetchImageThumb(Media media, boolean thumb) {
-        int fileSize = 0;
+        long fileSize = 0;
         try {
-            fileSize = Integer.parseInt(media.getFileSize());
+            fileSize = Long.parseLong(media.getFileSize());
         } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                fileSize = new File(media.getOriginPath()).length();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         }
         String cacheDir = context.getCacheDir().getAbsolutePath();
         String thumbPath = cacheDir + "/multi_image_pick/thumb/";

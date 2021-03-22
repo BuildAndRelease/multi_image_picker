@@ -46,6 +46,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String FETCH_MEDIA_THUMB_DATA = "fetchMediaThumbData";
     private static final String FETCH_MEDIA_INFO = "fetchMediaInfo";
     private static final String REQUEST_MEDIA_DATA = "requestMediaData";
+    private static final String REQUEST_COMPRESS_MEDIA = "requestCompressMedia";
     private static final String REQUEST_TAKE_PICTURE = "requestTakePicture";
     private static final String REQUEST_FILE_SIZE = "requestFileSize";
     private static final String REQUEST_FILE_DIMEN = "requestFileDimen";
@@ -249,6 +250,24 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 }
                 case REQUEST_THUMB_DIRECTORY: {
                     result.success(context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/");
+                    break;
+                }
+                case REQUEST_COMPRESS_MEDIA: {
+                    if (checkPermission(false, false, true)) {
+                        boolean thumb = call.argument("thumb");
+                        String fileType = call.argument("fileType");
+                        List<String> selectMedias = call.argument("fileList");
+                        MediaCompress mediaCompress = new MediaCompress(thumb, selectMedias, fileType, activity);
+                        mediaCompress.setListener(new MediaCompress.MediaCompressListener() {
+                            @Override
+                            public void mediaCompressDidFinish(ArrayList<HashMap> results) {
+                                result.success(results);
+                            }
+                        });
+                        mediaCompress.execute();
+                    }else {
+                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                    }
                     break;
                 }
                 case REQUEST_MEDIA_DATA: {

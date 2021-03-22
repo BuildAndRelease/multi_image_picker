@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> loadAssets() async {
-    List<Asset> resultList = List<Asset>();
+    List<Asset> resultList = [];
     String error = 'No Error Dectected';
     try {
       // "29B30966-7BC9-481C-9AA4-BE0A675112D3/L0/001"
@@ -142,12 +142,45 @@ class _MyHomePageState extends State<MyHomePage> {
       //     'F9D725E8-BF01-4FF2-A61C-3EC033C181C1/L0/001');
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
-      final identifers = List<String>();
+      final List<String> identifers = [];
       result['identifiers']
           .forEach((element) => identifers.add(element.toString()));
-      await MultiImagePicker.requestMediaData(
+      final assets = await MultiImagePicker.requestMediaData(
           selectedAssets: identifers, thumb: result['thumb']);
-      print(await MultiImagePicker.requestFileDimen(identifers.first));
+      for (var item in assets) {
+        print(item.filePath);
+      }
+
+      // final dir = await MultiImagePicker.requestThumbDirectory();
+
+      // String path = dir + "big_jpg.JPG";
+      // final t1 = await MultiImagePicker.requestCompressMedia(true,
+      //     fileType: "image", fileList: [path]);
+      // print(t1[0].toJsonMap());
+      // path = dir + "gif.GIF";
+      // final t2 = await MultiImagePicker.requestCompressMedia(true,
+      //     fileType: "image", fileList: [path]);
+      // print(t2[0].toJsonMap());
+      // path = dir + "heic.HEIC";
+      // final t3 = await MultiImagePicker.requestCompressMedia(true,
+      //     fileType: "image", fileList: [path]);
+      // print(t3[0].toJsonMap());
+      // path = dir + "IMG_1582.GIF";
+      // final t4 = await MultiImagePicker.requestCompressMedia(true,
+      //     fileType: "image", fileList: [path]);
+      // print(t4[0].toJsonMap());
+      // path = dir + "jpg.JPG";
+      // final t5 = await MultiImagePicker.requestCompressMedia(true,
+      //     fileType: "image", fileList: [path]);
+      // print(t5[0].toJsonMap());
+      // path = dir + "mp4.mp4";
+      // final t6 = await MultiImagePicker.requestCompressMedia(true,
+      //     fileType: "video", fileList: [path]);
+      // print(t6[0].toJsonMap());
+      // path = dir + "png.PNG";
+      // final t7 = await MultiImagePicker.requestCompressMedia(true,
+      //     fileType: "image", fileList: [path]);
+      // print(t7[0].toJsonMap());
 
       // print(resultList);
       // print(resultList[0].toJsonMap());

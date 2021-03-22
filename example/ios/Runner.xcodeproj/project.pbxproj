@@ -10,11 +10,11 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		2CDADBEA2463FB6800BCAEED /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2CDADBEC2463FB6800BCAEED /* Localizable.strings */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		571F82063214173BAADFB459 /* libPods-Runner.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC6E2321AD9BE9867195DE09 /* libPods-Runner.a */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		AD2250FF2CB0D1F86ECA4013 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B631FB325CAB82EE36638E89 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,8 +50,8 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A0040BFDB014AFA16EB9FE40 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
-		B631FB325CAB82EE36638E89 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D770F565AE015B808ECDCD78 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		FC6E2321AD9BE9867195DE09 /* libPods-Runner.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Runner.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,7 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD2250FF2CB0D1F86ECA4013 /* Pods_Runner.framework in Frameworks */,
+				571F82063214173BAADFB459 /* libPods-Runner.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,7 +69,7 @@
 		0BE2A8DE5AAB617C1F4E6FEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B631FB325CAB82EE36638E89 /* Pods_Runner.framework */,
+				FC6E2321AD9BE9867195DE09 /* libPods-Runner.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -152,7 +152,7 @@
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
-				764D0FAE28DEB91C36142783 /* [CP] Embed Pods Frameworks */,
+				830AB95CBBF95F2170F5C71C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -251,19 +251,86 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		764D0FAE28DEB91C36142783 /* [CP] Embed Pods Frameworks */ = {
+		830AB95CBBF95F2170F5C71C /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/add_photo.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/add_photo@1x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/add_photo@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/add_photo@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/arrow_down@1x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/arrow_down@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/arrow_down@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/arrow_down_more@1x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/arrow_down_more@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/arrow_down_more@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/change_camera@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/change_camera@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/icon_finish@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/icon_finish@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/icon_return@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/icon_return@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/ic_photo_error@1x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/ic_photo_error@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/ic_photo_error@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_select.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_select@1x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_select@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_select@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_unselect.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_unselect@1x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_unselect@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_unselect@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/sight_video_focus@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/sight_video_focus@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/video_btn.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/video_btn@1x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/video_btn@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/video_btn@3x.png",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/add_photo.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/add_photo@1x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/add_photo@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/add_photo@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/arrow_down@1x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/arrow_down@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/arrow_down@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/arrow_down_more@1x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/arrow_down_more@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/arrow_down_more@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/change_camera@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/change_camera@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_finish@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_finish@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_return@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_return@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_photo_error@1x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_photo_error@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_photo_error@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_select.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_select@1x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_select@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_select@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_unselect.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_unselect@1x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_unselect@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_unselect@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sight_video_focus@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sight_video_focus@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/video_btn.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/video_btn@1x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/video_btn@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/video_btn@3x.png",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {

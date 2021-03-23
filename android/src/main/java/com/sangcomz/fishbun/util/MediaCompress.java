@@ -124,86 +124,11 @@ public class MediaCompress {
                 for (int i = 0; i < selectMedias.size(); i++) {
                     Media media = selectMedias.get(i);
                     if (media.getFileType().contains("video")) {
-                        String uuid = media.getIdentifier() + "-" + media.getModifyTimeStamp();
-                        String videoName = uuid + ".mp4";
-                        String imgName = uuid + ".jpg";
-                        String cacheDir = context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
-                        File targetParentDir = new File(cacheDir);
-                        if (!targetParentDir.exists()) {
-                            targetParentDir.mkdirs();
-                        }
-                        File targetPic = new File(cacheDir + imgName);
-                        if (targetPic.exists()) {
-                            BitmapFactory.Options options = new BitmapFactory.Options();
-                            options.inJustDecodeBounds = true;
-                            BitmapFactory.decodeFile(targetPic.getAbsolutePath(), options);
-                            media.setThumbnailHeight(options.outHeight + "");
-                            media.setThumbnailWidth(options.outWidth + "");
-                            media.setThumbnailName(imgName);
-                            media.setThumbnailPath(targetPic.getAbsolutePath());
-                        }else {
-                            File tmpPic = new File(cacheDir + imgName + "." + UUID.randomUUID().toString());
-                            HashMap picInfo = localVideoThumb(media, tmpPic.getAbsolutePath());
-                            tmpPic.renameTo(targetPic);
-                            media.setThumbnailHeight((String) picInfo.get("height"));
-                            media.setThumbnailWidth((String) picInfo.get("width"));
-                            media.setThumbnailName(imgName);
-                            media.setThumbnailPath(targetPic.getAbsolutePath());
-                        }
-                        File targetVideo = new File(cacheDir + videoName);
-                        float width = Float.parseFloat(media.getThumbnailWidth());
-                        float height = Float.parseFloat(media.getThumbnailHeight());
-                        if (!targetVideo.exists()) {
-                            File tmpVideo = new File(cacheDir + videoName + "." + UUID.randomUUID().toString());
-                            try {
-                                Pair<Integer, Size> pair = getBitrateAndSize(media.getOriginPath());
-                                Integer compressBitrate = getBitrate(pair.first, Quality.LOW);
-                                Size compressSize = generateWidthAndHeight(pair.second.getWidth(), pair.second.getHeight());
-                                if (compressBitrate.intValue() == pair.first.intValue()) {
-                                    copyFile(new File(media.getOriginPath()), tmpVideo);
-                                }else {
-                                    VideoProcessor.processor(context).input(media.getOriginPath()).
-                                            output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).
-                                            outHeight(compressSize.getHeight()).outWidth(compressSize.getWidth()).
-                                            changeAudioSpeed(false).iFrameInterval(1).
-                                            bitrate(compressBitrate).process();
-                                }
-                                if (tmpVideo.exists()) {
-                                    tmpVideo.renameTo(targetVideo);
-                                }else {
-                                    HashMap info = new HashMap();
-                                    info.put("identifier", media.getIdentifier());
-                                    info.put("errorCode", "1");
-                                    result.add(info);
-                                    continue;
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                HashMap info = new HashMap();
-                                info.put("identifier", media.getIdentifier());
-                                info.put("errorCode", "1");
-                                result.add(info);
-                                continue;
-                            }
-                        }
-                        HashMap info = new HashMap();
-                        info.put("identifier", media.getIdentifier());
-                        info.put("filePath", targetVideo.getAbsolutePath());
-                        info.put("width", width);
-                        info.put("height",height);
-                        info.put("name", videoName);
-                        info.put("fileType", "video/mp4");
-                        info.put("duration", Float.parseFloat(media.getDuration()));
-                        info.put("thumbPath", media.getThumbnailPath());
-                        info.put("thumbName", media.getThumbnailName());
-                        info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
-                        info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
-                        result.add(info);
+                        result.add(fetchVideoThumb(media));
                     }else {
                         result.add(fetchImageThumb(media, thumb));
                     }
                 }
-
                 if (Looper.myLooper() != Looper.getMainLooper()) {
                     Handler mainThread = new Handler(Looper.getMainLooper());
                     mainThread.post(new Runnable() {
@@ -221,6 +146,82 @@ public class MediaCompress {
                 }
             }
         }).start();
+    }
+
+    private HashMap fetchVideoThumb(Media media) {
+        String uuid = media.getIdentifier() + "-" + media.getModifyTimeStamp();
+        String videoName = uuid + ".mp4";
+        String imgName = uuid + ".jpg";
+        String cacheDir = context.getCacheDir().getAbsolutePath() + "/multi_image_pick/thumb/";
+        File targetParentDir = new File(cacheDir);
+        if (!targetParentDir.exists()) {
+            targetParentDir.mkdirs();
+        }
+        File targetPic = new File(cacheDir + imgName);
+        if (targetPic.exists()) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(targetPic.getAbsolutePath(), options);
+            media.setThumbnailHeight(options.outHeight + "");
+            media.setThumbnailWidth(options.outWidth + "");
+            media.setThumbnailName(imgName);
+            media.setThumbnailPath(targetPic.getAbsolutePath());
+        }else {
+            File tmpPic = new File(cacheDir + imgName + "." + UUID.randomUUID().toString());
+            HashMap picInfo = localVideoThumb(media, tmpPic.getAbsolutePath());
+            tmpPic.renameTo(targetPic);
+            media.setThumbnailHeight((String) picInfo.get("height"));
+            media.setThumbnailWidth((String) picInfo.get("width"));
+            media.setThumbnailName(imgName);
+            media.setThumbnailPath(targetPic.getAbsolutePath());
+        }
+        File targetVideo = new File(cacheDir + videoName);
+        float width = Float.parseFloat(media.getThumbnailWidth());
+        float height = Float.parseFloat(media.getThumbnailHeight());
+        if (!targetVideo.exists()) {
+            File tmpVideo = new File(cacheDir + videoName + "." + UUID.randomUUID().toString());
+            try {
+                Pair<Integer, Size> pair = getBitrateAndSize(media.getOriginPath());
+                Integer compressBitrate = getBitrate(pair.first, Quality.LOW);
+                Size compressSize = generateWidthAndHeight(pair.second.getWidth(), pair.second.getHeight());
+                if (compressBitrate.intValue() == pair.first.intValue()) {
+                    copyFile(new File(media.getOriginPath()), tmpVideo);
+                }else {
+                    VideoProcessor.processor(context).input(media.getOriginPath()).
+                            output(tmpVideo.getAbsolutePath()).dropFrames(true).frameRate(30).
+                            outHeight(compressSize.getHeight()).outWidth(compressSize.getWidth()).
+                            changeAudioSpeed(false).iFrameInterval(1).
+                            bitrate(compressBitrate).process();
+                }
+                if (tmpVideo.exists()) {
+                    tmpVideo.renameTo(targetVideo);
+                }else {
+                    HashMap info = new HashMap();
+                    info.put("identifier", media.getIdentifier());
+                    info.put("errorCode", "1");
+                    return info;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                HashMap info = new HashMap();
+                info.put("identifier", media.getIdentifier());
+                info.put("errorCode", "1");
+                return info;
+            }
+        }
+        HashMap info = new HashMap();
+        info.put("identifier", media.getIdentifier());
+        info.put("filePath", targetVideo.getAbsolutePath());
+        info.put("width", width);
+        info.put("height",height);
+        info.put("name", videoName);
+        info.put("fileType", "video/mp4");
+        info.put("duration", Float.parseFloat(media.getDuration()));
+        info.put("thumbPath", media.getThumbnailPath());
+        info.put("thumbName", media.getThumbnailName());
+        info.put("thumbHeight", Float.parseFloat(media.getThumbnailHeight()));
+        info.put("thumbWidth", Float.parseFloat(media.getThumbnailWidth()));
+        return info;
     }
 
     private Size generateWidthAndHeight(int width, int height){
@@ -376,10 +377,10 @@ public class MediaCompress {
                         }
                     }
 
-                    if (compressPicFile.getAbsolutePath().startsWith(cacheDir)) {
-                        compressPicFile.renameTo(targetPic);
-                    }else {
+                    if (media.getOriginPath().equals(compressPicFile.getAbsolutePath())) {
                         copyFile(compressPicFile, targetPic);
+                    }else {
+                        compressPicFile.renameTo(targetPic);
                     }
                     map.put("width", imageWidth);
                     map.put("height", imageHeight);

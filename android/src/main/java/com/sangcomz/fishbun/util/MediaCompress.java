@@ -169,7 +169,10 @@ public class MediaCompress {
         }else {
             File tmpPic = new File(cacheDir + imgName + "." + UUID.randomUUID().toString());
             HashMap picInfo = localVideoThumb(media, tmpPic.getAbsolutePath());
-            tmpPic.renameTo(targetPic);
+            if (!tmpPic.renameTo(targetPic)) {
+                copyFile(tmpPic, targetPic);
+                tmpPic.delete();
+            }
             media.setThumbnailHeight((String) picInfo.get("height"));
             media.setThumbnailWidth((String) picInfo.get("width"));
             media.setThumbnailName(imgName);
@@ -194,7 +197,10 @@ public class MediaCompress {
                             bitrate(compressBitrate).process();
                 }
                 if (tmpVideo.exists()) {
-                    tmpVideo.renameTo(targetVideo);
+                    if (!tmpVideo.renameTo(targetVideo)) {
+                        copyFile(tmpVideo, targetVideo);
+                        tmpVideo.delete();
+                    };
                 }else {
                     HashMap info = new HashMap();
                     info.put("identifier", media.getIdentifier());
@@ -306,7 +312,10 @@ public class MediaCompress {
                     File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
                     if (!tmpPic.exists()) {
                         copyFile(new File(media.getOriginPath()), tmpPic);
-                        tmpPic.renameTo(targetPic);
+                        if (!tmpPic.renameTo(targetPic)) {
+                            copyFile(tmpPic, targetPic);
+                            tmpPic.delete();
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -380,7 +389,10 @@ public class MediaCompress {
                     if (media.getOriginPath().equals(compressPicFile.getAbsolutePath())) {
                         copyFile(compressPicFile, targetPic);
                     }else {
-                        compressPicFile.renameTo(targetPic);
+                        if (!compressPicFile.renameTo(targetPic)) {
+                            copyFile(compressPicFile, targetPic);
+                            compressPicFile.delete();
+                        }
                     }
                     map.put("width", imageWidth);
                     map.put("height", imageHeight);

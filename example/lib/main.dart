@@ -149,6 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
           selectedAssets: identifers, thumb: result['thumb']);
       for (var item in assets) {
         print(item.filePath);
+        print(item.checkPath);
       }
 
       // final dir = await MultiImagePicker.requestThumbDirectory();

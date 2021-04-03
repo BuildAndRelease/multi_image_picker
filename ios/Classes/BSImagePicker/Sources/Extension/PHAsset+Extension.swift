@@ -186,11 +186,15 @@ extension PHAsset {
             if let uti = self.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF") {
                 let fileName = "\(uuid).gif"
                 let filePath = saveDir + fileName
+                let checkFileName = "\(uuid)-check.gif"
+                let checkPath = saveDir + checkFileName
                 let fileTmpPath = saveDir + fileName + "." + tmpSuffix
                 manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                     do {
                         if let file = data {
                                 try file.write(to: URL(fileURLWithPath: fileTmpPath))
+                                let zipData = try ImageCompress.compressImageData(file as Data, sampleCount: 10)
+                                try zipData.write(to: URL(fileURLWithPath: checkPath))
                                 do {
                                     try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
                                 }catch let err as NSError {
@@ -200,7 +204,7 @@ extension PHAsset {
                                     finish?([
                                         "identifier": self.localIdentifier,
                                         "filePath":filePath,
-                                        "checkPath":filePath,
+                                        "checkPath":checkPath,
                                         "width": targetWidth,
                                         "height": targetHeight,
                                         "name": fileName,

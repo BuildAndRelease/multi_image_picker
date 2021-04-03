@@ -15,12 +15,17 @@ import android.util.Pair;
 import android.util.Size;
 
 import com.hw.videoprocessor.VideoProcessor;
+import com.nemocdz.imagecompress.ImageCompress;
+import com.nemocdz.imagecompress.ImageCompressKt;
 import com.sangcomz.fishbun.bean.Media;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -296,22 +301,32 @@ public class MediaCompress {
                 e1.printStackTrace();
             }
         }
+        
         String cacheDir = context.getCacheDir().getAbsolutePath();
         String thumbPath = cacheDir + "/multi_image_pick/thumb/";
         if (media.getFileType().contains("gif") || media.getOriginPath().endsWith("gif")) {
             String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + ".gif";
+            String checkFileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + "-check.gif";
             String filePath = "";
+            String checkPath = "";
             try {
                 File targetParentDir = new File(thumbPath);
                 if (!targetParentDir.exists()) {
                     targetParentDir.mkdirs();
                 }
                 File targetPic = new File(thumbPath + fileName);
+                File checkPic = new File(thumbPath + checkFileName);
                 filePath = targetPic.getAbsolutePath();
+                checkPath = checkPic.getAbsolutePath();
                 if (!targetPic.exists()) {
                     File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
                     if (!tmpPic.exists()) {
                         copyFile(new File(media.getOriginPath()), tmpPic);
+                        byte[] fileByteArray = fileToFileByteArray(tmpPic.getAbsolutePath());
+                        byte[] checkFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 24);
+                        if (checkPic.exists()) checkPic.delete();
+                        checkPic.createNewFile();
+                        fileByteArrayToFile(checkPic.getAbsolutePath(), checkFileByteArray);
                         if (!tmpPic.renameTo(targetPic)) {
                             copyFile(tmpPic, targetPic);
                             tmpPic.delete();
@@ -336,7 +351,7 @@ public class MediaCompress {
             map.put("height", imageHeight);
             map.put("name", fileName);
             map.put("filePath", filePath);
-            map.put("checkPath", filePath);
+            map.put("checkPath", checkPath);
             map.put("identifier", media.getIdentifier());
             map.put("fileType", "image/gif");
             return map;
@@ -450,6 +465,37 @@ public class MediaCompress {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean fileByteArrayToFile(String filePath, byte[] byteArray) {
+        try{
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+            bos.write(byteArray);
+            bos.flush();
+            bos.close();
+            return true;
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public byte[] fileToFileByteArray(String filePath) {
+        File file = new File(filePath);
+        int size = (int) file.length();
+        byte[] bytes = new byte[size];
+        try {
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+            buf.read(bytes, 0, bytes.length);
+            buf.close();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return bytes;
     }
 
     private File compressImage(File fromFile, File toFile, double width, double height, int quality) {

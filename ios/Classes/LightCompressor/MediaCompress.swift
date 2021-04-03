@@ -147,10 +147,14 @@ class MediaCompress {
                 let targetWidth : CGFloat = image?.size.width ?? 0
                 if type.lowercased().contains("gif") {
                     let fileName = "\(uuid).gif"
+                    let checkFileName = "\(uuid)-check.gif"
                     let filePath = saveDir + fileName
+                    let checkPath = saveDir + checkFileName
                     let fileTmpPath = saveDir + fileName + "." + tmpSuffix
                     do {
                         try data.write(to: URL(fileURLWithPath: fileTmpPath))
+                        let zipData = try ImageCompress.compressImageData(data as Data, sampleCount: 24)
+                        try zipData.write(to: URL(fileURLWithPath: checkPath))
                         do {
                             try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
                         }catch let err as NSError {
@@ -162,7 +166,7 @@ class MediaCompress {
                                 "fileType":fileType,
                                 "originPath":originPath,
                                 "filePath":filePath,
-                                "checkPath":filePath,
+                                "checkPath":checkPath,
                                 "width": targetWidth,
                                 "height": targetHeight,
                                 "name": fileName,

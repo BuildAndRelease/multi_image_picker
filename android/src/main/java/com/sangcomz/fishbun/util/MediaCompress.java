@@ -321,12 +321,17 @@ public class MediaCompress {
                 if (!targetPic.exists()) {
                     File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
                     if (!tmpPic.exists()) {
-                        copyFile(new File(media.getOriginPath()), tmpPic);
-                        byte[] fileByteArray = fileToFileByteArray(tmpPic.getAbsolutePath());
+                        byte[] fileByteArray = fileToFileByteArray(media.getOriginPath());
+                        byte[] resultFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 1);
+                        if (tmpPic.exists()) checkPic.delete();
+                        tmpPic.createNewFile();
+                        fileByteArrayToFile(tmpPic.getAbsolutePath(), resultFileByteArray);
+
                         byte[] checkFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 24);
                         if (checkPic.exists()) checkPic.delete();
                         checkPic.createNewFile();
                         fileByteArrayToFile(checkPic.getAbsolutePath(), checkFileByteArray);
+
                         if (!tmpPic.renameTo(targetPic)) {
                             copyFile(tmpPic, targetPic);
                             tmpPic.delete();

@@ -152,9 +152,10 @@ class MediaCompress {
                     let checkPath = saveDir + checkFileName
                     let fileTmpPath = saveDir + fileName + "." + tmpSuffix
                     do {
-                        try data.write(to: URL(fileURLWithPath: fileTmpPath))
-                        let zipData = try ImageCompress.compressImageData(data as Data, sampleCount: 24)
-                        try zipData.write(to: URL(fileURLWithPath: checkPath))
+                        let resultData = try ImageCompress.compressImageData(data as Data, sampleCount: 1)
+                        try resultData.write(to: URL(fileURLWithPath: fileTmpPath))
+                        let checkData = try ImageCompress.compressImageData(data as Data, sampleCount: 24)
+                        try checkData.write(to: URL(fileURLWithPath: checkPath))
                         do {
                             try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
                         }catch let err as NSError {

@@ -192,9 +192,10 @@ extension PHAsset {
                 manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                     do {
                         if let file = data {
-                                try file.write(to: URL(fileURLWithPath: fileTmpPath))
-                                let zipData = try ImageCompress.compressImageData(file as Data, sampleCount: 10)
-                                try zipData.write(to: URL(fileURLWithPath: checkPath))
+                                let resultData = try ImageCompress.compressImageData(file as Data, sampleCount: 1)
+                                try resultData.write(to: URL(fileURLWithPath: fileTmpPath))
+                                let checkData = try ImageCompress.compressImageData(file as Data, sampleCount: 24)
+                                try checkData.write(to: URL(fileURLWithPath: checkPath))
                                 do {
                                     try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
                                 }catch let err as NSError {

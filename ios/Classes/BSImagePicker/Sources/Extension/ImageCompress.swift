@@ -272,7 +272,10 @@ public extension ImageCompress {
             let frameProperties = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: $1, kCGImagePropertyGIFUnclampedDelayTime: $1]]
             CGImageDestinationAddImage(imageDestination, $0, frameProperties as CFDictionary)
         }
-
+        
+        let fileProperties = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0]]
+        CGImageDestinationSetProperties(imageDestination, fileProperties as CFDictionary)
+        
         guard CGImageDestinationFinalize(imageDestination) else {
             throw CompressError.imageIOError(.destinationFinalizeFail)
         }

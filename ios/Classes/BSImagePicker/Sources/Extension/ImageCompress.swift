@@ -265,7 +265,7 @@ public extension ImageCompress {
         guard let imageDestination = CGImageDestinationCreateWithData(writeData, imageType, sampleImageFrames.count, nil) else {
             throw CompressError.imageIOError(.destinationFinalizeFail)
         }
-        let fileProperties = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 1000]]
+        let fileProperties = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 10000]]
         CGImageDestinationSetProperties(imageDestination, fileProperties as CFDictionary)
 
         // 每一帧图片都进行重新编码

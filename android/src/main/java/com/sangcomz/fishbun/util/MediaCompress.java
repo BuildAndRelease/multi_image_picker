@@ -174,10 +174,7 @@ public class MediaCompress {
         }else {
             File tmpPic = new File(cacheDir + imgName + "." + UUID.randomUUID().toString());
             HashMap picInfo = localVideoThumb(media, tmpPic.getAbsolutePath());
-            if (!tmpPic.renameTo(targetPic)) {
-                copyFile(tmpPic, targetPic);
-                tmpPic.delete();
-            }
+            moveFile(tmpPic, targetPic);
             media.setThumbnailHeight((String) picInfo.get("height"));
             media.setThumbnailWidth((String) picInfo.get("width"));
             media.setThumbnailName(imgName);
@@ -202,10 +199,7 @@ public class MediaCompress {
                             bitrate(compressBitrate).process();
                 }
                 if (tmpVideo.exists()) {
-                    if (!tmpVideo.renameTo(targetVideo)) {
-                        copyFile(tmpVideo, targetVideo);
-                        tmpVideo.delete();
-                    };
+                    moveFile(tmpVideo, targetVideo);
                 }else {
                     HashMap info = new HashMap();
                     info.put("identifier", media.getIdentifier());
@@ -304,7 +298,7 @@ public class MediaCompress {
         
         String cacheDir = context.getCacheDir().getAbsolutePath();
         String thumbPath = cacheDir + "/multi_image_pick/thumb/";
-        if (media.getFileType().contains("gif") || media.getOriginPath().endsWith("gif")) {
+        if (media.getFileType().toLowerCase().contains("gif") || media.getOriginPath().toLowerCase().endsWith("gif")) {
             String fileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + ".gif";
             String checkFileName = media.getIdentifier() + "-" + media.getModifyTimeStamp() + "-check.gif";
             String filePath = "";
@@ -318,25 +312,21 @@ public class MediaCompress {
                 File checkPic = new File(thumbPath + checkFileName);
                 filePath = targetPic.getAbsolutePath();
                 checkPath = checkPic.getAbsolutePath();
-                if (!targetPic.exists()) {
+                if (!targetPic.exists() && !checkPic.exists()) {
                     File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
-                    if (!tmpPic.exists()) {
-                        byte[] fileByteArray = fileToFileByteArray(media.getOriginPath());
-                        byte[] resultFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 1);
-                        if (tmpPic.exists()) checkPic.delete();
-                        tmpPic.createNewFile();
-                        fileByteArrayToFile(tmpPic.getAbsolutePath(), resultFileByteArray);
+                    byte[] fileByteArray = fileToFileByteArray(media.getOriginPath());
+                    byte[] resultFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 1);
+                    if (tmpPic.exists()) tmpPic.delete();
+                    tmpPic.createNewFile();
+                    fileByteArrayToFile(tmpPic.getAbsolutePath(), resultFileByteArray);
 
-                        byte[] checkFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 24);
-                        if (checkPic.exists()) checkPic.delete();
-                        checkPic.createNewFile();
-                        fileByteArrayToFile(checkPic.getAbsolutePath(), checkFileByteArray);
+                    byte[] checkFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 24);
+                    if (checkPic.exists()) checkPic.delete();
+                    checkPic.createNewFile();
+                    fileByteArrayToFile(checkPic.getAbsolutePath(), checkFileByteArray);
 
-                        if (!tmpPic.renameTo(targetPic)) {
-                            copyFile(tmpPic, targetPic);
-                            tmpPic.delete();
-                        }
-                    }
+                    if (targetPic.exists()) targetPic.delete();
+                    moveFile(tmpPic, targetPic);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -409,10 +399,7 @@ public class MediaCompress {
                     if (media.getOriginPath().equals(compressPicFile.getAbsolutePath())) {
                         copyFile(compressPicFile, targetPic);
                     }else {
-                        if (!compressPicFile.renameTo(targetPic)) {
-                            copyFile(compressPicFile, targetPic);
-                            compressPicFile.delete();
-                        }
+                        moveFile(compressPicFile, targetPic);
                     }
                     map.put("width", imageWidth);
                     map.put("height", imageHeight);
@@ -469,6 +456,13 @@ public class MediaCompress {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public void moveFile(File oldFile, File newFile) {
+        if (!oldFile.renameTo(newFile)) {
+            copyFile(oldFile, newFile);
+            oldFile.delete();
         }
     }
 

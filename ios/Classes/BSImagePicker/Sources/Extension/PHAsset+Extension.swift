@@ -183,15 +183,40 @@ extension PHAsset {
         }else {
             let targetHeight : CGFloat = CGFloat(self.pixelHeight)
             let targetWidth : CGFloat = CGFloat(self.pixelWidth)
-            if let uti = self.value(forKey: "filename"), uti is String, (uti as! String).hasSuffix("GIF") {
+            if let uti = self.value(forKey: "filename"), uti is String, (uti as! String).uppercased().hasSuffix("GIF") {
                 let fileName = "\(uuid).gif"
                 let filePath = saveDir + fileName
                 let checkFileName = "\(uuid)-check.gif"
                 let checkPath = saveDir + checkFileName
                 let fileTmpPath = saveDir + fileName + "." + tmpSuffix
-                manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
-                    do {
-                        if let file = data {
+                if FileManager.default.fileExists(atPath: filePath), FileManager.default.fileExists(atPath: checkPath) {
+                    finish?([
+                        "identifier": self.localIdentifier,
+                        "filePath":filePath,
+                        "checkPath":checkPath,
+                        "width": targetWidth,
+                        "height": targetHeight,
+                        "name": fileName,
+                        "fileType":"image/gif"
+                    ])
+                }else{
+                    if FileManager.default.fileExists(atPath: filePath) {
+                        do {
+                            try FileManager.default.removeItem(atPath: filePath)
+                        } catch let err as NSError {
+                            print(err)
+                        }
+                    }
+                    if FileManager.default.fileExists(atPath: checkPath) {
+                        do {
+                            try FileManager.default.removeItem(atPath: checkPath)
+                        } catch let err as NSError {
+                            print(err)
+                        }
+                    }
+                    manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
+                        do {
+                            if let file = data {
                                 let resultData = try ImageCompress.compressImageData(file as Data, sampleCount: 1)
                                 try resultData.write(to: URL(fileURLWithPath: fileTmpPath))
                                 let checkData = try ImageCompress.compressImageData(file as Data, sampleCount: 24)
@@ -217,18 +242,19 @@ extension PHAsset {
                                         "errorCode": "3"
                                     ]))
                                 }
-                        }else {
+                            }else {
+                                failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
+                                    "identifier": self.localIdentifier,
+                                    "errorCode": "2"
+                                ]))
+                            }
+                        }catch let err as NSError {
+                            print(err)
                             failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
                                 "identifier": self.localIdentifier,
                                 "errorCode": "2"
                             ]))
                         }
-                    }catch let err as NSError {
-                        print(err)
-                        failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
-                            "identifier": self.localIdentifier,
-                            "errorCode": "2"
-                        ]))
                     }
                 }
             }else {

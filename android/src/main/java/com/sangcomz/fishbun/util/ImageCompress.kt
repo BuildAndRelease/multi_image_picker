@@ -244,7 +244,7 @@ object ImageCompress {
         try {
             val outputStream = ByteArrayOutputStream()
             gifEncoder.start(outputStream)
-            gifEncoder.setRepeat(0)
+            gifEncoder.setRepeat(100)
 
             // 每一帧图片都进行重新编码
             sampleImageFrames.zip(mergeFrameDurations).forEach {

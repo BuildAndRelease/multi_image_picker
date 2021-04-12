@@ -217,7 +217,8 @@ extension PHAsset {
                     manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                         do {
                             if let file = data {
-                                let resultData = try ImageCompress.compressImageData(file as Data, sampleCount: 1)
+                                var resultData = try ImageCompress.compressImageData(file as Data, sampleCount: 1)
+                                resultData = (resultData.count > file.count + 500 * 1024) ? file : resultData
                                 try resultData.write(to: URL(fileURLWithPath: fileTmpPath))
                                 let checkData = try ImageCompress.compressImageData(file as Data, sampleCount: 24)
                                 try checkData.write(to: URL(fileURLWithPath: checkPath))

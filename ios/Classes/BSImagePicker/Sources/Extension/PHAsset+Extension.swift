@@ -275,9 +275,9 @@ extension PHAsset {
                     ])
                 }else {
                     let pixel = targetWidth * targetHeight
-                    if pixel > 100000000 {
-                        targetWidth = 100000000 / pixel * targetWidth
-                        targetHeight = 100000000 / pixel * targetHeight
+                    if pixel > 10000000 {
+                        targetWidth = 10000000 / pixel * targetWidth
+                        targetHeight = 10000000 / pixel * targetHeight
                     }
                     manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
                         if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {

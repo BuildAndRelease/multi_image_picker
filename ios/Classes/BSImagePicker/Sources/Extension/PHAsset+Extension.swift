@@ -181,8 +181,8 @@ extension PHAsset {
                 }
             }
         }else {
-            let targetHeight : CGFloat = CGFloat(self.pixelHeight)
-            let targetWidth : CGFloat = CGFloat(self.pixelWidth)
+            var targetHeight : CGFloat = CGFloat(self.pixelHeight)
+            var targetWidth : CGFloat = CGFloat(self.pixelWidth)
             if let uti = self.value(forKey: "filename"), uti is String, (uti as! String).uppercased().hasSuffix("GIF") {
                 let fileName = "\(uuid).gif"
                 let filePath = saveDir + fileName
@@ -274,6 +274,11 @@ extension PHAsset {
                         "fileType":"image/jpeg"
                     ])
                 }else {
+                    let pixel = targetWidth * targetHeight
+                    if pixel > 100000000 {
+                        targetWidth = 100000000 / pixel * targetWidth
+                        targetHeight = 100000000 / pixel * targetHeight
+                    }
                     manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
                         if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {
                             if thumb {

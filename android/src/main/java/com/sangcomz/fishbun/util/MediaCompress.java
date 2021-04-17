@@ -367,17 +367,31 @@ public class MediaCompress {
                     compressPicFile = targetPic;
                 }else {
                     File tmpPic = new File(thumbPath + fileName + "." + UUID.randomUUID().toString());
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(media.getOriginPath(), options);
+                    float imageHeight = options.outHeight;
+                    float imageWidth = options.outWidth;
+                    float pixel = imageHeight * imageWidth;
+                    if (pixel > 100000000) {
+                        imageHeight = 100000000 / pixel * imageHeight;
+                        imageWidth = 100000000 / pixel * imageWidth;
+                    }
                     if (thumb) {
                         if (fileSize > 30 * 1024 * 1024) {
-                            compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, 2048, 2048, 80);
+                            compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
                         }else {
-                            List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
-                            if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
-                                compressPicFile = compressPicFiles.get(0);
+                            if (pixel > 100000000) {
+                                compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
+                            }else {
+                                List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
+                                if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
+                                    compressPicFile = compressPicFiles.get(0);
+                                }
                             }
                         }
                     }else {
-                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, -1, -1, 80);
+                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
                     }
                 }
 

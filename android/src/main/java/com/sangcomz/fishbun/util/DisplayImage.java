@@ -335,9 +335,16 @@ public class DisplayImage {
     }
 
     private boolean isExceptType(List<MimeType> mimeTypes, String mimeType){
-        for (MimeType type : mimeTypes) {
-            if (MimeTypeExt.equalsMimeType(type, mimeType))
-                return true;
+        try {
+            if (mimeTypes == null || mimeTypes.size() <= 0) return false;
+            if (TextUtils.isEmpty(mimeType)) return true;
+            for (MimeType type : mimeTypes) {
+                if (MimeTypeExt.equalsMimeType(type, mimeType))
+                    return true;
+            }
+            return false;
+        }catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }

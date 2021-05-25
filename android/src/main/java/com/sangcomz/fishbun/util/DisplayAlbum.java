@@ -144,7 +144,8 @@ public class DisplayAlbum {
 
     private boolean isExceptMemeType(List<MimeType> mimeTypes, String mimeType) {
         try {
-            if (mimeTypes == null || mimeTypes.size() <= 0 || TextUtils.isEmpty(mimeType)) return false;
+            if (mimeTypes == null || mimeTypes.size() <= 0) return false;
+            if (TextUtils.isEmpty(mimeType)) return true;
             for (MimeType type : mimeTypes) {
                 if (MimeTypeExt.equalsMimeType(type, mimeType))
                     return true;

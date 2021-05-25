@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Album;
@@ -143,9 +144,15 @@ public class DisplayAlbum {
     }
 
     private boolean isExceptMemeType(List<MimeType> mimeTypes, String mimeType) {
-        for (MimeType type : mimeTypes) {
-            if (MimeTypeExt.equalsMimeType(type, mimeType))
-                return true;
+        try {
+            if (mimeTypes == null || mimeTypes.size() <= 0 || TextUtils.isEmpty(mimeType)) return false;
+            for (MimeType type : mimeTypes) {
+                if (MimeTypeExt.equalsMimeType(type, mimeType))
+                    return true;
+            }
+            return false;
+        }catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }

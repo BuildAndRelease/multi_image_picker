@@ -22,7 +22,7 @@
 
 import UIKit
 
-protocol SelectionViewDelegate : class {
+protocol SelectionViewDelegate : AnyObject {
     func selectViewDidSelectDidAction(_ view : SelectionView)
 }
 

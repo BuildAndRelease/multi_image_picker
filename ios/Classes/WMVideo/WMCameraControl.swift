@@ -15,7 +15,7 @@ enum WMLongPressState {
     case end
 }
 
-protocol WMCameraControlDelegate: class {
+protocol WMCameraControlDelegate: AnyObject {
     func cameraControlDidTakePhoto()
     func cameraControlBeginTakeVideo()
     func cameraControlEndTakeVideo()

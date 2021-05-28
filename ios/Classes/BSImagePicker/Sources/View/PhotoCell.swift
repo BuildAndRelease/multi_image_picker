@@ -23,7 +23,7 @@
 import UIKit
 import Photos
 
-protocol PhotoCellDelegate : class {
+protocol PhotoCellDelegate : AnyObject {
     func photoCellDidReceiveSelectAction(_ cell : PhotoCell)
 }
 /**

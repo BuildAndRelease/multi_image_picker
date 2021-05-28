@@ -23,7 +23,7 @@
 import UIKit
 import Photos
 
-protocol PhotoCollectionViewDataSourceDelegate : class {
+protocol PhotoCollectionViewDataSourceDelegate : AnyObject {
     func photoCollectionViewDataSourceDidReceiveCellSelectAction(_ cell : PhotoCell)
 }
 
@@ -37,6 +37,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
     private let imageRequestOptions: PHImageRequestOptions
     private let imageContentMode: PHImageContentMode = .aspectFill
     private let assetStore: AssetStore
+    private let cellWidth : CGFloat = (UIScreen.main.bounds.size.width / 4.0) * UIScreen.main.scale
     
     let settings: BSImagePickerSettings?
     
@@ -74,22 +75,26 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         // Cancel any pending image requests
         if cell.tag != 0 {
             photosManager.cancelImageRequest(PHImageRequestID(Int32(cell.tag)))
+            cell.tag = 0
         }
         
         let asset = fetchResult[indexPath.row]
         cell.asset = asset
+        cell.imageView.contentMode = .scaleAspectFill
         cell.thumbCanLoad = false
-        let imageSize = getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight))
-        // Request image
         
-        cell.tag = Int(photosManager.requestImage(for: asset, targetSize: imageSize, contentMode: imageContentMode, options: imageRequestOptions) { (result, _) in
+        cell.tag = Int(photosManager.requestImage(for: asset, targetSize: CGSize(width: cellWidth, height: cellWidth), contentMode: imageContentMode, options: imageRequestOptions) { (result, info) in
             guard let result = result else {
-            cell.imageView.contentMode = .center
-            cell.imageView.image = UIImage.wm_imageWithName_WMCameraResource(named: "ic_photo_error")?.maskImageWithColor(color: UIColor.gray)
-                return
+                if let canceled = info?[PHImageCancelledKey] as? NSNumber, canceled == 1 {
+                    return
+                }
+                cell.imageView.contentMode = .center
+                cell.imageView.image = UIImage.wm_imageWithName_WMCameraResource(named: "ic_photo_error")?.maskImageWithColor(color: UIColor.gray)
+                    return
             }
-            cell.thumbCanLoad = true
             cell.imageView.image = result
+            cell.thumbCanLoad = true
+            cell.tag = 0
         })
         
         // Set selection number
@@ -116,14 +121,6 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
     
     func registerCellIdentifiersForCollectionView(_ collectionView: UICollectionView?) {
         collectionView?.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.cellIdentifier)
-    }
-    
-    private func getThumbnailSize(originSize: CGSize) -> CGSize {
-        let thumbnailWidth: CGFloat = (UIScreen.main.bounds.size.width - 5 * 5) / 3 * UIScreen.main.scale
-        let pixelScale = CGFloat(originSize.width)/CGFloat(originSize.height)
-        let thumbnailSize = CGSize(width: thumbnailWidth, height: thumbnailWidth/pixelScale)
-        
-        return thumbnailSize
     }
     
     func photoCellDidReceiveSelectAction(_ cell: PhotoCell) {

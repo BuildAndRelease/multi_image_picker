@@ -288,8 +288,16 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     break;
                 }
                 case FETCH_CACHED_VIDEO_PATH: {
-                    String url = call.argument("url");
-                    result.success(getVideoCacheDir(context, url).getAbsolutePath());
+                    try{
+                        String url = call.argument("url");
+                        if (!TextUtils.isEmpty(url)) {
+                            result.success(getVideoCacheDir(context, url).getAbsolutePath());
+                        }else {
+                            result.success("");
+                        }
+                    }catch (Exception e) {
+                        result.success("");
+                    }
                     break;
                 }
             }

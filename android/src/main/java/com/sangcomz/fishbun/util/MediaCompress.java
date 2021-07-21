@@ -402,7 +402,7 @@ public class MediaCompress {
                         if (compressPicFile.exists() && imageHeight * imageWidth > 312*312) {
                             compressImage(compressPicFile, checkPic, 312, 312, 100);
                         }else {
-                            checkPic = compressPicFile;
+                            copyFile(compressPicFile, checkPic);
                         }
                     }
 

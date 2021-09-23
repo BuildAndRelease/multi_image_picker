@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -41,8 +42,11 @@ class MultiImagePicker {
   }
 
   static Future<List<Asset>> requestMediaData(
-      {bool thumb = true, List<String> selectedAssets = const []}) async {
+      {bool thumb = true,
+      List<String> selectedAssets = const [],
+      List<Asset> defalutValue = const []}) async {
     try {
+      if (!Platform.isIOS && !Platform.isAndroid) return defalutValue;
       final List<dynamic> images = await _channel.invokeMethod(
           'requestMediaData',
           <String, dynamic>{'thumb': thumb, 'selectedAssets': selectedAssets});
@@ -90,7 +94,10 @@ class MultiImagePicker {
 
 // example: fileType: video/mp4 image/jpg image/png image/gif
   static Future<List<Asset>> requestCompressMedia(bool thumb,
-      {String fileType = "", List<String> fileList = const []}) async {
+      {String fileType = "",
+      List<String> fileList = const [],
+      List<Asset> defalutValue = const []}) async {
+    if (!Platform.isIOS && !Platform.isAndroid) return defalutValue;
     try {
       final List<dynamic> images = await _channel.invokeMethod(
           'requestCompressMedia', <String, dynamic>{

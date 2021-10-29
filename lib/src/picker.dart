@@ -5,8 +5,8 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
-enum MediaShowType { image, video, all }
-enum MediaSelectType { all, video, image, singleType }
+enum FBMediaShowType { image, video, all }
+enum FBMediaSelectType { all, video, image, singleType }
 
 class MultiImagePicker {
   static const MethodChannel _channel =
@@ -18,10 +18,10 @@ class MultiImagePicker {
     int maxImages = 9,
     bool thumb = true,
     String defaultAsset = "",
-    MediaSelectType mediaSelectType = MediaSelectType.all,
+    FBMediaSelectType mediaSelectType = FBMediaSelectType.all,
     List<String> selectedAssets = const [],
     String doneButtonText = '',
-    MediaShowType mediaShowType = MediaShowType.all,
+    FBMediaShowType mediaShowType = FBMediaShowType.all,
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
@@ -46,28 +46,28 @@ class MultiImagePicker {
     }
   }
 
-  static String _mediaShowTypeToString(MediaShowType type) {
+  static String _mediaShowTypeToString(FBMediaShowType type) {
     switch (type) {
-      case MediaShowType.video:
+      case FBMediaShowType.video:
         return "video";
-      case MediaShowType.image:
+      case FBMediaShowType.image:
         return "image";
-      case MediaShowType.all:
+      case FBMediaShowType.all:
         return "all";
       default:
         return "";
     }
   }
 
-  static String _mediaSelectTypeToString(MediaSelectType type) {
+  static String _mediaSelectTypeToString(FBMediaSelectType type) {
     switch (type) {
-      case MediaSelectType.all:
+      case FBMediaSelectType.all:
         return "selectAll";
-      case MediaSelectType.image:
+      case FBMediaSelectType.image:
         return "selectImage";
-      case MediaSelectType.video:
+      case FBMediaSelectType.video:
         return "selectVideo";
-      case MediaSelectType.singleType:
+      case FBMediaSelectType.singleType:
         return "selectSingleType";
       default:
         return "";

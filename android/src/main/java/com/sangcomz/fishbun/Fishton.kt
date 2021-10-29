@@ -19,7 +19,6 @@ class Fishton {
             if (preSelectedMedias.isNotEmpty())
                 for (item in value)
                     if (preSelectedMedias.contains(item.identifier)) selectedMedias.add(item)
-
         }
 
     var maxCount: Int = 0

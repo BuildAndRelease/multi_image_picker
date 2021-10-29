@@ -84,7 +84,8 @@ Used as an overlay on selected cells
         let group = CGRect(x: checkmarkFrame.minX + 3, y: checkmarkFrame.minY + 3, width: checkmarkFrame.width - 6, height: checkmarkFrame.height - 6)
         
         //// CheckedOval Drawing
-        let checkedOvalPath = UIBezierPath(ovalIn: CGRect(x: group.minX + floor(group.width * 0.0 + 0.5), y: group.minY + floor(group.height * 0.0 + 0.5), width: floor(group.width * 1.0 + 0.5) - floor(group.width * 0.0 + 0.5), height: floor(group.height * 1.0 + 0.5) - floor(group.height * 0.0 + 0.5)))
+        let checkedArea = CGRect(x: group.minX + floor(group.width * 0.0 + 0.5), y: group.minY + floor(group.height * 0.0 + 0.5), width: floor(group.width * 1.0 + 0.5) - floor(group.width * 0.0 + 0.5), height: floor(group.height * 1.0 + 0.5) - floor(group.height * 0.0 + 0.5))
+        let checkedOvalPath = UIBezierPath(ovalIn: checkedArea)
         context?.saveGState()
         context?.setShadow(offset: shadow2Offset, blur: shadow2BlurRadius, color: UIColor.clear.cgColor)
 
@@ -99,12 +100,13 @@ Used as an overlay on selected cells
         context?.setFillColor(UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).cgColor)
         
         //// Check mark for single assets
-        if (settings.maxNumberOfSelections == 1) {
+        if (settings.maxNumberOfSelections == 1 && selected) {
             context?.setStrokeColor(UIColor.white.cgColor)
             let checkPath = UIBezierPath()
-            checkPath.move(to: CGPoint(x: 7, y: 12.5))
-            checkPath.addLine(to: CGPoint(x: 11, y: 16))
-            checkPath.addLine(to: CGPoint(x: 17.5, y: 9.5))
+            let center = CGPoint(x: checkedArea.midX, y: checkedArea.midY)
+            checkPath.move(to: CGPoint(x: center.x - 5, y: center.y))
+            checkPath.addLine(to: CGPoint(x: center.x - 1, y: center.y + 3.5))
+            checkPath.addLine(to: CGPoint(x: center.x + 4.5, y: center.y - 3))
             checkPath.stroke()
             return;
         }

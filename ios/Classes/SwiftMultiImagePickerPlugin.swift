@@ -237,7 +237,6 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             controller.present(vc, animated: true, completion: nil)
         case "pickImages":
             let status: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
-            
             if (status == PHAuthorizationStatus.denied) {
                 return result(FlutterError(code: "PERMISSION_PERMANENTLY_DENIED", message: "The user has denied the gallery access.", details: nil))
             }

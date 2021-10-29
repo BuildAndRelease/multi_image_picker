@@ -5,19 +5,23 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
+enum MediaShowType { image, video, all }
+enum MediaSelectType { all, video, image, singleType }
+
 class MultiImagePicker {
   static const MethodChannel _channel =
       const MethodChannel('multi_image_picker');
   static final Map<String, Uint8List> _cacheThumbData = Map();
 
-  // selectType: selectAll selectVideo  selectImage selectSingleType
+  // 弹出原生选择界面,返回选择的媒体信息
   static Future<Map<dynamic, dynamic>> pickImages({
     int maxImages = 9,
     bool thumb = true,
     String defaultAsset = "",
-    String selectType = "",
-    String doneButtonText = '',
+    MediaSelectType mediaSelectType = MediaSelectType.all,
     List<String> selectedAssets = const [],
+    String doneButtonText = '',
+    MediaShowType mediaShowType = MediaShowType.all,
     CupertinoOptions cupertinoOptions = const CupertinoOptions(),
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
@@ -27,11 +31,12 @@ class MultiImagePicker {
         <String, dynamic>{
           'maxImages': maxImages,
           'thumb': thumb,
-          'selectType': selectType,
+          'mediaSelectTypes': _mediaSelectTypeToString(mediaSelectType),
           'doneButtonText': doneButtonText,
           'iosOptions': cupertinoOptions.toJson(),
           'androidOptions': materialOptions.toJson(),
           'defaultAsset': defaultAsset,
+          'mediaShowTypes': _mediaShowTypeToString(mediaShowType),
           'selectedAssets': selectedAssets,
         },
       );
@@ -41,6 +46,35 @@ class MultiImagePicker {
     }
   }
 
+  static String _mediaShowTypeToString(MediaShowType type) {
+    switch (type) {
+      case MediaShowType.video:
+        return "video";
+      case MediaShowType.image:
+        return "image";
+      case MediaShowType.all:
+        return "all";
+      default:
+        return "";
+    }
+  }
+
+  static String _mediaSelectTypeToString(MediaSelectType type) {
+    switch (type) {
+      case MediaSelectType.all:
+        return "selectAll";
+      case MediaSelectType.image:
+        return "selectImage";
+      case MediaSelectType.video:
+        return "selectVideo";
+      case MediaSelectType.singleType:
+        return "selectSingleType";
+      default:
+        return "";
+    }
+  }
+
+  // 获取指定媒体信息 selectedAssets 为指定媒体的Identify
   static Future<List<Asset>> requestMediaData(
       {bool thumb = true,
       List<String> selectedAssets = const [],
@@ -92,7 +126,9 @@ class MultiImagePicker {
     }
   }
 
-// example: fileType: video/mp4 image/jpg image/png image/gif
+  // 压缩指定的媒体
+  // param:
+  // fileType: video/mp4 image/jpg image/png image/gif
   static Future<List<Asset>> requestCompressMedia(bool thumb,
       {String fileType = "",
       List<String> fileList = const [],
@@ -171,15 +207,7 @@ class MultiImagePicker {
     }
   }
 
-  // static Future<String> requestFileSize(String identifier) async {
-  //   try {
-  //     return await _channel.invokeMethod(
-  //         'requestFileSize', <String, dynamic>{'identifier': identifier});
-  //   } on PlatformException catch (e) {
-  //     throw e;
-  //   }
-  // }
-
+  //根据identifier来请求媒体的宽高
   static Future<dynamic> requestFileDimen(String identifier) async {
     try {
       return await _channel.invokeMethod(
@@ -189,6 +217,7 @@ class MultiImagePicker {
     }
   }
 
+  //是否缓存了视频在本地磁盘
   static Future<dynamic> cachedVideoPath(String url) async {
     try {
       return await _channel
@@ -198,6 +227,7 @@ class MultiImagePicker {
     }
   }
 
+  //获取压缩文件存放的目录
   static Future<String> requestThumbDirectory() async {
     try {
       return await _channel.invokeMethod('requestThumbDirectory');
@@ -206,6 +236,7 @@ class MultiImagePicker {
     }
   }
 
+  // 获取手机数据库中的媒体信息,或者获取指定identifier的媒体信息
   static Future<List<Asset>> fetchMediaInfo(int offset, int limit,
       {List<String> selectedAssets = const []}) async {
     try {
@@ -228,6 +259,7 @@ class MultiImagePicker {
     }
   }
 
+  // 获取指定媒体的缩略图或者视频封面
   static Future<Uint8List> fetchMediaThumbData(
       String identifier, String fileType) async {
     try {
@@ -251,10 +283,12 @@ class MultiImagePicker {
     }
   }
 
+  // 是否缓存了某个媒体的封面
   static bool containCacheData(String identifier) {
     return _cacheThumbData.containsKey(identifier);
   }
 
+  // 获取缓存的某个媒体封面
   static Uint8List fetchCacheThumbData(String identifier) {
     try {
       return _cacheThumbData[identifier] ?? Uint8List(0);

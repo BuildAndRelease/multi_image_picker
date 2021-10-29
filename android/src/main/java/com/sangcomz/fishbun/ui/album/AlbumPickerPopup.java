@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.multi_image_picker.R;
 import com.sangcomz.fishbun.Fishton;
-import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.AlbumListAdapter;
 import com.sangcomz.fishbun.adapter.AlbumListItemSelectListener;
 import com.sangcomz.fishbun.bean.Album;
@@ -53,9 +52,7 @@ public class AlbumPickerPopup extends PopupWindow implements DisplayAlbum.Displa
 
     private void initData() {
         fishton = Fishton.getInstance();
-        ArrayList mimeTypeList = new ArrayList();
-        mimeTypeList.add(MimeType.WEBP);
-        DisplayAlbum displayAlbum = new DisplayAlbum(fishton.getTitleAlbumAllView(), mimeTypeList, context);
+        DisplayAlbum displayAlbum = new DisplayAlbum(fishton.getTitleAlbumAllView(), fishton.getShowMediaType(), context);
         displayAlbum.setListener(this);
         displayAlbum.execute();
     }

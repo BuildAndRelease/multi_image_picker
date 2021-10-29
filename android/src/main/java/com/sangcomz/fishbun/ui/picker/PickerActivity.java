@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.multi_image_picker.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.sangcomz.fishbun.Fishton;
-import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.PickerGridAdapter;
 import com.sangcomz.fishbun.bean.Album;
 import com.sangcomz.fishbun.bean.Media;
@@ -93,9 +92,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
         initController();
         initValue();
         initView();
-        ArrayList mimeTypeList = new ArrayList();
-        mimeTypeList.add(MimeType.WEBP);
-        pickerController.displayImage(album.bucketId, mimeTypeList);
+        pickerController.displayImage(album.bucketId, fishton.getShowMediaType());
         compressingView.setVisibility(View.VISIBLE);
         compressingTextView.setText("图片加载中...");
     }
@@ -198,9 +195,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void albumPickerPopupDidSelectAlbum(Album album, int position) {
                         PickerActivity.this.album = album;
-                        ArrayList mimeTypeList = new ArrayList();
-                        mimeTypeList.add(MimeType.WEBP);
-                        pickerController.displayImage(album.bucketId, mimeTypeList);
+                        pickerController.displayImage(album.bucketId, fishton.getShowMediaType());
                         titleTextView.setText(album.bucketName);
                     }
                 });

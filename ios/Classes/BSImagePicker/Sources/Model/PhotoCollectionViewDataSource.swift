@@ -31,26 +31,24 @@ protocol PhotoCollectionViewDataSourceDelegate : AnyObject {
  Gives UICollectionViewDataSource functionality with a given data source and cell factory
  */
 final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource, PhotoCellDelegate {
-    var fetchResult: Array<PHAsset>
+    var assets: Array<PHAsset>
     weak var delegate : PhotoCollectionViewDataSourceDelegate?
     private let photosManager = PHCachingImageManager.default()
     private let imageRequestOptions: PHImageRequestOptions
     private let imageContentMode: PHImageContentMode = .aspectFill
-    private let assetStore: AssetStore
     private let cellWidth : CGFloat = (UIScreen.main.bounds.size.width / 4.0) * UIScreen.main.scale
     
-    let settings: BSImagePickerSettings?
+    let assetStore = DataCenter.shared.assetStore
+    let settings = DataCenter.shared.settings
     
-    init(fetchResult: Array<PHAsset>, assetStore: AssetStore, settings: BSImagePickerSettings?) {
-        self.fetchResult = fetchResult
-        self.settings = settings
-        self.assetStore = assetStore
+    init(_ album: PHAssetCollection) {
         imageRequestOptions = PHImageRequestOptions()
         imageRequestOptions.isNetworkAccessAllowed = true
         imageRequestOptions.deliveryMode = .opportunistic
         imageRequestOptions.resizeMode = .fast
         imageRequestOptions.isSynchronous = false
-
+        assets = DataCenter.shared.assetsWithAlbum(album)
+        
         super.init()
     }
     
@@ -59,7 +57,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchResult.count
+        return assets.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -68,9 +66,6 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         cell.accessibilityIdentifier = "photo_cell_\(indexPath.item)"
         cell.isAccessibilityElement = true
         cell.delegate = self
-        if let settings = settings {
-            cell.settings = settings
-        }
 
         // Cancel any pending image requests
         if cell.tag != 0 {
@@ -78,7 +73,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
             cell.tag = 0
         }
         
-        let asset = fetchResult[indexPath.row]
+        let asset = assets[indexPath.row]
         cell.asset = asset
         cell.imageView.contentMode = .scaleAspectFill
         cell.thumbCanLoad = false
@@ -99,7 +94,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
         
         // Set selection number
         if let index = assetStore.assets.firstIndex(of: asset) {
-            if let character = settings?.selectionCharacter {
+            if let character = settings.selectionCharacter {
                 cell.selectionString = String(character)
             } else {
                 cell.selectionString = String(index+1)
@@ -108,7 +103,7 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
             cell.photoDisable = false
         } else {
             cell.photoSelected = false
-            cell.photoDisable = !assetStore.canAppend(settings?.selectType ?? "", maxNum: settings?.maxNumberOfSelections ?? 9)
+            cell.photoDisable = !assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
         }
         
         cell.isAccessibilityElement = true

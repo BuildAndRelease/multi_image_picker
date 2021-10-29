@@ -14,10 +14,12 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
-import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Media;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +31,7 @@ public class DisplayImage {
     }
     private Long bucketId;
     private ContentResolver resolver;
-    private List<MimeType> exceptMimeType;
+    private String expectType;
     private DisplayImageListener listener;
     private MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 
@@ -61,10 +63,10 @@ public class DisplayImage {
         isInvertedPhotos = invertedPhotos;
     }
 
-    public DisplayImage(Long bucketId, ArrayList<String> selectMedias, List<MimeType> exceptMimeType, Context context) {
+    public DisplayImage(Long bucketId, ArrayList<String> selectMedias, String expectType, Context context) {
         this.bucketId = bucketId;
         this.selectMedias = selectMedias;
-        this.exceptMimeType = exceptMimeType;
+        this.expectType = expectType;
         this.resolver = context.getContentResolver();
         this.context = context;
         this.fetchSpecialPhotos = selectMedias != null && !selectMedias.isEmpty();
@@ -142,9 +144,7 @@ public class DisplayImage {
                         try {
                             String mimeType = c.getString(MIME_TYPE);
                             int fileSize = c.getInt(FILESIZE);
-                            if (mimeType.contains("image") && fileSize > 1024*1024*100) {
-                                continue;
-                            }
+                            if (mimeType.contains("image") && fileSize > 1024*1024*100) continue;
                             String imgId = c.getString(_ID);
                             String filePath = c.getString(DATA);
                             String displayName = c.getString(DISPLAY_NAME);
@@ -225,14 +225,16 @@ public class DisplayImage {
 
     private ArrayList sortOutput() {
         ArrayList result = new ArrayList();
+        Integer[] keysArray = output.keySet().toArray(new Integer[0]);
+        Arrays.sort(keysArray);
         if (isInvertedPhotos) {
-            for (int i = output.size() - 1; i >= 0; i--) {
-                Object object = output.get(i);
+            for (int i = keysArray.length - 1; i >= 0; i--) {
+                Object object = output.get(keysArray[i]);
                 if (object != null) result.add(object);
             }
         }else {
-            for (int i = 0; i < output.size(); i++) {
-                Object object = output.get(i);
+            for (int i = 0; i < keysArray.length; i++) {
+                Object object = output.get(keysArray[i]);
                 if (object != null) result.add(object);
             }
         }
@@ -240,8 +242,8 @@ public class DisplayImage {
     }
 
     private Media addMedia(String imgId, String bucketId, String bucketName, String filePath, String mimeType, float height, float width, String displayName, int fileSize) {
+        if (!isExpectType(mimeType)) return null;
         Media media = new Media();
-        if (isExceptType(exceptMimeType, mimeType)) return null;
         media.setFileType(mimeType);
         media.setBucketId(bucketId);
         media.setBucketName(bucketName);
@@ -269,9 +271,9 @@ public class DisplayImage {
     }
 
     private HashMap addMedia(String imgId, String filePath, String mimeType, float height, float width, String displayName, int fileSize) {
+        if (!isExpectType(mimeType)) return null;
         HashMap media = new HashMap();
         try {
-            if (isExceptType(exceptMimeType, mimeType)) return null;
             media.put("identifier", imgId);
             media.put("filePath", filePath);
             if (mimeType.contains("video")) {
@@ -334,15 +336,12 @@ public class DisplayImage {
         return media;
     }
 
-    private boolean isExceptType(List<MimeType> mimeTypes, String mimeType){
+    private boolean isExpectType(String mimeType){
         try {
-            if (mimeTypes == null || mimeTypes.size() <= 0) return false;
-            if (TextUtils.isEmpty(mimeType)) return true;
-            for (MimeType type : mimeTypes) {
-                if (MimeTypeExt.equalsMimeType(type, mimeType))
-                    return true;
-            }
-            return false;
+            if (expectType.equalsIgnoreCase("all")) return true;
+            if (TextUtils.isEmpty(expectType)) return false;
+            if (TextUtils.isEmpty(mimeType)) return false;
+            return mimeType.contains(expectType);
         }catch (Exception e) {
             e.printStackTrace();
         }

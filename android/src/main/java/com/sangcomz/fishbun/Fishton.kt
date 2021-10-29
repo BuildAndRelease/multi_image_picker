@@ -16,13 +16,10 @@ class Fishton {
     var pickerMedias: List<Media> = ArrayList()
         set(value) {
             field = value
-            for (identify in preSelectedMedias) {
-                for (item in value) {
-                    if (item.identifier.equals(identify)) {
-                        selectedMedias.add(item);
-                    }
-                }
-            }
+            if (preSelectedMedias.isNotEmpty())
+                for (item in value)
+                    if (preSelectedMedias.contains(item.identifier)) selectedMedias.add(item)
+
         }
 
     var maxCount: Int = 0
@@ -31,6 +28,7 @@ class Fishton {
     var preSelectedMedia = ""
     var isThumb : Boolean = true
     var selectType : String = ""
+    var showMediaType : String = ""
     var doneButtonText : String = ""
 
     var messageNothingSelected: String? = null

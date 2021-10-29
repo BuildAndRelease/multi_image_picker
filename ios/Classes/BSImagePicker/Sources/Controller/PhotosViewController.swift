@@ -24,12 +24,6 @@ import UIKit
 import Photos
 
 final class PhotosViewController : UIViewController, CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate, UICollectionViewDelegate {
-    var selectionClosure: ((_ asset: PHAsset) -> Void)?
-    var deselectionClosure: ((_ asset: PHAsset) -> Void)?
-    var cancelClosure: ((_ assets: [Dictionary<String, String>], _ thumb : Bool) -> Void)?
-    var finishClosure: ((_ assets: NSDictionary, _ success : Bool, _ error : NSError) -> Void)?
-    var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
-    
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
     let titleContentView = CustomTitleView(frame: CGRect(x: 0, y: 0, width: 120, height: 34.0))
     
@@ -38,19 +32,19 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     var bottomContentView : UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
     var bottomHeightConstraint : NSLayoutConstraint?
     
-    var settings: BSImagePickerSettings
-    private var assetStore: AssetStore
+    let settings = DataCenter.shared.settings
+    let assetStore = DataCenter.shared.assetStore
     private var needScrollToBottom : Bool = true
     
     private var photosDataSource: PhotoCollectionViewDataSource?
-    private var albumsDataSource: AlbumTableViewDataSource
+    private var albumsDataSource: AlbumTableViewDataSource = AlbumTableViewDataSource()
     
     private var doneBarButtonTitle: String = NSLocalizedString("Done", comment: "")
     private let originBarButtonTitle: String = NSLocalizedString("Origin", comment: "")
     
     private var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: GridCollectionViewLayout())
     
-    lazy var albumsViewController: AlbumsViewController = {
+    lazy var albumsViewController : AlbumsViewController = {
         let vc = AlbumsViewController()
         vc.tableView.dataSource = self.albumsDataSource
         vc.tableView.delegate = self
@@ -58,14 +52,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         return vc
     }()
     
-    lazy var previewViewContoller :PreviewViewController = {
-        return PreviewViewController(settings: self.settings)
-    }()
-    
-    required init(fetchResults: [PHAssetCollection], assetStore: AssetStore, settings aSettings: BSImagePickerSettings) {
-        self.albumsDataSource = AlbumTableViewDataSource(fetchResults: fetchResults)
-        self.settings = aSettings
-        self.assetStore = assetStore
+    required init() {
         if !settings.doneButtonText.isEmpty {
             doneBarButtonTitle = settings.doneButtonText
         }
@@ -167,7 +154,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     
     override func viewDidLayoutSubviews() {
         if needScrollToBottom {
-            let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
+            let indexPath = IndexPath(row: (photosDataSource?.assets.count ?? 0) - 1, section: 0)
             collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: false)
             needScrollToBottom = false
         }
@@ -205,7 +192,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
             }
             mediaList.append(dictionary)
         }
-        cancelClosure?(mediaList, settings.thumb)
+        DataCenter.shared.cancelClosure?(mediaList, settings.thumb)
         dismiss(animated: true, completion: nil)
     }
     
@@ -226,7 +213,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
             
             DispatchQueue.main.async {
                 weakSelf?.doneBarButton.isEnabled = true
-                weakSelf?.finishClosure?(results, assets.count == identifiers.count, NSError())
+                DataCenter.shared.finishClosure?(results, assets.count == identifiers.count, NSError())
                 weakSelf?.dismiss(animated: true, completion: nil)
             }
         }
@@ -288,73 +275,42 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     }
     
     func initializePhotosDataSource(_ album: PHAssetCollection) {
-        let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
-        var assets : Array<PHAsset> = []
-        fetchResult.enumerateObjects { (asset, index, pt) in
-            assets.append(asset)
-        }
         needScrollToBottom = true
-        photosDataSource = PhotoCollectionViewDataSource(fetchResult: assets, assetStore: assetStore, settings: settings)
+        photosDataSource = PhotoCollectionViewDataSource(album)
         photosDataSource?.delegate = self
         collectionView.dataSource = photosDataSource
         collectionView.delegate = self
         titleContentView.deSelectView()
-        previewViewContoller.fetchResult = assets
     }
     
     func photoCollectionViewDataSourceDidReceiveCellSelectAction(_ cell: PhotoCell) {
         guard let photosDataSource = photosDataSource, collectionView.isUserInteractionEnabled else { return }
         guard let asset = cell.asset else { return }
         if !cell.thumbCanLoad {
-            let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-            hud.mode = MBProgressHUDMode.text
-            hud.bezelView.backgroundColor = UIColor.darkGray
-            hud.label.text = NSLocalizedString("媒体信息异常", comment: "")
-            hud.offset = CGPoint(x: 0, y: 0)
-            hud.hide(animated: true, afterDelay: 2.0)
+            showHUDAlert(text: NSLocalizedString("媒体信息异常", comment: ""))
         }
         if !settings.selectType.isEmpty {
             if settings.selectType == "selectVideo"{
                 if asset.mediaType != .video  {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString("仅支持视频选择", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                    showHUDAlert(text: NSLocalizedString("仅支持视频选择", comment: ""))
                     return;
                 }
             }
             
             if settings.selectType == "selectImage" {
                 if asset.mediaType != .image  {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString("仅支持图片选择", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                    showHUDAlert(text: NSLocalizedString("仅支持图片选择", comment: ""))
                     return;
                 }
             }
             
             if settings.selectType == "selectSingleType" {
                 if assetStore.isContainPic(), asset.mediaType != .image {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString("不能同时选择图片和视频", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                    showHUDAlert(text: NSLocalizedString("不能同时选择图片和视频", comment: ""))
                     return;
                 }
                 if assetStore.isContainVideo(), !assetStore.contains(asset) {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString(asset.mediaType != .video ? "不能同时选择图片和视频" : "只能选择一个视频", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                    showHUDAlert(text: NSLocalizedString(asset.mediaType != .video ? "不能同时选择图片和视频" : "只能选择一个视频", comment: ""))
                     return;
                 }
             }
@@ -365,7 +321,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
             let canSelectAfter = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
             updateButtonState()
             let selectedIndexPaths = assetStore.assets.compactMap({ (asset) -> IndexPath? in
-                guard let index = photosDataSource.fetchResult.firstIndex(of: asset) else { return nil }
+                guard let index = photosDataSource.assets.firstIndex(of: asset) else { return nil }
                 return IndexPath(item: index, section: 0)
             })
             if (canSelectBefore != canSelectAfter) {
@@ -376,26 +332,12 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                 UIView.setAnimationsEnabled(true)
             }
             cell.photoSelected = false
-            deselectionClosure?(asset)
+            DataCenter.shared.deselectionClosure?(asset)
         } else {
             if assetStore.count >= settings.maxNumberOfSelections {
-                selectLimitReachedClosure?(assetStore.count)
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.mode = MBProgressHUDMode.text
-                hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("最多只能选择\(settings.maxNumberOfSelections)个文件", comment: "")
-                hud.offset = CGPoint(x: 0, y: 0)
-                hud.hide(animated: true, afterDelay: 2.0)
-            }
-//            else if asset.fileSize > 1024 * 1024 * 100.0 {
-//                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-//                hud.mode = MBProgressHUDMode.text
-//                hud.bezelView.backgroundColor = UIColor.darkGray
-//                hud.label.text = NSLocalizedString("不能分享超过100M的文件", comment: "")
-//                hud.offset = CGPoint(x: 0, y: 0)
-//                hud.hide(animated: true, afterDelay: 2.0)
-//            }
-            else {
+                DataCenter.shared.selectLimitReachedClosure?(assetStore.count)
+                showHUDAlert(text: NSLocalizedString("最多只能选择\(settings.maxNumberOfSelections)个文件", comment: ""))
+            } else {
                 let canSelectBefore = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
                 assetStore.append(asset)
                 let canSelectAfter = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
@@ -406,7 +348,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                 }
                 cell.photoSelected = true
                 updateButtonState()
-                selectionClosure?(asset)
+                DataCenter.shared.selectionClosure?(asset)
                 if (canSelectBefore != canSelectAfter) {
                     collectionView.reloadData()
                 }
@@ -416,19 +358,19 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset, !cell.photoDisable {
-            let index = photosDataSource?.fetchResult.firstIndex(of: asset) ?? 0
-            previewViewContoller.currentAssetIndex = index
-            previewViewContoller.fetchResult = photosDataSource?.fetchResult
-            previewViewContoller.assetStore = assetStore
-            previewViewContoller.settings = settings
-            previewViewContoller.cancelClosure = cancelClosure
-            previewViewContoller.finishClosure = finishClosure
-            previewViewContoller.selectionClosure = selectionClosure
-            previewViewContoller.deselectionClosure = deselectionClosure
-            previewViewContoller.selectLimitReachedClosure = selectLimitReachedClosure
-            navigationController?.pushViewController(previewViewContoller, animated: true)
+            let index = photosDataSource?.assets.firstIndex(of: asset) ?? 0
+            navigationController?.pushViewController(PreviewViewController(currentAssetIndex: index, assets: photosDataSource?.assets ?? []), animated: true)
         }
         return true
+    }
+    
+    func showHUDAlert(text: String) {
+        let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+        hud.mode = MBProgressHUDMode.text
+        hud.bezelView.backgroundColor = UIColor.darkGray
+        hud.label.text = text
+        hud.offset = CGPoint(x: 0, y: 0)
+        hud.hide(animated: true, afterDelay: 2.0)
     }
 }
 
@@ -454,7 +396,7 @@ extension PhotosViewController: UITableViewDelegate {
         collectionView.reloadData()
         albumsViewController.dismiss(animated: true, completion: nil)
         
-        let indexPath = IndexPath(row: (photosDataSource?.fetchResult.count ?? 0) - 1, section: 0)
+        let indexPath = IndexPath(row: (photosDataSource?.assets.count ?? 1) - 1, section: 0)
         collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: false)
         needScrollToBottom = false
     }

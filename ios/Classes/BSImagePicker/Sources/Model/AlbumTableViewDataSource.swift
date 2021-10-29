@@ -31,8 +31,8 @@ final class AlbumTableViewDataSource : NSObject, UITableViewDataSource {
     private let imageRequestOptions: PHImageRequestOptions
     private let imageManager = PHCachingImageManager.default()
     
-    init(fetchResults: [PHAssetCollection]) {
-        self.fetchResults = fetchResults
+    override init() {
+        self.fetchResults = DataCenter.shared.fetchResults
         imageRequestOptions = PHImageRequestOptions()
         imageRequestOptions.isNetworkAccessAllowed = true
         imageRequestOptions.deliveryMode = .opportunistic
@@ -56,7 +56,7 @@ final class AlbumTableViewDataSource : NSObject, UITableViewDataSource {
         if album.estimatedAssetCount > 1000 || album.estimatedAssetCount <= 0 {
             cell.albumTitleLabel.text = album.localizedTitle
         }else {
-            cell.albumTitleLabel.text = "\(String(describing: (album.localizedTitle ?? "未知相册名称")!))(约\(album.estimatedAssetCount)张)"
+            cell.albumTitleLabel.text = "\(String(describing: (album.localizedTitle ?? "未知相册名称")!))"
         }
 
         let scale = UIScreen.main.scale

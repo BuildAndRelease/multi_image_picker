@@ -46,11 +46,11 @@ public extension UIViewController {
             guard authorized == true else { return }
             
             // Set blocks
-            imagePicker.selectionClosure = select
-            imagePicker.deselectionClosure = deselect
-            imagePicker.cancelClosure = cancel
-            imagePicker.finishClosure = finish
-            imagePicker.selectLimitReachedClosure = selectLimitReached
+            DataCenter.shared.selectionClosure = select
+            DataCenter.shared.deselectionClosure = deselect
+            DataCenter.shared.cancelClosure = cancel
+            DataCenter.shared.finishClosure = finish
+            DataCenter.shared.selectLimitReachedClosure = selectLimitReached
             
             // Present
             imagePicker.modalPresentationStyle = .fullScreen

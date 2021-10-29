@@ -2,7 +2,6 @@ package com.sangcomz.fishbun.ui.picker;
 
 import android.content.Intent;
 
-import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.bean.Media;
 import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.ui.detail.DetailActivity;
@@ -39,8 +38,8 @@ public class PickerController implements DisplayImage.DisplayImageListener {
         this.addImagePaths = addImagePaths;
     }
 
-    void displayImage(Long bucketId, List<MimeType> exceptMimeType) {
-        DisplayImage displayImage = new DisplayImage(bucketId, null, exceptMimeType, pickerActivity);
+    void displayImage(Long bucketId, String expectMimeType) {
+        DisplayImage displayImage = new DisplayImage(bucketId, null, expectMimeType, pickerActivity);
         displayImage.setInvertedPhotos(true);
         displayImage.setListener(this);
         displayImage.execute();

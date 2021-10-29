@@ -65,15 +65,6 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
             }
         }
     }
-
-    var settings: BSImagePickerSettings {
-        get {
-            return selectionView.settings
-        }
-        set {
-            selectionView.settings = newValue
-        }
-    }
     
     var selectionString: String {
         get {

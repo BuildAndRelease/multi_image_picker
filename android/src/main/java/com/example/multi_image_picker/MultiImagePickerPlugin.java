@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat;
 
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
-import com.sangcomz.fishbun.MimeType;
 import com.sangcomz.fishbun.adapter.GlideAdapter;
 import com.sangcomz.fishbun.ui.camera.CameraActivity;
 import com.sangcomz.fishbun.util.Define;
@@ -54,8 +53,6 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String FETCH_CACHED_VIDEO_PATH = "cachedVideoPath";
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
-    private static final String MAX_HEIGHT = "maxHeight";
-    private static final String MAX_WIDTH = "maxWidth";
     private static final String THUMB = "thumb";
     private static final String IDENTIFY = "identifier";
     private static final String FILE_TYPE = "fileType";
@@ -63,23 +60,22 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String OFFSET = "offset";
     private static final String SELECTED_ASSETS = "selectedAssets";
     private static final String DEFAULT_ASSETS = "defaultAsset";
-    private static final String SELECT_TYPE = "selectType";
+    private static final String SELECT_TYPE = "mediaSelectTypes";
+    private static final String MEDIA_SHOW_TYPES = "mediaShowTypes";
     private static final String DONE_BUTTON_TEXT = "doneButtonText";
     private static final String ANDROID_OPTIONS = "androidOptions";
     private static final String THEME_COLOR = "themeColor";
+    private static final String PERMISSIONERROR = "PERMISSION_PERMANENTLY_DENIED";
+    private static final String PERMISSIONDESC = "NO PERMISSION";
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private static final int REQUEST_CODE_TAKE = 1002;
-    private final MethodChannel channel;
     private final Activity activity;
     private final Context context;
-    private final BinaryMessenger messenger;
     private static Result currentPickerResult;
 
-    public MultiImagePickerPlugin(Activity activity, Context context, MethodChannel channel, BinaryMessenger messenger) {
+    public MultiImagePickerPlugin(Activity activity, Context context) {
         this.activity = activity;
         this.context = context;
-        this.channel = channel;
-        this.messenger = messenger;
     }
 
     /**
@@ -87,7 +83,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
      */
     public static void registerWith(Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL_NAME);
-        MultiImagePickerPlugin instance = new MultiImagePickerPlugin(registrar.activity(), registrar.context(), channel, registrar.messenger());
+        MultiImagePickerPlugin instance = new MultiImagePickerPlugin(registrar.activity(), registrar.context());
         registrar.addActivityResultListener(instance);
         channel.setMethodCallHandler(instance);
     }
@@ -134,26 +130,27 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         String doneButtonText = call.argument(DONE_BUTTON_TEXT);
                         doneButtonText = TextUtils.isEmpty(doneButtonText) ? "" : doneButtonText;
 
-                        presentPicker(maxImages, thumb, defaultAsset, doneButtonText, selectType, selectMedias, options);
+                        String showMediaType = call.argument(MEDIA_SHOW_TYPES);
+                        showMediaType = TextUtils.isEmpty(showMediaType) ? "" : showMediaType;
+
+                        presentPicker(maxImages, thumb, defaultAsset, doneButtonText, selectType, showMediaType, selectMedias, options);
                     }else {
                         if (currentPickerResult != null) {
-                            currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                            currentPickerResult.error(PERMISSIONERROR, PERMISSIONDESC, null);
                             currentPickerResult = null;
                         }else {
-                            result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                            result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                         }
                     }
                     break;
                 }
                 case FETCH_MEDIA_INFO: {
                     if (checkPermission(false, false, true)) {
-                        ArrayList mimeTypeList = new ArrayList();
-                        mimeTypeList.add(MimeType.WEBP);
                         int limit = call.argument(LIMIT);
                         int offset = call.argument(OFFSET);
                         ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
                         selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
-                        DisplayImage displayImage = new DisplayImage((long) 0, selectMedias, mimeTypeList, activity);
+                        DisplayImage displayImage = new DisplayImage((long) 0, selectMedias, "all", activity);
                         displayImage.setRequestHashMap(true);
                         displayImage.setLimit(limit);
                         displayImage.setOffset(offset);
@@ -166,7 +163,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         });
                         displayImage.execute();
                     }else {
-                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
@@ -191,10 +188,10 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         }
                     }else  {
                         if (currentPickerResult != null) {
-                            currentPickerResult.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                            currentPickerResult.error(PERMISSIONERROR, PERMISSIONDESC, null);
                             currentPickerResult = null;
                         }else {
-                            result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                            result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                         }
                     }
                     break;
@@ -212,7 +209,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         });
                         mediaThumbData.execute();
                     }else {
-                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
@@ -228,7 +225,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         });
                         mediaInfoData.execute();
                     }else {
-                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
@@ -244,7 +241,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         });
                         mediaInfoData.execute();
                     }else {
-                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
@@ -266,7 +263,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         });
                         mediaCompress.execute();
                     }else {
-                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
@@ -283,7 +280,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         });
                         mediaCompress.execute();
                     }else {
-                        result.error("PERMISSION_PERMANENTLY_DENIED", "NO PERMISSION", null);
+                        result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
@@ -328,7 +325,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 url.substring(dotIndex + 1, url.length()) : "";
     }
 
-    private void presentPicker(int maxImages, boolean thumb, String defaultAsset, String doneButtonText, String selectType, ArrayList<String> selectMedias, HashMap<String, String> options) {
+    private void presentPicker(int maxImages, boolean thumb, String defaultAsset, String doneButtonText, String selectType, String showType, ArrayList<String> selectMedias, HashMap<String, String> options) {
         String actionBarTitle = options.get("actionBarTitle");
         String allViewTitle =  options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
@@ -344,6 +341,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 .setPreSelectMedia(defaultAsset)
                 .setPreSelectMedias(selectMedias)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
+                .setShowMediaType(showType)
                 .setSelectType(selectType)
                 .setDoneButtonText(doneButtonText);
 

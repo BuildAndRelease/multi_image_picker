@@ -25,7 +25,7 @@ import UIKit
 /**
 The settings object that gets passed around between classes for keeping...settings
 */
-final class Settings : BSImagePickerSettings {
+final class Settings {
     var selectType: String = ""
     var doneButtonText: String = ""
     var thumb: Bool = true
@@ -46,6 +46,7 @@ final class Settings : BSImagePickerSettings {
             NSAttributedString.Key.foregroundColor: UIColor.white
         ]
     }()
+    
     var cellsPerRow: (_ verticalSize: UIUserInterfaceSizeClass, _ horizontalSize: UIUserInterfaceSizeClass) -> Int = {(verticalSize: UIUserInterfaceSizeClass, horizontalSize: UIUserInterfaceSizeClass) -> Int in
         switch (verticalSize, horizontalSize) {
         case (.compact, .regular): // iPhone5-6 portrait

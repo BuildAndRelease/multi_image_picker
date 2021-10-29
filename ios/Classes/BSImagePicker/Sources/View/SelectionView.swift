@@ -64,7 +64,7 @@ Used as an overlay on selected cells
         }
     }
     
-    var settings: BSImagePickerSettings = Settings()
+    let settings = DataCenter.shared.settings
 
     override init(frame: CGRect) {
         super.init(frame: frame)

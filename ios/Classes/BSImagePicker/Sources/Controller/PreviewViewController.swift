@@ -26,33 +26,17 @@ import AVKit
 
 final class PreviewViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, SelectionViewDelegate {
     private let cellIdentifier = "PreviewCollectionCell"
-    
-    var cancelClosure: ((_ assets: [Dictionary<String, String>], _ thumb : Bool) -> Void)?
-    var finishClosure: ((_ assets: NSDictionary, _ success : Bool, _ error : NSError) -> Void)?
-    var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
-    var selectionClosure: ((_ asset: PHAsset) -> Void)?
-    var deselectionClosure: ((_ asset: PHAsset) -> Void)?
-    
     var loadingView = true
     
     var currentAssetIndex : Int = 0
-    var fetchResult: Array<PHAsset>? {
-        didSet {
-            self.collectionView.reloadData()
-        }
-    }
+    var assets: Array<PHAsset> = []
+    
     var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: UICollectionViewFlowLayout())
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
     var selectBarButton: UIBarButtonItem = UIBarButtonItem()
     var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-    var settings: BSImagePickerSettings? {
-        didSet{
-            if settings != nil {
-                selectionView.settings = settings!
-            }
-        }
-    }
-    var assetStore: AssetStore?
+    let assetStore = DataCenter.shared.assetStore
+    let settings = DataCenter.shared.settings
     
     private var doneBarButtonTitle: String = NSLocalizedString("Done", comment: "")
     private let originBarButtonTitle: String = NSLocalizedString("Origin", comment: "")
@@ -61,11 +45,11 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var bottomContentView : UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
     var bottomHeightConstraint : NSLayoutConstraint?
     
-    required init(settings: BSImagePickerSettings) {
+    required init(currentAssetIndex : Int, assets: Array<PHAsset>) {
         super.init(nibName: nil, bundle: nil)
+        self.currentAssetIndex = currentAssetIndex
+        self.assets = assets
         
-        self.settings = settings
-        self.selectionView.settings = settings
         if !settings.doneButtonText.isEmpty {
             doneBarButtonTitle = settings.doneButtonText
         }
@@ -151,8 +135,8 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         navigationItem.rightBarButtonItem = selectBarButton
     }
     
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -181,10 +165,10 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     // MARK: Private helper methods
     func updateButtonState() {
-        if assetStore?.assets.count ?? 0 > 0 {
-            doneBarButton.setTitle("\(doneBarButtonTitle)(\(assetStore!.count))", for: .normal)
+        if assetStore.assets.count > 0 {
+            doneBarButton.setTitle("\(doneBarButtonTitle)(\(assetStore.count))", for: .normal)
             var width : CGFloat = 90.0
-            switch settings?.maxNumberOfSelections ?? 9 {
+            switch settings.maxNumberOfSelections{
             case 0..<10:
                 width = 90.0
             case 10..<100:
@@ -206,11 +190,12 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
             }
         }
 
-        originBarButton.isSelected = !(settings?.thumb ?? false)
+        originBarButton.isSelected = !settings.thumb
     }
     
     func refreshSelectIndex() {
-        if currentAssetIndex < (self.fetchResult?.count ?? 0) , let asset = self.fetchResult?[currentAssetIndex] {
+        if currentAssetIndex < self.assets.count {
+            let asset = assets[currentAssetIndex]
             let selectIndex = isSelectImageItem(asset)
             if selectIndex > 0 {
                 selectionView.selectionString = "\(selectIndex)"
@@ -233,12 +218,12 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchResult?.count ?? 0
+        return assets.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! PreviewCollectionViewCell
-        cell.asset = self.fetchResult?[indexPath.row]
+        cell.asset = assets[indexPath.row]
         return cell
     }
     
@@ -264,7 +249,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         }
         if self.navigationController?.viewControllers[0] == self {
             let dictionary = needSelectedIdentify()
-            cancelClosure?(dictionary, (settings?.thumb ?? false))
+            DataCenter.shared.cancelClosure?(dictionary, settings.thumb)
             self.dismiss(animated: true, completion: nil)
         }else{
             self.navigationController?.popViewController(animated: true)
@@ -272,62 +257,44 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     
     func selectMediaItem(_ asset : PHAsset) -> Int {
-        if let selectType = settings?.selectType, !selectType.isEmpty {
+        let selectType = settings.selectType
+        if !selectType.isEmpty {
             if selectType == "selectVideo"{
                 if asset.mediaType != .video  {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString("仅支持视频选择", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                    showHUDAlert(text: NSLocalizedString("仅支持视频选择", comment: ""))
                     return -1;
                 }
             }
             
             if selectType == "selectImage" {
                 if asset.mediaType != .image  {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString("仅支持图片选择", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                    showHUDAlert(text: NSLocalizedString("仅支持图片选择", comment: ""))
                     return -1;
                 }
             }
             
             if selectType == "selectSingleType" {
-                if self.assetStore?.isContainPic() ?? false, asset.mediaType != .image {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString("不能同时选择图片和视频", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                if self.assetStore.isContainPic(), asset.mediaType != .image {
+                    showHUDAlert(text: NSLocalizedString("不能同时选择图片和视频", comment: ""))
                     return -1;
                 }
-                if self.assetStore?.isContainVideo() ?? false, !(self.assetStore?.contains(asset) ?? true) {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString(asset.mediaType != .video ? "不能同时选择图片和视频" : "只能选择一个视频", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                if self.assetStore.isContainVideo(), !self.assetStore.contains(asset) {
+                    showHUDAlert(text: NSLocalizedString(asset.mediaType != .video ? "不能同时选择图片和视频" : "只能选择一个视频", comment: ""))
                     return -1;
                 }
             }
         }
-        if self.assetStore?.contains(asset) ?? false {
-            self.assetStore?.remove(asset)
-            deselectionClosure?(asset)
+        
+        if self.assetStore.contains(asset) {
+            self.assetStore.remove(asset)
+            DataCenter.shared.deselectionClosure?(asset)
             updateButtonState()
             return -1
-        } else if self.assetStore?.count ?? 0 < (settings?.maxNumberOfSelections ?? 9) {
-            self.assetStore?.append(asset)
-            selectionClosure?(asset)
+        } else if self.assetStore.count < settings.maxNumberOfSelections {
+            self.assetStore.append(asset)
+            DataCenter.shared.selectionClosure?(asset)
             updateButtonState()
-            return self.assetStore?.count ?? 0
+            return self.assetStore.count
         }
         return -1
     }
@@ -335,19 +302,9 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     func selectViewDidSelectDidAction(_ view: SelectionView) {
         if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset {
             if !(cell as! PreviewCollectionViewCell).thumbCanLoad {
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.mode = MBProgressHUDMode.text
-                hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString("媒体信息异常", comment: "")
-                hud.offset = CGPoint(x: 0, y: 0)
-                hud.hide(animated: true, afterDelay: 2.0)
+                showHUDAlert(text: NSLocalizedString("媒体信息异常", comment: ""))
             }else if let error = canSelectImageItem(asset) {
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.mode = MBProgressHUDMode.text
-                hud.bezelView.backgroundColor = UIColor.darkGray
-                hud.label.text = NSLocalizedString(error.domain, comment: "")
-                hud.offset = CGPoint(x: 0, y: 0)
-                hud.hide(animated: true, afterDelay: 2.0)
+                showHUDAlert(text: NSLocalizedString(error.domain, comment: ""))
             }else {
                 let selectIndex = selectMediaItem(asset)
                 if selectIndex > 0 {
@@ -363,7 +320,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     
     func needSelectedIdentify() -> [Dictionary<String, String>]{
         var mediaList = [Dictionary<String, String>]()
-        for asset in assetStore?.assets ?? [] {
+        for asset in assetStore.assets {
             var dictionary = Dictionary<String, String>()
             dictionary["identify"] = asset.localIdentifier
             if asset.mediaType == .video {
@@ -381,45 +338,32 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     }
     
     func isSelectImageItem(_ asset : PHAsset) -> Int {
-        return (assetStore?.assets.firstIndex(of: asset) ?? -1) + 1
+        return (assetStore.assets.firstIndex(of: asset) ?? -1) + 1
     }
     
     func canSelectImageItem(_ asset : PHAsset) -> NSError? {
-        if assetStore?.contains(asset) ?? false {
+        if assetStore.contains(asset) {
             return nil
-        }else if assetStore?.count ?? 0 >= (settings?.maxNumberOfSelections ?? 9) {
-            selectLimitReachedClosure?(assetStore?.count ?? 0)
-            return NSError(domain: "最多只能选择\((settings?.maxNumberOfSelections ?? 9)!)个文件", code: 5, userInfo: nil)
+        }else if assetStore.count >= settings.maxNumberOfSelections {
+            DataCenter.shared.selectLimitReachedClosure?(assetStore.count)
+            return NSError(domain: "最多只能选择\(settings.maxNumberOfSelections)个文件", code: 5, userInfo: nil)
         }
-//        else if asset.fileSize > 1024 * 1024 * 100.0 {
-//            return NSError(domain: "不能分享超过100M的文件", code: 6, userInfo: nil)
-//        }
         return nil
     }
     
     @objc func originButtonPressed(_ sender: UIButton) {
         originBarButton.isSelected = !originBarButton.isSelected
-        settings?.thumb = !originBarButton.isSelected
+        settings.thumb = !originBarButton.isSelected
     }
     
     @objc func doneButtonPressed(_ sender: UIButton) {
-        if (self.assetStore?.assets ?? []).count < 1 {
+        if self.assetStore.assets.count < 1 {
             if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset {
                 if !(cell as! PreviewCollectionViewCell).thumbCanLoad {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString("媒体信息异常", comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                    showHUDAlert(text: NSLocalizedString("媒体信息异常", comment: ""))
                     return
                 }else if let error = canSelectImageItem(asset) {
-                    let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                    hud.mode = MBProgressHUDMode.text
-                    hud.bezelView.backgroundColor = UIColor.darkGray
-                    hud.label.text = NSLocalizedString(error.domain, comment: "")
-                    hud.offset = CGPoint(x: 0, y: 0)
-                    hud.hide(animated: true, afterDelay: 2.0)
+                    showHUDAlert(text: NSLocalizedString(error.domain, comment: ""))
                     return
                 }else {
                     let selectIndex = selectMediaItem(asset)
@@ -435,7 +379,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         }
         weak var weakSelf = self
         let thumb = !originBarButton.isSelected
-        let assets = self.assetStore?.assets ?? []
+        let assets = self.assetStore.assets
         if assets.count < 1 {
             return
         }
@@ -452,9 +396,18 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
             
             DispatchQueue.main.async {
                 weakSelf?.doneBarButton.isEnabled = true
-                weakSelf?.finishClosure?(results, assets.count == identifiers.count, NSError())
+                DataCenter.shared.finishClosure?(results, assets.count == identifiers.count, NSError())
                 weakSelf?.dismiss(animated: true, completion: nil)
             }
         }
+    }
+    
+    func showHUDAlert(text: String) {
+        let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+        hud.mode = MBProgressHUDMode.text
+        hud.bezelView.backgroundColor = UIColor.darkGray
+        hud.label.text = text
+        hud.offset = CGPoint(x: 0, y: 0)
+        hud.hide(animated: true, afterDelay: 2.0)
     }
 }

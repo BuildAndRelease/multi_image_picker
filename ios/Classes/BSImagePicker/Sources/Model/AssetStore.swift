@@ -23,7 +23,12 @@
 import Foundation
 import Photos
 
+
 class AssetStore {
+    private init() {
+        self.assets = []
+    }
+    
     private(set) var assets: [PHAsset]
 
     init(assets: [PHAsset] = []) {
@@ -32,6 +37,10 @@ class AssetStore {
 
     var count: Int {
         return assets.count
+    }
+    
+    func updateAssets(assets: [PHAsset] = []) {
+        self.assets = assets
     }
 
     func contains(_ asset: PHAsset) -> Bool {

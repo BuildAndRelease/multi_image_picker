@@ -250,32 +250,44 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let defaultAsset = (arguments["defaultAsset"] as? String) ?? ""
             let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
             let thumb = (arguments["thumb"] as? Bool) ?? true
-            let selectType = (arguments["selectType"] as? String) ?? ""
+            let selectType = (arguments["mediaSelectTypes"] as? String) ?? ""
+            let showType = (arguments["mediaShowTypes"] as? String) ?? ""
             let doneButtonText = (arguments["doneButtonText"] as? String) ?? ""
             
-            vc.maxNumberOfSelections = maxImages
-            vc.selectMedias = selectedAssets
-            vc.defaultSelectMedia = defaultAsset
-            vc.thumb = thumb
-            vc.selectType = selectType
-            vc.doneButtonText = doneButtonText
+            let settings = DataCenter.shared.settings
+            settings.maxNumberOfSelections = maxImages
+            settings.thumb = thumb
+            settings.selectType = selectType
+            settings.doneButtonText = doneButtonText
 
             if let selectionFillColor = options["selectionFillColor"] , !selectionFillColor.isEmpty{
-                vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
+                settings.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
             }
 
             if let selectionStrokeColor = options["selectionStrokeColor"] ,!selectionStrokeColor.isEmpty {
-                vc.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
+                settings.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
             }
 
             if let selectionTextColor = options["selectionTextColor"] , !selectionTextColor.isEmpty{
-                vc.selectionTextAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: selectionTextColor)
+                settings.selectionTextAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: selectionTextColor)
             }
 
             if let selectionCharacter = options["selectionCharacter"] , !selectionCharacter.isEmpty {
-                vc.selectionCharacter = Character(selectionCharacter)
+                settings.selectionCharacter = Character(selectionCharacter)
             }
-
+            
+            DataCenter.shared.defaultSelectMedia = defaultAsset
+            DataCenter.shared.updateSelectMedias(selectMedias: selectedAssets)
+            switch showType {
+            case "image":
+                DataCenter.shared.mediaShowTypes = [.image]
+            case "video":
+                DataCenter.shared.mediaShowTypes = [.video]
+            case "all":
+                fallthrough
+            default:
+                DataCenter.shared.mediaShowTypes = [.image, .video]
+            }
             controller!.bs_presentImagePickerController(vc, animated: true,
                 select: { (asset: PHAsset) -> Void in
                     

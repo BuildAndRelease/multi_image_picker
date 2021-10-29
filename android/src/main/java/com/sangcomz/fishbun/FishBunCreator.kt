@@ -11,74 +11,74 @@ import com.sangcomz.fishbun.util.Define
 /**
  * Created by sangcomz on 17/05/2017.
  */
-class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton) : BaseProperty, CustomizationProperty {
+class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton) {
     private var requestCode = 27
 
-    override fun setThumb(thumb: Boolean): FishBunCreator = this.apply {
+    fun setThumb(thumb: Boolean): FishBunCreator = this.apply {
         fishton.isThumb = thumb;
     }
 
-    override fun setPreSelectMedias(preSelectMedias: ArrayList<String>): FishBunCreator = this.apply {
+    fun setPreSelectMedias(preSelectMedias: ArrayList<String>): FishBunCreator = this.apply {
         fishton.preSelectedMedias = preSelectMedias
     }
 
-    override fun setPreSelectMedia(preSelectMedia: String): FishBunCreator = this.apply {
+    fun setPreSelectMedia(preSelectMedia: String): FishBunCreator = this.apply {
         fishton.preSelectedMedia = preSelectMedia
     }
 
-    override fun setSelectedMedias(selectedMedias: ArrayList<Media>): FishBunCreator = this.apply {
-        fishton.selectedMedias = selectedMedias
-    }
-
-    override fun setMaxCount(count: Int): FishBunCreator = this.apply {
+    fun setMaxCount(count: Int): FishBunCreator = this.apply {
         fishton.maxCount = if (count <= 0) 1 else count
     }
 
-    override fun setRequestCode(requestCode: Int): FishBunCreator = this.apply {
+    fun setRequestCode(requestCode: Int): FishBunCreator = this.apply {
         this.requestCode = requestCode
     }
 
-    override fun textOnNothingSelected(message: String?): FishBunCreator = this.apply {
+    fun textOnNothingSelected(message: String?): FishBunCreator = this.apply {
         fishton.messageNothingSelected = message
     }
 
-    override fun textOnImagesSelectionLimitReached(message: String?): FishBunCreator = this.apply {
+    fun textOnImagesSelectionLimitReached(message: String?): FishBunCreator = this.apply {
         fishton.messageLimitReached = message
     }
 
-    override fun setAllViewTitle(allViewTitle: String?): FishBunCreator = this.apply {
+    fun setAllViewTitle(allViewTitle: String?): FishBunCreator = this.apply {
         fishton.titleAlbumAllView = allViewTitle
     }
 
-    override fun setActionBarTitle(actionBarTitle: String?): FishBunCreator = this.apply {
+    fun setActionBarTitle(actionBarTitle: String?): FishBunCreator = this.apply {
         fishton.titleActionBar = actionBarTitle
     }
 
-    override fun setHomeAsUpIndicatorDrawable(icon: Drawable?): FishBunCreator = this.apply {
+     fun setHomeAsUpIndicatorDrawable(icon: Drawable?): FishBunCreator = this.apply {
         fishton.drawableHomeAsUpIndicator = icon
     }
 
-    override fun setDoneButtonDrawable(icon: Drawable?): FishBunCreator = this.apply {
+    fun setDoneButtonDrawable(icon: Drawable?): FishBunCreator = this.apply {
         fishton.drawableDoneButton = icon
     }
 
-    override fun setAllDoneButtonDrawable(icon: Drawable?): FishBunCreator = this.apply {
+    fun setAllDoneButtonDrawable(icon: Drawable?): FishBunCreator = this.apply {
         fishton.drawableAllDoneButton = icon
     }
 
-    override fun setSelectType(selectType: String) = this.apply {
+    fun setSelectType(selectType: String) = this.apply {
         fishton.selectType = selectType
     }
 
-    override fun setDoneButtonText(doneButtonText: String) = this.apply {
+    fun setShowMediaType(showMediaType : String) = this.apply {
+        fishton.showMediaType = showMediaType
+    }
+
+    fun setDoneButtonText(doneButtonText: String) = this.apply {
         fishton.doneButtonText = doneButtonText
     }
 
-    override fun setSelectCircleStrokeColor(strokeColor: Int): FishBunCreator = this.apply {
+    fun setSelectCircleStrokeColor(strokeColor: Int): FishBunCreator = this.apply {
         fishton.colorSelectCircleStroke = strokeColor
     }
 
-    override fun startAlbum() {
+    fun startAlbum() {
         val fishBunContext = fishBun.fishBunContext
         val context = fishBunContext.getContext()
 

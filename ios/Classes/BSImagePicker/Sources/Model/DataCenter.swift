@@ -24,6 +24,23 @@ final class DataCenter {
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
     @objc public lazy var fetchResults: [PHAssetCollection] = { () -> [PHAssetCollection] in
+        return refreshAlbum()
+    }()
+    
+    func resetAllData() {
+        assetStore = AssetStore()
+        settings = Settings()
+        defaultSelectMedia = ""
+        mediaShowTypes = [PHAssetMediaType.image, PHAssetMediaType.video]
+        selectionClosure = nil
+        deselectionClosure = nil
+        cancelClosure = nil
+        finishClosure = nil
+        selectLimitReachedClosure = nil
+        fetchResults = refreshAlbum()
+    }
+    
+    func refreshAlbum() -> Array<PHAssetCollection> {
         var results =  Array<PHAssetCollection>()
         let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: nil)
         
@@ -59,18 +76,6 @@ final class DataCenter {
             }
         }
         return results
-    }()
-    
-    func resetAllData() {
-        assetStore = AssetStore()
-        settings = Settings()
-        defaultSelectMedia = ""
-        mediaShowTypes = [PHAssetMediaType.image, PHAssetMediaType.video]
-        selectionClosure = nil
-        deselectionClosure = nil
-        cancelClosure = nil
-        finishClosure = nil
-        selectLimitReachedClosure = nil
     }
     
     func indexAndAssetsOfMainAlbum() -> (Int, Array<PHAsset>)?  {

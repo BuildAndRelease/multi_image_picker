@@ -242,8 +242,6 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 return result(FlutterError(code: "PERMISSION_PERMANENTLY_DENIED", message: "The user has denied the gallery access.", details: nil))
             }
             
-            let vc = BSImagePickerViewController()
-            
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let maxImages = (arguments["maxImages"] as? Int) ?? 9
             let options = (arguments["iosOptions"] as? Dictionary<String, String>) ?? Dictionary<String, String>()
@@ -254,6 +252,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let showType = (arguments["mediaShowTypes"] as? String) ?? ""
             let doneButtonText = (arguments["doneButtonText"] as? String) ?? ""
             
+            DataCenter.shared.resetAllData()
             let settings = DataCenter.shared.settings
             settings.maxNumberOfSelections = maxImages
             settings.thumb = thumb
@@ -288,7 +287,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             default:
                 DataCenter.shared.mediaShowTypes = [.image, .video]
             }
-            controller!.bs_presentImagePickerController(vc, animated: true,
+            
+            controller!.bs_presentImagePickerController(BSImagePickerViewController(), animated: true,
                 select: { (asset: PHAsset) -> Void in
                     
                 }, deselect: { (asset: PHAsset) -> Void in

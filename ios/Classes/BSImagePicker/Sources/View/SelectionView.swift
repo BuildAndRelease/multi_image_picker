@@ -111,7 +111,6 @@ Used as an overlay on selected cells
         
         //// Bezier Drawing (Picture Number)
         let size = selectionString.size(withAttributes: settings.selectionTextAttributes)
-
         selectionString.draw(in: CGRect(x: checkmarkFrame.midX - size.width / 2.0, y: checkmarkFrame.midY - size.height / 2.0, width: size.width, height: size.height), withAttributes: settings.selectionTextAttributes)
     }
     

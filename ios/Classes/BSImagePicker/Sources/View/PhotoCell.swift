@@ -102,7 +102,6 @@ final class PhotoCell: UICollectionViewCell, SelectionViewDelegate {
         }
     }
     
-
     override init(frame: CGRect) {
         super.init(frame: frame)
 

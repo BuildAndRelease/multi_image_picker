@@ -287,17 +287,29 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 DataCenter.shared.mediaShowTypes = [.image, .video]
             }
             
-            controller!.bs_presentImagePickerController(BSImagePickerViewController(), animated: true,
-                select: { (asset: PHAsset) -> Void in
-                    
-                }, deselect: { (asset: PHAsset) -> Void in
-
-                }, cancel: { (assets: [Dictionary<String, String>], thumb : Bool) -> Void in
+            weak var weakSelf = self
+            BSImagePickerViewController.authorize(fromViewController: controller) { (authorized) -> Void in
+                // Make sure we are authorized before proceding
+                guard authorized == true else { return }
+                DataCenter.shared.refreshFetchResults()
+                // Set blocks
+                DataCenter.shared.selectionClosure = nil
+                DataCenter.shared.deselectionClosure = nil
+                DataCenter.shared.selectLimitReachedClosure = nil
+                DataCenter.shared.cancelClosure = { (assets: [Dictionary<String, String>], thumb : Bool) -> Void in
                     let t = ["assets" : assets, "thumb" : thumb] as [String : Any]
                     result(FlutterError(code: "CANCELLED", message: "The user has cancelled the selection", details: t))
-                }, finish: { (assets: NSDictionary, success : Bool, error : NSError) -> Void in
+                }
+                DataCenter.shared.finishClosure = { (assets: NSDictionary, success : Bool, error : NSError) -> Void in
                     success ? result(assets) : result(FlutterError(code: "\(error.code)", message: error.domain, details: nil))
-            }, completion: nil)
+                }
+                
+                let imagePicker = BSImagePickerViewController()
+                imagePicker.modalPresentationStyle = .fullScreen
+                imagePicker.navigationBar.barStyle = .blackTranslucent
+                imagePicker.toolbar.barStyle = .blackTranslucent
+                weakSelf?.controller.present(imagePicker, animated: true, completion: nil)
+            }
             break;
         case "cachedVideoPath":
             let arguments = call.arguments as! Dictionary<String, AnyObject>

@@ -24,7 +24,7 @@ final class DataCenter {
     var selectLimitReachedClosure: ((_ selectionLimit: Int) -> Void)?
     
     @objc public lazy var fetchResults: [PHAssetCollection] = { () -> [PHAssetCollection] in
-        return refreshAlbum()
+        return fetchPhotoAlbum()
     }()
     
     func resetAllData() {
@@ -37,10 +37,13 @@ final class DataCenter {
         cancelClosure = nil
         finishClosure = nil
         selectLimitReachedClosure = nil
-        fetchResults = refreshAlbum()
     }
     
-    func refreshAlbum() -> Array<PHAssetCollection> {
+    func refreshFetchResults() {
+        fetchResults = fetchPhotoAlbum()
+    }
+    
+    func fetchPhotoAlbum() -> Array<PHAssetCollection> {
         var results =  Array<PHAssetCollection>()
         let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: nil)
         

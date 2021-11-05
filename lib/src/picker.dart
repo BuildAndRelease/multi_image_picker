@@ -260,8 +260,9 @@ class MultiImagePicker {
   }
 
   // 获取指定媒体的缩略图或者视频封面
-  static Future<Uint8List> fetchMediaThumbData(
-      String identifier, String fileType) async {
+  // fileType 设为可选参数,当fileType为空时,插件会根据identify去查询当前媒体类型
+  static Future<Uint8List> fetchMediaThumbData(String identifier,
+      {String fileType = ""}) async {
     try {
       if (_cacheThumbData.containsKey(identifier)) {
         return _cacheThumbData[identifier] ?? Uint8List(0);

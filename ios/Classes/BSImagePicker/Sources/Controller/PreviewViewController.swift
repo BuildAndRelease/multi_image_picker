@@ -29,7 +29,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var loadingView = true
     
     var currentAssetIndex : Int = 0
-    var assets: Array<PHAsset> = []
+    var assets: PHFetchResult<PHAsset> = PHFetchResult<PHAsset>()
     
     var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: UICollectionViewFlowLayout())
     var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
@@ -45,7 +45,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var bottomContentView : UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
     var bottomHeightConstraint : NSLayoutConstraint?
     
-    required init(currentAssetIndex : Int, assets: Array<PHAsset>) {
+    required init(currentAssetIndex : Int, assets: PHFetchResult<PHAsset>) {
         super.init(nibName: nil, bundle: nil)
         self.currentAssetIndex = currentAssetIndex
         self.assets = assets

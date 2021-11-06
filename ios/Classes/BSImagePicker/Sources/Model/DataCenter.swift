@@ -14,9 +14,21 @@ final class DataCenter {
     
     var assetStore = AssetStore()
     var settings = Settings()
-    
     var defaultSelectMedia : String = ""
-    var mediaShowTypes : [PHAssetMediaType] = [PHAssetMediaType.image, PHAssetMediaType.video]
+    var fetchOptions : PHFetchOptions? = nil
+    var mediaShowTypes : [PHAssetMediaType] = [PHAssetMediaType.image, PHAssetMediaType.video] {
+        didSet {
+            if mediaShowTypes.contains(PHAssetMediaType.image), mediaShowTypes.contains(PHAssetMediaType.video) {
+                fetchOptions = nil
+            }else if mediaShowTypes.contains(PHAssetMediaType.image) {
+                fetchOptions = PHFetchOptions()
+                fetchOptions?.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+            }else if mediaShowTypes.contains(PHAssetMediaType.video) {
+                fetchOptions = PHFetchOptions()
+                fetchOptions?.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
+            }
+        }
+    }
     var selectionClosure: ((_ asset: PHAsset) -> Void)?
     var deselectionClosure: ((_ asset: PHAsset) -> Void)?
     var cancelClosure: ((_ assets: [Dictionary<String, String>], _ thumb : Bool) -> Void)?
@@ -52,13 +64,12 @@ final class DataCenter {
         var maxCountCollection : PHAssetCollection?
         for i in 0 ..< cameraRollResult.count {
             let collection = cameraRollResult.object(at: i)
-            let assets = PHAsset.fetchAssets(in: collection, options: nil)
-            let assetsCount = assetsCountWithType(assets: assets)
-            if assetsCount > 0 {
+            let assets = PHAsset.fetchAssets(in: collection, options: fetchOptions)
+            if assets.count > 0 {
                 results.append(collection)
             }
-            if maxCount < assetsCount {
-                maxCount = assetsCount
+            if maxCount < assets.count {
+                maxCount = assets.count
                 maxCountCollection = collection
             }
         }
@@ -72,27 +83,31 @@ final class DataCenter {
         let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
         for i in 0 ..< albumResult.count {
             let collection = albumResult.object(at: i)
-            let assets = PHAsset.fetchAssets(in: collection, options: nil)
-            let assetsCount = assetsCountWithType(assets: assets)
-            if assetsCount > 0 {
+            let assets = PHAsset.fetchAssets(in: collection, options: fetchOptions)
+            if assets.count > 0 {
                 results.append(collection)
             }
         }
         return results
     }
     
-    func indexAndAssetsOfMainAlbum() -> (Int, Array<PHAsset>)?  {
+    func indexAndAssetsOfMainAlbum() -> (Int, PHFetchResult<PHAsset>)?  {
         if let album = fetchResults.first {
-            let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
-            var assets : Array<PHAsset> = []
-            fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
-                if self.mediaShowTypes.contains(asset.mediaType) {
-                    assets.append(asset)
+            let assets = PHAsset.fetchAssets(in: album, options: fetchOptions)
+            var index = 0
+            if defaultSelectMedia.isEmpty {
+                if let asset = assetStore.assets.first {
+                    index = assets.index(of: asset)
+                }
+            }else {
+                for i in 0 ..< assets.count {
+                    let asset = assets.object(at: i)
+                    if asset.localIdentifier == defaultSelectMedia {
+                        index = i
+                        break
+                    }
                 }
             }
-            let index = defaultSelectMedia.isEmpty ? (assets.firstIndex(of: assetStore.assets.first!) ?? 0) : assets.firstIndex{asset in
-                return asset.localIdentifier == defaultSelectMedia
-            } ?? 0
             return (index, assets)
         }
         return nil
@@ -112,24 +127,8 @@ final class DataCenter {
         assetStore.updateAssets(assets: sortedSelections)
     }
     
-    func assetsWithAlbum(_ album: PHAssetCollection) -> Array<PHAsset> {
-        let fetchResult = PHAsset.fetchAssets(in: album, options: nil)
-        var assets : Array<PHAsset> = []
-        fetchResult.enumerateObjects { (asset, index, pt) in
-            if self.mediaShowTypes.contains(asset.mediaType) {
-                assets.append(asset)
-            }
-        }
-        return assets
+    func assetsWithAlbum(_ album: PHAssetCollection) -> PHFetchResult<PHAsset> {
+        return PHAsset.fetchAssets(in: album, options: fetchOptions)
     }
-    
-    func assetsCountWithType(assets: PHFetchResult<PHAsset>) -> Int {
-        var count = 0
-        mediaShowTypes.forEach { type in
-           count += assets.countOfAssets(with:  type)
-        }
-        return count
-    }
-    
     
 }

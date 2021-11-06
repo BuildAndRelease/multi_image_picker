@@ -31,7 +31,7 @@ protocol PhotoCollectionViewDataSourceDelegate : AnyObject {
  Gives UICollectionViewDataSource functionality with a given data source and cell factory
  */
 final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource, PhotoCellDelegate {
-    var assets: Array<PHAsset>
+    var assets: PHFetchResult<PHAsset>
     weak var delegate : PhotoCollectionViewDataSourceDelegate?
     private let photosManager = PHCachingImageManager.default()
     private let imageRequestOptions: PHImageRequestOptions

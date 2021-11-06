@@ -321,7 +321,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
             let canSelectAfter = assetStore.canAppend(settings.selectType, maxNum: settings.maxNumberOfSelections)
             updateButtonState()
             let selectedIndexPaths = assetStore.assets.compactMap({ (asset) -> IndexPath? in
-                guard let index = photosDataSource.assets.firstIndex(of: asset) else { return nil }
+                let index = photosDataSource.assets.index(of: asset)
                 return IndexPath(item: index, section: 0)
             })
             if (canSelectBefore != canSelectAfter) {
@@ -358,8 +358,8 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset, !cell.photoDisable {
-            let index = photosDataSource?.assets.firstIndex(of: asset) ?? 0
-            navigationController?.pushViewController(PreviewViewController(currentAssetIndex: index, assets: photosDataSource?.assets ?? []), animated: true)
+            let index = photosDataSource?.assets.index(of: asset) ?? 0
+            navigationController?.pushViewController(PreviewViewController(currentAssetIndex: index, assets: photosDataSource?.assets ?? PHFetchResult<PHAsset>()), animated: true)
         }
         return true
     }

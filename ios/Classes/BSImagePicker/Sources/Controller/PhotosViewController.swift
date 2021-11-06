@@ -94,6 +94,8 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         doneBarButton.setBackgroundColor(color: normalColor.withAlphaComponent(0.5), for: .disabled)
         doneBarButton.layer.masksToBounds = true
         doneBarButton.layer.cornerRadius = 5.0
+        doneBarButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+        doneBarButton.titleLabel?.adjustsFontSizeToFitWidth = true
         doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)
         doneBarButton.addTarget(self, action: #selector(PhotosViewController.doneButtonPressed(_:)), for: .touchUpInside)
         doneBarButton.translatesAutoresizingMaskIntoConstraints = false

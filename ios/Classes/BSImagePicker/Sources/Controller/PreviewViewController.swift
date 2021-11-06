@@ -79,6 +79,8 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         doneBarButton.setTitle(doneBarButtonTitle, for: .normal)
         doneBarButton.setBackgroundColor(color: normalColor, for: .normal)
         doneBarButton.setBackgroundColor(color: normalColor.withAlphaComponent(0.5), for: .disabled)
+        doneBarButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+        doneBarButton.titleLabel?.adjustsFontSizeToFitWidth = true
         doneBarButton.layer.masksToBounds = true
         doneBarButton.layer.cornerRadius = 5.0
         doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)

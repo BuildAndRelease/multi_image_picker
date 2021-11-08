@@ -16,9 +16,15 @@ class Fishton {
     var pickerMedias: List<Media> = ArrayList()
         set(value) {
             field = value
-            if (preSelectedMedias.isNotEmpty())
-                for (item in value)
-                    if (preSelectedMedias.contains(item.identifier)) selectedMedias.add(item)
+            if (preSelectedMedias.isNotEmpty()) {
+                for (identifier in preSelectedMedias) {
+                    val media = value.find { it.identifier == identifier }
+                    if (media != null) {
+                        selectedMedias.add(media)
+                        break
+                    }
+                }
+            }
         }
 
     var maxCount: Int = 0

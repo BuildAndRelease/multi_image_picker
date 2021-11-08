@@ -122,7 +122,6 @@ class PreviewCollectionViewCell: UICollectionViewCell, UIGestureRecognizerDelega
             NSLayoutConstraint(item: activityIndicator, attribute: .centerX, relatedBy: .equal, toItem: contentView, attribute: .centerX, multiplier: 1, constant: 0),
             NSLayoutConstraint(item: activityIndicator, attribute: .centerY, relatedBy: .equal, toItem: contentView, attribute: .centerY, multiplier: 1, constant: 0)
         ])
-        
     }
     
     required init?(coder aDecoder: NSCoder) {

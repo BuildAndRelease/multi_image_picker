@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
         defaultAsset: null,
         selectedAssets: null,
         doneButtonText: "下一步",
-        mediaShowType: FBMediaShowType.image,
+        mediaShowType: FBMediaShowType.video,
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
             selectionStrokeColor: "#ff6179f2",

@@ -19,10 +19,7 @@ class Fishton {
             if (preSelectedMedias.isNotEmpty()) {
                 for (identifier in preSelectedMedias) {
                     val media = value.find { it.identifier == identifier }
-                    if (media != null) {
-                        selectedMedias.add(media)
-                        break
-                    }
+                    if (media != null) selectedMedias.add(media)
                 }
             }
         }

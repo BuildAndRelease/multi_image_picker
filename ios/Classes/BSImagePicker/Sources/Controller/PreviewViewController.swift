@@ -26,6 +26,7 @@ import AVKit
 
 final class PreviewViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, SelectionViewDelegate {
     private let cellIdentifier = "PreviewCollectionCell"
+//    如果是正在加载View的时候不应该去监听ScrollViewDelegate
     var loadingView = true
     
     var currentAssetIndex : Int = 0
@@ -45,10 +46,8 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var bottomContentView : UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
     var bottomHeightConstraint : NSLayoutConstraint?
     
-    required init(currentAssetIndex : Int, assets: PHFetchResult<PHAsset>) {
+    required init(currentAssetIndex : Int?, assets: PHFetchResult<PHAsset>?) {
         super.init(nibName: nil, bundle: nil)
-        self.currentAssetIndex = currentAssetIndex
-        self.assets = assets
         
         if !settings.doneButtonText.isEmpty {
             doneBarButtonTitle = settings.doneButtonText
@@ -135,6 +134,13 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         selectionView.delegate = self
         navigationItem.leftBarButtonItem = cancelBarButton
         navigationItem.rightBarButtonItem = selectBarButton
+        
+        if let currentAssetIndex = currentAssetIndex, let assets = assets {
+            self.currentAssetIndex = currentAssetIndex
+            self.assets = assets
+        }else {
+            self.reloadData()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -147,6 +153,39 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         updateButtonState()
         refreshSelectIndex()
         loadingView = false
+    }
+    
+    func reloadData()  {
+        weak var hud = showHUDLoading(text: "加载中...")
+        DispatchQueue.global().async { [weak self] in
+            let result = DataCenter.shared.indexAndAssetsOfMainAlbum()
+            DispatchQueue.main.async { [weak self] in
+                if let currentAssetIndex = result?.0, let assets = result?.1, let strongSelf = self {
+                    strongSelf.loadingView = true
+                    strongSelf.currentAssetIndex = currentAssetIndex
+                    strongSelf.assets = assets
+                    strongSelf.collectionView.reloadData()
+                    strongSelf.collectionView.contentOffset = CGPoint(x: strongSelf.collectionView.bounds.width * CGFloat(strongSelf.currentAssetIndex), y: strongSelf.collectionView.contentOffset.y)
+                    strongSelf.updateButtonState()
+                    strongSelf.refreshSelectIndex()
+                    strongSelf.loadingView = false
+                    strongSelf.hideHUDLoading(hud: hud)
+                }
+            }
+        }
+    }
+    
+    func showHUDLoading(text: String) -> MBProgressHUD {
+        let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+        hud.mode = MBProgressHUDMode.indeterminate
+        hud.bezelView.backgroundColor = UIColor.darkGray
+        hud.label.text = text
+        hud.offset = CGPoint(x: 0, y: 0)
+        return hud
+    }
+    
+    func hideHUDLoading(hud : MBProgressHUD?) {
+        hud?.hide(animated: true)
     }
     
     override func viewDidLayoutSubviews() {

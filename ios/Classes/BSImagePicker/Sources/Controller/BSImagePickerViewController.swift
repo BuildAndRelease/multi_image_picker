@@ -34,8 +34,7 @@ open class BSImagePickerViewController : UINavigationController{
     }()
     
     @objc lazy var previewController: PreviewViewController = {
-        let result = DataCenter.shared.indexAndAssetsOfMainAlbum()
-        return PreviewViewController(currentAssetIndex: result?.0 ?? 0, assets: result?.1 ?? PHFetchResult<PHAsset>());
+        return PreviewViewController(currentAssetIndex: nil, assets: nil);
     }()
     
     @objc class func authorize(_ status: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus(), fromViewController: UIViewController, completion: @escaping (_ authorized: Bool) -> Void) {

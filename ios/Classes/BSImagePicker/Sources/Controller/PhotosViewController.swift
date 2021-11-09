@@ -37,7 +37,9 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     private var needScrollToBottom : Bool = true
     
     private var photosDataSource: PhotoCollectionViewDataSource?
-    private var albumsDataSource: AlbumTableViewDataSource = AlbumTableViewDataSource()
+    lazy var albumsDataSource: AlbumTableViewDataSource = {
+       return AlbumTableViewDataSource()
+    }()
     
     private var doneBarButtonTitle: String = NSLocalizedString("Done", comment: "")
     private let originBarButtonTitle: String = NSLocalizedString("Origin", comment: "")
@@ -116,16 +118,6 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         bottomContentView.contentView.addSubview(originBarButton)
         bottomContentView.translatesAutoresizingMaskIntoConstraints = false
         
-        if albumsDataSource.fetchResults.count > 0 {
-            let album = albumsDataSource.fetchResults[0]
-            initializePhotosDataSource(album)
-            updateAlbumTitle(album)
-            collectionView.reloadData()
-        }
-        
-        photosDataSource?.registerCellIdentifiersForCollectionView(collectionView)
-        photosDataSource?.delegate = self
-        
         self.view.addSubview(collectionView)
         self.view.addSubview(bottomContentView)
         
@@ -152,11 +144,13 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
             NSLayoutConstraint(item: collectionView, attribute: .leading, relatedBy: .equal, toItem: safeGuide, attribute: .leading, multiplier: 1, constant: 0),
             NSLayoutConstraint(item: collectionView, attribute: .trailing, relatedBy: .equal, toItem: safeGuide, attribute: .trailing, multiplier: 1, constant: 0),
         ])
+        
+        initCollectionView()
     }
     
     override func viewDidLayoutSubviews() {
-        if needScrollToBottom {
-            let indexPath = IndexPath(row: (photosDataSource?.assets.count ?? 0) - 1, section: 0)
+        if needScrollToBottom, let photosDataSource = photosDataSource {
+            let indexPath = IndexPath(row: photosDataSource.assets.count - 1, section: 0)
             collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: false)
             needScrollToBottom = false
         }
@@ -175,6 +169,25 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         super.viewWillAppear(animated)
         updateButtonState()
         collectionView.reloadData()
+    }
+    
+    func initCollectionView() {
+        weak var hud = showHUDLoading(text: "加载中...");
+        DispatchQueue.global().async { [weak self] in
+            if self?.albumsDataSource.fetchResults.count ?? 0 > 0, let album = self?.albumsDataSource.fetchResults[0] {
+                DispatchQueue.main.async {
+                    self?.initializePhotosDataSource(album)
+                    self?.updateAlbumTitle(album)
+                    if self?.needScrollToBottom ?? false {
+                        let indexPath = IndexPath(row: (self?.photosDataSource?.assets.count ?? 0) - 1, section: 0)
+                        self?.collectionView.scrollToItem(at: indexPath, at: UICollectionView.ScrollPosition.centeredVertically, animated: false)
+                        self?.needScrollToBottom = false
+                    }
+                    self?.collectionView.reloadData()
+                    self?.hideHUDLoading(hud: hud)
+                }
+            }
+        }
     }
     
     // MARK: Button actions
@@ -280,6 +293,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         needScrollToBottom = true
         photosDataSource = PhotoCollectionViewDataSource(album)
         photosDataSource?.delegate = self
+        photosDataSource?.registerCellIdentifiersForCollectionView(collectionView)
         collectionView.dataSource = photosDataSource
         collectionView.delegate = self
         titleContentView.deSelectView()
@@ -373,6 +387,19 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         hud.label.text = text
         hud.offset = CGPoint(x: 0, y: 0)
         hud.hide(animated: true, afterDelay: 2.0)
+    }
+    
+    func showHUDLoading(text: String) -> MBProgressHUD {
+        let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+        hud.mode = MBProgressHUDMode.indeterminate
+        hud.bezelView.backgroundColor = UIColor.darkGray
+        hud.label.text = text
+        hud.offset = CGPoint(x: 0, y: 0)
+        return hud
+    }
+    
+    func hideHUDLoading(hud : MBProgressHUD?) {
+        hud?.hide(animated: true)
     }
 }
 

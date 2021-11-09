@@ -106,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       final result = await MultiImagePicker.pickImages(
         maxImages: 9,
-        defaultAsset: null,
+        defaultAsset: '24E7EFE4-2D3A-4C27-A96C-0F1AC085AAB9/L0/001',
         selectedAssets: null,
         doneButtonText: "下一步",
         mediaShowType: FBMediaShowType.video,

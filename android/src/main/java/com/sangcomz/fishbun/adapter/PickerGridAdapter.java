@@ -48,7 +48,6 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         final int imagePos = position;
         final ViewHolderImage vh = (ViewHolderImage) holder;
         final Media media = fishton.getPickerMedias().get(imagePos);
-        vh.item.setTag(media);
         vh.btnThumbCount.unselect();
         vh.btnThumbCount.setCircleColor(fishton.getColorSelectCircleStroke());
         vh.btnThumbCount.setTextColor(Color.WHITE);
@@ -73,6 +72,10 @@ public class PickerGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 });
                 vh.imgThumbImage.setEnabled(false);
                 vh.btnThumbCount.setEnabled(false);
+            } else {
+                vh.banCoverView.setVisibility(View.INVISIBLE);
+                vh.imgThumbImage.setEnabled(true);
+                vh.btnThumbCount.setEnabled(true);
             }
         }
 

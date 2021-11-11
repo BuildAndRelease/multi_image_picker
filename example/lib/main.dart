@@ -104,12 +104,13 @@ class _MyHomePageState extends State<MyHomePage> {
       // final preSelectMedias = ["120818", "120817", "120816"];
       // final preSelectMedia = '1960634';
 
+// '24E7EFE4-2D3A-4C27-A96C-0F1AC085AAB9/L0/001'
       final result = await MultiImagePicker.pickImages(
         maxImages: 9,
-        defaultAsset: '24E7EFE4-2D3A-4C27-A96C-0F1AC085AAB9/L0/001',
+        defaultAsset: null,
         selectedAssets: null,
         doneButtonText: "下一步",
-        mediaShowType: FBMediaShowType.video,
+        mediaShowType: FBMediaShowType.all,
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
             selectionStrokeColor: "#ff6179f2",

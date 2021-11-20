@@ -67,6 +67,13 @@ open class BSImagePickerViewController : UINavigationController{
     open override func loadView() {
         super.loadView()
         view.backgroundColor = UIColor.white
+        if #available(iOS 13.0, *) {
+            navigationBar.scrollEdgeAppearance = nil
+            let apperance = UINavigationBarAppearance()
+            apperance.backgroundColor = UIColor.clear
+            apperance.backgroundEffect = UIBlurEffect(style: .systemMaterialDark)
+            navigationBar.standardAppearance = apperance
+        }
         
         if PHPhotoLibrary.authorizationStatus() == .authorized {
             if !DataCenter.shared.defaultSelectMedia.isEmpty {

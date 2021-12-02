@@ -9,6 +9,31 @@ import Foundation
 import AVFoundation
 
 class MediaCompress {
+    
+    func fetchThumbFromVideo(thumbPath : String, thumbTmpPath : String, videoPath : String) -> (String, CGSize)? {
+        if FileManager.default.fileExists(atPath: thumbPath), let thumbImg = UIImage(contentsOfFile: thumbPath) {
+            return (thumbPath, CGSize(width: thumbImg.size.width * thumbImg.scale, height: thumbImg.size.height * thumbImg.scale))
+        }else {
+            let gen = AVAssetImageGenerator(asset: AVURLAsset(url: URL(fileURLWithPath: videoPath)))
+            gen.appliesPreferredTrackTransform = true
+            let time = CMTimeMake(value: 0, timescale: 60);
+            var actualTime  = CMTimeMake(value: 0, timescale: 60)
+            if let image = try? gen.copyCGImage(at: time, actualTime: &actualTime) {
+                let thumbImg = UIImage(cgImage: image)
+                do {
+                    try thumbImg.jpegData(compressionQuality: 0.6)?.write(to: URL(fileURLWithPath: thumbTmpPath))
+                    try FileManager.default.moveItem(atPath: thumbTmpPath, toPath: thumbPath)
+                } catch let error as NSError {
+                    print(error)
+                    return nil
+                }
+                return (thumbPath, CGSize(width: thumbImg.size.width * thumbImg.scale, height: thumbImg.size.height * thumbImg.scale))
+            }else {
+                return nil
+            }
+        }
+    }
+    
     func compressAsset(_ thumb : Bool, fileType : String, originPath : String, saveDir : String, process: ((NSDictionary) -> Void)?, failed: ((NSError) -> Void)?, finish: ((NSDictionary) -> Void)?) {
         if FileManager.default.fileExists(atPath: originPath) {
             var uuid = UUID().uuidString;
@@ -24,48 +49,6 @@ class MediaCompress {
                 let videoPath = saveDir + videoName
                 let videoTmpPath = saveDir + videoName + "." + tmpSuffix
                 let duration = CMTimeGetSeconds(avAsset.duration)
-                if FileManager.default.fileExists(atPath: thumbPath), let thumbImg = UIImage(contentsOfFile: thumbPath) {
-                    dictionary.setValue(thumbPath, forKey: "thumbPath")
-                    dictionary.setValue(thumbName, forKey: "thumbName")
-                    dictionary.setValue(thumbImg.size.height * thumbImg.scale, forKey: "thumbHeight")
-                    dictionary.setValue(thumbImg.size.width * thumbImg.scale, forKey: "thumbWidth")
-                }else {
-                    let gen = AVAssetImageGenerator(asset: avAsset)
-                    gen.appliesPreferredTrackTransform = true
-                    let time = CMTimeMake(value: 0, timescale: 60);
-                    var actualTime  = CMTimeMake(value: 0, timescale: 60)
-                    if let image = try? gen.copyCGImage(at: time, actualTime: &actualTime) {
-                        let thumbImg = UIImage(cgImage: image)
-                        do {
-                            try thumbImg.jpegData(compressionQuality: 0.6)?.write(to: URL(fileURLWithPath: thumbTmpPath))
-                        } catch let error as NSError {
-                            failed?(NSError(domain: error.domain, code: error.code, userInfo: [
-                                "identifier": "",
-                                "fileType":fileType,
-                                "originPath":originPath,
-                                "errorCode": "1",
-                            ]))
-                            return
-                        }
-                        do {
-                            try FileManager.default.moveItem(atPath: thumbTmpPath, toPath: thumbPath)
-                        } catch let err as NSError {
-                            print(err)
-                        }
-                        dictionary.setValue(thumbPath, forKey: "thumbPath")
-                        dictionary.setValue(thumbName, forKey: "thumbName")
-                        dictionary.setValue(thumbImg.size.height * thumbImg.scale, forKey: "thumbHeight")
-                        dictionary.setValue(thumbImg.size.width * thumbImg.scale, forKey: "thumbWidth")
-                    }else {
-                        failed?(NSError(domain: "缩略图图片拷贝失败", code: 1, userInfo: [
-                            "identifier": "",
-                            "fileType":fileType,
-                            "originPath":originPath,
-                            "errorCode": "1",
-                        ]))
-                        return
-                    }
-                }
 
                 var thumbVideoSize = CGSize.zero
                 if FileManager.default.fileExists(atPath: videoPath) {
@@ -76,7 +59,7 @@ class MediaCompress {
                         }
                     }
                 }
-                if thumbVideoSize != CGSize.zero {
+                if thumbVideoSize != CGSize.zero, let thumbInfo = self.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath) {
                     dictionary.setValue("", forKey: "identifier")
                     dictionary.setValue(originPath, forKey: "originPath")
                     dictionary.setValue(videoPath, forKey: "filePath")
@@ -85,6 +68,10 @@ class MediaCompress {
                     dictionary.setValue(videoName, forKey: "name")
                     dictionary.setValue(duration, forKey: "duration")
                     dictionary.setValue("video", forKey: "fileType")
+                    dictionary.setValue(thumbInfo.0, forKey: "thumbPath")
+                    dictionary.setValue(thumbName, forKey: "thumbName")
+                    dictionary.setValue(thumbInfo.1.height, forKey: "thumbHeight")
+                    dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
                     finish?(dictionary)
                 }else {
                     _ = LightCompressor().compressVideo(
@@ -114,6 +101,18 @@ class MediaCompress {
                                 if FileManager.default.fileExists(atPath: path.path) {
                                     do {
                                         try FileManager.default.moveItem(atPath: path.path, toPath: videoPath)
+                                        if let thumbInfo = self.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath)  {
+                                            dictionary.setValue(thumbInfo.0, forKey: "thumbPath")
+                                            dictionary.setValue(thumbName, forKey: "thumbName")
+                                            dictionary.setValue(thumbInfo.1.height, forKey: "thumbHeight")
+                                            dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
+                                        }else {
+                                            failed?(NSError(domain: "封面请求失败", code: 2, userInfo: [
+                                                "identifier": "",
+                                                "errorCode": "2"
+                                            ]))
+                                            print("compress finish but not found file")
+                                        }
                                     } catch let error as NSError{
                                         print(error)
                                     }

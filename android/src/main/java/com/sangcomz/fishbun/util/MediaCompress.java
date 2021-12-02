@@ -163,23 +163,6 @@ public class MediaCompress {
             targetParentDir.mkdirs();
         }
         File targetPic = new File(cacheDir + imgName);
-        if (targetPic.exists()) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(targetPic.getAbsolutePath(), options);
-            media.setThumbnailHeight(options.outHeight + "");
-            media.setThumbnailWidth(options.outWidth + "");
-            media.setThumbnailName(imgName);
-            media.setThumbnailPath(targetPic.getAbsolutePath());
-        }else {
-            File tmpPic = new File(cacheDir + imgName + "." + UUID.randomUUID().toString());
-            HashMap picInfo = localVideoThumb(media, tmpPic.getAbsolutePath());
-            moveFile(tmpPic, targetPic);
-            media.setThumbnailHeight((String) picInfo.get("height"));
-            media.setThumbnailWidth((String) picInfo.get("width"));
-            media.setThumbnailName(imgName);
-            media.setThumbnailPath(targetPic.getAbsolutePath());
-        }
         File targetVideo = new File(cacheDir + videoName);
         float width = Float.parseFloat(media.getThumbnailWidth());
         float height = Float.parseFloat(media.getThumbnailHeight());
@@ -213,6 +196,23 @@ public class MediaCompress {
                 info.put("errorCode", "1");
                 return info;
             }
+        }
+        if (targetPic.exists()) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(targetPic.getAbsolutePath(), options);
+            media.setThumbnailHeight(options.outHeight + "");
+            media.setThumbnailWidth(options.outWidth + "");
+            media.setThumbnailName(imgName);
+            media.setThumbnailPath(targetPic.getAbsolutePath());
+        }else {
+            File tmpPic = new File(cacheDir + imgName + "." + UUID.randomUUID().toString());
+            HashMap picInfo = localVideoThumb(targetVideo.getAbsolutePath(), tmpPic.getAbsolutePath());
+            moveFile(tmpPic, targetPic);
+            media.setThumbnailHeight((String) picInfo.get("height"));
+            media.setThumbnailWidth((String) picInfo.get("width"));
+            media.setThumbnailName(imgName);
+            media.setThumbnailPath(targetPic.getAbsolutePath());
         }
         HashMap info = new HashMap();
         info.put("identifier", media.getIdentifier());
@@ -567,12 +567,12 @@ public class MediaCompress {
                 matrix, true);
     }
 
-    public HashMap localVideoThumb(Media media, String savePath) {
+    public HashMap localVideoThumb(String videoPath, String savePath) {
         HashMap result = new HashMap();
         Bitmap bitmap = null;
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
-            retriever.setDataSource(media.getOriginPath());
+            retriever.setDataSource(videoPath);
             bitmap = retriever.getFrameAtTime(0);
             File f = new File(savePath);
             FileOutputStream out = new FileOutputStream(f);

@@ -165,24 +165,32 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 }
                 for i in offset ..< min((limit + offset), assets.count) {
                     let asset = assets[i]
-                    let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
-                    let dictionary = NSMutableDictionary()
-                    dictionary.setValue(asset.localIdentifier, forKey: "identifier")
-                    dictionary.setValue("", forKey: "filePath")
-                    dictionary.setValue(CGFloat(size.width), forKey: "width")
-                    dictionary.setValue(CGFloat(size.height), forKey: "height")
-                    dictionary.setValue(asset.originalFilename, forKey: "name")
-                    dictionary.setValue(asset.duration, forKey: "duration")
-                    if asset.mediaType == .video {
-                        dictionary.setValue("video", forKey: "fileType")
-                    }else if asset.mediaType == .image {
-                      if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
-                          dictionary.setValue("image/gif", forKey: "fileType")
-                      }else {
-                          dictionary.setValue("image/jpeg", forKey: "fileType")
-                      }
+                    asset.requestContentEditingInput(with: nil) { input, _ in
+                        let dictionary = NSMutableDictionary()
+                        let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
+                        dictionary.setValue(asset.localIdentifier, forKey: "identifier")
+                        dictionary.setValue(CGFloat(size.width), forKey: "width")
+                        dictionary.setValue(CGFloat(size.height), forKey: "height")
+                        dictionary.setValue(asset.originalFilename, forKey: "name")
+                        dictionary.setValue(asset.duration, forKey: "duration")
+                        if asset.mediaType == .video {
+                            dictionary.setValue((input?.audiovisualAsset as? AVURLAsset)?.url.path ?? "", forKey: "filePath")
+                            dictionary.setValue("video", forKey: "fileType")
+                        }else if asset.mediaType == .image {
+                            dictionary.setValue(input?.fullSizeImageURL?.path ?? "", forKey: "filePath")
+                          if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
+                              dictionary.setValue("image/gif", forKey: "fileType")
+                          }else {
+                              dictionary.setValue("image/jpeg", forKey: "fileType")
+                          }
+                        }
+                        medias.add(dictionary)
                     }
-                    medias.add(dictionary)
+                }
+                var sleepCount = 1
+                while medias.count < min((limit + offset), assets.count) - offset, sleepCount < 50 {
+                    usleep(100000)
+                    sleepCount += 1
                 }
                 result(medias)
             }

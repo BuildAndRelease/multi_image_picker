@@ -117,23 +117,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                             currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
                         }
                         currentPickerResult = result;
-                        final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
-                        int maxImages = call.argument(MAX_IMAGES);
-                        boolean thumb = call.argument(THUMB);
-                        ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
-                        selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
-                        String defaultAsset = call.argument(DEFAULT_ASSETS);
-                        defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
-
-                        String selectType = call.argument(SELECT_TYPE);
-                        selectType = TextUtils.isEmpty(selectType) ? "" : selectType;
-                        String doneButtonText = call.argument(DONE_BUTTON_TEXT);
-                        doneButtonText = TextUtils.isEmpty(doneButtonText) ? "" : doneButtonText;
-
-                        String showMediaType = call.argument(MEDIA_SHOW_TYPES);
-                        showMediaType = TextUtils.isEmpty(showMediaType) ? "" : showMediaType;
-
-                        presentPicker(maxImages, thumb, defaultAsset, doneButtonText, selectType, showMediaType, selectMedias, options);
+                        presentPicker(call);
                     }else {
                         if (currentPickerResult != null) {
                             currentPickerResult.error(PERMISSIONERROR, PERMISSIONDESC, null);
@@ -325,7 +309,23 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                 url.substring(dotIndex + 1, url.length()) : "";
     }
 
-    private void presentPicker(int maxImages, boolean thumb, String defaultAsset, String doneButtonText, String selectType, String showType, ArrayList<String> selectMedias, HashMap<String, String> options) {
+    private void presentPicker(MethodCall call) {
+        final HashMap<String, String> options = call.argument(ANDROID_OPTIONS);
+        int maxImages = call.argument(MAX_IMAGES);
+        String thumb = call.argument(THUMB);
+        ArrayList<String> selectMedias = call.argument(SELECTED_ASSETS);
+        selectMedias = selectMedias == null ? new ArrayList<String>() : selectMedias;
+        String defaultAsset = call.argument(DEFAULT_ASSETS);
+        defaultAsset = TextUtils.isEmpty(defaultAsset) ? "" : defaultAsset;
+
+        String selectType = call.argument(SELECT_TYPE);
+        selectType = TextUtils.isEmpty(selectType) ? "" : selectType;
+        String doneButtonText = call.argument(DONE_BUTTON_TEXT);
+        doneButtonText = TextUtils.isEmpty(doneButtonText) ? "" : doneButtonText;
+
+        String showMediaType = call.argument(MEDIA_SHOW_TYPES);
+        showMediaType = TextUtils.isEmpty(showMediaType) ? "" : showMediaType;
+
         String actionBarTitle = options.get("actionBarTitle");
         String allViewTitle =  options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
@@ -337,11 +337,12 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
         FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
                 .setImageAdapter(new GlideAdapter())
                 .setMaxCount(maxImages)
-                .setThumb(thumb)
+                .setThumb(thumb.equalsIgnoreCase("thumb"))
+                .setHiddenThumb(thumb.equalsIgnoreCase("file"))
                 .setPreSelectMedia(defaultAsset)
                 .setPreSelectMedias(selectMedias)
                 .setRequestCode(REQUEST_CODE_CHOOSE)
-                .setShowMediaType(showType)
+                .setShowMediaType(showMediaType)
                 .setSelectType(selectType)
                 .setDoneButtonText(doneButtonText);
 

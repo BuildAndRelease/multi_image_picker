@@ -230,6 +230,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
         compressingTextView = findViewById(R.id.compressing_text_view);
 
         originBtn = findViewById(R.id.photo_picker_origin_btn);
+        originBtn.setVisibility(fishton.getHiddenThumb() ? View.INVISIBLE : View.VISIBLE);
         Drawable drawable;
         if (fishton.isThumb()) {
             drawable = getResources().getDrawable(R.drawable.ic_baseline_radio_button_unchecked_24);

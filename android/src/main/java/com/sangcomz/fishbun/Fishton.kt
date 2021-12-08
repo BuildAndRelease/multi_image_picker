@@ -29,6 +29,7 @@ class Fishton {
     var preSelectedMedias = ArrayList<String>()
     var preSelectedMedia = ""
     var isThumb : Boolean = true
+    var hiddenThumb : Boolean = false
     var selectType : String = ""
     var showMediaType : String = ""
     var doneButtonText : String = ""

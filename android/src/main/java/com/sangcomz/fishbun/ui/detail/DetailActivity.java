@@ -110,6 +110,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         sendBtn.setBackground(sendDrawable);
 
         originBtn.setSelected(!fishton.isThumb());
+        originBtn.setVisibility(fishton.getHiddenThumb() ? View.INVISIBLE : View.VISIBLE);
         Drawable drawable;
         if (fishton.isThumb()) {
             drawable = getResources().getDrawable(R.drawable.ic_baseline_radio_button_unchecked_24);

@@ -107,6 +107,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         originBarButton.isSelected = !settings.thumb
         originBarButton.circleRadius = 8.0
         originBarButton.circleColor = settings.selectionStrokeColor
+        originBarButton.isHidden = settings.hiddenThumb
         originBarButton.center = CGPoint(x: bottomContentView.bounds.size.width/2.0, y: bottomContentView.bounds.size.height/2.0)
         originBarButton.addTarget(self, action: #selector(PhotosViewController.originButtonPressed(_:)), for: .touchUpInside)
         originBarButton.translatesAutoresizingMaskIntoConstraints = false

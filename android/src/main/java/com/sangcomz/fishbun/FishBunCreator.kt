@@ -18,6 +18,10 @@ class FishBunCreator(private val fishBun: FishBun, private val fishton: Fishton)
         fishton.isThumb = thumb;
     }
 
+    fun setHiddenThumb(hiddenThumb: Boolean): FishBunCreator = this.apply {
+        fishton.hiddenThumb = hiddenThumb;
+    }
+
     fun setPreSelectMedias(preSelectMedias: ArrayList<String>): FishBunCreator = this.apply {
         fishton.preSelectedMedias = preSelectMedias
     }

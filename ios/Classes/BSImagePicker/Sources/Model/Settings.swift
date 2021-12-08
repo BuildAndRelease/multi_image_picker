@@ -29,6 +29,7 @@ final class Settings {
     var selectType: String = ""
     var doneButtonText: String = ""
     var thumb: Bool = true
+    var hiddenThumb: Bool = false
     var maxHeightOfImage: Int = 1024
     var maxWidthOfImage: Int = 768
     var qualityOfThumb: CGFloat = 100

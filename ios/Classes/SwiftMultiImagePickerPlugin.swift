@@ -254,7 +254,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let options = (arguments["iosOptions"] as? Dictionary<String, String>) ?? Dictionary<String, String>()
             let defaultAsset = (arguments["defaultAsset"] as? String) ?? ""
             let selectedAssets = (arguments["selectedAssets"] as? Array<String>) ?? [];
-            let thumb = (arguments["thumb"] as? Bool) ?? true
+            let thumb = (arguments["thumb"] as? String) ?? ""
             let selectType = (arguments["mediaSelectTypes"] as? String) ?? ""
             let showType = (arguments["mediaShowTypes"] as? String) ?? ""
             let doneButtonText = (arguments["doneButtonText"] as? String) ?? ""
@@ -262,7 +262,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             DataCenter.shared.resetAllData()
             let settings = DataCenter.shared.settings
             settings.maxNumberOfSelections = maxImages
-            settings.thumb = thumb
+            settings.thumb = thumb.lowercased() == "thumb"
+            settings.hiddenThumb = thumb.lowercased() == "file"
             settings.selectType = selectType
             settings.doneButtonText = doneButtonText
 

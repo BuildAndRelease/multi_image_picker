@@ -110,6 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
         defaultAsset: null,
         selectedAssets: null,
         doneButtonText: "下一步",
+        thumbType: FBMediaThumbType.file,
         mediaShowType: FBMediaShowType.all,
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",

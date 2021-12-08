@@ -88,6 +88,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         
         originBarButton.frame = CGRect(x: 60, y: 0, width: 100, height: 50)
         originBarButton.setTitle(originBarButtonTitle, for: .normal)
+        originBarButton.isHidden = settings.hiddenThumb
         originBarButton.isSelected = !settings.thumb
         originBarButton.circleRadius = 8.0
         originBarButton.circleColor = settings.selectionStrokeColor

@@ -7,44 +7,12 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 
 enum FBMediaShowType { image, video, all }
 enum FBMediaSelectType { all, video, image, singleType }
+enum FBMediaThumbType { origin, thumb, file }
 
 class MultiImagePicker {
   static const MethodChannel _channel =
       const MethodChannel('multi_image_picker');
   static final Map<String, Uint8List> _cacheThumbData = Map();
-
-  // 弹出原生选择界面,返回选择的媒体信息
-  static Future<Map<dynamic, dynamic>> pickImages({
-    int maxImages = 9,
-    bool thumb = true,
-    String defaultAsset = "",
-    FBMediaSelectType mediaSelectType = FBMediaSelectType.all,
-    List<String> selectedAssets = const [],
-    String doneButtonText = '',
-    FBMediaShowType mediaShowType = FBMediaShowType.all,
-    CupertinoOptions cupertinoOptions = const CupertinoOptions(),
-    MaterialOptions materialOptions = const MaterialOptions(),
-  }) async {
-    try {
-      final Map<dynamic, dynamic> medias = await _channel.invokeMethod(
-        'pickImages',
-        <String, dynamic>{
-          'maxImages': maxImages,
-          'thumb': thumb,
-          'mediaSelectTypes': _mediaSelectTypeToString(mediaSelectType),
-          'doneButtonText': doneButtonText,
-          'iosOptions': cupertinoOptions.toJson(),
-          'androidOptions': materialOptions.toJson(),
-          'defaultAsset': defaultAsset,
-          'mediaShowTypes': _mediaShowTypeToString(mediaShowType),
-          'selectedAssets': selectedAssets,
-        },
-      );
-      return medias;
-    } on PlatformException catch (e) {
-      throw e;
-    }
-  }
 
   static String _mediaShowTypeToString(FBMediaShowType type) {
     switch (type) {
@@ -71,6 +39,52 @@ class MultiImagePicker {
         return "selectSingleType";
       default:
         return "";
+    }
+  }
+
+  static String _mediaThumbTypeToString(FBMediaThumbType type) {
+    switch (type) {
+      case FBMediaThumbType.thumb:
+        return "thumb";
+      case FBMediaThumbType.origin:
+        return "origin";
+      case FBMediaThumbType.file:
+        return "file";
+      default:
+        return "";
+    }
+  }
+
+  // 弹出原生选择界面,返回选择的媒体信息
+  static Future<Map<dynamic, dynamic>> pickImages({
+    int maxImages = 9,
+    FBMediaThumbType thumbType = FBMediaThumbType.thumb,
+    String defaultAsset = "",
+    FBMediaSelectType mediaSelectType = FBMediaSelectType.all,
+    List<String> selectedAssets = const [],
+    String doneButtonText = '',
+    FBMediaShowType mediaShowType = FBMediaShowType.all,
+    CupertinoOptions cupertinoOptions = const CupertinoOptions(),
+    MaterialOptions materialOptions = const MaterialOptions(),
+  }) async {
+    try {
+      final Map<dynamic, dynamic> medias = await _channel.invokeMethod(
+        'pickImages',
+        <String, dynamic>{
+          'maxImages': maxImages,
+          'thumb': _mediaThumbTypeToString(thumbType),
+          'mediaSelectTypes': _mediaSelectTypeToString(mediaSelectType),
+          'doneButtonText': doneButtonText,
+          'iosOptions': cupertinoOptions.toJson(),
+          'androidOptions': materialOptions.toJson(),
+          'defaultAsset': defaultAsset,
+          'mediaShowTypes': _mediaShowTypeToString(mediaShowType),
+          'selectedAssets': selectedAssets,
+        },
+      );
+      return medias;
+    } on PlatformException catch (e) {
+      throw e;
     }
   }
 

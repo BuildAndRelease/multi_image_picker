@@ -378,7 +378,7 @@ public class MediaCompress {
                         imageWidth = 100000000 / pixel * imageWidth;
                     }
                     if (thumb) {
-                        if (fileSize > 30 * 1024 * 1024 || pixel > 100000000) {
+                        if (fileSize > 30 * 1024 * 1024 || fileSize <= 300 * 1024 || pixel > 100000000) {
                             compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
                         }else {
                             List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();

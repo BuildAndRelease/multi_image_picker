@@ -112,18 +112,23 @@ public class DisplayImage {
                 + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
         Cursor c;
-        if ("0".equals(bucketId)) {
-            if (fetchSpecialPhotos) {
-                selection = "(" + selection + ") AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
+        try {
+            if ("0".equals(bucketId)) {
+                if (fetchSpecialPhotos) {
+                    selection = "(" + selection + ") AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
+                }
+                c = resolver.query(mediaUri, null, selection, null, sort);
+            }else {
+                selection = "(" + selection + ") AND " + MediaStore.MediaColumns.BUCKET_ID + " = ?";
+                if (fetchSpecialPhotos) {
+                    selection = selection + " AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
+                }
+                String[] selectionArgs = {bucketId};
+                c = resolver.query(mediaUri, null, selection, selectionArgs, sort);
             }
-            c = resolver.query(mediaUri, null, selection, null, sort);
-        }else {
-            selection = "(" + selection + ") AND " + MediaStore.MediaColumns.BUCKET_ID + " = ?";
-            if (fetchSpecialPhotos) {
-                selection = selection + " AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
-            }
-            String[] selectionArgs = {bucketId};
-            c = resolver.query(mediaUri, null, selection, selectionArgs, sort);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList();
         }
         ArrayList medias = new ArrayList<>();
         if (c != null) {

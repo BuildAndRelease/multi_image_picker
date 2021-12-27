@@ -112,6 +112,9 @@ extension PHAsset {
                         dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
                         finish?(dictionary)
                     }else {
+                        MediaCompress.removeFileIfNeed(path: videoPath)
+                        MediaCompress.removeFileIfNeed(path: thumbPath)
+                       
                         _ = LightCompressor().compressVideo(
                             source: avAsset!,
                             destination: URL(fileURLWithPath: videoTmpPath),

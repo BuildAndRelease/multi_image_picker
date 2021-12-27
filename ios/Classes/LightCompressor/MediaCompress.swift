@@ -9,6 +9,15 @@ import Foundation
 import AVFoundation
 
 class MediaCompress {
+    class func removeFileIfNeed(path: String){
+        if FileManager.default.fileExists(atPath: path) {
+            do {
+                try FileManager.default.removeItem(atPath: path)
+            } catch let err as NSError {
+                print(err)
+            }
+        }
+    }
     
     func fetchThumbFromVideo(thumbPath : String, thumbTmpPath : String, videoPath : String) -> (String, CGSize)? {
         if FileManager.default.fileExists(atPath: thumbPath), let thumbImg = UIImage(contentsOfFile: thumbPath) {
@@ -74,6 +83,9 @@ class MediaCompress {
                     dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
                     finish?(dictionary)
                 }else {
+                    MediaCompress.removeFileIfNeed(path: videoPath)
+                    MediaCompress.removeFileIfNeed(path: thumbPath)
+                    
                     _ = LightCompressor().compressVideo(
                         source: avAsset,
                         destination: URL(fileURLWithPath: videoTmpPath),

@@ -164,7 +164,9 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         @Override
                         public void OnDisplayImageDidSelectFinish(ArrayList medias) {
                             if (medias.size() > 0) {
-                                result.success(medias.get(0));
+                                HashMap hashMap = new HashMap();
+                                hashMap.put("filePath", ((HashMap) medias.get(0)).get("filePath"));
+                                result.success(hashMap);
                             }else {
                                 result.error(GETFAILD, GETFAILD, "get media failed");
                             }

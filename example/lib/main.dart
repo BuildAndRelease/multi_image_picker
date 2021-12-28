@@ -148,12 +148,12 @@ class _MyHomePageState extends State<MyHomePage> {
       final List<String> identifers = [];
       result['identifiers']
           .forEach((element) => identifers.add(element.toString()));
-      // final assets = await MultiImagePicker.requestMediaData(
-      //     selectedAssets: identifers, thumb: result['thumb']);
-      // for (var item in assets) {
-      //   print(item.filePath);
-      //   print(item.checkPath);
-      // }
+      final assets = await MultiImagePicker.requestMediaData(
+          selectedAssets: identifers, thumb: result['thumb']);
+      for (var item in assets) {
+        print(item.filePath);
+        print(item.checkPath);
+      }
 
       // final dir = await MultiImagePicker.requestThumbDirectory();
 
@@ -194,15 +194,11 @@ class _MyHomePageState extends State<MyHomePage> {
       // print(resultList[4].toJsonMap());
 
       // await MultiImagePicker.fetchMediaInfo(50, 31);
-      MultiImagePicker.fetchMediaInfo(0, 10, selectedAssets: identifers)
-          .then((value) {
-        print(value.first.filePath);
-        for (var item in value) {
-          final file = File(item.filePath);
-          print("length ${file.lengthSync()} ");
-        }
-        print('123');
-      });
+      // MultiImagePicker.fetchMediaInfo(0, 10, selectedAssets: list)
+      //     .then((value) {
+      //   print(value);
+      //   print('123');
+      // });
 
       // for (var item in list) {
       //   print(await MultiImagePicker.requestFileDimen(item));

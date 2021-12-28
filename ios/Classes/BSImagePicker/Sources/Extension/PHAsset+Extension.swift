@@ -144,8 +144,6 @@ extension PHAsset {
                         dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
                         finish?(dictionary)
                     }else {
-                        PHAsset.removeFileIfNeed(path: videoPath)
-                        PHAsset.removeFileIfNeed(path: thumbPath)
                         _ = LightCompressor().compressVideo(
                             source: avAsset!,
                             destination: URL(fileURLWithPath: videoTmpPath),
@@ -171,6 +169,8 @@ extension PHAsset {
                                 case .onSuccess(let path, let size):
                                     if FileManager.default.fileExists(atPath: path.path) {
                                         do {
+                                            PHAsset.removeFileIfNeed(path: videoPath)
+                                            PHAsset.removeFileIfNeed(path: thumbPath)
                                             try FileManager.default.moveItem(atPath: path.path, toPath: videoPath)
                                             if  let thumbInfo = PHAsset.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath)  {
                                                 dictionary.setValue(thumbInfo.0, forKey: "thumbPath")

@@ -165,6 +165,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 let through = resultCount - offset - limit
                 if from >= 0, from >= through {
                     for i in stride(from: from, through:max(through, 0), by:-1)  {
+                        if (i >= resultCount || i < 0) {continue}
                         let asset = fetchResult.object(at: i)
                         let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
                         let dictionary = NSMutableDictionary()

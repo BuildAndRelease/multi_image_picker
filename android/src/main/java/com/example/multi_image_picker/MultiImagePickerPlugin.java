@@ -47,6 +47,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String REQUEST_MEDIA_DATA = "requestMediaData";
     private static final String REQUEST_COMPRESS_MEDIA = "requestCompressMedia";
     private static final String REQUEST_TAKE_PICTURE = "requestTakePicture";
+    private static final String REQUEST_FILE_PATH = "requestFilePath";
     private static final String REQUEST_FILE_SIZE = "requestFileSize";
     private static final String REQUEST_FILE_DIMEN = "requestFileDimen";
     private static final String REQUEST_THUMB_DIRECTORY = "requestThumbDirectory";
@@ -67,6 +68,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String THEME_COLOR = "themeColor";
     private static final String PERMISSIONERROR = "PERMISSION_PERMANENTLY_DENIED";
     private static final String PERMISSIONDESC = "NO PERMISSION";
+    private static final String GETFAILD = "GET FAILED";
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private static final int REQUEST_CODE_TAKE = 1002;
     private final Activity activity;
@@ -149,6 +151,26 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                     }else {
                         result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
+                    break;
+                }
+                case REQUEST_FILE_PATH:{
+                    String identify = call.argument(IDENTIFY);
+                    ArrayList<String> selectMedias = new ArrayList<>();
+                    selectMedias.add(identify);
+                    DisplayImage displayImage = new DisplayImage((long) 0, selectMedias, "all", activity);
+                    displayImage.setRequestHashMap(true);
+                    displayImage.setRequestVideoDimen(false);
+                    displayImage.setListener(new DisplayImage.DisplayImageListener() {
+                        @Override
+                        public void OnDisplayImageDidSelectFinish(ArrayList medias) {
+                            if (medias.size() > 0) {
+                                result.success(medias.get(0));
+                            }else {
+                                result.error(GETFAILD, GETFAILD, "get media failed");
+                            }
+                        }
+                    });
+                    displayImage.execute();
                     break;
                 }
                 case REQUEST_TAKE_PICTURE: {

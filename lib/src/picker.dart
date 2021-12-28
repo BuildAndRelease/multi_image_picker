@@ -242,6 +242,16 @@ class MultiImagePicker {
     }
   }
 
+  //获取图片视频的源文件路径
+  static Future<dynamic> requestFilePath(String identifier) async {
+    try {
+      return await _channel.invokeMethod(
+          'requestFilePath', <String, dynamic>{'identifier': identifier});
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   //获取压缩文件存放的目录
   static Future<String> requestThumbDirectory() async {
     try {

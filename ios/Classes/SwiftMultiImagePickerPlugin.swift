@@ -149,12 +149,9 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: fetchOptions)
                 let fetchResult = selectedAssets.count > 0 ? PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil) :
                     (cameraRollResult.firstObject != nil ? PHAsset.fetchAssets(in: cameraRollResult.firstObject!, options: nil) : PHAsset.fetchAssets(with: nil))
-                var assets : Array<PHAsset> = []
-                fetchResult.enumerateObjects(options: [.reverse]) { (asset, index, pt) in
-                    assets.append(asset)
-                }
+                let resultCount = fetchResult.count;
                 if limit == -1, offset == -1 {
-                    limit = assets.count
+                    limit = resultCount
                     offset = 0
                 }else if limit < -1 {
                     result(FlutterError(code: "PARAM ERROR", message: "limit must cannot be \(limit)", details: nil))
@@ -163,8 +160,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     result(FlutterError(code: "PARAM ERROR", message: "offset must cannot be \(offset)", details: nil))
                     return
                 }
-                for i in offset ..< min((limit + offset), assets.count) {
-                    let asset = assets[i]
+                for i in offset ..< min((limit + offset), resultCount) {
+                    let asset = fetchResult.object(at: i)
                     let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
                     let dictionary = NSMutableDictionary()
                     dictionary.setValue(asset.localIdentifier, forKey: "identifier")
@@ -208,6 +205,24 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             }
         case "requestThumbDirectory":
             result((NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last ?? NSTemporaryDirectory()) + "/multi_image_pick/thumb/")
+        case "requestFilePath":
+            let arguments = call.arguments as! Dictionary<String, AnyObject>
+            let localIdentifier = (arguments["identifier"] as? String) ?? ""
+            DispatchQueue.global().async {
+                if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject {
+                    asset.requestContentEditingInput(with: nil) { input, _ in
+                        if asset.mediaType == .video {
+                            result(["filePath" : (input?.audiovisualAsset as? AVURLAsset)?.url.path ?? ""])
+                        }else if asset.mediaType == .image {
+                            result(["filePath" : input?.fullSizeImageURL?.path ?? ""])
+                        }else {
+                            result(FlutterError(code: "ASSET TYPE", message: "asset type failed \(localIdentifier)", details: nil))
+                        }
+                    }
+                }else {
+                    result(FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
+                }
+            }
         case "requestTakePicture":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
             let themeColor = (arguments["themeColor"] as? String) ?? "#ff6179f2"

@@ -148,12 +148,14 @@ class _MyHomePageState extends State<MyHomePage> {
       final List<String> identifers = [];
       result['identifiers']
           .forEach((element) => identifers.add(element.toString()));
-      final assets = await MultiImagePicker.requestMediaData(
-          selectedAssets: identifers, thumb: result['thumb']);
-      for (var item in assets) {
-        print(item.filePath);
-        print(item.checkPath);
-      }
+      final result1 =
+          await MultiImagePicker.requestFilePath(identifers[0].toString());
+      print(result1);
+      // final result = await MultiImagePicker.
+      // for (var item in assets) {
+      //   print(item.filePath);
+      //   print(item.checkPath);
+      // }
 
       // final dir = await MultiImagePicker.requestThumbDirectory();
 

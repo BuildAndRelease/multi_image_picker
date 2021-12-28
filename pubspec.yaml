@@ -1,11 +1,11 @@
 name: multi_image_picker
 description: A new flutter plugin project.
-version: 0.0.1+1
+version: 2.0.0
 author:
 homepage:
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:

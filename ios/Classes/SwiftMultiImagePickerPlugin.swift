@@ -378,8 +378,4 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
         }
     
     }
-    
-    public func alertView(_ alertView: UIAlertView, didDismissWithButtonIndex buttonIndex: Int) {
-        UIApplication.shared.openURL(URL(string: UIApplication.openSettingsURLString)!)
-    }
 }

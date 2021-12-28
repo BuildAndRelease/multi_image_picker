@@ -8,6 +8,7 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 enum FBMediaShowType { image, video, all }
 enum FBMediaSelectType { all, video, image, singleType }
 enum FBMediaThumbType { origin, thumb, file }
+const CachedImageCount = 50;
 
 class MultiImagePicker {
   static const MethodChannel _channel =
@@ -287,7 +288,7 @@ class MultiImagePicker {
               'fileType': fileType
             }) ??
             Uint8List(0);
-        if (_cacheThumbData.length > 500) {
+        if (_cacheThumbData.length > CachedImageCount) {
           _cacheThumbData.remove(_cacheThumbData.keys.first);
         }
         _cacheThumbData[identifier] = data;

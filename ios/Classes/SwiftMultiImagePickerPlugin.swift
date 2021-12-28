@@ -160,26 +160,31 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     result(FlutterError(code: "PARAM ERROR", message: "offset must cannot be \(offset)", details: nil))
                     return
                 }
-                for i in offset ..< min((limit + offset), resultCount) {
-                    let asset = fetchResult.object(at: i)
-                    let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
-                    let dictionary = NSMutableDictionary()
-                    dictionary.setValue(asset.localIdentifier, forKey: "identifier")
-                    dictionary.setValue("", forKey: "filePath")
-                    dictionary.setValue(CGFloat(size.width), forKey: "width")
-                    dictionary.setValue(CGFloat(size.height), forKey: "height")
-                    dictionary.setValue(asset.originalFilename, forKey: "name")
-                    dictionary.setValue(asset.duration, forKey: "duration")
-                    if asset.mediaType == .video {
-                        dictionary.setValue("video", forKey: "fileType")
-                    }else if asset.mediaType == .image {
-                      if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
-                          dictionary.setValue("image/gif", forKey: "fileType")
-                      }else {
-                          dictionary.setValue("image/jpeg", forKey: "fileType")
-                      }
+//                fetchResult不能倒序，所以在for循环的时候倒序
+                let from = resultCount - offset - 1
+                let through = resultCount - offset - limit
+                if from >= 0, from >= through {
+                    for i in stride(from: from, through:max(through, 0), by:-1)  {
+                        let asset = fetchResult.object(at: i)
+                        let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
+                        let dictionary = NSMutableDictionary()
+                        dictionary.setValue(asset.localIdentifier, forKey: "identifier")
+                        dictionary.setValue("", forKey: "filePath")
+                        dictionary.setValue(CGFloat(size.width), forKey: "width")
+                        dictionary.setValue(CGFloat(size.height), forKey: "height")
+                        dictionary.setValue(asset.originalFilename, forKey: "name")
+                        dictionary.setValue(asset.duration, forKey: "duration")
+                        if asset.mediaType == .video {
+                            dictionary.setValue("video", forKey: "fileType")
+                        }else if asset.mediaType == .image {
+                          if let uti = asset.value(forKey: "uniformTypeIdentifier"), uti is String, (uti as! String).contains("gif") {
+                              dictionary.setValue("image/gif", forKey: "fileType")
+                          }else {
+                              dictionary.setValue("image/jpeg", forKey: "fileType")
+                          }
+                        }
+                        medias.add(dictionary)
                     }
-                    medias.add(dictionary)
                 }
                 result(medias)
             }

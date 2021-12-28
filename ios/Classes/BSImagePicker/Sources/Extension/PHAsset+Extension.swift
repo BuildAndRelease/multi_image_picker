@@ -16,7 +16,6 @@ extension PHAsset {
                 let imageSizeByte = resource.first?.value(forKey: "fileSize") as? Double ?? 0
                 return imageSizeByte
             } else {
-                // Fallback on earlier versions
                 return 5.0
             }
         }
@@ -37,7 +36,17 @@ extension PHAsset {
         return fname
     }
     
-    func fetchThumbFromVideo(thumbPath : String, thumbTmpPath : String, videoPath : String) -> (String, CGSize)? {
+    class func removeFileIfNeed(path: String){
+        if FileManager.default.fileExists(atPath: path) {
+            do {
+                try FileManager.default.removeItem(atPath: path)
+            } catch let err as NSError {
+                print(err)
+            }
+        }
+    }
+    
+    class func fetchThumbFromVideo(thumbPath : String, thumbTmpPath : String, videoPath : String) -> (String, CGSize)? {
         if FileManager.default.fileExists(atPath: thumbPath), let thumbImg = UIImage(contentsOfFile: thumbPath) {
             return (thumbPath, CGSize(width: thumbImg.size.width * thumbImg.scale, height: thumbImg.size.height * thumbImg.scale))
         }else {
@@ -58,6 +67,29 @@ extension PHAsset {
             }else {
                 return nil
             }
+        }
+    }
+    
+    class func contentTypeForImageData(data : NSData) -> String {
+        var value : UInt8 = 0
+        if data.count > 1 {
+            data.getBytes(&value, length: 1)
+            switch (value) {
+            case 0xFF:
+                return "image/jpeg";
+            case 0x89:
+                return "image/png";
+            case 0x47:
+                return "image/gif";
+            case 0x49:
+                fallthrough
+            case 0x4D:
+                return "image/tiff";
+            default:
+                return ""
+            }
+        }else {
+            return ""
         }
     }
     
@@ -98,7 +130,7 @@ extension PHAsset {
                             }
                         }
                     }
-                    if thumbVideoSize != CGSize.zero, let thumbInfo = self.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath) {
+                    if thumbVideoSize != CGSize.zero, let thumbInfo = PHAsset.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath) {
                         dictionary.setValue(self.localIdentifier, forKey: "identifier")
                         dictionary.setValue(videoPath, forKey: "filePath")
                         dictionary.setValue(thumbVideoSize.width, forKey: "width")
@@ -112,9 +144,8 @@ extension PHAsset {
                         dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
                         finish?(dictionary)
                     }else {
-                        MediaCompress.removeFileIfNeed(path: videoPath)
-                        MediaCompress.removeFileIfNeed(path: thumbPath)
-                       
+                        PHAsset.removeFileIfNeed(path: videoPath)
+                        PHAsset.removeFileIfNeed(path: thumbPath)
                         _ = LightCompressor().compressVideo(
                             source: avAsset!,
                             destination: URL(fileURLWithPath: videoTmpPath),
@@ -141,7 +172,7 @@ extension PHAsset {
                                     if FileManager.default.fileExists(atPath: path.path) {
                                         do {
                                             try FileManager.default.moveItem(atPath: path.path, toPath: videoPath)
-                                            if  let thumbInfo = self.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath)  {
+                                            if  let thumbInfo = PHAsset.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath)  {
                                                 dictionary.setValue(thumbInfo.0, forKey: "thumbPath")
                                                 dictionary.setValue(thumbName, forKey: "thumbName")
                                                 dictionary.setValue(thumbInfo.1.height, forKey: "thumbHeight")
@@ -204,60 +235,54 @@ extension PHAsset {
                     ])
                 }else{
                     if FileManager.default.fileExists(atPath: filePath) {
-                        do {
-                            try FileManager.default.removeItem(atPath: filePath)
-                        } catch let err as NSError {
-                            print(err)
-                        }
+                        PHAsset.removeFileIfNeed(path: filePath)
                     }
                     if FileManager.default.fileExists(atPath: checkPath) {
-                        do {
-                            try FileManager.default.removeItem(atPath: checkPath)
-                        } catch let err as NSError {
-                            print(err)
-                        }
+                        PHAsset.removeFileIfNeed(path: checkPath)
                     }
                     manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
-                        do {
-                            if let file = data {
-                                var resultData = try ImageCompress.compressImageData(file as Data, sampleCount: 1)
-                                resultData = (resultData.count > file.count + 500 * 1024) ? file : resultData
-                                try resultData.write(to: URL(fileURLWithPath: fileTmpPath))
-                                let checkData = try ImageCompress.compressImageData(file as Data, sampleCount: 24)
-                                try checkData.write(to: URL(fileURLWithPath: checkPath))
-                                do {
-                                    try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
-                                }catch let err as NSError {
-                                    print(err)
-                                }
-                                if FileManager.default.fileExists(atPath: filePath) {
-                                    finish?([
-                                        "identifier": self.localIdentifier,
-                                        "filePath":filePath,
-                                        "checkPath":checkPath,
-                                        "width": targetWidth,
-                                        "height": targetHeight,
-                                        "name": fileName,
-                                        "fileType":"image/gif"
-                                    ])
+                        DispatchQueue.global().async {
+                            do {
+                                if let file = data {
+                                    var resultData = try ImageCompress.compressImageData(file as Data, sampleCount: 1)
+                                    resultData = (resultData.count > file.count + 500 * 1024) ? file : resultData
+                                    try resultData.write(to: URL(fileURLWithPath: fileTmpPath))
+                                    let checkData = try ImageCompress.compressImageData(file as Data, sampleCount: 24)
+                                    try checkData.write(to: URL(fileURLWithPath: checkPath))
+                                    do {
+                                        try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
+                                    }catch let err as NSError {
+                                        print(err)
+                                    }
+                                    if FileManager.default.fileExists(atPath: filePath) {
+                                        finish?([
+                                            "identifier": self.localIdentifier,
+                                            "filePath":filePath,
+                                            "checkPath":checkPath,
+                                            "width": targetWidth,
+                                            "height": targetHeight,
+                                            "name": fileName,
+                                            "fileType":"image/gif"
+                                        ])
+                                    }else {
+                                        failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
+                                            "identifier": self.localIdentifier,
+                                            "errorCode": "3"
+                                        ]))
+                                    }
                                 }else {
-                                    failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
+                                    failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
                                         "identifier": self.localIdentifier,
-                                        "errorCode": "3"
+                                        "errorCode": "2"
                                     ]))
                                 }
-                            }else {
+                            }catch let err as NSError {
+                                print(err)
                                 failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
                                     "identifier": self.localIdentifier,
                                     "errorCode": "2"
                                 ]))
                             }
-                        }catch let err as NSError {
-                            print(err)
-                            failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
-                                "identifier": self.localIdentifier,
-                                "errorCode": "2"
-                            ]))
                         }
                     }
                 }
@@ -277,68 +302,76 @@ extension PHAsset {
                         "fileType":"image/jpeg"
                     ])
                 }else {
+                    if FileManager.default.fileExists(atPath: filePath) {
+                        PHAsset.removeFileIfNeed(path: filePath)
+                    }
+                    if FileManager.default.fileExists(atPath: checkPath) {
+                        PHAsset.removeFileIfNeed(path: checkPath)
+                    }
                     let pixel = targetWidth * targetHeight
                     if pixel > 100000000 {
                         targetWidth = 100000000 / pixel * targetWidth
                         targetHeight = 100000000 / pixel * targetHeight
                     }
                     manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
-                        if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {
-                            if thumb {
-                                imageData.write(toFile: fileTmpPath, atomically: true)
-                                if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
-                                    checkImageData.write(toFile: checkPath, atomically: true)
+                        DispatchQueue.global().async {
+                            if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {
+                                if thumb {
+                                    imageData.write(toFile: fileTmpPath, atomically: true)
+                                    if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
+                                        checkImageData.write(toFile: checkPath, atomically: true)
+                                    }
+                                    
+                                    do {
+                                        try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
+                                    } catch let err as NSError {
+                                        print(err)
+                                    }
+                                    if FileManager.default.fileExists(atPath: filePath) {
+                                        finish?([
+                                            "identifier": self.localIdentifier,
+                                            "filePath":filePath,
+                                            "width": targetWidth,
+                                            "height": targetHeight,
+                                            "checkPath": FileManager.default.fileExists(atPath: checkPath) ? checkPath : filePath,
+                                            "name": fileName,
+                                            "fileType":"image/jpeg"
+                                        ])
+                                    }else {
+                                        failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
+                                            "identifier": self.localIdentifier,
+                                            "errorCode": "3"
+                                        ]))
+                                    }
+                                } else {
+                                    imageData.write(toFile: filePath, atomically: true)
+                                    if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
+                                        checkImageData.write(toFile: checkPath, atomically: true)
+                                    }
+                                    
+                                    if FileManager.default.fileExists(atPath: filePath) {
+                                        finish?([
+                                            "identifier": self.localIdentifier,
+                                            "filePath":filePath,
+                                            "width": targetWidth,
+                                            "height": targetHeight,
+                                            "checkPath": FileManager.default.fileExists(atPath: checkPath) ? checkPath : filePath,
+                                            "name": fileName,
+                                            "fileType":"image/jpeg"
+                                        ])
+                                    }else {
+                                        failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
+                                            "identifier": self.localIdentifier,
+                                            "errorCode": "3"
+                                        ]))
+                                    }
                                 }
-                                
-                                do {
-                                    try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
-                                } catch let err as NSError {
-                                    print(err)
-                                }
-                                if FileManager.default.fileExists(atPath: filePath) {
-                                    finish?([
-                                        "identifier": self.localIdentifier,
-                                        "filePath":filePath,
-                                        "width": targetWidth,
-                                        "height": targetHeight,
-                                        "checkPath": FileManager.default.fileExists(atPath: checkPath) ? checkPath : filePath,
-                                        "name": fileName,
-                                        "fileType":"image/jpeg"
-                                    ])
-                                }else {
-                                    failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
-                                        "identifier": self.localIdentifier,
-                                        "errorCode": "3"
-                                    ]))
-                                }
-                            } else {
-                                imageData.write(toFile: filePath, atomically: true)
-                                if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
-                                    checkImageData.write(toFile: checkPath, atomically: true)
-                                }
-                                
-                                if FileManager.default.fileExists(atPath: filePath) {
-                                    finish?([
-                                        "identifier": self.localIdentifier,
-                                        "filePath":filePath,
-                                        "width": targetWidth,
-                                        "height": targetHeight,
-                                        "checkPath": FileManager.default.fileExists(atPath: checkPath) ? checkPath : filePath,
-                                        "name": fileName,
-                                        "fileType":"image/jpeg"
-                                    ])
-                                }else {
-                                    failed?(NSError(domain: "图片保存失败", code: 3, userInfo: [
-                                        "identifier": self.localIdentifier,
-                                        "errorCode": "3"
-                                    ]))
-                                }
+                            }else {
+                                failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
+                                    "identifier": self.localIdentifier,
+                                    "errorCode": "2"
+                                ]))
                             }
-                        }else {
-                            failed?(NSError(domain: "图片请求失败", code: 2, userInfo: [
-                                "identifier": self.localIdentifier,
-                                "errorCode": "2"
-                            ]))
                         }
                     })
                 }

@@ -46,6 +46,23 @@ extension PHAsset {
         }
     }
     
+    class func moveFile(atPath:String, toPath: String, deleteAtPath: Bool = true) throws{
+        //先判断可以移动文件是否存在
+        if !FileManager.default.fileExists(atPath: atPath){
+            throw NSError(domain: "文件不存在", code: 3)
+        }
+            
+        //再判断目标文件是否存在
+        if FileManager.default.fileExists(atPath: toPath){
+            if deleteAtPath{
+                try FileManager.default.removeItem(atPath: atPath)
+            }
+            return
+        }
+        //移动
+        try FileManager.default.moveItem(atPath: atPath, toPath: toPath)
+    }
+    
     class func fetchThumbFromVideo(thumbPath : String, thumbTmpPath : String, videoPath : String) -> (String, CGSize)? {
         if FileManager.default.fileExists(atPath: thumbPath), let thumbImg = UIImage(contentsOfFile: thumbPath) {
             return (thumbPath, CGSize(width: thumbImg.size.width * thumbImg.scale, height: thumbImg.size.height * thumbImg.scale))
@@ -58,7 +75,7 @@ extension PHAsset {
                 let thumbImg = UIImage(cgImage: image)
                 do {
                     try thumbImg.jpegData(compressionQuality: 0.6)?.write(to: URL(fileURLWithPath: thumbTmpPath))
-                    try FileManager.default.moveItem(atPath: thumbTmpPath, toPath: thumbPath)
+                    try PHAsset.moveFile(atPath: thumbTmpPath, toPath: thumbPath)
                 } catch let error as NSError {
                     print(error)
                     return nil
@@ -167,25 +184,21 @@ extension PHAsset {
                                 case .onStart:
                                     print("start compress")
                                 case .onSuccess(let path, let size):
-                                    if FileManager.default.fileExists(atPath: path.path) {
-                                        do {
-                                            PHAsset.removeFileIfNeed(path: videoPath)
-                                            PHAsset.removeFileIfNeed(path: thumbPath)
-                                            try FileManager.default.moveItem(atPath: path.path, toPath: videoPath)
-                                            if  let thumbInfo = PHAsset.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath)  {
-                                                dictionary.setValue(thumbInfo.0, forKey: "thumbPath")
-                                                dictionary.setValue(thumbName, forKey: "thumbName")
-                                                dictionary.setValue(thumbInfo.1.height, forKey: "thumbHeight")
-                                                dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
-                                            }else {
-                                                failed?(NSError(domain: "封面请求失败", code: 2, userInfo: [
-                                                    "identifier": self.localIdentifier,
-                                                    "errorCode": "2"
-                                                ]))
-                                                print("compress finish but not found file")
-                                            }
-                                        } catch let error as NSError{
-                                            print(error)
+                                    do {
+                                        //移动视频
+                                        try PHAsset.moveFile(atPath: path.path, toPath: videoPath)
+                                        //获取视频首帧封面
+                                        if  let thumbInfo = PHAsset.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath)  {
+                                            dictionary.setValue(thumbInfo.0, forKey: "thumbPath")
+                                            dictionary.setValue(thumbName, forKey: "thumbName")
+                                            dictionary.setValue(thumbInfo.1.height, forKey: "thumbHeight")
+                                            dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
+                                        }else {
+                                            failed?(NSError(domain: "封面请求失败", code: 2, userInfo: [
+                                                "identifier": self.localIdentifier,
+                                                "errorCode": "2"
+                                            ]))
+                                            print("compress finish but not found file")
                                         }
                                         dictionary.setValue(self.localIdentifier, forKey: "identifier")
                                         dictionary.setValue(videoPath, forKey: "filePath")
@@ -196,11 +209,12 @@ extension PHAsset {
                                         dictionary.setValue("video", forKey: "fileType")
                                         finish?(dictionary)
                                         print("compress success")
-                                    }else {
+                                    } catch let error as NSError{
                                         failed?(NSError(domain: "视频请求失败", code: 2, userInfo: [
                                             "identifier": self.localIdentifier,
                                             "errorCode": "2"
                                         ]))
+                                        print(error)
                                         print("compress finish but not found file")
                                     }
                                 }
@@ -217,6 +231,7 @@ extension PHAsset {
         }else {
             var targetHeight : CGFloat = CGFloat(self.pixelHeight)
             var targetWidth : CGFloat = CGFloat(self.pixelWidth)
+            //gif压缩
             if let uti = self.value(forKey: "filename"), uti is String, (uti as! String).uppercased().hasSuffix("GIF") {
                 let fileName = "\(uuid).gif"
                 let filePath = saveDir + fileName
@@ -234,23 +249,20 @@ extension PHAsset {
                         "fileType":"image/gif"
                     ])
                 }else{
-                    if FileManager.default.fileExists(atPath: filePath) {
-                        PHAsset.removeFileIfNeed(path: filePath)
-                    }
-                    if FileManager.default.fileExists(atPath: checkPath) {
-                        PHAsset.removeFileIfNeed(path: checkPath)
-                    }
                     manager.requestImageData(for: self, options: thumbOptions) { (data, uti, ori, info) in
                         DispatchQueue.global().async {
                             do {
                                 if let file = data {
+                                    //压缩gif
                                     var resultData = try ImageCompress.compressImageData(file as Data, sampleCount: 1)
                                     resultData = (resultData.count > file.count + 500 * 1024) ? file : resultData
                                     try resultData.write(to: URL(fileURLWithPath: fileTmpPath))
+                                    //压缩送审图片，更小
                                     let checkData = try ImageCompress.compressImageData(file as Data, sampleCount: 24)
                                     try checkData.write(to: URL(fileURLWithPath: checkPath))
                                     do {
-                                        try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
+                                        //移动文件到doc缓存目录
+                                        try PHAsset.moveFile(atPath: fileTmpPath, toPath: filePath)
                                     }catch let err as NSError {
                                         print(err)
                                     }
@@ -287,6 +299,7 @@ extension PHAsset {
                     }
                 }
             }else {
+                //图片压缩
                 let fileName = "\(uuid)-\(thumb ? "thumb" : "origin").jpg"
                 let filePath = saveDir + fileName
                 let checkPath = saveDir + fileName + ".check"
@@ -302,12 +315,6 @@ extension PHAsset {
                         "fileType":"image/jpeg"
                     ])
                 }else {
-                    if FileManager.default.fileExists(atPath: filePath) {
-                        PHAsset.removeFileIfNeed(path: filePath)
-                    }
-                    if FileManager.default.fileExists(atPath: checkPath) {
-                        PHAsset.removeFileIfNeed(path: checkPath)
-                    }
                     let pixel = targetWidth * targetHeight
                     if pixel > 100000000 {
                         targetWidth = 100000000 / pixel * targetWidth
@@ -317,13 +324,14 @@ extension PHAsset {
                         DispatchQueue.global().async {
                             if let imageData = (thumb ? UIImage.lubanCompressImage(image) : UIImage.lubanOriginImage(image)) as NSData? {
                                 if thumb {
+                                    //使用缩率图
                                     imageData.write(toFile: fileTmpPath, atomically: true)
                                     if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
                                         checkImageData.write(toFile: checkPath, atomically: true)
                                     }
                                     
                                     do {
-                                        try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
+                                        try PHAsset.moveFile(atPath: fileTmpPath, toPath: filePath)
                                     } catch let err as NSError {
                                         print(err)
                                     }
@@ -344,6 +352,7 @@ extension PHAsset {
                                         ]))
                                     }
                                 } else {
+                                    //使用原图
                                     imageData.write(toFile: filePath, atomically: true)
                                     if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
                                         checkImageData.write(toFile: checkPath, atomically: true)

@@ -150,7 +150,17 @@ class _MyHomePageState extends State<MyHomePage> {
           .forEach((element) => identifers.add(element.toString()));
       final result1 =
           await MultiImagePicker.requestFilePath(identifers[0].toString());
-      print(result1);
+      print("result1: $result1");
+
+      final ids = (result['identifiers'] as List).cast<String>();
+      print('请求压缩');
+      final xx = await MultiImagePicker.requestMediaData(
+          thumb: true,
+          selectedAssets: (result['identifiers'] as List).cast<String>());
+      xx.forEach((element) {
+        print('压缩结果： ${element.name} ${element.thumbFilePath}');
+      });
+
       // final result = await MultiImagePicker.
       // for (var item in assets) {
       //   print(item.filePath);

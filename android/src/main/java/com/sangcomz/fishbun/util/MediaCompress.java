@@ -451,6 +451,8 @@ public class MediaCompress {
             } else if (!oldFile.canRead()) {
                 return false;
             }
+            //如果目标文件存在，就不移动
+            if(newFile.exists()) return true;
 
             FileInputStream fileInputStream = new FileInputStream(oldFile);    //读入原文件
             FileOutputStream fileOutputStream = new FileOutputStream(newFile);
@@ -470,6 +472,12 @@ public class MediaCompress {
     }
 
     public void moveFile(File oldFile, File newFile) {
+        //如果目标文件存在，就不移动并且删除老文件
+        if(newFile.exists()) {
+            oldFile.delete();
+            return;
+        }
+
         if (!oldFile.renameTo(newFile)) {
             copyFile(oldFile, newFile);
             oldFile.delete();

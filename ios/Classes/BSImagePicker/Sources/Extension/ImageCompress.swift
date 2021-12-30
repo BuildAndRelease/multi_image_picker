@@ -235,7 +235,10 @@ public extension ImageCompress {
         guard rawData.imageFormat == .gif else {
             throw CompressError.unsupportedFormat
         }
-        
+        //ios 15上可能CGImageDestinationFinalize存在内存暴涨导致APP崩溃
+        if #available(iOS 15.0, *) {
+            return rawData
+        }
         guard let imageSource = CGImageSourceCreateWithData(rawData as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
               let writeData = CFDataCreateMutable(nil, 0),
               let imageType = CGImageSourceGetType(imageSource) else {

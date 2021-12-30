@@ -145,20 +145,38 @@ class _MyHomePageState extends State<MyHomePage> {
       //     'F9D725E8-BF01-4FF2-A61C-3EC033C181C1/L0/001');
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
-      final List<String> identifers = [];
-      result['identifiers']
-          .forEach((element) => identifers.add(element.toString()));
-      final result1 =
-          await MultiImagePicker.requestFilePath(identifers[0].toString());
-      print("result1: $result1");
+      // final List<String> identifers = [];
+      // result['identifiers']
+      //     .forEach((element) => identifers.add(element.toString()));
+      // final result1 =
+      //     await MultiImagePicker.requestFilePath(identifers[0].toString());
+      // print("result1: $result1");
 
       final ids = (result['identifiers'] as List).cast<String>();
       print('请求压缩');
-      final xx = await MultiImagePicker.requestMediaData(
-          thumb: true,
-          selectedAssets: (result['identifiers'] as List).cast<String>());
-      xx.forEach((element) {
-        print('压缩结果： ${element.name} ${element.thumbFilePath}');
+      MultiImagePicker.requestMediaData(
+              thumb: true,
+              selectedAssets: (result['identifiers'] as List).cast<String>())
+          .then((xx) {
+        xx.forEach((element) {
+          print('压缩结果： ${element.name} ${element.thumbFilePath}');
+        });
+      });
+      MultiImagePicker.requestMediaData(
+              thumb: true,
+              selectedAssets: (result['identifiers'] as List).cast<String>())
+          .then((xx) {
+        xx.forEach((element) {
+          print('压缩结果： ${element.name} ${element.thumbFilePath}');
+        });
+      });
+      MultiImagePicker.requestMediaData(
+              thumb: true,
+              selectedAssets: (result['identifiers'] as List).cast<String>())
+          .then((xx) {
+        xx.forEach((element) {
+          print('压缩结果： ${element.name} ${element.thumbFilePath}');
+        });
       });
 
       // final result = await MultiImagePicker.

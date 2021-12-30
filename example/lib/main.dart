@@ -64,6 +64,18 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text(DemoLocalizations.of(context).imagePick),
             onPressed: loadAssets,
           ),
+          ElevatedButton(
+              onPressed: () async {
+                final dir = await MultiImagePicker.requestThumbDirectory();
+                print('图片缓存文件夹dir: $dir');
+              },
+              child: Text('图片缓存文件夹')),
+          ElevatedButton(
+              onPressed: () async {
+                final dir = await MultiImagePicker.cachedVideoDirectory();
+                print('视频缓存文件夹: $dir');
+              },
+              child: Text('视频缓存文件夹')),
           Expanded(
             child: buildGridView(),
           )

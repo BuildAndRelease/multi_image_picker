@@ -242,6 +242,15 @@ class MultiImagePicker {
     }
   }
 
+  //视频缓存目录在本地磁盘
+  static Future<dynamic> cachedVideoDirectory() async {
+    try {
+      return await _channel.invokeMethod('cachedVideoDirectory', null);
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   //获取图片视频的源文件路径
   static Future<dynamic> requestFilePath(String identifier) async {
     try {

@@ -52,6 +52,7 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     private static final String REQUEST_FILE_DIMEN = "requestFileDimen";
     private static final String REQUEST_THUMB_DIRECTORY = "requestThumbDirectory";
     private static final String FETCH_CACHED_VIDEO_PATH = "cachedVideoPath";
+    private static final String FETCH_CACHED_VIDEO_Directory = "cachedVideoDirectory";
     private static final String PICK_IMAGES = "pickImages";
     private static final String MAX_IMAGES = "maxImages";
     private static final String THUMB = "thumb";
@@ -300,6 +301,15 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
                         }else {
                             result.success("");
                         }
+                    }catch (Exception e) {
+                        result.success("");
+                    }
+                    break;
+                }
+                case FETCH_CACHED_VIDEO_Directory:{
+                    try{
+                        File file = new File(context.getExternalCacheDir(), "video-cache");
+                        result.success(file.getAbsolutePath());
                     }catch (Exception e) {
                         result.success("");
                     }

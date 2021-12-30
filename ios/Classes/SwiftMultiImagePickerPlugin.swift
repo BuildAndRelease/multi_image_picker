@@ -338,6 +338,10 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             let url = (arguments["url"] as? String) ?? ""
             result(cachedFilePath(url: URL(string: url)))
             break
+        case "cachedVideoDirectory":
+            let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true).first?.appending("/video")
+            result(cacheDir)
+            break
         default:
             result(FlutterMethodNotImplemented)
         }

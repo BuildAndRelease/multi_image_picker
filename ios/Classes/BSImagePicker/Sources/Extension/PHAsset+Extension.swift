@@ -51,6 +51,11 @@ extension PHAsset {
         if !FileManager.default.fileExists(atPath: atPath){
             throw NSError(domain: "文件不存在", code: 3)
         }
+        
+        //如果两个路径一样，就不操作
+        if (atPath == toPath) {
+            return
+        }
             
         //再判断目标文件是否存在
         if FileManager.default.fileExists(atPath: toPath){

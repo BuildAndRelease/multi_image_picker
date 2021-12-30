@@ -453,6 +453,7 @@ public class MediaCompress {
             }
             //如果目标文件存在，就不移动
             if(newFile.exists()) return true;
+            if(oldFile.getAbsolutePath().equalsIgnoreCase(newFile.getAbsolutePath())) return true;
 
             FileInputStream fileInputStream = new FileInputStream(oldFile);    //读入原文件
             FileOutputStream fileOutputStream = new FileOutputStream(newFile);
@@ -472,6 +473,9 @@ public class MediaCompress {
     }
 
     public void moveFile(File oldFile, File newFile) {
+        //可能存在oldFile和newFile就是同一个文件，不操作
+        if(oldFile.getAbsolutePath().equalsIgnoreCase(newFile.getAbsolutePath())) return;
+
         //如果目标文件存在，就不移动并且删除老文件
         if(newFile.exists()) {
             oldFile.delete();

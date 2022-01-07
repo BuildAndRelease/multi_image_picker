@@ -11,12 +11,12 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.util.Size;
 
 import com.hw.videoprocessor.VideoProcessor;
 import com.nemocdz.imagecompress.ImageCompress;
-import com.nemocdz.imagecompress.ImageCompressKt;
 import com.sangcomz.fishbun.bean.Media;
 
 import java.io.BufferedInputStream;
@@ -379,7 +379,7 @@ public class MediaCompress {
                     }
                     if (thumb) {
                         if (fileSize > 30 * 1024 * 1024 || fileSize <= 300 * 1024 || pixel > 100000000) {
-                            compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
+                            compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80, options.outMimeType);
                         }else {
                             List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
                             if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
@@ -387,7 +387,7 @@ public class MediaCompress {
                             }
                         }
                     }else {
-                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
+                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80, options.outMimeType);
                     }
                 }
 
@@ -400,7 +400,7 @@ public class MediaCompress {
 
                     if (!checkPic.exists()) {
                         if (compressPicFile.exists() && imageHeight * imageWidth > 312*312) {
-                            compressImage(compressPicFile, checkPic, 312, 312, 100);
+                            compressImage(compressPicFile, checkPic, 312, 312, 100, options.outMimeType);
                         }else {
                             copyFile(compressPicFile, checkPic);
                         }
@@ -519,7 +519,7 @@ public class MediaCompress {
         return bytes;
     }
 
-    private File compressImage(File fromFile, File toFile, double width, double height, int quality) {
+    private File compressImage(File fromFile, File toFile, double width, double height, int quality, String mimeType) {
         try {
             InputStream is = new FileInputStream(fromFile);
             Bitmap bitmap = BitmapFactory.decodeStream(is);
@@ -553,7 +553,7 @@ public class MediaCompress {
             Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
             if (toFile.exists()) toFile.delete();
             FileOutputStream out = new FileOutputStream(toFile);
-            if(resizeBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)){
+            if(resizeBitmap.compress((!TextUtils.isEmpty(mimeType) && mimeType.toLowerCase().contains("png")) ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, quality, out)){
                 out.flush();
                 out.close();
             }

@@ -174,22 +174,6 @@ class _MyHomePageState extends State<MyHomePage> {
           print('压缩结果： ${element.name} ${element.thumbFilePath}');
         });
       });
-      MultiImagePicker.requestMediaData(
-              thumb: true,
-              selectedAssets: (result['identifiers'] as List).cast<String>())
-          .then((xx) {
-        xx.forEach((element) {
-          print('压缩结果： ${element.name} ${element.thumbFilePath}');
-        });
-      });
-      MultiImagePicker.requestMediaData(
-              thumb: true,
-              selectedAssets: (result['identifiers'] as List).cast<String>())
-          .then((xx) {
-        xx.forEach((element) {
-          print('压缩结果： ${element.name} ${element.thumbFilePath}');
-        });
-      });
 
       // final result = await MultiImagePicker.
       // for (var item in assets) {

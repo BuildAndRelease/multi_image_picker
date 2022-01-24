@@ -8,6 +8,7 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 enum FBMediaShowType { image, video, all }
 enum FBMediaSelectType { all, video, image, singleType }
 enum FBMediaThumbType { origin, thumb, file }
+
 const CachedImageCount = 50;
 
 class MultiImagePicker {
@@ -57,7 +58,7 @@ class MultiImagePicker {
   }
 
   // 弹出原生选择界面,返回选择的媒体信息
-  static Future<Map<dynamic, dynamic>> pickImages({
+  static Future<Map<dynamic, dynamic>?> pickImages({
     int maxImages = 9,
     FBMediaThumbType thumbType = FBMediaThumbType.thumb,
     String defaultAsset = "",
@@ -69,7 +70,7 @@ class MultiImagePicker {
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
     try {
-      final Map<dynamic, dynamic> medias = await _channel.invokeMethod(
+      final Map<dynamic, dynamic>? medias = await _channel.invokeMethod(
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,
@@ -90,20 +91,22 @@ class MultiImagePicker {
   }
 
   // 获取指定媒体信息 selectedAssets 为指定媒体的Identify
-  static Future<List<Asset>> requestMediaData(
+  static Future<List<Asset?>> requestMediaData(
       {bool thumb = true,
       List<String> selectedAssets = const [],
       List<Asset> defalutValue = const []}) async {
     try {
       if (!Platform.isIOS && !Platform.isAndroid) return defalutValue;
-      final List<dynamic> images = await _channel.invokeMethod(
-          'requestMediaData',
-          <String, dynamic>{'thumb': thumb, 'selectedAssets': selectedAssets});
-      List<Asset> assets = [];
+      final List<dynamic> images = await (_channel.invokeMethod(
+          'requestMediaData', <String, dynamic>{
+        'thumb': thumb,
+        'selectedAssets': selectedAssets
+      }) as FutureOr<List<dynamic>>);
+      List<Asset?> assets = [];
       for (var item in images) {
         var asset;
         final String fileType = item['fileType'] ?? "";
-        final String errorCode = item['errorCode'];
+        final String? errorCode = item['errorCode'];
         if (fileType.isEmpty) {
           asset = Asset(item['identifier'], '', '', 0.0, 0.0, '',
               errorCode: errorCode);
@@ -144,22 +147,22 @@ class MultiImagePicker {
   // 压缩指定的媒体
   // param:
   // fileType: video/mp4 image/jpg image/png image/gif
-  static Future<List<Asset>> requestCompressMedia(bool thumb,
+  static Future<List<Asset?>> requestCompressMedia(bool thumb,
       {String fileType = "",
       List<String> fileList = const [],
       List<Asset> defalutValue = const []}) async {
     if (!Platform.isIOS && !Platform.isAndroid) return defalutValue;
     try {
-      final List<dynamic> images = await _channel.invokeMethod(
+      final List<dynamic> images = await (_channel.invokeMethod(
           'requestCompressMedia', <String, dynamic>{
         'thumb': thumb,
         'fileType': fileType,
         'fileList': fileList
-      });
-      List<Asset> assets = [];
+      }) as FutureOr<List<dynamic>>);
+      List<Asset?> assets = [];
       for (var item in images) {
         var asset;
-        final String errorCode = item['errorCode'];
+        final String? errorCode = item['errorCode'];
         if ((errorCode?.isNotEmpty ?? false) && errorCode != "0") {
           asset = Asset('', '', '', 0.0, 0.0, '', errorCode: errorCode);
         } else if (fileType.contains('image')) {
@@ -195,7 +198,7 @@ class MultiImagePicker {
     }
   }
 
-  static Future<Asset> requestTakePicture(
+  static Future<Asset?> requestTakePicture(
       {String themeColor = "0xFF00CC00"}) async {
     try {
       final dynamic item = await _channel.invokeMethod(
@@ -262,7 +265,7 @@ class MultiImagePicker {
   }
 
   //获取压缩文件存放的目录
-  static Future<String> requestThumbDirectory() async {
+  static Future<String?> requestThumbDirectory() async {
     try {
       return await _channel.invokeMethod('requestThumbDirectory');
     } on PlatformException catch (e) {
@@ -274,12 +277,12 @@ class MultiImagePicker {
   static Future<List<Asset>> fetchMediaInfo(int offset, int limit,
       {List<String> selectedAssets = const []}) async {
     try {
-      final List<dynamic> images = await _channel.invokeMethod(
+      final List<dynamic> images = await (_channel.invokeMethod(
           'fetchMediaInfo', <String, dynamic>{
         'limit': limit,
         'offset': offset,
         'selectedAssets': selectedAssets
-      });
+      }) as FutureOr<List<dynamic>>);
       List<Asset> assets = [];
       for (var item in images) {
         var asset = Asset(item['identifier'], item['filePath'], item['name'],

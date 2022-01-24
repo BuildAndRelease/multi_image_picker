@@ -1,38 +1,38 @@
 class Asset {
   /// The resource identifier
-  String _identifier;
+  String? _identifier;
 
   /// The resource identifier
-  String _filePath;
+  String? _filePath;
 
   /// The resource file name
-  String _name;
+  String? _name;
 
   /// Original image width
-  double _originalWidth;
+  double? _originalWidth;
 
   /// Original image height
-  double _originalHeight;
+  double? _originalHeight;
 
-  String _fileType;
+  String? _fileType;
 
-  String checkPath;
+  String? checkPath;
 
-  double duration = 0.0;
+  double? duration = 0.0;
 
-  String thumbFilePath = "";
+  String? thumbFilePath = "";
 
-  String thumbName = "";
+  String? thumbName = "";
 
-  double thumbWidth = 0.0;
+  double? thumbWidth = 0.0;
 
-  double thumbHeight = 0.0;
+  double? thumbHeight = 0.0;
 
   String url = "";
 
   String hash = "";
 
-  String errorCode = "0";
+  String? errorCode = "0";
 
   Asset(this._identifier, this._filePath, this._name, this._originalWidth,
       this._originalHeight, this._fileType,
@@ -47,41 +47,41 @@ class Asset {
       this.errorCode = "0"});
 
   /// Returns the original image width
-  double get originalWidth {
+  double? get originalWidth {
     return _originalWidth;
   }
 
   /// Returns the original image height
-  double get originalHeight {
+  double? get originalHeight {
     return _originalHeight;
   }
 
   /// Returns true if the image is landscape
   bool get isLandscape {
-    return _originalWidth > _originalHeight;
+    return _originalWidth! > _originalHeight!;
   }
 
   /// Returns true if the image is Portrait
   bool get isPortrait {
-    return _originalWidth < _originalHeight;
+    return _originalWidth! < _originalHeight!;
   }
 
   /// Returns the image identifier
-  String get identifier {
+  String? get identifier {
     return _identifier;
   }
 
   /// Returns the image thumb
-  String get filePath {
+  String? get filePath {
     return _filePath;
   }
 
   /// Returns the image name
-  String get name {
+  String? get name {
     return _name;
   }
 
-  String get fileType {
+  String? get fileType {
     return _fileType;
   }
 

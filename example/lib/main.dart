@@ -64,6 +64,18 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text(DemoLocalizations.of(context).imagePick),
             onPressed: loadAssets,
           ),
+          ElevatedButton(
+              onPressed: () async {
+                final dir = await MultiImagePicker.requestThumbDirectory();
+                print('图片缓存文件夹dir: $dir');
+              },
+              child: Text('图片缓存文件夹')),
+          ElevatedButton(
+              onPressed: () async {
+                final dir = await MultiImagePicker.cachedVideoDirectory();
+                print('视频缓存文件夹: $dir');
+              },
+              child: Text('视频缓存文件夹')),
           Expanded(
             child: buildGridView(),
           )
@@ -145,12 +157,24 @@ class _MyHomePageState extends State<MyHomePage> {
       //     'F9D725E8-BF01-4FF2-A61C-3EC033C181C1/L0/001');
       // if (double.parse(fileSize) > 1024 * 1024 * 8) {}
       // print(fileSize);
-      final List<String> identifers = [];
-      result['identifiers']
-          .forEach((element) => identifers.add(element.toString()));
-      final result1 =
-          await MultiImagePicker.requestFilePath(identifers[0].toString());
-      print(result1);
+      // final List<String> identifers = [];
+      // result['identifiers']
+      //     .forEach((element) => identifers.add(element.toString()));
+      // final result1 =
+      //     await MultiImagePicker.requestFilePath(identifers[0].toString());
+      // print("result1: $result1");
+
+      final ids = (result['identifiers'] as List).cast<String>();
+      print('请求压缩');
+      MultiImagePicker.requestMediaData(
+              thumb: true,
+              selectedAssets: (result['identifiers'] as List).cast<String>())
+          .then((xx) {
+        xx.forEach((element) {
+          print('压缩结果： ${element.name} ${element.thumbFilePath}');
+        });
+      });
+
       // final result = await MultiImagePicker.
       // for (var item in assets) {
       //   print(item.filePath);

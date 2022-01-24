@@ -187,6 +187,11 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
                     self?.collectionView.reloadData()
                     self?.hideHUDLoading(hud: hud)
                 }
+            }else{
+                DispatchQueue.main.async {
+                    self?.hideHUDLoading(hud: hud)
+                    self?.showHUDAlert(text: NSLocalizedString("本地相册暂无图片与视频，快去拍摄吧", comment: ""))
+                }
             }
         }
     }

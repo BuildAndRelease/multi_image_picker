@@ -11,12 +11,12 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.util.Size;
 
 import com.hw.videoprocessor.VideoProcessor;
 import com.nemocdz.imagecompress.ImageCompress;
-import com.nemocdz.imagecompress.ImageCompressKt;
 import com.sangcomz.fishbun.bean.Media;
 
 import java.io.BufferedInputStream;
@@ -26,7 +26,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -272,14 +271,14 @@ public class MediaCompress {
         if (bitrate <= MinVideoBitRate)
             return bitrate;
         int result = MinVideoBitRate;
-         switch (quality) {
-             case VERY_LOW: result = (int) (bitrate * 0.08); break;
-             case LOW : result = (int) (bitrate * 0.10); break;
-             case MEDIUM : result = (int) (bitrate * 0.20); break;
-             case HIGH : result = (int) (bitrate * 0.30); break;
-             case VERY_HIGH : result = (int) (bitrate * 0.50); break;
-             default:
-                 return MinVideoBitRate;
+        switch (quality) {
+            case VERY_LOW: result = (int) (bitrate * 0.08); break;
+            case LOW : result = (int) (bitrate * 0.10); break;
+            case MEDIUM : result = (int) (bitrate * 0.20); break;
+            case HIGH : result = (int) (bitrate * 0.30); break;
+            case VERY_HIGH : result = (int) (bitrate * 0.50); break;
+            default:
+                return MinVideoBitRate;
         }
         return Math.max(MinVideoBitRate, result);
     }
@@ -295,7 +294,7 @@ public class MediaCompress {
                 e1.printStackTrace();
             }
         }
-        
+
         String cacheDir = context.getCacheDir().getAbsolutePath();
         String thumbPath = cacheDir + "/multi_image_pick/thumb/";
         if (media.getFileType().toLowerCase().contains("gif") || media.getOriginPath().toLowerCase().endsWith("gif")) {
@@ -451,6 +450,9 @@ public class MediaCompress {
             } else if (!oldFile.canRead()) {
                 return false;
             }
+            //如果目标文件存在，就不移动
+            if(newFile.exists()) return true;
+            if(oldFile.getAbsolutePath().equalsIgnoreCase(newFile.getAbsolutePath())) return true;
 
             FileInputStream fileInputStream = new FileInputStream(oldFile);    //读入原文件
             FileOutputStream fileOutputStream = new FileOutputStream(newFile);
@@ -470,6 +472,15 @@ public class MediaCompress {
     }
 
     public void moveFile(File oldFile, File newFile) {
+        //可能存在oldFile和newFile就是同一个文件，不操作
+        if(oldFile.getAbsolutePath().equalsIgnoreCase(newFile.getAbsolutePath())) return;
+
+        //如果目标文件存在，就不移动并且删除老文件
+        if(newFile.exists()) {
+            oldFile.delete();
+            return;
+        }
+
         if (!oldFile.renameTo(newFile)) {
             copyFile(oldFile, newFile);
             oldFile.delete();
@@ -507,10 +518,22 @@ public class MediaCompress {
         return bytes;
     }
 
-    private File compressImage(File fromFile, File toFile, double width, double height, int quality) {
+    private File compressImage(File fromFile, File toFile, double width, double height, int quality) throws Exception {
+        if (!fromFile.exists()) return toFile;
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = false;
+        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = BitmapFactory.decodeFile(fromFile.getAbsolutePath(), opts);
+        if (bitmap == null) {
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            bitmap = BitmapFactory.decodeFile(fromFile.getAbsolutePath(), opts);
+        }
+        if (bitmap == null) {
+            opts.inPreferredConfig = Bitmap.Config.ARGB_4444;
+            bitmap = BitmapFactory.decodeFile(fromFile.getAbsolutePath(), opts);
+        }
+
         try {
-            InputStream is = new FileInputStream(fromFile);
-            Bitmap bitmap = BitmapFactory.decodeStream(is);
             ExifInterface ei = new ExifInterface(fromFile.getAbsolutePath());
             int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_UNDEFINED);
@@ -528,35 +551,39 @@ public class MediaCompress {
                 default:
                     break;
             }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
 
-            int bitmapWidth = bitmap.getWidth();
-            int bitmapHeight = bitmap.getHeight();
+        int bitmapWidth = bitmap.getWidth();
+        int bitmapHeight = bitmap.getHeight();
 
+        Bitmap resizeBitmap;
+        if ((-1 == width && -1 == height) || (height >= bitmapHeight && width >= bitmapWidth)) {
+            resizeBitmap = bitmap;
+        }else {
             float scaleWidth = -1 == width ? 1 : ((float) width / bitmapWidth);
             float scaleHeight = -1 == height ? 1 : ((float) height / bitmapHeight);
             float scale = scaleWidth > scaleHeight ? scaleHeight : scaleWidth;
             Matrix matrix = new Matrix();
             matrix.postScale(scale, scale);
-
-            Bitmap resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
-            if (toFile.exists()) toFile.delete();
-            FileOutputStream out = new FileOutputStream(toFile);
-            if(resizeBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)){
-                out.flush();
-                out.close();
-            }
-            if(!bitmap.isRecycled()){
-                bitmap.recycle();//记得释放资源，否则会内存溢出
-            }
-            if(!resizeBitmap.isRecycled()){
-                resizeBitmap.recycle();
-            }
-            is.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            resizeBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
+            if(!bitmap.isRecycled()) bitmap.recycle();
         }
+
+        if (toFile.exists()) toFile.delete();
+
+        try {
+            FileOutputStream out = new FileOutputStream(toFile);
+            resizeBitmap.compress((!TextUtils.isEmpty(opts.outMimeType) && opts.outMimeType.toLowerCase().contains("png")) ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, quality, out);
+            out.flush();
+            out.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(!resizeBitmap.isRecycled()) resizeBitmap.recycle();
+
         return toFile;
     }
 

@@ -7,42 +7,9 @@
 
 import Foundation
 import AVFoundation
+import Photos
 
 class MediaCompress {
-    class func removeFileIfNeed(path: String){
-        if FileManager.default.fileExists(atPath: path) {
-            do {
-                try FileManager.default.removeItem(atPath: path)
-            } catch let err as NSError {
-                print(err)
-            }
-        }
-    }
-    
-    func fetchThumbFromVideo(thumbPath : String, thumbTmpPath : String, videoPath : String) -> (String, CGSize)? {
-        if FileManager.default.fileExists(atPath: thumbPath), let thumbImg = UIImage(contentsOfFile: thumbPath) {
-            return (thumbPath, CGSize(width: thumbImg.size.width * thumbImg.scale, height: thumbImg.size.height * thumbImg.scale))
-        }else {
-            let gen = AVAssetImageGenerator(asset: AVURLAsset(url: URL(fileURLWithPath: videoPath)))
-            gen.appliesPreferredTrackTransform = true
-            let time = CMTimeMake(value: 0, timescale: 60);
-            var actualTime  = CMTimeMake(value: 0, timescale: 60)
-            if let image = try? gen.copyCGImage(at: time, actualTime: &actualTime) {
-                let thumbImg = UIImage(cgImage: image)
-                do {
-                    try thumbImg.jpegData(compressionQuality: 0.6)?.write(to: URL(fileURLWithPath: thumbTmpPath))
-                    try FileManager.default.moveItem(atPath: thumbTmpPath, toPath: thumbPath)
-                } catch let error as NSError {
-                    print(error)
-                    return nil
-                }
-                return (thumbPath, CGSize(width: thumbImg.size.width * thumbImg.scale, height: thumbImg.size.height * thumbImg.scale))
-            }else {
-                return nil
-            }
-        }
-    }
-    
     func compressAsset(_ thumb : Bool, fileType : String, originPath : String, saveDir : String, process: ((NSDictionary) -> Void)?, failed: ((NSError) -> Void)?, finish: ((NSDictionary) -> Void)?) {
         if FileManager.default.fileExists(atPath: originPath) {
             var uuid = UUID().uuidString;
@@ -68,7 +35,7 @@ class MediaCompress {
                         }
                     }
                 }
-                if thumbVideoSize != CGSize.zero, let thumbInfo = self.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath) {
+                if thumbVideoSize != CGSize.zero, let thumbInfo = PHAsset.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath) {
                     dictionary.setValue("", forKey: "identifier")
                     dictionary.setValue(originPath, forKey: "originPath")
                     dictionary.setValue(videoPath, forKey: "filePath")
@@ -83,9 +50,6 @@ class MediaCompress {
                     dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
                     finish?(dictionary)
                 }else {
-                    MediaCompress.removeFileIfNeed(path: videoPath)
-                    MediaCompress.removeFileIfNeed(path: thumbPath)
-                    
                     _ = LightCompressor().compressVideo(
                         source: avAsset,
                         destination: URL(fileURLWithPath: videoTmpPath),
@@ -110,23 +74,19 @@ class MediaCompress {
                             case .onStart:
                                 print("start compress")
                             case .onSuccess(let path, let size):
-                                if FileManager.default.fileExists(atPath: path.path) {
-                                    do {
-                                        try FileManager.default.moveItem(atPath: path.path, toPath: videoPath)
-                                        if let thumbInfo = self.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath)  {
-                                            dictionary.setValue(thumbInfo.0, forKey: "thumbPath")
-                                            dictionary.setValue(thumbName, forKey: "thumbName")
-                                            dictionary.setValue(thumbInfo.1.height, forKey: "thumbHeight")
-                                            dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
-                                        }else {
-                                            failed?(NSError(domain: "封面请求失败", code: 2, userInfo: [
-                                                "identifier": "",
-                                                "errorCode": "2"
-                                            ]))
-                                            print("compress finish but not found file")
-                                        }
-                                    } catch let error as NSError{
-                                        print(error)
+                                do {
+                                    try PHAsset.moveFile(atPath: path.path, toPath: videoPath)
+                                    if let thumbInfo = PHAsset.fetchThumbFromVideo(thumbPath: thumbPath, thumbTmpPath: thumbTmpPath, videoPath: videoPath)  {
+                                        dictionary.setValue(thumbInfo.0, forKey: "thumbPath")
+                                        dictionary.setValue(thumbName, forKey: "thumbName")
+                                        dictionary.setValue(thumbInfo.1.height, forKey: "thumbHeight")
+                                        dictionary.setValue(thumbInfo.1.width, forKey: "thumbWidth")
+                                    }else {
+                                        failed?(NSError(domain: "封面请求失败", code: 2, userInfo: [
+                                            "identifier": "",
+                                            "errorCode": "2"
+                                        ]))
+                                        print("compress finish but not found file")
                                     }
                                     dictionary.setValue("", forKey: "identifier")
                                     dictionary.setValue(originPath, forKey: "originPath")
@@ -138,13 +98,14 @@ class MediaCompress {
                                     dictionary.setValue("video", forKey: "fileType")
                                     finish?(dictionary)
                                     print("compress success")
-                                }else {
+                                } catch let error as NSError{
                                     failed?(NSError(domain: "视频请求失败", code: 2, userInfo: [
                                         "fileType":fileType,
                                         "originPath":originPath,
                                         "errorCode": "1111112"
                                     ]))
                                     print("compress finish but not found file")
+                                    print(error)
                                 }
                             }
                        }
@@ -152,7 +113,7 @@ class MediaCompress {
                 }
             }else {
                 let data = NSData(contentsOfFile: originPath) ?? NSData()
-                let type = contentTypeForImageData(data: data)
+                let type = PHAsset.contentTypeForImageData(data: data)
                 let image = UIImage(data: data as Data)
                 let targetHeight : CGFloat = image?.size.height ?? 0
                 let targetWidth : CGFloat = image?.size.width ?? 0
@@ -168,7 +129,7 @@ class MediaCompress {
                         let checkData = try ImageCompress.compressImageData(data as Data, sampleCount: 24)
                         try checkData.write(to: URL(fileURLWithPath: checkPath))
                         do {
-                            try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
+                            try PHAsset.moveFile(atPath: fileTmpPath, toPath: filePath)
                         }catch let err as NSError {
                             print(err)
                         }
@@ -223,9 +184,8 @@ class MediaCompress {
                                 if targetWidth * targetHeight > 312 * 312, let checkImage = UIImage.compressImage(UIImage(data: imageData as Data), toTargetWidth: 312, toTargetWidth: 312), let checkImageData = checkImage.jpegData(compressionQuality: 1.0) as NSData? {
                                     checkImageData.write(toFile: checkPath, atomically: true)
                                 }
-                                
                                 do {
-                                    try FileManager.default.moveItem(atPath: fileTmpPath, toPath: filePath)
+                                    try PHAsset.moveFile(atPath: fileTmpPath, toPath: filePath)
                                 } catch let err as NSError {
                                     print(err)
                                 }
@@ -290,29 +250,6 @@ class MediaCompress {
                 "originPath":originPath,
                 "errorCode": "1112"
             ]))
-        }
-    }
-    
-    func contentTypeForImageData(data : NSData) -> String {
-        var value : UInt8 = 0
-        if data.count > 1 {
-            data.getBytes(&value, length: 1)
-            switch (value) {
-            case 0xFF:
-                return "image/jpeg";
-            case 0x89:
-                return "image/png";
-            case 0x47:
-                return "image/gif";
-            case 0x49:
-                fallthrough
-            case 0x4D:
-                return "image/tiff";
-            default:
-                return ""
-            }
-        }else {
-            return ""
         }
     }
 }

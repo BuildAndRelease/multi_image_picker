@@ -251,6 +251,15 @@ class MultiImagePicker {
     }
   }
 
+  /// 删除视频缓存 iOS端使用原生删除视频缓存
+  static Future<dynamic> deleteCacheVideo() async {
+    try {
+      return await _channel.invokeMethod('deleteCacheVideo', null);
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
   //获取图片视频的源文件路径
   static Future<dynamic> requestFilePath(String identifier) async {
     try {

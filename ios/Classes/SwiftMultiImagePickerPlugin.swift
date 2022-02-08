@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import Photos
+import KTVHTTPCache
 
 public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDelegate {
     var controller: UIViewController!
@@ -339,22 +340,30 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
             result(cachedFilePath(url: URL(string: url)))
             break
         case "cachedVideoDirectory":
-            let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true).first?.appending("/video")
+            let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.userDomainMask, true).first?.appending("/KTVHTTPCache")
             result(cacheDir)
             break
+        case "deleteCacheVideo":
+            KTVHTTPCache.cacheDeleteAllCaches()
+            result(true)
         default:
             result(FlutterMethodNotImplemented)
         }
     }
     
-    private func cachedFileName(url : URL?) -> String {
-        return url?.absoluteString.md5.appending(url?.pathExtension ?? "") ?? ""
-    }
+//    private func cachedFileName(url : URL?) -> String {
+//        return url?.absoluteString.md5.appending(url?.pathExtension ?? "") ?? ""
+//    }
     
     private func cachedFilePath(url : URL?) -> String {
-        let fileName = url?.absoluteString.md5.appending(".\(url?.pathExtension ?? "")") ?? ""
-        let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true).first?.appending("/video")
-        return cacheDir?.appending("/\(fileName)") ?? "";
+//        let fileName = url?.absoluteString.md5.appending(".\(url?.pathExtension ?? "")") ?? ""
+//        let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true).first?.appending("/video")
+//        return cacheDir?.appending("/\(fileName)") ?? "";
+        if let _ = url {
+            let path = KTVHTTPCache.cacheCompleteFileURL(with: url)
+            return path?.absoluteString ?? "";
+        }
+        return ""
     }
     
     private func getThumbnailSize(originSize: CGSize) -> CGSize {

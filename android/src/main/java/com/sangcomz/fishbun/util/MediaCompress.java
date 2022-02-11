@@ -573,16 +573,22 @@ public class MediaCompress {
 
         if (toFile.exists()) toFile.delete();
 
+        FileOutputStream out = new FileOutputStream(toFile);
         try {
-            FileOutputStream out = new FileOutputStream(toFile);
             resizeBitmap.compress((!TextUtils.isEmpty(opts.outMimeType) && opts.outMimeType.toLowerCase().contains("png")) ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, quality, out);
-            out.flush();
-            out.close();
         }catch (Exception e) {
             e.printStackTrace();
+            toFile.delete();
+        } finally {
+            out.flush();
+            out.close();
         }
-
-        if(!resizeBitmap.isRecycled()) resizeBitmap.recycle();
+//        处理图片原图大小不超过32MB、宽高不超过30000像素且总像素不超过2.5亿像素，
+//        处理结果图宽高设置不超过9999像素；针对动图，原图宽 x 高 x 帧数不超过2.5亿像素
+        if (!toFile.canRead() && fromFile.length() < 32 * 1024 * 1024) {
+            copyFile(fromFile, toFile);
+        }
+        if(resizeBitmap != null && !resizeBitmap.isRecycled()) resizeBitmap.recycle();
 
         return toFile;
     }

@@ -98,10 +98,8 @@ class MultiImagePicker {
     try {
       if (!Platform.isIOS && !Platform.isAndroid) return defalutValue;
       final List<dynamic> images = await (_channel.invokeMethod(
-          'requestMediaData', <String, dynamic>{
-        'thumb': thumb,
-        'selectedAssets': selectedAssets
-      }) as FutureOr<List<dynamic>>);
+          'requestMediaData',
+          <String, dynamic>{'thumb': thumb, 'selectedAssets': selectedAssets}));
       List<Asset?> assets = [];
       for (var item in images) {
         var asset;
@@ -158,7 +156,7 @@ class MultiImagePicker {
         'thumb': thumb,
         'fileType': fileType,
         'fileList': fileList
-      }) as FutureOr<List<dynamic>>);
+      }));
       List<Asset?> assets = [];
       for (var item in images) {
         var asset;
@@ -282,7 +280,7 @@ class MultiImagePicker {
         'limit': limit,
         'offset': offset,
         'selectedAssets': selectedAssets
-      }) as FutureOr<List<dynamic>>);
+      }));
       List<Asset> assets = [];
       for (var item in images) {
         var asset = Asset(item['identifier'], item['filePath'], item['name'],

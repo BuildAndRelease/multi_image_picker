@@ -1,7 +1,6 @@
 name: multi_image_picker
 description: A new flutter plugin project.
-version: 2.0.0
-author:
+version: 2.0.0+1
 homepage:
 
 environment:

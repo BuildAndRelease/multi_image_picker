@@ -361,7 +361,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
 //        return cacheDir?.appending("/\(fileName)") ?? "";
         if let _ = url {
             let path = KTVHTTPCache.cacheCompleteFileURL(with: url)
-            return path?.absoluteString ?? "";
+            return path?.path ?? "";
         }
         return ""
     }

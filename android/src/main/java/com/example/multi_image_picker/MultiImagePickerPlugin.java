@@ -114,6 +114,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
         activity = binding.getActivity();
+        binding.addActivityResultListener(this);
     }
 
     @Override

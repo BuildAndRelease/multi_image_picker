@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <application>
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
         <activity
             android:name="com.sangcomz.fishbun.ui.picker.PickerActivity"
             android:theme="@style/FishBunTheme"

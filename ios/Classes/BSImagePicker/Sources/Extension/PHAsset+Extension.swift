@@ -8,6 +8,9 @@
 import Foundation
 import Photos
 
+//最大像素
+let MAXPixel = 20000000.0
+
 extension PHAsset {
     var fileSize: Double {
         get {
@@ -321,9 +324,9 @@ extension PHAsset {
                     ])
                 }else {
                     let pixel = targetWidth * targetHeight
-                    if pixel > 100000000 {
-                        targetWidth = 100000000 / pixel * targetWidth
-                        targetHeight = 100000000 / pixel * targetHeight
+                    if pixel > MAXPixel {
+                        targetWidth = MAXPixel / pixel * targetWidth
+                        targetHeight = MAXPixel / pixel * targetHeight
                     }
                     manager.requestImage(for: self, targetSize: CGSize(width: targetWidth, height: targetHeight), contentMode: PHImageContentMode.aspectFit, options: thumbOptions, resultHandler: { (image: UIImage?, info) in
                         DispatchQueue.global().async {

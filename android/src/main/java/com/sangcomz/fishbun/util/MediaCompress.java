@@ -45,6 +45,7 @@ public class MediaCompress {
     private static int MinVideoBitRate = 2 * 1024 * 1024;
     private static int MinVideoHeight = 640;
     private static int MinVideoWidth = 360;
+    private static int MAXPixel = 20000000;
     private boolean thumb = false;
     private List<Media> selectMedias = new ArrayList<>();
     private Context context;
@@ -372,12 +373,12 @@ public class MediaCompress {
                     float imageHeight = options.outHeight;
                     float imageWidth = options.outWidth;
                     float pixel = imageHeight * imageWidth;
-                    if (pixel > 100000000) {
-                        imageHeight = 100000000 / pixel * imageHeight;
-                        imageWidth = 100000000 / pixel * imageWidth;
+                    if (pixel > MAXPixel) {
+                        imageHeight = MAXPixel / pixel * imageHeight;
+                        imageWidth = MAXPixel / pixel * imageWidth;
                     }
                     if (thumb) {
-                        if (fileSize > 30 * 1024 * 1024 || fileSize <= 300 * 1024 || pixel > 100000000) {
+                        if (fileSize > 30 * 1024 * 1024 || fileSize <= 300 * 1024 || pixel > MAXPixel) {
                             compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
                         }else {
                             List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();

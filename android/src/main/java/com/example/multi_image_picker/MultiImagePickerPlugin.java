@@ -40,7 +40,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /**
  * MultiImagePickerPlugin
  */
-public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistry.ActivityResultListener {
+public class MultiImagePickerPlugin implements  FlutterPlugin, PluginRegistry.ActivityResultListener {
     private static final String CHANNEL_NAME = "multi_image_picker";
     private static final String FETCH_MEDIA_THUMB_DATA = "fetchMediaThumbData";
     private static final String FETCH_MEDIA_INFO = "fetchMediaInfo";
@@ -84,11 +84,11 @@ public class MultiImagePickerPlugin implements  MethodCallHandler, PluginRegistr
     /**
      * Plugin registration.
      */
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL_NAME);
-        MultiImagePickerPlugin instance = new MultiImagePickerPlugin(registrar.activity(), registrar.context());
-        registrar.addActivityResultListener(instance);
-        channel.setMethodCallHandler(instance);
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), CHANNEL_NAME);
+        channel.setMethodCallHandler(this);
+        applicationContext = flutterPluginBinding.getApplicationContext();
     }
 
     boolean checkPermission(boolean checkCamera, boolean checkRecord, boolean checkStorage) {

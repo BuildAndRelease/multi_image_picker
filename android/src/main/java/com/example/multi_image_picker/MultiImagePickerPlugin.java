@@ -82,11 +82,6 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
     private MethodChannel channel;
     private static Result currentPickerResult;
 
-    public MultiImagePickerPlugin(Activity activity, Context context) {
-        this.activity = activity;
-        this.context = context;
-    }
-
     /**
      * Plugin registration.
      */

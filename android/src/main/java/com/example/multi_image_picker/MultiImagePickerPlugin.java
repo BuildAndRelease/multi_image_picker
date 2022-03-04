@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 
 import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
 
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
@@ -35,12 +36,16 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.app.FlutterApplication;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 
 
 /**
  * MultiImagePickerPlugin
  */
-public class MultiImagePickerPlugin implements  FlutterPlugin, PluginRegistry.ActivityResultListener {
+public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,MethodCallHandler, PluginRegistry.ActivityResultListener {
     private static final String CHANNEL_NAME = "multi_image_picker";
     private static final String FETCH_MEDIA_THUMB_DATA = "fetchMediaThumbData";
     private static final String FETCH_MEDIA_INFO = "fetchMediaInfo";
@@ -72,8 +77,9 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, PluginRegistry.Ac
     private static final String GETFAILD = "GET FAILED";
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private static final int REQUEST_CODE_TAKE = 1002;
-    private final Activity activity;
-    private final Context context;
+    private Activity activity;
+    private Context context;
+    private MethodChannel channel;
     private static Result currentPickerResult;
 
     public MultiImagePickerPlugin(Activity activity, Context context) {
@@ -88,7 +94,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, PluginRegistry.Ac
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), CHANNEL_NAME);
         channel.setMethodCallHandler(this);
-        applicationContext = flutterPluginBinding.getApplicationContext();
+        context = flutterPluginBinding.getApplicationContext();
     }
 
     boolean checkPermission(boolean checkCamera, boolean checkRecord, boolean checkStorage) {
@@ -108,6 +114,26 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, PluginRegistry.Ac
         } else {
             return true;
         }
+    }
+
+    @Override
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+        activity = binding.getActivity();
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        onDetachedFromActivity();
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+        onAttachedToActivity(binding);
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        activity = null;
     }
 
     @Override
@@ -474,5 +500,10 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, PluginRegistry.Ac
             }
             return true;
         }
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        channel.setMethodCallHandler(null);
     }
 }

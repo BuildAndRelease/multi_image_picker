@@ -221,7 +221,7 @@ object ImageCompress {
      * 如果图片（gif）加载到内存中占用内存大于100M, 那么降低图片的尺寸
      */
     private const val maxMemoryReSize = 104857600; // 100M
-    private fun resizeImageSize(width: Int,  height: Int,  frameCount: Int, bitConfig: Bitmap.Config): Size{
+    private fun resetGifCheckSize(width: Int,  height: Int,  frameCount: Int, bitConfig: Bitmap.Config): Size{
         val mSize = imageInMemorySize(width, height, frameCount, bitConfig);
         if(mSize > maxMemoryReSize){
             var w = width / 3;
@@ -239,13 +239,43 @@ object ImageCompress {
         }
         return  Size(0,0);
     }
+
+    /*
+    针对gif的尺寸进行压缩
+     */
+    private const val minSizeConstraint = 48.0;
+    private const val maxSizeConstraint = 225.0;
+    private fun resetGifOriginalSize(width: Int, height: Int): Size{
+        var targetWidth = 0.0;
+        var targetHeight = 0.0;
+        val devicePixelRatio = 2; //屏幕密度
+        if (width / height > (maxSizeConstraint / minSizeConstraint)) {
+            // 横线长图
+            targetWidth = maxSizeConstraint;
+            targetHeight = minSizeConstraint;
+        } else if (height / width > (maxSizeConstraint / minSizeConstraint)) {
+            // 纵向长图
+            targetWidth = minSizeConstraint;
+            targetHeight = maxSizeConstraint;
+        } else if (width >= maxSizeConstraint || height >= maxSizeConstraint) {
+            val s = min(maxSizeConstraint / width, maxSizeConstraint / height);
+            targetWidth = width * s;
+            targetHeight = height * s;
+        } else if (width < minSizeConstraint || height < minSizeConstraint) {
+            val s = max(minSizeConstraint / width, minSizeConstraint / height);
+            targetWidth = width * s;
+            targetHeight = height * s;
+        }
+        return  Size(targetWidth.toInt() * devicePixelRatio, targetHeight.toInt() * devicePixelRatio);
+    }
+
     /**
      * 返回同步压缩 gif 图片 Byte 数据 [rawData] 的按 [sampleCount] 采样后的 Byte 数据
      */
     fun compressGifDataWithSampleCount(context: Context, rawData: ByteArray, sampleCount: Int): ByteArray? {
-        if (sampleCount <= 1) {
-            return rawData
-        }
+//        if (sampleCount <= 1) {
+//            return rawData
+//        }
         val gifDecoder = StandardGifDecoder(GifBitmapProvider(Glide.get(context).bitmapPool))
         gifDecoder.setDefaultBitmapConfig(Bitmap.Config.ARGB_8888)
         val headerParser = GifHeaderParser()
@@ -255,7 +285,11 @@ object ImageCompress {
 
         val frameCount = gifDecoder.frameCount
 
-        val reSize = resizeImageSize(header.width, header.height, frameCount, Bitmap.Config.ARGB_8888);
+        var reSize = if(sampleCount == 1){
+            resetGifOriginalSize(header.width, header.height);
+        }else{
+            resetGifCheckSize(header.width, header.height, frameCount, Bitmap.Config.ARGB_8888);
+        }
 
         // 计算帧的间隔
         val frameDurations = (0 until frameCount).map { gifDecoder.getDelay(it) }

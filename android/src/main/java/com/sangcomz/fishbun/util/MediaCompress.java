@@ -318,7 +318,12 @@ public class MediaCompress {
                     byte[] resultFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 1);
                     if (tmpPic.exists()) tmpPic.delete();
                     tmpPic.createNewFile();
-                    fileByteArrayToFile(tmpPic.getAbsolutePath(), resultFileByteArray);
+                    //如果压缩之后图片反而大了，使用原图
+                    if(resultFileByteArray.length > fileByteArray.length){
+                        fileByteArrayToFile(tmpPic.getAbsolutePath(), fileByteArray);
+                    }else{
+                        fileByteArrayToFile(tmpPic.getAbsolutePath(), resultFileByteArray);
+                    }
 
                     byte[] checkFileByteArray = ImageCompress.INSTANCE.compressGifDataWithSampleCount(context, fileByteArray, 24);
                     if (checkPic.exists()) checkPic.delete();

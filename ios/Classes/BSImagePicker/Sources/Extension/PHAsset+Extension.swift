@@ -247,12 +247,13 @@ extension PHAsset {
                 let checkPath = saveDir + checkFileName
                 let fileTmpPath = saveDir + fileName + "." + tmpSuffix
                 if FileManager.default.fileExists(atPath: filePath), FileManager.default.fileExists(atPath: checkPath) {
+                    let cacheImg = UIImage.init(contentsOfFile: filePath)
                     finish?([
                         "identifier": self.localIdentifier,
                         "filePath":filePath,
                         "checkPath":checkPath,
-                        "width": targetWidth,
-                        "height": targetHeight,
+                        "width": cacheImg?.size.width ?? targetWidth,
+                        "height": cacheImg?.size.height ?? targetHeight,
                         "name": fileName,
                         "fileType":"image/gif"
                     ])
@@ -263,7 +264,7 @@ extension PHAsset {
                                 if let file = data {
                                     //压缩gif
                                     var resultData = try ImageCompress.compressImageData(file as Data, sampleCount: 1)
-                                    resultData = (resultData.count > file.count + 500 * 1024) ? file : resultData
+                                    resultData = (resultData.count > file.count) ? file : resultData
                                     try resultData.write(to: URL(fileURLWithPath: fileTmpPath))
                                     //压缩送审图片，更小
                                     let checkData = try ImageCompress.compressImageData(file as Data, sampleCount: 24)
@@ -279,8 +280,8 @@ extension PHAsset {
                                             "identifier": self.localIdentifier,
                                             "filePath":filePath,
                                             "checkPath":checkPath,
-                                            "width": targetWidth,
-                                            "height": targetHeight,
+                                            "width": resultData.imageSize.width,
+                                            "height": resultData.imageSize.height,
                                             "name": fileName,
                                             "fileType":"image/gif"
                                         ])

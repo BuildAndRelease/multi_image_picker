@@ -8,6 +8,7 @@
 
 import Foundation
 import ImageIO
+import UIKit
 
 public enum ImageCompress {
 }
@@ -225,6 +226,74 @@ public extension ImageCompress {
         return resultData
     }
 
+    static func imageInMemorySize(width: CGFloat,  height: CGFloat,  frameCount: Int) -> Int{
+        return Int(width * height) * frameCount * 4;
+      }
+
+    static let maxMemoryReSize = 104857600; // 100M
+    
+    /**
+     * 如果图片（gif）加载到内存中占用内存大于100M, 那么降低图片的尺寸
+     */
+    static func resetGifCheckSize(width: CGFloat,  height: CGFloat,  frameCount: Int) -> CGSize{
+        let mSize = imageInMemorySize(width: width, height: height, frameCount: frameCount);
+        if(mSize > maxMemoryReSize){
+            var w = width / 3.0;
+            var h = height / 3.0;
+            repeat{
+                //压缩到占用内存50M就退出
+                if(imageInMemorySize(width: w, height: h, frameCount: frameCount) < 50 * 1024 * 1024){
+                    break
+                }else{
+                    w /= 3;
+                    h /= 3;
+                }
+            }while (true)
+            return CGSize(width: w, height: h);
+        }
+        return CGSize(width: 0, height: 0);
+    }
+    
+    
+    /*
+    针对gif的尺寸进行压缩
+     */
+    static let minSizeConstraint = 48.0;
+    static let maxSizeConstraint = 225.0;
+    static func resetGifOriginalSize(width: CGFloat, height: CGFloat) -> CGSize{
+        var targetWidth = 0.0;
+        var targetHeight = 0.0;
+        let devicePixelRatio = 2.0; //屏幕密度
+        if (width / height > (maxSizeConstraint / minSizeConstraint)) {
+            // 横向长图
+            targetWidth = maxSizeConstraint;
+            targetHeight = minSizeConstraint;
+        } else if (height / width > (maxSizeConstraint / minSizeConstraint)) {
+            // 纵向长图
+            targetWidth = minSizeConstraint;
+            targetHeight = maxSizeConstraint;
+        } else if (width >= maxSizeConstraint || height >= maxSizeConstraint) {
+            let s = min(maxSizeConstraint / width, maxSizeConstraint / height);
+            targetWidth = width * s;
+            targetHeight = height * s;
+        } else if (width < minSizeConstraint || height < minSizeConstraint) {
+            let s = max(minSizeConstraint / width, minSizeConstraint / height);
+            targetWidth = width * s;
+            targetHeight = height * s;
+        }
+        return CGSize(width: targetWidth * devicePixelRatio, height: targetHeight * devicePixelRatio);
+    }
+    
+    /// 尺寸压缩gif图片
+    static func compressImage(targetImage: CGImage, targetSize: CGSize) -> CGImage?{
+        let uiImage = UIImage.init(cgImage: targetImage)
+        UIGraphicsBeginImageContext(targetSize)
+        uiImage.draw(in: CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height))
+        let to = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return to?.cgImage
+    }
+    
     /// 同步压缩图片抽取帧数，仅支持 GIF
     ///
     /// - Parameters:
@@ -236,9 +305,9 @@ public extension ImageCompress {
             throw CompressError.unsupportedFormat
         }
         //ios 15上可能CGImageDestinationFinalize存在内存暴涨导致APP崩溃
-        if #available(iOS 15.0, *) {
-            return rawData
-        }
+//        if #available(iOS 15.0, *) {
+//            return rawData
+//        }
         guard let imageSource = CGImageSourceCreateWithData(rawData as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
               let writeData = CFDataCreateMutable(nil, 0),
               let imageType = CGImageSourceGetType(imageSource) else {
@@ -254,6 +323,12 @@ public extension ImageCompress {
             .map { min(frameDurations[$0 ..< min($0 + sampleCount, frameDurations.count)]
                         .reduce(0.0) { $0 + $1 }, 0.2) }
 
+        var reSize = CGSize(width: 0, height: 0);
+        if sampleCount == 1{
+            reSize = resetGifOriginalSize(width: rawData.imageSize.width, height: rawData.imageSize.height)
+        }else{
+            reSize = resetGifCheckSize(width: rawData.imageSize.width, height: rawData.imageSize.height, frameCount: imageSource.frameDurations.count)
+        }
         // 抽取帧，每 n 帧使用 1 帧
         let sampleImageFrames: [CGImage] = try (0 ..< frameDurations.count)
             .filter { $0 % sampleCount == 0 }
@@ -261,6 +336,10 @@ public extension ImageCompress {
             .map {
                 guard let imageFrame = CGImageSourceCreateImageAtIndex(imageSource, $0.element, nil) else {
                     throw CompressError.imageIOError(.cgImageMissing(index: $0.offset))
+                }
+                if(reSize.width != 0){
+                    let toImageFrame = compressImage(targetImage: imageFrame, targetSize: reSize)
+                    return toImageFrame ?? imageFrame
                 }
                 return imageFrame
             }
@@ -514,3 +593,4 @@ extension CGImage {
         }
     }
 }
+

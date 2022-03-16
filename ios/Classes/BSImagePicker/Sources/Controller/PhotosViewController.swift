@@ -29,7 +29,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     
     var originBarButton: SSRadioButton = SSRadioButton(type: .custom)
     var doneBarButton: UIButton = UIButton(type: .custom)
-    var bottomContentView : UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+    var bottomContentView : UIView = UIView()
     var bottomHeightConstraint : NSLayoutConstraint?
     
     let settings = DataCenter.shared.settings
@@ -67,7 +67,7 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
     
     override func loadView() {
         super.loadView()
-        self.view.backgroundColor = UIColor.darkGray
+        self.view.backgroundColor = UIColor.black
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.contentInset  = UIEdgeInsets(top: 0, left: 0, bottom: 49, right: 0)
         
@@ -88,14 +88,15 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         
         let normalColor = settings.selectionStrokeColor
         doneBarButton.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
-        doneBarButton.backgroundColor = normalColor
+//        doneBarButton.backgroundColor = normalColor
         doneBarButton.setTitleColor(UIColor.white, for: .normal)
         doneBarButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .disabled)
         doneBarButton.setTitle(doneBarButtonTitle, for: .normal)
         doneBarButton.setBackgroundColor(color: normalColor, for: .normal)
+//        doneBarButton.setBackgroundColor(color: UIColor(red: 25/255.0, green: 140/255.0, blue: 254/255.0, alpha: 1), for: .normal)
         doneBarButton.setBackgroundColor(color: normalColor.withAlphaComponent(0.5), for: .disabled)
         doneBarButton.layer.masksToBounds = true
-        doneBarButton.layer.cornerRadius = 5.0
+        doneBarButton.layer.cornerRadius = 4.0
         doneBarButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
         doneBarButton.titleLabel?.adjustsFontSizeToFitWidth = true
         doneBarButton.center = CGPoint(x: bottomContentView.bounds.size.width - 40 - 5, y: bottomContentView.bounds.size.height/2.0)
@@ -115,8 +116,9 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         navigationItem.leftBarButtonItem = cancelBarButton
         navigationItem.titleView = titleContentView
         
-        bottomContentView.contentView.addSubview(doneBarButton)
-        bottomContentView.contentView.addSubview(originBarButton)
+        bottomContentView.backgroundColor = UIColor.black
+        bottomContentView.addSubview(doneBarButton)
+        bottomContentView.addSubview(originBarButton)
         bottomContentView.translatesAutoresizingMaskIntoConstraints = false
         
         self.view.addSubview(collectionView)

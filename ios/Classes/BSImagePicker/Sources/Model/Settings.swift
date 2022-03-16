@@ -35,8 +35,8 @@ final class Settings {
     var qualityOfThumb: CGFloat = 100
     var maxNumberOfSelections: Int = Int.max
     var selectionCharacter: Character? = nil
-    var selectionFillColor: UIColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
-    var selectionStrokeColor: UIColor = UIColor(red: 0, green: 186.0/255.0, blue: 90.0/255.0, alpha: 1.0)
+    var selectionFillColor: UIColor = UIColor(red: 25/255.0, green: 140/255.0, blue: 254/255.0, alpha: 1)
+    var selectionStrokeColor: UIColor = UIColor(red: 25/255.0, green: 140/255.0, blue: 254/255.0, alpha: 1)
     var selectionTextAttributes: [NSAttributedString.Key: AnyObject] = {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byTruncatingTail

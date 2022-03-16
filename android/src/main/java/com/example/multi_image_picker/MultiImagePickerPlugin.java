@@ -337,9 +337,14 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                     }
                     break;
                 }
-                case "showMedioPicker":{
+                case "editor.showMediaPicker":{
                     //TO DO
-                    result.success("showMedioPicker");
+                    result.success("showMediaPicker");
+                    break;
+                }
+                case "editor.reEditorMedia":{
+                    //TO DO
+                    result.success("reEditorMedia");
                     break;
                 }
             }

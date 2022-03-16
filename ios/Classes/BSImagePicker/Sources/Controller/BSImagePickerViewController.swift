@@ -66,12 +66,11 @@ open class BSImagePickerViewController : UINavigationController{
     
     open override func loadView() {
         super.loadView()
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = UIColor.black
         if #available(iOS 13.0, *) {
             navigationBar.scrollEdgeAppearance = nil
             let apperance = UINavigationBarAppearance()
-            apperance.backgroundColor = UIColor.clear
-            apperance.backgroundEffect = UIBlurEffect(style: .systemMaterialDark)
+            apperance.backgroundColor = UIColor.black
             navigationBar.standardAppearance = apperance
         }
         

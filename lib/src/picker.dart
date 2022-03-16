@@ -5,57 +5,12 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
-enum FBMediaShowType { image, video, all }
-enum FBMediaSelectType { all, video, image, singleType }
-enum FBMediaThumbType { origin, thumb, file }
+import 'channel_api.dart';
 
 const CachedImageCount = 50;
 
 class MultiImagePicker {
-  static const MethodChannel _channel =
-      const MethodChannel('multi_image_picker');
   static final Map<String, Uint8List> _cacheThumbData = Map();
-
-  static String _mediaShowTypeToString(FBMediaShowType type) {
-    switch (type) {
-      case FBMediaShowType.video:
-        return "video";
-      case FBMediaShowType.image:
-        return "image";
-      case FBMediaShowType.all:
-        return "all";
-      default:
-        return "";
-    }
-  }
-
-  static String _mediaSelectTypeToString(FBMediaSelectType type) {
-    switch (type) {
-      case FBMediaSelectType.all:
-        return "selectAll";
-      case FBMediaSelectType.image:
-        return "selectImage";
-      case FBMediaSelectType.video:
-        return "selectVideo";
-      case FBMediaSelectType.singleType:
-        return "selectSingleType";
-      default:
-        return "";
-    }
-  }
-
-  static String _mediaThumbTypeToString(FBMediaThumbType type) {
-    switch (type) {
-      case FBMediaThumbType.thumb:
-        return "thumb";
-      case FBMediaThumbType.origin:
-        return "origin";
-      case FBMediaThumbType.file:
-        return "file";
-      default:
-        return "";
-    }
-  }
 
   // 弹出原生选择界面,返回选择的媒体信息
   static Future<Map<dynamic, dynamic>?> pickImages({
@@ -70,17 +25,17 @@ class MultiImagePicker {
     MaterialOptions materialOptions = const MaterialOptions(),
   }) async {
     try {
-      final Map<dynamic, dynamic>? medias = await _channel.invokeMethod(
+      final Map<dynamic, dynamic>? medias = await channel.invokeMethod(
         'pickImages',
         <String, dynamic>{
           'maxImages': maxImages,
-          'thumb': _mediaThumbTypeToString(thumbType),
-          'mediaSelectTypes': _mediaSelectTypeToString(mediaSelectType),
+          'thumb': thumbType.nameString(),
+          'mediaSelectTypes': mediaSelectType.nameString(),
           'doneButtonText': doneButtonText,
           'iosOptions': cupertinoOptions.toJson(),
           'androidOptions': materialOptions.toJson(),
           'defaultAsset': defaultAsset,
-          'mediaShowTypes': _mediaShowTypeToString(mediaShowType),
+          'mediaShowTypes': mediaShowType.nameString(),
           'selectedAssets': selectedAssets,
         },
       );
@@ -97,7 +52,7 @@ class MultiImagePicker {
       List<Asset> defalutValue = const []}) async {
     try {
       if (!Platform.isIOS && !Platform.isAndroid) return defalutValue;
-      final List<dynamic> images = await (_channel.invokeMethod(
+      final List<dynamic> images = await (channel.invokeMethod(
           'requestMediaData',
           <String, dynamic>{'thumb': thumb, 'selectedAssets': selectedAssets}));
       List<Asset?> assets = [];
@@ -151,7 +106,7 @@ class MultiImagePicker {
       List<Asset> defalutValue = const []}) async {
     if (!Platform.isIOS && !Platform.isAndroid) return defalutValue;
     try {
-      final List<dynamic> images = await (_channel.invokeMethod(
+      final List<dynamic> images = await (channel.invokeMethod(
           'requestCompressMedia', <String, dynamic>{
         'thumb': thumb,
         'fileType': fileType,
@@ -199,7 +154,7 @@ class MultiImagePicker {
   static Future<Asset?> requestTakePicture(
       {String themeColor = "0xFF00CC00"}) async {
     try {
-      final dynamic item = await _channel.invokeMethod(
+      final dynamic item = await channel.invokeMethod(
           'requestTakePicture', <String, dynamic>{'themeColor': themeColor});
       var asset = Asset(
         item['identifier'],
@@ -226,7 +181,7 @@ class MultiImagePicker {
   //根据identifier来请求媒体的宽高
   static Future<dynamic> requestFileDimen(String identifier) async {
     try {
-      return await _channel.invokeMethod(
+      return await channel.invokeMethod(
           'requestFileDimen', <String, dynamic>{'identifier': identifier});
     } on PlatformException catch (e) {
       throw e;
@@ -236,7 +191,7 @@ class MultiImagePicker {
   //是否缓存了视频在本地磁盘
   static Future<dynamic> cachedVideoPath(String url) async {
     try {
-      return await _channel
+      return await channel
           .invokeMethod('cachedVideoPath', <String, dynamic>{'url': url});
     } on PlatformException catch (e) {
       throw e;
@@ -246,7 +201,7 @@ class MultiImagePicker {
   //视频缓存目录在本地磁盘
   static Future<dynamic> cachedVideoDirectory() async {
     try {
-      return await _channel.invokeMethod('cachedVideoDirectory', null);
+      return await channel.invokeMethod('cachedVideoDirectory', null);
     } on PlatformException catch (e) {
       throw e;
     }
@@ -255,7 +210,7 @@ class MultiImagePicker {
   /// 删除视频缓存 iOS端使用原生删除视频缓存
   static Future<dynamic> deleteCacheVideo() async {
     try {
-      return await _channel.invokeMethod('deleteCacheVideo', null);
+      return await channel.invokeMethod('deleteCacheVideo', null);
     } on PlatformException catch (e) {
       throw e;
     }
@@ -264,7 +219,7 @@ class MultiImagePicker {
   //获取图片视频的源文件路径
   static Future<dynamic> requestFilePath(String identifier) async {
     try {
-      return await _channel.invokeMethod(
+      return await channel.invokeMethod(
           'requestFilePath', <String, dynamic>{'identifier': identifier});
     } on PlatformException catch (e) {
       throw e;
@@ -274,7 +229,7 @@ class MultiImagePicker {
   //获取压缩文件存放的目录
   static Future<String?> requestThumbDirectory() async {
     try {
-      return await _channel.invokeMethod('requestThumbDirectory');
+      return await channel.invokeMethod('requestThumbDirectory');
     } on PlatformException catch (e) {
       throw e;
     }
@@ -284,7 +239,7 @@ class MultiImagePicker {
   static Future<List<Asset>> fetchMediaInfo(int offset, int limit,
       {List<String> selectedAssets = const []}) async {
     try {
-      final List<dynamic> images = await (_channel.invokeMethod(
+      final List<dynamic> images = await (channel.invokeMethod(
           'fetchMediaInfo', <String, dynamic>{
         'limit': limit,
         'offset': offset,
@@ -311,7 +266,7 @@ class MultiImagePicker {
       if (_cacheThumbData.containsKey(identifier)) {
         return _cacheThumbData[identifier] ?? Uint8List(0);
       } else {
-        Uint8List data = await _channel.invokeMethod(
+        Uint8List data = await channel.invokeMethod(
                 'fetchMediaThumbData', <String, dynamic>{
               'identifier': identifier,
               'fileType': fileType
@@ -341,28 +296,5 @@ class MultiImagePicker {
       print(e);
       return Uint8List(0);
     }
-  }
-
-  // 展示媒体发送消息
-  static Future<String> showMedioPicker(String identifier) async {
-    try {
-      return await _channel.invokeMethod('showMedioPicker', null);
-    } on PlatformException catch (e) {
-      throw e;
-    }
-  }
-
-  //初始化
-  //方向监听
-  // void listenerOrientation(Function orientationCallback) async {}
-  static Function(String p)? mediaCallback;
-  static Future<void> init() async {
-    _channel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == "showSendPage") {
-        //TO DO
-        mediaCallback?.call("showSendPage");
-      }
-    });
-    await _channel.invokeMethod('init');
   }
 }

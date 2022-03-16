@@ -43,7 +43,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     private let originBarButtonTitle: String = NSLocalizedString("Origin", comment: "")
     var originBarButton: SSRadioButton = SSRadioButton(type: .custom)
     var doneBarButton: UIButton = UIButton(type: .custom)
-    var bottomContentView : UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+    var bottomContentView : UIView = UIView()
     var bottomHeightConstraint : NSLayoutConstraint?
     
     required init(currentAssetIndex : Int?, assets: PHFetchResult<PHAsset>?) {
@@ -96,8 +96,9 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         originBarButton.addTarget(self, action: #selector(PreviewViewController.originButtonPressed(_:)), for: .touchUpInside)
         originBarButton.translatesAutoresizingMaskIntoConstraints = false
         
-        bottomContentView.contentView.addSubview(doneBarButton)
-        bottomContentView.contentView.addSubview(originBarButton)
+        bottomContentView.backgroundColor = UIColor.black
+        bottomContentView.addSubview(doneBarButton)
+        bottomContentView.addSubview(originBarButton)
         bottomContentView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(bottomContentView)
         

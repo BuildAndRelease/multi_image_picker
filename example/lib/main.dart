@@ -56,12 +56,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    MultiImagePicker.mediaCallback = (String p) {
+    MediaChannelApi.mediaCallback = (Map p) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => TestPage()),
       );
     };
+    MediaChannelApi.init();
   }
 
   @override
@@ -91,18 +92,24 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('视频缓存文件夹')),
           ElevatedButton(
               onPressed: () async {
-                final dir = MultiImagePicker.showMedioPicker("test");
+                final dir = MediaPicker.showMediaPicker(
+                  maxImages: 9,
+                  defaultAsset: null,
+                  selectedAssets: null,
+                  doneButtonText: "下一步",
+                  thumbType: FBMediaThumbType.file,
+                  mediaShowType: FBMediaShowType.all,
+                  cupertinoOptions: CupertinoOptions(
+                      takePhotoIcon: "chat",
+                      selectionStrokeColor: "#ff6179f2",
+                      selectionFillColor: "#ff6179f2"),
+                  materialOptions: MaterialOptions(
+                      allViewTitle: "All Photos",
+                      selectCircleStrokeColor: "#ff6179f2"),
+                );
                 print('打开媒体编辑: $dir');
               },
               child: Text('打开媒体编辑')),
-          ElevatedButton(
-              onPressed: () async {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TestPage()),
-                );
-              },
-              child: Text('导航')),
           Expanded(
             child: buildGridView(),
           ),
@@ -153,10 +160,10 @@ class _MyHomePageState extends State<MyHomePage> {
         mediaShowType: FBMediaShowType.all,
         cupertinoOptions: CupertinoOptions(
             takePhotoIcon: "chat",
-            selectionStrokeColor: "#ff6179f2",
-            selectionFillColor: "#ff6179f2"),
+            selectionStrokeColor: "#ff198CFE",
+            selectionFillColor: "#ff198CFE"),
         materialOptions: MaterialOptions(
-            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff6179f2"),
+            allViewTitle: "All Photos", selectCircleStrokeColor: "#ff198CFE"),
       );
       print(result);
 

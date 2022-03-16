@@ -1,4 +1,4 @@
-package com.example.multi_image_picker;
+package com.idreamsky.multi_image_picker;
 
 import android.app.Activity;
 import android.content.Context;

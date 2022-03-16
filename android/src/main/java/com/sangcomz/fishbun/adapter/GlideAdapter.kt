@@ -10,7 +10,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.example.multi_image_picker.R
+import com.idreamsky.multi_image_picker.R
 import com.sangcomz.fishbun.bean.Media
 
 /**

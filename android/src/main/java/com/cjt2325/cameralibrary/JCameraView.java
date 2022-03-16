@@ -33,7 +33,7 @@ import com.cjt2325.cameralibrary.util.FileUtil;
 import com.cjt2325.cameralibrary.util.KLog;
 import com.cjt2325.cameralibrary.util.ScreenUtils;
 import com.cjt2325.cameralibrary.view.CameraView;
-import com.example.multi_image_picker.R;
+import com.idreamsky.multi_image_picker.R;
 
 import java.io.IOException;
 

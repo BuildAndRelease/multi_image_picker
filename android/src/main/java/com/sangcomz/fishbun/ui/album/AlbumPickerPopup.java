@@ -15,7 +15,7 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.multi_image_picker.R;
+import com.idreamsky.multi_image_picker.R;
 import com.sangcomz.fishbun.Fishton;
 import com.sangcomz.fishbun.adapter.AlbumListAdapter;
 import com.sangcomz.fishbun.adapter.AlbumListItemSelectListener;

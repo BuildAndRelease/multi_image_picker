@@ -3,7 +3,7 @@ package com.sangcomz.fishbun
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import com.example.multi_image_picker.R
+import com.idreamsky.multi_image_picker.R
 import com.sangcomz.fishbun.adapter.GlideAdapter
 import com.sangcomz.fishbun.bean.Media
 import java.util.ArrayList

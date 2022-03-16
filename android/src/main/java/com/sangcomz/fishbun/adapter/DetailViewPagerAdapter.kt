@@ -9,7 +9,7 @@ import android.widget.VideoView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
-import com.example.multi_image_picker.R
+import com.idreamsky.multi_image_picker.R
 import com.sangcomz.fishbun.Fishton
 import com.sangcomz.fishbun.bean.Media
 import kotlinx.android.synthetic.main.detail_item.view.*

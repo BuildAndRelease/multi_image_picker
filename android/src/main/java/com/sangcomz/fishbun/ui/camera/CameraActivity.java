@@ -17,7 +17,7 @@ import com.cjt2325.cameralibrary.JCameraView;
 import com.cjt2325.cameralibrary.listener.ClickListener;
 import com.cjt2325.cameralibrary.listener.ErrorListener;
 import com.cjt2325.cameralibrary.listener.JCameraListener;
-import com.example.multi_image_picker.R;
+import com.idreamsky.multi_image_picker.R;
 import com.sangcomz.fishbun.util.Define;
 
 import java.io.BufferedOutputStream;

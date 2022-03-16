@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.example.multi_image_picker.R
+import com.idreamsky.multi_image_picker.R
 import com.sangcomz.fishbun.Fishton
 import com.sangcomz.fishbun.bean.Album
 import com.sangcomz.fishbun.util.getDimension

@@ -353,8 +353,6 @@ class MultiImagePicker {
   }
 
   //初始化
-  //方向监听
-  // void listenerOrientation(Function orientationCallback) async {}
   static Function(String p)? mediaCallback;
   static Future<void> init() async {
     _channel.setMethodCallHandler((MethodCall call) async {

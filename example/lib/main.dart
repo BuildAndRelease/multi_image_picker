@@ -56,6 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
+    MultiImagePicker.init();
     MultiImagePicker.mediaCallback = (String p) {
       Navigator.push(
         context,

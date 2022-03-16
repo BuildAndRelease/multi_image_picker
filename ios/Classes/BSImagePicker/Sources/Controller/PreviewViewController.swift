@@ -24,7 +24,7 @@ import UIKit
 import Photos
 import AVKit
 
-final class PreviewViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, SelectionViewDelegate {
+final class PreviewViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, NavSelectionViewDelegate {
     private let cellIdentifier = "PreviewCollectionCell"
 //    如果是正在加载View的时候不应该去监听ScrollViewDelegate
     var loadingView = true
@@ -33,9 +33,12 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
     var assets: PHFetchResult<PHAsset> = PHFetchResult<PHAsset>()
     
     var collectionView : UICollectionView = UICollectionView(frame: UIScreen.main.bounds, collectionViewLayout: UICollectionViewFlowLayout())
-    var cancelBarButton: UIBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
+    var cancelBarButton: UIBarButtonItem?
+    //= UIBarButtonItem(title: NSLocalizedString("Back", comment: ""), style: .plain, target: nil, action: nil)
     var selectBarButton: UIBarButtonItem = UIBarButtonItem()
-    var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+//    var selectionView: SelectionView = SelectionView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+    var selectionView: NavSelectionView = NavSelectionView(frame: CGRect(x: 0, y: 0, width: 80, height: 50))
+    
     let assetStore = DataCenter.shared.assetStore
     let settings = DataCenter.shared.settings
     
@@ -53,7 +56,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
             doneBarButtonTitle = settings.doneButtonText
         }
         view.backgroundColor = UIColor.black
-        
+                
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         flowLayout.minimumInteritemSpacing = 0
@@ -96,7 +99,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         originBarButton.addTarget(self, action: #selector(PreviewViewController.originButtonPressed(_:)), for: .touchUpInside)
         originBarButton.translatesAutoresizingMaskIntoConstraints = false
         
-        bottomContentView.backgroundColor = UIColor.black
+        bottomContentView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
         bottomContentView.addSubview(doneBarButton)
         bottomContentView.addSubview(originBarButton)
         bottomContentView.translatesAutoresizingMaskIntoConstraints = false
@@ -126,13 +129,16 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
             NSLayoutConstraint(item: collectionView, attribute: .trailing, relatedBy: .equal, toItem: safeGuide, attribute: .trailing, multiplier: 1, constant: 0),
         ])
 
-        cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.white], for: .normal)
-        cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.gray], for: .highlighted)
-        cancelBarButton.target = self
-        cancelBarButton.action = #selector(PreviewViewController.cancelButtonPressed(_:))
+        //返回按钮
+        let backBtn = UIButton()
+        backBtn.setImage(UIImage(named: "nav_back_btn")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        backBtn.addTarget(self, action: #selector(PhotosViewController.cancelButtonPressed(_:)), for: .touchUpInside)
+        backBtn.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        backBtn.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        cancelBarButton = UIBarButtonItem(customView: backBtn)
         
         selectBarButton = UIBarButtonItem(customView: selectionView);
-        selectionView.offset = 12.5
+//        selectionView.offset = 12.5
         selectionView.delegate = self
         navigationItem.leftBarButtonItem = cancelBarButton
         navigationItem.rightBarButtonItem = selectBarButton
@@ -342,7 +348,7 @@ final class PreviewViewController : UIViewController, UICollectionViewDelegate, 
         return -1
     }
     
-    func selectViewDidSelectDidAction(_ view: SelectionView) {
+    func selectViewDidSelectDidAction(_ view: NavSelectionView) {
         if let cell = collectionView.visibleCells.first, let asset = (cell as! PreviewCollectionViewCell).asset {
             if !(cell as! PreviewCollectionViewCell).thumbCanLoad {
                 showHUDAlert(text: NSLocalizedString("媒体信息异常", comment: ""))

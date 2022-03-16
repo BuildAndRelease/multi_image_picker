@@ -70,7 +70,7 @@ open class BSImagePickerViewController : UINavigationController{
         if #available(iOS 13.0, *) {
             navigationBar.scrollEdgeAppearance = nil
             let apperance = UINavigationBarAppearance()
-            apperance.backgroundColor = UIColor.black
+            apperance.backgroundColor = UIColor.black.withAlphaComponent(0.9)
             navigationBar.standardAppearance = apperance
         }
         

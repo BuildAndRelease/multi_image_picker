@@ -24,7 +24,9 @@ import UIKit
 import Photos
 
 final class PhotosViewController : UIViewController, CustomTitleViewDelegate, PhotoCollectionViewDataSourceDelegate, UICollectionViewDelegate {
-    var cancelBarButton: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
+    var cancelBarButton: UIBarButtonItem?; //= UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
+//    var cancelBarButton: UIBarButtonItem = UIBarButtonItem(image: UIImage.wm_imageWithName_WMCameraResource(named: "nav_close_btn"), style: .plain, target: nil, action: nil)
+    
     let titleContentView = CustomTitleView(frame: CGRect(x: 0, y: 0, width: 120, height: 34.0))
     
     var originBarButton: SSRadioButton = SSRadioButton(type: .custom)
@@ -74,10 +76,13 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         collectionView.backgroundColor = UIColor.darkGray
         collectionView.allowsMultipleSelection = true
         
-        cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.white], for: .normal)
-        cancelBarButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor : UIColor.gray], for: .highlighted)
-        cancelBarButton.target = self
-        cancelBarButton.action = #selector(PhotosViewController.cancelButtonPressed(_:))
+        //返回按钮
+        let backBtn = UIButton()
+        backBtn.setImage(UIImage(named: "nav_close_btn")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        backBtn.addTarget(self, action: #selector(PhotosViewController.cancelButtonPressed(_:)), for: .touchUpInside)
+        backBtn.widthAnchor.constraint(equalToConstant: 14).isActive = true
+        backBtn.heightAnchor.constraint(equalToConstant: 14).isActive = true
+        cancelBarButton = UIBarButtonItem(customView: backBtn)
         
         titleContentView.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.15)
         titleContentView.translatesAutoresizingMaskIntoConstraints = false
@@ -88,12 +93,11 @@ final class PhotosViewController : UIViewController, CustomTitleViewDelegate, Ph
         
         let normalColor = settings.selectionStrokeColor
         doneBarButton.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
-//        doneBarButton.backgroundColor = normalColor
+        doneBarButton.backgroundColor = normalColor
         doneBarButton.setTitleColor(UIColor.white, for: .normal)
         doneBarButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .disabled)
         doneBarButton.setTitle(doneBarButtonTitle, for: .normal)
         doneBarButton.setBackgroundColor(color: normalColor, for: .normal)
-//        doneBarButton.setBackgroundColor(color: UIColor(red: 25/255.0, green: 140/255.0, blue: 254/255.0, alpha: 1), for: .normal)
         doneBarButton.setBackgroundColor(color: normalColor.withAlphaComponent(0.5), for: .disabled)
         doneBarButton.layer.masksToBounds = true
         doneBarButton.layer.cornerRadius = 4.0

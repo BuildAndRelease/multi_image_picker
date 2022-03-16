@@ -277,6 +277,14 @@
 				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/ic_photo_error@1x.png",
 				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/ic_photo_error@2x.png",
 				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/ic_photo_error@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/nav_back_btn@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/nav_back_btn@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/nav_close_btn@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/nav_close_btn@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/nav_res_checked@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/nav_res_checked@3x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/nav_res_uncheck@2x.png",
+				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/nav_res_uncheck@3x.png",
 				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_select.png",
 				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_select@1x.png",
 				"${PODS_ROOT}/../.symlinks/plugins/multi_image_picker/ios/Assert/play_btn_select@2x.png",
@@ -313,6 +321,14 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_photo_error@1x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_photo_error@2x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ic_photo_error@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/nav_back_btn@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/nav_back_btn@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/nav_close_btn@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/nav_close_btn@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/nav_res_checked@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/nav_res_checked@3x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/nav_res_uncheck@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/nav_res_uncheck@3x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_select.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_select@1x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/play_btn_select@2x.png",
@@ -460,7 +476,10 @@
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
@@ -604,7 +623,10 @@
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
@@ -641,7 +663,10 @@
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",

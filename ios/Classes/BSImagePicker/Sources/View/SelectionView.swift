@@ -26,6 +26,10 @@ protocol SelectionViewDelegate : AnyObject {
     func selectViewDidSelectDidAction(_ view : SelectionView)
 }
 
+protocol NavSelectionViewDelegate : AnyObject {
+    func selectViewDidSelectDidAction(_ view : NavSelectionView)
+}
+
 /**
 Used as an overlay on selected cells
 */
@@ -114,6 +118,62 @@ Used as an overlay on selected cells
         //// Bezier Drawing (Picture Number)
         let size = selectionString.size(withAttributes: settings.selectionTextAttributes)
         selectionString.draw(in: CGRect(x: checkmarkFrame.midX - size.width / 2.0, y: checkmarkFrame.midY - size.height / 2.0, width: size.width, height: size.height), withAttributes: settings.selectionTextAttributes)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if delegate != nil {
+            self.delegate?.selectViewDidSelectDidAction(self)
+        }else {
+            super.touchesEnded(touches, with: event)
+        }
+    }
+}
+
+
+class NavSelectionView: UIView{
+    weak var delegate : NavSelectionViewDelegate?
+    var selectionString: String = "" {
+        didSet {
+            if selectionString != oldValue {
+                setNeedsDisplay()
+            }
+        }
+    }
+    
+    var selected : Bool = false {
+        didSet {
+            if selected != oldValue {
+                switchImage!.isHighlighted = selected
+            }
+        }
+    }
+    
+    let settings = DataCenter.shared.settings
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = UIColor.clear
+        setupUI()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    var switchImage:UIImageView?
+    func setupUI(){
+        let title = UILabel(frame: CGRect(x: self.wm_width-34, y: 1, width: 34, height: 50))
+        title.text = "选择"
+        title.font = UIFont.systemFont(ofSize: 16)
+        title.textColor = UIColor.white
+        title.textAlignment = NSTextAlignment.right
+        self.addSubview(title);
+        
+        switchImage = UIImageView(frame: CGRect(x: title.wm_x-23, y: 0, width: 23, height: 50))
+        switchImage?.image = UIImage(named: "nav_res_uncheck")
+        switchImage?.highlightedImage = UIImage(named: "nav_res_checked")
+        switchImage?.contentMode = UIView.ContentMode.scaleAspectFit
+        self.addSubview(switchImage!)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {

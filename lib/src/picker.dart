@@ -342,4 +342,27 @@ class MultiImagePicker {
       return Uint8List(0);
     }
   }
+
+  // 展示媒体发送消息
+  static Future<String> showMedioPicker(String identifier) async {
+    try {
+      return await _channel.invokeMethod('showMedioPicker', null);
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
+  //初始化
+  //方向监听
+  // void listenerOrientation(Function orientationCallback) async {}
+  static Function(String p)? mediaCallback;
+  static Future<void> init() async {
+    _channel.setMethodCallHandler((MethodCall call) async {
+      if (call.method == "showSendPage") {
+        //TO DO
+        mediaCallback?.call("showSendPage");
+      }
+    });
+    await _channel.invokeMethod('init');
+  }
 }

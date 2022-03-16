@@ -3,11 +3,14 @@ import UIKit
 import Photos
 import KTVHTTPCache
 
+
 public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDelegate {
     var controller: UIViewController!
     var imagesResult: FlutterResult?
     var messenger: FlutterBinaryMessenger;
 
+    static var methodChannel:FlutterMethodChannel?
+    
     init(cont: UIViewController, messenger: FlutterBinaryMessenger) {
         self.controller = cont;
         self.messenger = messenger;
@@ -17,6 +20,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "multi_image_picker", binaryMessenger: registrar.messenger())
 
+        methodChannel = channel;
+        
         let app =  UIApplication.shared
         let rootController = app.delegate!.window!!.rootViewController
         var flutterController: FlutterViewController? = nil
@@ -346,6 +351,9 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
         case "deleteCacheVideo":
             KTVHTTPCache.cacheDeleteAllCaches()
             result(true)
+        case "showMedioPicker":
+            SwiftMultiImagePickerPlugin.methodChannel?.invokeMethod("showSendPage", arguments: "test")
+            result("showMedioPicker")
         default:
             result(FlutterMethodNotImplemented)
         }

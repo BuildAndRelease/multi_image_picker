@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:multi_image_picker_example/DemoLocalizations.dart';
+import 'package:multi_image_picker_example/test_page.dart';
 
 import 'DemoLocalizationsDelegate.dart';
 
@@ -52,6 +53,18 @@ class _MyHomePageState extends State<MyHomePage> {
   String _error = 'No Error Dectected';
 
   @override
+  void initState() {
+    super.initState();
+
+    MultiImagePicker.mediaCallback = (String p) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => TestPage()),
+      );
+    };
+  }
+
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
@@ -76,9 +89,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 print('视频缓存文件夹: $dir');
               },
               child: Text('视频缓存文件夹')),
+          ElevatedButton(
+              onPressed: () async {
+                final dir = MultiImagePicker.showMedioPicker("test");
+                print('打开媒体编辑: $dir');
+              },
+              child: Text('打开媒体编辑')),
+          ElevatedButton(
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TestPage()),
+                );
+              },
+              child: Text('导航')),
           Expanded(
             child: buildGridView(),
-          )
+          ),
         ],
       ),
     );

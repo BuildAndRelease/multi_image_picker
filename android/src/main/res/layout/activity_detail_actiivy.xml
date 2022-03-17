@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/black">
 
     <com.sangcomz.fishbun.util.ImageOriginPager
@@ -15,30 +16,41 @@
         android:layout_alignParentTop="true"
         android:background="#70000000">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <ImageButton
             android:id="@+id/btn_detail_back"
-            android:layout_width="40dp"
-            android:layout_height="30dp"
-            android:layout_marginLeft="24dp"
-            android:layout_marginTop="24dp"
-            android:text="@string/back"
-            android:textColor="@drawable/select_text_drawable"
-            android:gravity="center"
-            android:textSize="@dimen/normal_text_size"
-            android:background="#00ffffff"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"/>
+            android:layout_width="20dp"
+            android:layout_height="40dp"
+            android:paddingVertical="10dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:src="@drawable/ic_nav_back_button"
+            android:background="@null"
+            android:scaleType="centerInside"/>
 
-        <com.sangcomz.fishbun.util.RadioWithTextButton
-            android:id="@+id/btn_detail_count"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="24dp"
-            android:layout_marginTop="24dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="5dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"/>
+            android:layout_marginRight="15dp"
+            android:id="@+id/btn_detail_count"
+            >
+            <ImageView
+                android:id="@+id/nav_select_icon"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:src="@drawable/nav_res_checked"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="5dp"
+                ></ImageView>
+            <TextView
+                android:gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:textSize="@dimen/normal_text_size"
+                android:text="@string/select"
+                android:textColor="@android:color/white">
+            </TextView>
+        </LinearLayout>
 
     </RelativeLayout>
 

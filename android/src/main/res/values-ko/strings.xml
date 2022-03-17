@@ -18,4 +18,5 @@
     <string name="cancel">취소</string>
     <string name="preview">미리보기</string>
     <string name="none_album_string">photo album is empty</string>
+    <string name="select">select</string>
 </resources>

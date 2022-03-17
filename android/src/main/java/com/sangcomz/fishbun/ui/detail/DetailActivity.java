@@ -11,6 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,9 +42,10 @@ import java.util.List;
 public class DetailActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, DetailViewPagerAdapter.OnVideoPlayActionListener {
     private int initPosition;
     private Fishton fishton;
-    private RadioWithTextButton btnDetailCount;
+    private LinearLayout btnDetailCount;
+    private ImageView isCheckImageView;
     private ImageOriginPager vpDetailPager;
-    private Button btnDetailBack;
+    private ImageButton btnDetailBack;
     private VideoView currentPlayVideoView;
     private Button originBtn;
     private Button sendBtn;
@@ -84,6 +88,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     private void initView() {
         btnDetailCount = findViewById(R.id.btn_detail_count);
+        isCheckImageView = findViewById(R.id.nav_select_icon);
         vpDetailPager = findViewById(R.id.vp_detail_pager);
         btnDetailBack = findViewById(R.id.btn_detail_back);
         originBtn = findViewById(R.id.photo_preview_origin_btn);
@@ -91,10 +96,10 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         compressingView = findViewById(R.id.compressing_content_view);
         compressingTextView = findViewById(R.id.compressing_text_view);
 
-        btnDetailCount.unselect();
-        btnDetailCount.setTextColor(Color.WHITE);
-        btnDetailCount.setCircleColor(fishton.getColorSelectCircleStroke());
-        btnDetailCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
+//        btnDetailCount.unselect();
+//        btnDetailCount.setTextColor(Color.WHITE);
+//        btnDetailCount.setCircleColor(fishton.getColorSelectCircleStroke());
+//        btnDetailCount.setStrokeColor(fishton.getColorDeSelectCircleStroke());
         btnDetailCount.setOnClickListener(this);
         compressingView.setOnClickListener(this);
         btnDetailBack.setOnClickListener(this);
@@ -143,9 +148,11 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     public void onCheckStateChange(Media media) {
         boolean isContained = fishton.getSelectedMedias().contains(media);
         if (isContained) {
-            updateRadioButton(btnDetailCount, String.valueOf(fishton.getSelectedMedias().indexOf(media) + 1));
+//            updateRadioButton(btnDetailCount, String.valueOf(fishton.getSelectedMedias().indexOf(media) + 1));
+            isCheckImageView.setImageResource(R.drawable.nav_res_checked);
         } else {
-            btnDetailCount.unselect();
+//            btnDetailCount.unselect();
+            isCheckImageView.setImageResource(R.drawable.nav_res_uncheck);
         }
         updateSendBtnTitle();
     }
@@ -234,18 +241,18 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             if (fishton.getSelectedMedias().size() < 1) {
                 Media media = fishton.getPickerMedias().get(vpDetailPager.getCurrentItem());
                 if (media.getmTag().toString().equals("-1")) {
-                    Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片正在加载" : "视频正在加载", Snackbar.LENGTH_SHORT).show();
+//                    Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片正在加载" : "视频正在加载", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 if (media.getmTag().toString().equals("0")) {
-                    Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片格式异常" : "视频格式异常", Snackbar.LENGTH_SHORT).show();
+//                    Snackbar.make(btnDetailCount, media.getFileType().contains("image") ? "图片格式异常" : "视频格式异常", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
 //                if (Float.parseFloat(media.getFileSize()) > 1024 * 1024 * 100) {
 //                    Snackbar.make(btnDetailCount, "不能分享超过100M的文件", Snackbar.LENGTH_SHORT).show();
 //                } else
                 if (fishton.getMaxCount() == fishton.getSelectedMedias().size() && !fishton.getSelectedMedias().contains(media)) {
-                    Snackbar.make(btnDetailCount, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();
+//                    Snackbar.make(btnDetailCount, "最多只能选择"+fishton.getMaxCount()+"个文件", Snackbar.LENGTH_SHORT).show();
                 } else {
                     if (fishton.getSelectedMedias().contains(media)) {
                         fishton.getSelectedMedias().remove(media);

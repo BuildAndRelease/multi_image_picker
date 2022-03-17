@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -40,7 +41,7 @@ public class PickerActivity extends AppCompatActivity implements View.OnClickLis
     private Fishton fishton;
     private Album album;
 
-    private Button cancelBtn;
+    private ImageButton cancelBtn;
     private RelativeLayout moreContentView;
     private RelativeLayout toolBar;
     private ImageView moreArrowImageView;

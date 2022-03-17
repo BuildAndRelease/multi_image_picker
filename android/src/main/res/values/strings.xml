@@ -17,4 +17,5 @@
     <string name="cancel">Cancel</string>
     <string name="preview">Preview</string>
     <string name="none_album_string">photo album is empty</string>
+    <string name="select">select</string>
 </resources>

@@ -4,6 +4,8 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="BaseApp" parent="Theme.AppCompat.Light.NoActionBar" />
+
     <style name="FishBunTheme" parent="Theme.AppCompat.Light.NoActionBar" />
 
     <style name="DetailViewTheme" parent="FishBunTheme">

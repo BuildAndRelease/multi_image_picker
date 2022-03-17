@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import androidx.core.content.ContextCompat;
 import androidx.annotation.NonNull;
 
+import com.fanbook.multi_picker.meishe.media_select.activity.SelectMediaActivity;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
 import com.sangcomz.fishbun.adapter.GlideAdapter;
@@ -29,14 +30,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.app.FlutterApplication;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -45,7 +43,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 /**
  * MultiImagePickerPlugin
  */
-public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,MethodCallHandler, PluginRegistry.ActivityResultListener {
+public class MultiImagePickerPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.ActivityResultListener {
     private static final String CHANNEL_NAME = "multi_image_picker";
     private static final String FETCH_MEDIA_THUMB_DATA = "fetchMediaThumbData";
     private static final String FETCH_MEDIA_INFO = "fetchMediaInfo";
@@ -59,6 +57,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
     private static final String FETCH_CACHED_VIDEO_PATH = "cachedVideoPath";
     private static final String FETCH_CACHED_VIDEO_Directory = "cachedVideoDirectory";
     private static final String PICK_IMAGES = "pickImages";
+    private static final String SHOW_MEDIA_PICKER = "showMedioPicker";
     private static final String MAX_IMAGES = "maxImages";
     private static final String THUMB = "thumb";
     private static final String IDENTIFY = "identifier";
@@ -143,11 +142,11 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                         }
                         currentPickerResult = result;
                         presentPicker(call);
-                    }else {
+                    } else {
                         if (currentPickerResult != null) {
                             currentPickerResult.error(PERMISSIONERROR, PERMISSIONDESC, null);
                             currentPickerResult = null;
-                        }else {
+                        } else {
                             result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                         }
                     }
@@ -171,12 +170,12 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                             }
                         });
                         displayImage.execute();
-                    }else {
+                    } else {
                         result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
-                case REQUEST_FILE_PATH:{
+                case REQUEST_FILE_PATH: {
                     String identify = call.argument(IDENTIFY);
                     ArrayList<String> selectMedias = new ArrayList<>();
                     selectMedias.add(identify);
@@ -190,7 +189,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                                 HashMap hashMap = new HashMap();
                                 hashMap.put("filePath", ((HashMap) medias.get(0)).get("filePath"));
                                 result.success(hashMap);
-                            }else {
+                            } else {
                                 result.error(GETFAILD, GETFAILD, "get media failed");
                             }
                         }
@@ -205,7 +204,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                                 currentPickerResult.error("TAKING PICTURE", "", null);
                                 currentPickerResult = null;
                             }
-                        }else {
+                        } else {
                             if (currentPickerResult != null) {
                                 currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
                             }
@@ -217,11 +216,11 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                             i.putExtra(THEME_COLOR, themeColor);
                             activity.startActivityForResult(i, REQUEST_CODE_TAKE);
                         }
-                    }else  {
+                    } else {
                         if (currentPickerResult != null) {
                             currentPickerResult.error(PERMISSIONERROR, PERMISSIONDESC, null);
                             currentPickerResult = null;
-                        }else {
+                        } else {
                             result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                         }
                     }
@@ -239,13 +238,13 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                             }
                         });
                         mediaThumbData.execute();
-                    }else {
+                    } else {
                         result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
                 case REQUEST_FILE_SIZE: {
-                    if (checkPermission( false, false, true)) {
+                    if (checkPermission(false, false, true)) {
                         String identify = call.argument(IDENTIFY);
                         MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
                         mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
@@ -255,13 +254,13 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                             }
                         });
                         mediaInfoData.execute();
-                    }else {
+                    } else {
                         result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
                 case REQUEST_FILE_DIMEN: {
-                    if (checkPermission( false, false, true)) {
+                    if (checkPermission(false, false, true)) {
                         String identify = call.argument(IDENTIFY);
                         MediaInfoData mediaInfoData = new MediaInfoData(identify, activity);
                         mediaInfoData.setListener(new MediaInfoData.MediaInfoDataListener() {
@@ -271,7 +270,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                             }
                         });
                         mediaInfoData.execute();
-                    }else {
+                    } else {
                         result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
@@ -293,7 +292,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                             }
                         });
                         mediaCompress.execute();
-                    }else {
+                    } else {
                         result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
@@ -310,36 +309,41 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                             }
                         });
                         mediaCompress.execute();
-                    }else {
+                    } else {
                         result.error(PERMISSIONERROR, PERMISSIONDESC, null);
                     }
                     break;
                 }
                 case FETCH_CACHED_VIDEO_PATH: {
-                    try{
+                    try {
                         String url = call.argument("url");
                         if (!TextUtils.isEmpty(url)) {
                             result.success(getVideoCacheDir(context, url).getAbsolutePath());
-                        }else {
+                        } else {
                             result.success("");
                         }
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         result.success("");
                     }
                     break;
                 }
-                case FETCH_CACHED_VIDEO_Directory:{
-                    try{
+                case FETCH_CACHED_VIDEO_Directory: {
+                    try {
                         File file = new File(context.getExternalCacheDir(), "video-cache");
                         result.success(file.getAbsolutePath());
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         result.success("");
                     }
                     break;
                 }
-                case "showMedioPicker":{
-                    //TO DO
-                    result.success("showMedioPicker");
+                case SHOW_MEDIA_PICKER: {
+                    if (checkPermission(false, false, true)) {
+                        meiShePicker(call);
+                        // TODO
+                        result.success(null);
+                    } else {
+                        result.error(PERMISSIONERROR, PERMISSIONDESC, null);
+                    }
                     break;
                 }
             }
@@ -347,7 +351,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
             if (currentPickerResult != null) {
                 currentPickerResult.error(e.getMessage(), e.toString(), null);
                 currentPickerResult = null;
-            }else {
+            } else {
                 result.error(e.getMessage(), e.toString(), null);
             }
         }
@@ -388,7 +392,7 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
         showMediaType = TextUtils.isEmpty(showMediaType) ? "" : showMediaType;
 
         String actionBarTitle = options.get("actionBarTitle");
-        String allViewTitle =  options.get("allViewTitle");
+        String allViewTitle = options.get("allViewTitle");
         String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
         String selectionLimitReachedText = options.get("selectionLimitReachedText");
         String textOnNothingSelected = options.get("textOnNothingSelected");
@@ -450,23 +454,23 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                         currentPickerResult.success(result != null ? result : new HashMap());
                         currentPickerResult = null;
                     }
-                }else if (resultCode == Define.FINISH_DETAIL_RESULT_CODE) {
+                } else if (resultCode == Define.FINISH_DETAIL_RESULT_CODE) {
                     if (currentPickerResult != null) {
                         Serializable result = data.getSerializableExtra(Define.INTENT_RESULT);
                         currentPickerResult.success(result);
                         currentPickerResult = null;
                     }
-                }else if (resultCode == Activity.RESULT_CANCELED) {
+                } else if (resultCode == Activity.RESULT_CANCELED) {
                     if (currentPickerResult != null) {
                         ArrayList result = data != null ? data.getParcelableArrayListExtra(Define.INTENT_RESULT) : new ArrayList();
                         Boolean thumb = data != null ? data.getBooleanExtra(Define.INTENT_THUMB, true) : true;
-                        HashMap <String, Object> t = new HashMap<>();
+                        HashMap<String, Object> t = new HashMap<>();
                         t.put("assets", result);
                         t.put("thumb", thumb);
                         currentPickerResult.error("CANCELLED", "", t);
                         currentPickerResult = null;
                     }
-                }else {
+                } else {
                     if (currentPickerResult != null) {
                         currentPickerResult.error("CANCELLED", "", new ArrayList<>());
                         currentPickerResult = null;
@@ -480,14 +484,14 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                         currentPickerResult.success(result);
                         currentPickerResult = null;
                     }
-                }else {
+                } else {
                     if (currentPickerResult != null) {
                         currentPickerResult.error("CANCELLED", "", new HashMap<>());
                         currentPickerResult = null;
                     }
                 }
                 return true;
-            }else {
+            } else {
                 if (currentPickerResult != null) {
                     currentPickerResult.success(new Object());
                     currentPickerResult = null;
@@ -506,5 +510,9 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
         channel.setMethodCallHandler(null);
+    }
+
+    private void meiShePicker(MethodCall call) {
+        activity.startActivity(new Intent(activity, SelectMediaActivity.class));
     }
 }

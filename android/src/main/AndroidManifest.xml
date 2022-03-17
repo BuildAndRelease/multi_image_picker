@@ -1,34 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.example.multi_image_picker">
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.CAMERA" />
+    package="com.example.multi_image_picker">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <application>
+        <activity
+            android:name="com.fanbook.multi_picker.meishe.media_edit.EditVideoActivity"
+            android:exported="false"
+            android:theme="@style/BaseApp" />
+
+        <activity
+            android:name="com.fanbook.multi_picker.meishe.media_select.activity.SelectMediaActivity"
+            android:exported="false"
+            android:theme="@style/BaseApp" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
         <activity
             android:name="com.sangcomz.fishbun.ui.picker.PickerActivity"
-            android:theme="@style/FishBunTheme"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/FishBunTheme" />
         <activity
             android:name="com.sangcomz.fishbun.ui.detail.DetailActivity"
-            android:theme="@style/DetailViewTheme"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/DetailViewTheme" />
         <activity
             android:name="com.sangcomz.fishbun.ui.camera.CameraActivity"
             android:screenOrientation="portrait" />
-
     </application>
 
 </manifest>

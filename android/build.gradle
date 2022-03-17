@@ -62,6 +62,7 @@ dependencies {
     implementation 'com.github.yellowcath:VideoProcessor:2.4.2'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'top.zibin:Luban:1.1.8'
+    implementation files('libs/NvAndroidStreamingSdk.jar')
 
     compileOnly "androidx.appcompat:appcompat:$androidx_version"
     api "androidx.constraintlayout:constraintlayout:$constraint_version"

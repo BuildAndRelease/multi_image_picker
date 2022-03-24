@@ -173,7 +173,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                     for i in stride(from: from, through:max(through, 0), by:-1)  {
                         if (i >= resultCount || i < 0) {continue}
                         let asset = fetchResult.object(at: i)
-                        let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2)
+                        let size = weakSelf?.getThumbnailSize(originSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight)) ?? CGSize(width: asset.pixelWidth/4, height: asset.pixelHeight/4)
                         let dictionary = NSMutableDictionary()
                         dictionary.setValue(asset.localIdentifier, forKey: "identifier")
                         dictionary.setValue("", forKey: "filePath")
@@ -208,7 +208,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
                 let imageContentMode: PHImageContentMode = .aspectFill
                 
                 if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject {
-                    PHCachingImageManager.default().requestImage(for: asset, targetSize: weakSelf?.getThumbnailSize(originSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight))) ?? CGSize(width: asset.pixelWidth/2, height: asset.pixelHeight/2), contentMode: imageContentMode, options: imageRequestOptions) { (image, info) in
+                    PHCachingImageManager.default().requestImage(for: asset, targetSize: weakSelf?.getThumbnailSize(originSize: CGSize(width: CGFloat(asset.pixelWidth), height: CGFloat(asset.pixelHeight))) ?? CGSize(width: asset.pixelWidth/4, height: asset.pixelHeight/4), contentMode: imageContentMode, options: imageRequestOptions) { (image, info) in
                         result(image?.jpegData(compressionQuality: 0.8) ?? FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
                     }
                 }else {
@@ -377,8 +377,14 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin, UIAlertViewDe
     private func getThumbnailSize(originSize: CGSize) -> CGSize {
         let thumbnailWidth: CGFloat = (UIScreen.main.bounds.size.width) / 3 * UIScreen.main.scale
         let pixelScale = CGFloat(originSize.width)/CGFloat(originSize.height)
-        let thumbnailSize = CGSize(width: thumbnailWidth, height: thumbnailWidth/pixelScale)
+        var thumbnailSize = CGSize(width: thumbnailWidth, height: thumbnailWidth/pixelScale)
         
+        let pixel = thumbnailSize.width * thumbnailSize.height
+        let maxPixel = MAXPixel / 4
+        if pixel > maxPixel {
+            thumbnailSize.width = maxPixel / pixel * thumbnailSize.width
+            thumbnailSize.height = maxPixel / pixel * thumbnailSize.height
+        }
         return thumbnailSize
     }
     

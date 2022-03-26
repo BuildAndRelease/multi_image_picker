@@ -8,6 +8,8 @@ import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -100,35 +102,38 @@ public class DisplayImage {
     @NonNull
     private ArrayList getAllMediaThumbnailsPath(long id) {
         String bucketId = String.valueOf(id);
-        String sort = MediaStore.Files.FileColumns._ID + " DESC ";
-        if (limit >= 0 && offset >= 0) {
-            sort = sort + " LIMIT " + limit + " OFFSET " + offset;
-        }
-
+        Cursor c;
         Uri mediaUri = MediaStore.Files.getContentUri("external");
-        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+        String selection = "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
                 + " OR "
                 + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
-        Cursor c;
-        try {
-            if ("0".equals(bucketId)) {
-                if (fetchSpecialPhotos) {
-                    selection = "(" + selection + ") AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
-                }
-                c = resolver.query(mediaUri, null, selection, null, sort);
-            }else {
-                selection = "(" + selection + ") AND " + MediaStore.MediaColumns.BUCKET_ID + " = ?";
-                if (fetchSpecialPhotos) {
-                    selection = selection + " AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
-                }
-                String[] selectionArgs = {bucketId};
-                c = resolver.query(mediaUri, null, selection, selectionArgs, sort);
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO + ")";
+        if (!"0".equals(bucketId)) selection = selection + " AND " + MediaStore.MediaColumns.BUCKET_ID + " = " + bucketId;
+        if (fetchSpecialPhotos) selection = selection + " AND " + MediaStore.MediaColumns._ID + " in (" + TextUtils.join(",", selectMedias) + ")";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q/*29*/) {
+            final Bundle bundle = new Bundle();
+            bundle.putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection);
+            bundle.putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, new String[]{});
+            bundle.putStringArray(ContentResolver.QUERY_ARG_SORT_COLUMNS, new String[]{MediaStore.Files.FileColumns._ID});
+            bundle.putInt(ContentResolver.QUERY_ARG_SORT_DIRECTION, ContentResolver.QUERY_SORT_DIRECTION_DESCENDING);
+            if (limit >= 0) bundle.putInt(ContentResolver.QUERY_ARG_LIMIT, limit);
+            if (offset >= 0)bundle.putInt(ContentResolver.QUERY_ARG_OFFSET, offset);
+            try{
+                c = resolver.query(mediaUri, null, bundle, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ArrayList();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList();
+        } else {
+            String sort = MediaStore.Files.FileColumns._ID + " DESC ";
+            if (limit >= 0 && offset >= 0) sort = sort + " LIMIT " + limit + " OFFSET " + offset;
+            try {
+                c = resolver.query(mediaUri, null, selection, null, sort);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ArrayList();
+            }
         }
         ArrayList medias = new ArrayList<>();
         if (c != null) {
@@ -157,7 +162,7 @@ public class DisplayImage {
                             float height = 0;
                             try {
                                 width = c.getFloat(HEIGHT);
-                                 height = c.getFloat(WIDTH);
+                                height = c.getFloat(WIDTH);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

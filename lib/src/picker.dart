@@ -196,33 +196,6 @@ class MultiImagePicker {
     }
   }
 
-  static Future<Asset?> requestTakePicture(
-      {String themeColor = "0xFF00CC00"}) async {
-    try {
-      final dynamic item = await _channel.invokeMethod(
-          'requestTakePicture', <String, dynamic>{'themeColor': themeColor});
-      var asset = Asset(
-        item['identifier'],
-        item['filePath'],
-        item['name'],
-        item['width'],
-        item['height'],
-        item['fileType'],
-        checkPath: item['checkPath'],
-        duration: item['duration'],
-        thumbFilePath: item['thumbPath'],
-        thumbName: item['thumbName'],
-        thumbHeight: item['thumbHeight'],
-        thumbWidth: item['thumbWidth'],
-      );
-      return asset;
-    } on PlatformException catch (e) {
-      throw e;
-    } on Exception catch (e) {
-      print(e);
-    }
-  }
-
   //根据identifier来请求媒体的宽高
   static Future<dynamic> requestFileDimen(String identifier) async {
     try {

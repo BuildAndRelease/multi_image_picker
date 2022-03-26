@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.FishBunCreator;
 import com.sangcomz.fishbun.adapter.GlideAdapter;
-import com.sangcomz.fishbun.ui.camera.CameraActivity;
 import com.sangcomz.fishbun.util.Define;
 import com.sangcomz.fishbun.util.MediaInfoData;
 import com.sangcomz.fishbun.util.PermissionCheck;
@@ -29,14 +28,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.app.FlutterApplication;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -51,7 +47,6 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
     private static final String FETCH_MEDIA_INFO = "fetchMediaInfo";
     private static final String REQUEST_MEDIA_DATA = "requestMediaData";
     private static final String REQUEST_COMPRESS_MEDIA = "requestCompressMedia";
-    private static final String REQUEST_TAKE_PICTURE = "requestTakePicture";
     private static final String REQUEST_FILE_PATH = "requestFilePath";
     private static final String REQUEST_FILE_SIZE = "requestFileSize";
     private static final String REQUEST_FILE_DIMEN = "requestFileDimen";
@@ -196,35 +191,6 @@ public class MultiImagePickerPlugin implements  FlutterPlugin, ActivityAware,Met
                         }
                     });
                     displayImage.execute();
-                    break;
-                }
-                case REQUEST_TAKE_PICTURE: {
-                    if (checkPermission(true, true, true)) {
-                        if (CameraActivity.isTakingPicture) {
-                            if (currentPickerResult != null) {
-                                currentPickerResult.error("TAKING PICTURE", "", null);
-                                currentPickerResult = null;
-                            }
-                        }else {
-                            if (currentPickerResult != null) {
-                                currentPickerResult.error("TIME OUT NEW PICKER COME IN", "", null);
-                            }
-                            String color = call.argument(THEME_COLOR);
-                            int themeColor = color == null || color.isEmpty() ? 0xFF00CC00 : Color.parseColor(color);
-                            currentPickerResult = result;
-                            CameraActivity.isTakingPicture = true;
-                            Intent i = new Intent(activity, CameraActivity.class);
-                            i.putExtra(THEME_COLOR, themeColor);
-                            activity.startActivityForResult(i, REQUEST_CODE_TAKE);
-                        }
-                    }else  {
-                        if (currentPickerResult != null) {
-                            currentPickerResult.error(PERMISSIONERROR, PERMISSIONDESC, null);
-                            currentPickerResult = null;
-                        }else {
-                            result.error(PERMISSIONERROR, PERMISSIONDESC, null);
-                        }
-                    }
                     break;
                 }
                 case FETCH_MEDIA_THUMB_DATA: {

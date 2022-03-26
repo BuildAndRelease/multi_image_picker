@@ -210,33 +210,6 @@ class MediaPickerImp{
                     result(FlutterError(code: "REQUEST FAILED", message: "image request failed \(localIdentifier)", details: nil))
                 }
             }
-        case "requestTakePicture":
-            let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let themeColor = (arguments["themeColor"] as? String) ?? "#ff6179f2"
-            let vc = WMCameraViewController()
-            vc.videoMaxLength = 15
-            vc.themeColor = hexStringToUIColor(hex: themeColor)
-            vc.completeBlock = { url, type, duration, width, height, thumbPath, thumbWidth, thumbHeight in
-                let dictionary = NSMutableDictionary()
-                dictionary.setValue(url, forKey: "identifier")
-                dictionary.setValue(url, forKey: "filePath")
-                dictionary.setValue(width, forKey: "width")
-                dictionary.setValue(height, forKey: "height")
-                dictionary.setValue(url, forKey: "name")
-                dictionary.setValue(duration, forKey: "duration")
-                if type == .video {
-                    dictionary.setValue("video", forKey: "fileType")
-                }else if type == .image {
-                    dictionary.setValue("image/jpeg", forKey: "fileType")
-                }
-                dictionary.setValue(thumbPath, forKey: "thumbPath")
-                dictionary.setValue(thumbPath, forKey: "thumbName")
-                dictionary.setValue(thumbHeight, forKey: "thumbHeight")
-                dictionary.setValue(thumbWidth, forKey: "thumbWidth")
-                result(dictionary)
-            }
-            vc.modalPresentationStyle = .fullScreen
-            ImpUtils.getTopViewController()?.present(vc, animated: true, completion: nil)
         case "pickImages":
             let status: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
             if (status == PHAuthorizationStatus.denied) {
@@ -347,6 +320,20 @@ class MediaPickerImp{
         let pixelScale = CGFloat(originSize.width)/CGFloat(originSize.height)
         let thumbnailSize = CGSize(width: thumbnailWidth, height: thumbnailWidth/pixelScale)
         
+        return thumbnailSize
+    }
+    
+    private func getThumbnailSize(originSize: CGSize) -> CGSize {
+        let thumbnailWidth: CGFloat = (UIScreen.main.bounds.size.width) / 3 * UIScreen.main.scale
+        let pixelScale = CGFloat(originSize.width)/CGFloat(originSize.height)
+        var thumbnailSize = CGSize(width: thumbnailWidth, height: thumbnailWidth/pixelScale)
+        
+        let pixel = thumbnailSize.width * thumbnailSize.height
+        let maxPixel = MAXPixel / 4
+        if pixel > maxPixel {
+            thumbnailSize.width = maxPixel / pixel * thumbnailSize.width
+            thumbnailSize.height = maxPixel / pixel * thumbnailSize.height
+        }
         return thumbnailSize
     }
     

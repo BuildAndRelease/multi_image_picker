@@ -17,6 +17,7 @@ public class MediaThumbData {
         void mediaThumbDataDidFinish(byte[] byteBuffer);
     }
 
+    private static int thumbMAXPixel = 5000000;
     private String identify;
     private String fileType;
     private Context context;
@@ -71,7 +72,7 @@ public class MediaThumbData {
                     }else if (fileType.contains("image")) {
                         Bitmap bitmap;
                         if (!TextUtils.isEmpty(originPath) && isPNG) {
-                            bitmap = BitmapFactory.decodeFile(originPath);
+                            bitmap = filePathToBitMap(originPath);
                         }else {
                             bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Long.parseLong(identify), MediaStore.Images.Thumbnails.MINI_KIND, null);
                         }
@@ -88,6 +89,34 @@ public class MediaThumbData {
                 }
             }
         }).start();
+    }
+
+    private Bitmap filePathToBitMap(String filePath) {
+        Bitmap bitmap;
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filePath, opts);
+        float imageHeight = opts.outHeight;
+        float imageWidth = opts.outWidth;
+        float pixel = imageHeight * imageWidth;
+        Float inSampleSize = 1.0f;
+        if (pixel > thumbMAXPixel) {
+            imageHeight = thumbMAXPixel / pixel * imageHeight;
+            inSampleSize = opts.outHeight / imageHeight;
+        }
+        if (inSampleSize > 1) opts.inSampleSize = inSampleSize.intValue();
+        opts.inJustDecodeBounds = false;
+        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        bitmap = BitmapFactory.decodeFile(filePath, opts);
+        if (bitmap == null) {
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            bitmap = BitmapFactory.decodeFile(filePath, opts);
+        }
+        if (bitmap == null) {
+            opts.inPreferredConfig = Bitmap.Config.ARGB_4444;
+            bitmap = BitmapFactory.decodeFile(filePath, opts);
+        }
+        return bitmap;
     }
 
     private void fetchThumbnailFinish(final byte[] bytes) {

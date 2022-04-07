@@ -378,13 +378,15 @@ public class MediaCompress {
                     float imageHeight = options.outHeight;
                     float imageWidth = options.outWidth;
                     float pixel = imageHeight * imageWidth;
+                    Float inSampleSize = 1.0f;
                     if (pixel > MAXPixel) {
                         imageHeight = MAXPixel / pixel * imageHeight;
                         imageWidth = MAXPixel / pixel * imageWidth;
+                        inSampleSize = options.outHeight / imageHeight;
                     }
                     if (thumb) {
                         if (fileSize > 30 * 1024 * 1024 || fileSize <= 300 * 1024 || pixel > MAXPixel) {
-                            compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
+                            compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80, inSampleSize.intValue());
                         }else {
                             List<File> compressPicFiles = Luban.with(context).load(media.getOriginPath()).ignoreBy(300).get();
                             if (compressPicFiles != null && !compressPicFiles.isEmpty()) {
@@ -392,7 +394,7 @@ public class MediaCompress {
                             }
                         }
                     }else {
-                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80);
+                        compressPicFile = compressImage(new File(media.getOriginPath()), tmpPic, imageWidth, imageHeight, 80, inSampleSize.intValue());
                     }
                 }
 
@@ -405,7 +407,7 @@ public class MediaCompress {
 
                     if (!checkPic.exists()) {
                         if (compressPicFile.exists() && imageHeight * imageWidth > 312*312) {
-                            compressImage(compressPicFile, checkPic, 312, 312, 100);
+                            compressImage(compressPicFile, checkPic, 312, 312, 100, 1);
                         }else {
                             copyFile(compressPicFile, checkPic);
                         }
@@ -524,10 +526,11 @@ public class MediaCompress {
         return bytes;
     }
 
-    private File compressImage(File fromFile, File toFile, double width, double height, int quality) throws Exception {
+    private File compressImage(File fromFile, File toFile, double width, double height, int quality, int insampleSize) throws Exception {
         if (!fromFile.exists()) return toFile;
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = false;
+        if (insampleSize > 1) opts.inSampleSize = insampleSize;
         opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Bitmap bitmap = BitmapFactory.decodeFile(fromFile.getAbsolutePath(), opts);
         if (bitmap == null) {
@@ -578,7 +581,6 @@ public class MediaCompress {
         }
 
         if (toFile.exists()) toFile.delete();
-
         FileOutputStream out = new FileOutputStream(toFile);
         try {
             resizeBitmap.compress((!TextUtils.isEmpty(opts.outMimeType) && opts.outMimeType.toLowerCase().contains("png")) ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, quality, out);
@@ -591,11 +593,8 @@ public class MediaCompress {
         }
 //        处理图片原图大小不超过32MB、宽高不超过30000像素且总像素不超过2.5亿像素，
 //        处理结果图宽高设置不超过9999像素；针对动图，原图宽 x 高 x 帧数不超过2.5亿像素
-        if (!toFile.canRead() && fromFile.length() < 32 * 1024 * 1024) {
-            copyFile(fromFile, toFile);
-        }
+        if (!toFile.canRead() && fromFile.length() < 32 * 1024 * 1024) copyFile(fromFile, toFile);
         if(resizeBitmap != null && !resizeBitmap.isRecycled()) resizeBitmap.recycle();
-
         return toFile;
     }
 

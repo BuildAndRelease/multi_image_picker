@@ -100,7 +100,7 @@ final class DataCenter {
                     index = assets.index(of: asset)
                 }
             }else {
-                for i in 0 ..< assets.count {
+                for i in stride(from: assets.count - 1, through: 0, by: -1) {
                     let asset = assets.object(at: i)
                     if asset.localIdentifier == defaultSelectMedia {
                         index = i
